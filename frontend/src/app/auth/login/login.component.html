@@ -1,0 +1,30 @@
+<div class="login-container">
+  <app-toast
+    [show]="showToast"
+    [message]="toastMessage"
+    [type]="toastType"
+    (closed)="showToast = false">
+  </app-toast>
+  <h2>Inicio de sesión</h2>
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <label>
+      <span>Nombre de usuario</span>
+      <input formControlName="username" placeholder="Tu usuario" />
+    </label>
+    <label>
+      <span>Contraseña</span>
+      <div class="input-eye-row">
+        <input
+          [type]="showPassword ? 'text' : 'password'"
+          formControlName="password"
+          placeholder="Contraseña"
+        />
+        <button type="button" class="eye-btn" (click)="showPassword = !showPassword" tabindex="-1">
+          <svg *ngIf="!showPassword" xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24"><path stroke="#888" stroke-width="2" d="M1 12S5 5 12 5s11 7 11 7-4 7-11 7S1 12 1 12Z"/><circle cx="12" cy="12" r="3" stroke="#888" stroke-width="2"/></svg>
+          <svg *ngIf="showPassword" xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24"><path stroke="#888" stroke-width="2" d="M17.94 17.94C16.12 19.13 14.13 19.77 12 19.77c-7 0-11-7-11-7a20.87 20.87 0 0 1 4.31-5.12M6.06 6.06C7.88 4.87 9.87 4.23 12 4.23c7 0 11 7 11 7a20.87 20.87 0 0 1-4.31 5.12M1 1l22 22"/></svg>
+        </button>
+      </div>
+    </label>    
+    <button type="submit">Login</button>
+  </form>
+</div>

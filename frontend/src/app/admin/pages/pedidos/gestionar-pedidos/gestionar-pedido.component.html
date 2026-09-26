@@ -1,0 +1,54 @@
+<body *ngIf="pedidos">
+  <div class="ps-5 pe-5 pb-0 pt-3">
+      <div class="d-flex justify-content-between align-items-center mt-3 mb-0 me-3 ms-3">
+          <div>
+              <h2 style="color: #176029;" class="mt-3">Pedidos</h2>
+          </div>
+          <div>
+              <button [routerLink]="['../crear-pedido']" 
+                  style="background-color: #176029; color: #f1f2f6; cursor: pointer;" class="btn ms-3">+</button>
+              <button [routerLink]="['../']" 
+                  style="background-color: #f1f2f6; color: #176029; border-color: #176029; border-width: 2px;" 
+                  class="btn ms-3"><i class="bi bi-arrow-90deg-left"></i></button>
+          </div>
+      </div>
+  </div>
+  <hr style="margin-left: 30px; margin-top: 0%; margin-right: 30px;">
+  <div class="table-container ps-5 pe-5">
+      <table class="table table-striped shadow">
+          <thead>
+              <tr>
+                  <th style="background-color: #bccdd9; color: #176029;" class="ps-4" scope="col">Usuario</th>
+                  <th style="background-color: #bccdd9; color: #176029;" scope="col">Mesa</th>
+                  <th style="background-color: #bccdd9; color: #176029;" scope="col">Estado</th>
+                  <th style="background-color: #bccdd9; color: #176029;" scope="col">Fecha</th>
+                  <th style="background-color: #bccdd9; color: #176029;" scope="col">Total</th>
+                  <th style="background-color: #bccdd9; color: #176029;" scope="col"></th>
+              </tr>
+          </thead>
+          <tbody *ngIf="pedidos.length > 0; else sinPedidos">
+            <tr *ngFor="let pedido of pedidos">
+                <td>{{ pedido.usuario?.username || 'Usuario no encontrado' }}</td>
+                <td>{{ pedido.mesa?.codigoqr || 'Mesa no encontrada' }}</td>              
+                <td>{{ pedido.estado }}</td>
+                <td>{{ pedido.fecha }}</td>
+                <td>{{ pedido.total }}</td>
+                
+                <td class="border-start text-center" id="acciones">
+                    <i [routerLink]="['/admin/ver-pedido', pedido.id]" class="bi bi-eye me-2" 
+                        style="color: #176029; cursor: pointer;"></i>
+                    <i [routerLink]="['/admin/editar-pedido', pedido.id]" class="bi bi-pencil-square me-2"
+                        style="color: #176029; cursor: pointer;"></i> 
+                    <i (click)="borrarPedido(pedido)" class="bi bi-trash3-fill"
+                        style="color: #176029; cursor: pointer;"></i>
+                </td>
+              </tr>
+          </tbody>
+          <ng-template #sinPedidos>
+              <tr>
+                <td colspan="3" class="text-center">No hay pedidos registrados.</td>
+              </tr>
+          </ng-template>
+      </table>
+  </div>
+</body>

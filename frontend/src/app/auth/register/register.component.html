@@ -1,0 +1,108 @@
+<div class="register-container">
+  <app-toast
+    [show]="showToast"
+    [message]="toastMessage"
+    [type]="toastType"
+    (closed)="showToast = false">
+  </app-toast>
+
+  <h2>Registro</h2>
+  <form #registerForm="ngForm" (ngSubmit)="onSubmit()">
+    <label>
+      <span>Nombre de usuario</span>
+      <input type="text" [(ngModel)]="form.username" name="username" 
+             #username="ngModel" required minlength="3"
+             placeholder="Usuario"
+             [class.is-invalid]="username.invalid && (username.dirty || username.touched)">
+      <div *ngIf="username.errors?.['required'] && (username.dirty || username.touched)" class="invalid-feedback">
+        El nombre de usuario es requerido
+      </div>
+      <div *ngIf="username.errors?.['minlength'] && (username.dirty || username.touched)" class="invalid-feedback">
+        Mínimo 3 caracteres
+      </div>
+      <div *ngIf="usernameTaken" class="invalid-feedback">
+        Este usuario ya está registrado
+      </div>
+    </label>
+
+    <label>
+      <span>Correo</span>
+      <input type="email" [(ngModel)]="form.email" name="email" 
+             #email="ngModel" required pattern="[^@]+@[^@]+\.[a-zA-Z]{2,6}"
+             placeholder="Correo"
+             [class.is-invalid]="email.invalid && (email.dirty || email.touched)">
+      <div *ngIf="email.errors?.['required'] && (email.dirty || email.touched)" class="invalid-feedback">
+        El correo es requerido
+      </div>
+      <div *ngIf="email.errors?.['pattern'] && (email.dirty || email.touched)" class="invalid-feedback">
+        Formato de correo inválido
+      </div>
+    </label>
+
+    <label>
+      <span>Contraseña</span>
+      <div class="input-eye-row">
+        <input
+          [type]="showPassword ? 'text' : 'password'"
+          [(ngModel)]="form.password"
+          name="password"
+          #password="ngModel"
+          required
+          pattern="^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}$"
+          placeholder="Contraseña"
+          [class.is-invalid]="password.invalid && (password.dirty || password.touched)">
+        <button type="button" class="eye-btn" (click)="showPassword = !showPassword" tabindex="-1">
+          <svg *ngIf="!showPassword" xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24"><path stroke="#888" stroke-width="2" d="M1 12S5 5 12 5s11 7 11 7-4 7-11 7S1 12 1 12Z"/><circle cx="12" cy="12" r="3" stroke="#888" stroke-width="2"/></svg>
+          <svg *ngIf="showPassword" xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24"><path stroke="#888" stroke-width="2" d="M17.94 17.94C16.12 19.13 14.13 19.77 12 19.77c-7 0-11-7-11-7a20.87 20.87 0 0 1 4.31-5.12M6.06 6.06C7.88 4.87 9.87 4.23 12 4.23c7 0 11 7 11 7a20.87 20.87 0 0 1-4.31 5.12M1 1l22 22"/></svg>
+        </button>
+      </div>
+      <div *ngIf="password.errors?.['required'] && (password.dirty || password.touched)" class="invalid-feedback">
+        La contraseña es requerida
+      </div>
+      <div *ngIf="password.errors?.['pattern'] && (password.dirty || password.touched)" class="invalid-feedback">
+        Mínimo 8 caracteres, 1 número, 1 mayúscula y 1 minúscula
+      </div>
+    </label>
+    
+    <label>
+      <span>Repetir Contraseña</span>
+      <div class="input-eye-row">
+        <input [type]="showConfirmPassword ? 'text' : 'password'"
+               [(ngModel)]="confirmPassword"
+               name="confirmPassword"
+               #confirmPasswordCtrl="ngModel"
+               required
+               placeholder="Repite tu contraseña"
+               [class.is-invalid]="(confirmPasswordCtrl.invalid || form.password !== confirmPassword) && (confirmPasswordCtrl.dirty || confirmPasswordCtrl.touched)">
+        <button type="button" class="eye-btn" (click)="showConfirmPassword = !showConfirmPassword" tabindex="-1">
+          <svg *ngIf="!showConfirmPassword" xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="none" viewBox="0 0 24 24"><path stroke="#888" stroke-width="2" d="M1 12S5 5 12 5s11 7 11 7-4 7-11 7S1 12 1 12Z"/><circle cx="12" cy="12" r="3" stroke="#888" stroke-width="2"/></svg>
+          <svg *ngIf="showConfirmPassword" xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="none" viewBox="0 0 24 24"><path stroke="#888" stroke-width="2" d="M17.94 17.94C16.12 19.13 14.13 19.77 12 19.77c-7 0-11-7-11-7a20.87 20.87 0 0 1 4.31-5.12M6.06 6.06C7.88 4.87 9.87 4.23 12 4.23c7 0 11 7 11 7a20.87 20.87 0 0 1-4.31 5.12M1 1l22 22"/></svg>
+        </button>
+      </div>
+      <div *ngIf="confirmPasswordCtrl.errors?.['required'] && (confirmPasswordCtrl.dirty || confirmPasswordCtrl.touched)" class="invalid-feedback">
+        Debes repetir la contraseña
+      </div>
+      <div *ngIf="form.password !== confirmPassword && confirmPasswordCtrl.touched" class="invalid-feedback">
+        Las contraseñas no coinciden
+      </div>
+    </label>
+
+    <label class="checkbox-politicas">
+      <input
+        type="checkbox"
+        name="politicas"
+        [(ngModel)]="aceptaPoliticas"
+        required
+        #politicas="ngModel"
+      >
+      <span>
+        Acepto la <a href="/politica-privacidad" target="_blank">Política de Privacidad</a> y los <a href="/terminos-condiciones" target="_blank">Términos y Condiciones</a>
+      </span>
+    </label>
+    <div *ngIf="politicas.invalid && (politicas.dirty || politicas.touched)" class="invalid-feedback">
+      Debes aceptar las políticas para registrarte.
+    </div>
+
+    <button type="submit" [disabled]="registerForm.invalid || form.password !== confirmPassword || !aceptaPoliticas"> Registrarse </button>
+  </form>
+</div>

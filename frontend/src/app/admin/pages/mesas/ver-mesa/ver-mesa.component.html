@@ -1,0 +1,31 @@
+<body *ngIf="mesa">
+    <div class="ps-5 pe-5 pb-0 pt-3">
+        <div class="d-flex justify-content-between align-items-center mt-3 mb-0 me-3 ms-3">
+            <div>
+                <h2 style="color: #003d5a;" class="mt-3">Mesa {{ mesa.id }}</h2>
+            </div>
+            <div>
+                <button [routerLink]="['/admin/gestionar-mesas']" 
+                    style="background-color: #f1f2f6; color: #003d5a; border-color: #003d5a; border-width: 2px;" 
+                    class="btn ms-3"><i class="bi bi-arrow-90deg-left"></i></button>
+            </div>
+        </div>
+    </div>
+    <hr style="margin-left: 30px; margin-top: 0%; margin-right: 30px;">
+    <div class="table-container ps-5 pe-5">
+        <table class="table table-striped shadow">
+            <thead>
+                <tr>
+                    <th style="background-color: #bccdd9; color: #003d5a;" class="ps-4" scope="col">Código QR</th>
+                    <th style="background-color: #bccdd9; color: #003d5a;" scope="col">Estado</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td style="color: rgb(84, 84, 84);" class="ps-4" scope="row">{{ mesa.codigoqr }}</td>
+                    <td style="color: rgb(84, 84, 84);">{{ mesa.estado }}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</body>

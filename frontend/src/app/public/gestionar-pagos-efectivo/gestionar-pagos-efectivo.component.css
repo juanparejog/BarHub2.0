@@ -1,0 +1,86 @@
+.titulo-pagos {
+  text-align: center;
+  margin: 40px 0 10px 0;
+  font-size: 2.7rem;
+  color: #fff;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  text-shadow: 2px 2px 10px #1B1B1B99;
+  background: none;
+  width: 100%;
+  }
+  .sinPagos {
+    text-align: center;
+    margin: 40px 0 10px 0;
+    font-size: 1.5rem;
+    color: #fff;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    text-shadow: 2px 2px 10px #1B1B1B99;
+    background: none;
+    width: 100%;
+  }
+  .pago-card {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(23,96,41,0.08);
+    margin: 24px auto;
+    padding: 20px 24px;
+    width: 90%;
+    max-width: 600px;
+  }
+  .pago-header {
+    font-size: 1.2rem;
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .estado-pago.pendiente {
+    background: #fdf6e3;
+    color: #e67e22;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-weight: bold;
+    font-size: 1rem;
+  }
+  .pago-info {
+    margin-bottom: 12px;
+  }
+  .pago-detalles table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 12px;
+  }
+  .pago-detalles th, .pago-detalles td {
+    padding: 8px 10px;
+    border-bottom: 1px solid #e0e0e0;
+    text-align: left;
+  }
+  .pago-detalles th {
+    background: #f7f7f7;
+    font-weight: 600;
+  }
+  .pago-detalles tr:last-child td {
+    border-bottom: none;
+  }
+  .btn-completar {
+    background: #2ecc71;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 10px 22px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .btn-completar:hover {
+    background: #27ae60;
+  }
+  .sin-pagos {
+    text-align: center;
+    color: #888;
+    font-size: 1.1rem;
+    margin: 40px 0;
+  }  

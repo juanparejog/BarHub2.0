@@ -1,0 +1,73 @@
+:host {
+    display: block;
+    max-width: 680px;
+    margin: 40px auto 60px auto;
+    padding: 32px 24px;
+    background: #f7fafd;
+    border-radius: 18px;
+    box-shadow: 0 6px 32px rgba(10,35,66,0.10);
+    font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
+    color: #0a2342;
+  }
+  
+  h1 {
+    font-size: 2.2rem;
+    font-weight: bold;
+    letter-spacing: .5px;
+    margin-bottom: 18px;
+    color: #183153;
+    text-align: center;
+    text-shadow: 0 1px 0 #fff;
+  }
+  
+  h2 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #2a4e7e;
+    margin-top: 26px;
+    margin-bottom: 8px;
+    border-left: 4px solid #4a6782;
+    padding-left: 10px;
+  }
+  
+  ul, ol {
+    margin: 0 0 16px 22px;
+    padding: 0;
+    color: #1b2d44;
+    font-size: 1rem;
+  }
+  
+  li {
+    margin-bottom: 7px;
+  }
+  
+  p {
+    margin: 0 0 14px 0;
+    line-height: 1.7;
+    font-size: 1.05rem;
+  }
+  
+  a {
+    color: #2a7ae4;
+    text-decoration: underline;
+    transition: color 0.2s;
+  }
+  a:hover {
+    color: #0a2342;
+    text-decoration: none;
+  }
+  
+  @media (max-width: 700px) {
+    :host {
+      max-width: 98vw;
+      padding: 16px 4vw;
+      font-size: 0.98rem;
+    }
+    h1 {
+      font-size: 1.5rem;
+    }
+    h2 {
+      font-size: 1.05rem;
+    }
+  }
+  

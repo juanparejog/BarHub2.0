@@ -1,0 +1,25 @@
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<h2 class="titulo-mesas">Gestión de Mesas</h2>
+<div class="mesas-grid">
+  <div *ngFor="let mesa of mesas" class="mesa-card" [ngClass]="mesa.estado">
+    <div class="mesa-header">
+      <span class="mesa-icon material-icons">
+        {{ getIconForEstado(mesa.estado) }}
+      </span>
+      <span class="mesa-num">Mesa {{ mesa.codigoqr || mesa.id }}</span>
+    </div>
+    <div class="mesa-estado">
+      Estado: <strong>{{ getLabelForEstado(mesa.estado) }}</strong>
+    </div>
+    <div class="mesa-actions">
+      <button 
+        *ngFor="let estado of estados" 
+        [disabled]="mesa.estado === estado.value"
+        [ngClass]="estado.value"
+        (click)="setEstado(mesa, estado.value)">
+        <span class="material-icons">{{ estado.icon }}</span>
+        {{ estado.label }}
+      </button>
+    </div>
+  </div>
+</div>

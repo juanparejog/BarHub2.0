@@ -1,0 +1,63 @@
+<app-toast
+  [show]="showToast"
+  [message]="toastMessage"
+  [type]="toastType"
+  (closed)="showToast = false">
+</app-toast>
+
+<div class="confirmar-pedido" *ngIf="pedidoTemporal">
+    <h2>Confirmar Pedido</h2>
+    
+    <div class="info-mesa">
+      <h3>Mesa #{{ pedidoTemporal.idMesa }}</h3>
+    </div>
+    
+    <div class="detalles-pedido">
+      <h3>Productos seleccionados</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Producto</th>
+            <th>Precio unitario</th>
+            <th>Cantidad</th>
+            <th>Subtotal</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of pedidoTemporal.productos">
+            <td>{{ item.producto.nombre }}</td>
+            <td>{{ item.producto.precio | currency:'EUR' }}</td>
+            <td>{{ item.cantidad }}</td>
+            <td>{{ item.producto.precio * item.cantidad | currency:'EUR' }}</td>
+          </tr>
+        </tbody>
+        <tfoot>
+          <tr>
+            <td colspan="3" class="total-label">Total</td>
+            <td class="total-valor">{{ calcularTotal() | currency:'EUR' }}</td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+    <div class="metodo-pago-section">
+      <label class="metodo-pago-label">Método de pago:</label>
+      <div class="metodo-pago-radios">
+        <label>
+          <input type="radio" name="metodoPago" [(ngModel)]="metodoPago" value="efectivo">
+          Efectivo
+        </label>
+        <label>
+          <input type="radio" name="metodoPago" [(ngModel)]="metodoPago" value="tarjeta" (change)="onTarjetaSelected()">
+          Tarjeta
+        </label>
+      </div>
+    </div>
+    <div class="tarjeta-form" *ngIf="metodoPago === 'tarjeta'">
+      <div id="card-element"></div>
+      <div class="card-errors" role="alert">{{ cardErrors }}</div>
+    </div>
+    <div class="acciones">
+      <button class="cancelar-btn" (click)="cancelarPedido()">Cancelar</button>
+      <button class="finalizar-btn" (click)="finalizarPedido()">Finalizar Pedido</button>
+    </div>
+</div>  

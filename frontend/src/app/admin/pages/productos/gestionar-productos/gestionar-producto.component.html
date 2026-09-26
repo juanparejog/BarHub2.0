@@ -1,0 +1,54 @@
+<body *ngIf="productos">
+    <div class="ps-5 pe-5 pb-0 pt-3">
+        <div class="d-flex justify-content-between align-items-center mt-3 mb-0 me-3 ms-3">
+            <div>
+                <h2 style="color: #176029;" class="mt-3">Productos</h2>
+            </div>
+            <div>
+                <button [routerLink]="['../crear-producto']" 
+                    style="background-color: #176029; color: #f1f2f6; cursor: pointer;" class="btn ms-3">+</button>
+                <button [routerLink]="['../']" 
+                    style="background-color: #f1f2f6; color: #176029; border-color: #176029; border-width: 2px;" 
+                    class="btn ms-3"><i class="bi bi-arrow-90deg-left"></i></button>
+            </div>
+        </div>
+    </div>
+    <hr style="margin-left: 30px; margin-top: 0%; margin-right: 30px;">
+    <div class="table-container ps-5 pe-5">
+        <table class="table table-striped shadow">
+            <thead>
+                <tr>
+                    <th style="background-color: #bccdd9; color: #176029;" class="ps-4" scope="col">NOMBRE</th>
+                    <th style="background-color: #bccdd9; color: #176029;" class="ps-4" scope="col">DESCRIPCIÓN</th>
+                    <th style="background-color: #bccdd9; color: #176029;" class="ps-4" scope="col">PRECIO</th>
+                    <th style="background-color: #bccdd9; color: #176029;" class="ps-4" scope="col">TIPO</th>
+                    <th style="background-color: #bccdd9; color: #176029;" class="ps-4" scope="col">IMAGEN</th>
+                    <th style="background-color: #bccdd9; color: #176029;" scope="col"></th>
+                </tr>
+            </thead>
+            <tbody *ngIf="productos.length > 0; else sinProductos">
+                <tr *ngFor="let producto of productos">
+                    <td style="color: rgb(84, 84, 84);" class="ps-4" scope="row">{{producto.nombre}}</td>
+                    <td style="color: rgb(84, 84, 84);" class="ps-4" scope="row">{{producto.descripcion}}</td>
+                    <td style="color: rgb(84, 84, 84);" class="ps-4" scope="row">{{producto.precio}}</td>
+                    <td style="color: rgb(84, 84, 84);" class="ps-4" scope="row">{{producto.tipoProducto}}</td>
+                    <td style="color: rgb(84, 84, 84);" class="ps-4" scope="row">{{producto.imagen}}</td>
+                    
+                    <td class="border-start text-center" id="acciones">
+                        <i [routerLink]="['/admin/ver-producto', producto.id]" class="bi bi-eye me-2" 
+                            style="color: #176029; cursor: pointer;"></i>
+                        <i [routerLink]="['/admin/editar-productos', producto.id]" class="bi bi-pencil-square me-2"
+                            style="color: #176029; cursor: pointer;"></i> 
+                        <i (click)="borrarProducto(producto)" class="bi bi-trash3-fill"
+                            style="color: #176029; cursor: pointer;"></i>
+                    </td>
+                </tr>
+            </tbody>
+            <ng-template #sinProductos>
+                <tr>
+                  <td colspan="3" class="text-center">No hay productos registrados.</td>
+                </tr>
+            </ng-template>
+        </table>
+    </div>
+</body>

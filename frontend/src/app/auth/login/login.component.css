@@ -1,0 +1,123 @@
+body {
+    background: linear-gradient(120deg, #4f8cff 0%, #a6ffcb 100%);
+    min-height: 100vh;
+    margin: 0;
+    font-family: 'Segoe UI', Arial, sans-serif;
+  }
+  
+  .login-container {
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(31, 38, 135, 0.2);
+    padding: 40px 32px;
+    max-width: 350px;
+    margin: 80px auto;
+    text-align: center;
+    animation: fadeIn 1s;
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-40px);}
+    to { opacity: 1; transform: translateY(0);}
+  }
+  
+  h2 {
+    margin-bottom: 24px;
+    color: #4f8cff;
+    letter-spacing: 1px;
+  }
+  
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+  
+  label {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    font-weight: 500;
+    color: #333;
+  }
+  
+  label span {
+    margin-bottom: 6px;
+    font-size: 15px;
+  }
+  
+  input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1.5px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 15px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    outline: none;
+    background: #f8faff;
+  }
+  
+  input:focus {
+    border-color: #4f8cff;
+    box-shadow: 0 0 0 2px #4f8cff33;
+  }
+  
+  button {
+    margin-top: 10px;
+    padding: 10px 0;
+    width: 100%;
+    background: linear-gradient(90deg, #4f8cff 0%, #6fd6ff 100%);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    cursor: pointer;
+    box-shadow: 0 2px 8px #4f8cff33;
+    transition: background 0.2s, transform 0.1s;
+  }
+  
+  button:hover {
+    background: linear-gradient(90deg, #3a6edc 0%, #4f8cff 100%);
+    transform: translateY(-2px) scale(1.03);
+  }
+  
+  .input-eye-row {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    gap: 4px;
+  }
+  
+  .input-eye-row input {
+    flex: 1 1 auto;
+    min-width: 0;
+    height: 38px;
+    font-size: 15px;
+    padding: 8px 10px;
+    box-sizing: border-box;
+  }
+  
+  .eye-btn {
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    height: 22px;
+    width: 22px;
+    min-width: 0;
+    min-height: 0;
+    box-shadow: none;
+    outline: none;
+  }
+  
+  .eye-btn svg {
+    width: 14px;
+    height: 14px;
+    display: block;
+  }
+  

@@ -1,0 +1,103 @@
+h2 {
+  text-align: center;
+  margin: 40px 0 10px 0;
+  font-size: 2.7rem;
+  color: #fff;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  text-shadow: 2px 2px 10px #1B1B1B99;
+  background: none;
+  width: 100%;
+  }
+  .sinPedidos {
+    text-align: center;
+    margin: 40px 0 10px 0;
+    font-size: 1.5rem;
+    color: #fff;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    text-shadow: 2px 2px 10px #1B1B1B99;
+    background: none;
+    width: 100%;
+  }
+  .pedido-card {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.07);
+    margin: 24px 0;
+    padding: 20px 20px 10px 20px;
+  }
+  
+  .pedido-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  
+  .estado {
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-weight: bold;
+    background: #e3f2fd;
+    color: #1976d2;
+    margin-left: 8px;
+  }
+  
+  .fecha {
+    color: #888;
+    margin-right: 15px;
+  }
+  
+  .total {
+    font-weight: bold;
+    color: #2e7d32;
+  }
+  
+  .pedido-detalles table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+  }
+  
+  .pedido-detalles th, .pedido-detalles td {
+    padding: 8px 10px;
+    border-bottom: 1px solid #e0e0e0;
+    text-align: left;
+  }
+  
+  .pedido-detalles th {
+    background: #f7f7f7;
+    font-weight: 600;
+  }
+  
+  .pedido-detalles tr:last-child td {
+    border-bottom: none;
+  }  
+
+  .btn-ocultar, .btn-eliminar {
+    margin-left: 10px;
+    padding: 4px 12px;
+    border: none;
+    border-radius: 4px;
+    font-size: 0.95em;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .btn-ocultar {
+    background: #f1c40f;
+    color: #fff;
+  }
+  .btn-ocultar:hover {
+    background: #f39c12;
+  }
+  .btn-eliminar {
+    background: #e74c3c;
+    color: #fff;
+  }
+  .btn-eliminar:hover {
+    background: #c0392b;
+  }
+  

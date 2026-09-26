@@ -1,0 +1,66 @@
+.titulo-comandas {
+  text-align: center;
+  margin: 40px 0 10px 0;
+  font-size: 2.7rem;
+  color: #fff;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  text-shadow: 2px 2px 10px #1B1B1B99;
+  background: none;
+  width: 100%;
+  }
+  .sinComandas {
+    text-align: center;
+    margin: 40px 0 10px 0;
+    font-size: 1.5rem;
+    color: #fff;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    text-shadow: 2px 2px 10px #1B1B1B99;
+    background: none;
+    width: 100%;
+  }
+
+  .comanda-card {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(23,96,41,0.08);
+    margin: 24px auto;
+    padding: 20px 24px;
+    width: 90%;
+    max-width: 600px;
+  }
+  .comanda-header {
+    font-size: 1.2rem;
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .estado-pedido.pendiente { background: #fdf6e3; color: #e67e22; padding: 4px 10px; border-radius: 6px; font-weight: bold;}
+  .estado-pedido.preparado { background: #e3f2fd; color: #3498db; padding: 4px 10px; border-radius: 6px; font-weight: bold;}
+  .estado-pedido.servido   { background: #eafaf1; color: #218838; padding: 4px 10px; border-radius: 6px; font-weight: bold;}
+  .comanda-info { margin-bottom: 12px; }
+  .comanda-detalles table { width: 100%; border-collapse: collapse; margin-bottom: 12px; }
+  .comanda-detalles th, .comanda-detalles td { padding: 8px 10px; border-bottom: 1px solid #e0e0e0; text-align: left; }
+  .comanda-detalles th { background: #f7f7f7; font-weight: 600; }
+  .comanda-detalles tr:last-child td { border-bottom: none; }
+  .comanda-actions { display: flex; gap: 10px; }
+  .comanda-actions button {
+    border: none;
+    border-radius: 6px;
+    padding: 8px 18px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .comanda-actions button.pendiente { background: #fff4e6; color: #e67e22; }
+  .comanda-actions button.preparado { background: #e3f2fd; color: #3498db; }
+  .comanda-actions button.servido   { background: #eafaf1; color: #218838; }
+  .comanda-actions button:disabled { opacity: 0.7; cursor: not-allowed; border: 1.5px dashed #ccc; }
+  .sin-comandas { text-align: center; color: #888; font-size: 1.1rem; margin: 40px 0; }  
+
+.estado-pedido.pendiente { background: #fdf6e3; color: #e67e22; }
+.estado-pedido.preparado { background: #e3f2fd; color: #3498db; }
+.estado-pedido.servido   { background: #eafaf1; color: #218838; }

@@ -1,0 +1,58 @@
+<style>
+    input {
+        border: 1px solid #97b5c8;
+        background-color: #eff2f9;
+    }
+
+    #guardar {
+        background-color: #fab43d;
+    }
+
+    #volver {
+        background-color: #97b5c8;
+    }
+</style>
+
+<div class="row m-auto w-75 pt-5">
+    <form (ngSubmit)="guardar()" [formGroup]="formulario" class="container">
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Estado</label>
+          <select formControlName="estado" class="form-select">
+            <option value="pendiente">Pendiente</option>
+            <option value="completado">Completado</option>
+            <option value="cancelado">Cancelado</option>
+          </select>
+        </div>
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Fecha</label>
+          <input type="date" formControlName="fecha" class="form-control">
+        </div>
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Total</label>
+          <input type="number" formControlName="total" class="form-control">
+        </div>
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Usuario</label>
+          <select formControlName="id_user" class="form-select">
+            <option *ngFor="let user of users" [ngValue]="user.id">
+              {{ user.nombre }} (ID: {{ user.id }})
+            </option>
+          </select>
+        </div>
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Mesa</label>
+          <select formControlName="id_mesa" class="form-select">
+            <option *ngFor="let mesa of mesas" [ngValue]="mesa.id">
+              Mesa {{ mesa.id }} - {{ mesa.codigoqr }}
+            </option>
+          </select>
+        </div>
+      </div>
+      <div class="d-flex justify-content-end mt-4">
+        <button type="button" class="btn btn-secondary me-2" 
+                routerLink="/admin/gestionar-pedidos">Volver</button>
+        <button type="submit" class="btn btn-primary">Guardar</button>
+      </div>
+    </form> 
+</div>

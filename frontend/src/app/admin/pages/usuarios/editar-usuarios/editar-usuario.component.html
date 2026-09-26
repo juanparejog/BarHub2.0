@@ -1,0 +1,94 @@
+<style>
+    input {
+        border: 1px solid #97b5c8;
+        background-color: #eff2f9;
+    }
+
+    #guardar {
+        background-color: #fab43d;
+    }
+
+    #volver {
+        background-color: #97b5c8;
+    }
+    
+    .rol-admin {
+      background-color: #f28b82;
+      color: #000;
+      border-radius: 10px;
+    }
+
+    .rol-cliente {
+      background-color: #fdd663;
+      color: #000;
+      border-radius: 10px;
+    }
+
+    .rol-empleado {
+      background-color: #81c995;
+      color: #000;
+      border-radius: 10px;
+    }
+    
+</style>
+
+<div class="row m-auto w-75 pt-5">
+
+    <form (ngSubmit)="guardar()" [formGroup]="formulario" class="container" autocomplete="off">
+
+        <div class="mx-auto">
+            <input id="id" name="id" type="hidden" [value]="formulario.get('id')?.value || -1">
+        </div>
+
+        <div class="row">
+            <div class="col-md-12 mb-3">
+                <label for="username" class="form-label">Nombre:</label>
+                <input formControlName="username" type="text" class="form-control" id="username">
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12 mb-3">
+                <label for="email" class="form-label">Email:</label>
+                <input formControlName="email" type="email" class="form-control" id="email">
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12 mb-3">
+                <label for="password" class="form-label">Contraseña:</label>
+                <input formControlName="password" type="password" class="form-control" id="password">
+            </div>
+        </div>        
+
+        <div class="row">
+            <div class="col-md-12 mb-3">
+                <label class="form-label">Roles:</label>
+                <div class="d-flex flex-wrap gap-2">
+                    <div *ngFor="let rol of rolesDisponibles" class="form-check form-check-inline">
+                        <input 
+                          type="checkbox" 
+                          class="form-check-input"
+                          [checked]="isRoleChecked(rol)"
+                          (change)="toggleRol(rol)"
+                          id="rol-{{rol.id}}"
+                        >
+                        <label 
+                          class="form-check-label px-2 py-1 rounded"
+                          [ngClass]="getRolClass(rol.nombre)"
+                          for="rol-{{rol.id}}"
+                        >
+                          {{ formatearNombreRol(rol.nombre) }}
+                        </label>
+                      </div>                      
+                </div>
+                <small class="text-muted">Selecciona uno o varios roles para este usuario.</small>
+            </div>
+        </div>
+    </form>
+
+    <div class="d-flex justify-content-end">
+        <button id="volver" class="btn me-1 mt-4" routerLink="/admin/gestionar-usuarios">Volver</button>
+        <button id="guardar" class="btn ms-1 mt-4" (click)="guardar();">Guardar</button>
+    </div>
+</div>

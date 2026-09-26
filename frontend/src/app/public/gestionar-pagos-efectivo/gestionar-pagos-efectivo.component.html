@@ -1,0 +1,40 @@
+<h2 class="titulo-pagos">Pagos Pendientes en Efectivo</h2>
+<div *ngIf="pagos.length === 0" class="sin-pagos">
+  <p class="sinPagos">No hay pagos pendientes en efectivo.</p>
+</div>
+
+<ng-container *ngFor="let pago of pagos">
+  <div *ngIf="pago.estado_pago === 'pendiente' && pago.metodo_pago === 'efectivo'" class="pago-card">
+    <div class="pago-header">
+      <strong>Pedido #{{ pago.pedido.id }}</strong> - {{ pago.pedido.fecha | date:'dd/MM/yyyy HH:mm' }}
+      <span class="estado-pago pendiente">Pendiente</span>
+    </div>
+    <div class="pago-info">
+      <p><strong>Total:</strong> {{ pago.total | currency:'EUR':'symbol':'1.2-2' }}</p>
+      <p><strong>Método:</strong> {{ pago.metodo_pago | titlecase }}</p>
+    </div>
+    <div class="pago-detalles">
+      <table>
+        <thead>
+          <tr>
+            <th>Producto</th>
+            <th>Cantidad</th>
+            <th>Precio unitario</th>
+            <th>Subtotal</th>
+          </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let det of pago.pedido.detalles">
+                <td>{{ det.producto?.nombre }}</td>
+                <td>{{ det.cantidad }}</td>
+                <td>{{ det.precio_unitario | currency:'EUR':'symbol':'1.2-2' }}</td>
+                <td>{{ (det.cantidad * det.precio_unitario) | currency:'EUR':'symbol':'1.2-2' }}</td>
+            </tr>
+        </tbody>
+      </table>
+    </div>
+    <button class="btn-completar" (click)="marcarComoPagado(pago)">
+      Marcar como pagado
+    </button>
+  </div>
+</ng-container>

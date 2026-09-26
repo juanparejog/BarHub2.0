@@ -1,0 +1,68 @@
+<app-toast
+  [show]="showToast"
+  [message]="toastMessage"
+  [type]="toastType"
+  (closed)="showToast = false">
+</app-toast>
+
+<h2 class="titulo-carta">CARTA LA AVENIDA</h2>
+
+<div class="mesa-input">
+  <label for="idMesa">Número de Mesa:</label>
+  <select id="idMesa" [(ngModel)]="idMesa" class="select-mesa">
+    <option value="" disabled>Seleccione una mesa</option>
+    <option
+      *ngFor="let mesa of mesas"
+      [value]="mesa.id"
+      [disabled]="mesa.estado === 'ocupada' || mesa.estado === 'reservada'">
+      {{ mesa.id }}
+      <span *ngIf="mesa.estado === 'ocupada'">(Ocupada)</span>
+      <span *ngIf="mesa.estado === 'reservada'">(Reservada)</span>
+    </option>
+  </select>
+</div>
+
+<div *ngFor="let seccion of ['bebida', 'entrante', 'tapa', 'postre']">
+  <h3 class="seccion-titulo">{{ obtenerNombreSeccion(seccion) }}</h3>
+  <div class="productos-grid" *ngIf="productosPorSeccion[seccion] && productosPorSeccion[seccion].length > 0">
+    <div class="producto" *ngFor="let producto of productosPorSeccion[seccion]">
+      <div class="img-box">
+        <img [src]="'assets/images/productos/' + producto.imagen" class="img-producto" alt="{{producto.nombre}}">
+      </div>
+      <div class="info-box">
+        <h4 class="nombre">{{ producto.nombre }}</h4>
+        <div class="desc">{{ producto.descripcion }}</div>
+        <div class="precio">{{ producto.precio | currency:'EUR' }}</div>
+        <div class="acciones">
+          <button class="remove-btn" 
+                  *ngIf="getCantidad(producto) > 0 && isLoggedIn" 
+                  (click)="onRemove(producto)">
+            <span class="material-icons">-</span>
+          </button>
+          <span class="cantidad" *ngIf="getCantidad(producto) > 0">{{ getCantidad(producto) }}</span>
+          <button class="add-btn" 
+                  *ngIf="isLoggedIn" 
+                  (click)="onAdd(producto)">
+            <span class="material-icons">+</span>
+          </button>
+          <span class="aviso" *ngIf="!isLoggedIn">Inicia sesión para agregar productos en el carrito</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="carrito-resumen" *ngIf="hayProductosSeleccionados()">
+  <h3>Resumen del pedido</h3>
+  <ul>
+    <li *ngFor="let item of productosSeleccionados">
+      {{ item.producto.nombre }} x {{ item.cantidad }} = {{ item.producto.precio * item.cantidad | currency:'EUR' }}
+    </li>
+  </ul>
+  <div class="total">
+    Total a pagar: {{ calcularTotal() | currency:'EUR' }}
+  </div>
+  <button class="confirmar-btn" (click)="confirmarPedido()" [disabled]="!idMesa">
+    Confirmar Pedido
+  </button>
+</div>

@@ -1,0 +1,42 @@
+server:
+  port: 8080
+
+stripe:
+  secret-key: ${STRIPE_SECRET_KEY}
+
+spring:
+  config:
+    import: optional:env.properties
+  sql:
+    init:
+      mode: always
+  application:
+    name: BarHub
+  datasource:
+    #url: jdbc:mariadb://20.199.65.235:3306/barhub
+    url: jdbc:mysql://127.0.0.1:33060/barhub
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+    #driverClassName: org.mariadb.jdbc.Driver
+    driverClassName: com.mysql.cj.jdbc.Driver
+  jpa:
+    defer-datasource-initialization: true
+    #database-platform: org.hibernate.dialect.MariaDBDialect
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+  main:
+    allow-bean-definition-overriding: true
+  logging:
+    level:
+      org.springframework: DEBUG
+
+file:
+  name: logs/app.log
+
+jwt:
+  jwtSecret: ${JWT_SECRET}
+  jwtExpirationMs: 86400000

@@ -1,0 +1,32 @@
+<h2>Mis pedidos</h2>
+<div *ngIf="pedidos.length === 0">
+  <p class="sinPedidos">No tienes pedidos realizados.</p>
+</div>
+<div *ngFor="let pedido of pedidos" class="pedido-card">
+  <div class="pedido-header">
+    <strong>Pedido #{{ pedido.id }}</strong>
+    <span class="estado">{{ pedido.estado | titlecase }}</span>
+    <span class="fecha">{{ pedido.fecha | date:'dd/MM/yyyy' }}</span>
+    <span class="total">{{ pedido.total | currency:'EUR':'symbol':'1.2-2' }}</span>
+  </div>
+  <div class="pedido-detalles" *ngIf="pedido.detalles && pedido.detalles.length > 0">
+    <table>
+      <thead>
+        <tr>
+          <th>Producto</th>
+          <th>Cantidad</th>
+          <th>Precio unitario</th>
+          <th>Subtotal</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let det of pedido.detalles">
+          <td>{{ det.producto?.nombre }}</td>
+          <td>{{ det.cantidad }}</td>
+          <td>{{ det.precio_unitario | currency:'EUR':'symbol':'1.2-2' }}</td>
+          <td>{{ (det.cantidad * det.precio_unitario) | currency:'EUR':'symbol':'1.2-2' }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

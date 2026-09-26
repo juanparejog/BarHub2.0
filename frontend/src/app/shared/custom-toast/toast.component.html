@@ -1,0 +1,4 @@
+<div class="toast-notification" *ngIf="show" [ngClass]="type" (click)="onClose()">
+  <span class="toast-message">{{ message }}</span>
+  <span class="toast-close">&times;</span>
+</div>
