@@ -7,7 +7,7 @@
 ## Licencia y Aviso Legal
 
 © **Juan Parejo García** — *Todos los derechos reservados (All Rights Reserved)*.  
-Este proyecto es de código propietario. Para más información sobre el uso y términos legales, consulta los archivos [`LICENSE`](./LICENSE) y [`NOTICE.md`](./docs/NOTICE.md).
+Este proyecto es de código propietario. Para más información sobre el uso y términos legales, consulta los archivos [`LICENSE`](./LICENSE) y [`NOTICE.md`](./NOTICE.md).
 
 ---
 
