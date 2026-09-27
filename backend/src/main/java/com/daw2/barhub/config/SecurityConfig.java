@@ -62,7 +62,7 @@ public class SecurityConfig {
                         // Endpoints públicos
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/productos/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/mesas/public/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/mesas/**").permitAll()
 
                         // Endpoints para Clientes y Empleados
                         .requestMatchers(HttpMethod.POST, "/pedidos/**").hasAnyRole("CLIENTE", "EMPLEADO", "ADMIN")

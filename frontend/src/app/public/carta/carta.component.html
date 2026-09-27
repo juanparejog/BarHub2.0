@@ -1,68 +1,203 @@
-<app-toast
-  [show]="showToast"
-  [message]="toastMessage"
-  [type]="toastType"
-  (closed)="showToast = false">
-</app-toast>
+<div class="carta-wrapper py-4 position-relative z-2">
+  <div class="container">
 
-<h2 class="titulo-carta">CARTA LA AVENIDA</h2>
+    <!-- SELECCIÓN DE MODALIDAD: MESA VS DOMICILIO -->
+    <div class="card border-0 shadow-lg mb-4 rounded-4 bg-white">
+      <div class="card-body p-4">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
+          <div>
+            <h2 class="fw-bold mb-1 text-dark">Carta Digital</h2>
+            <p class="text-muted small mb-0">Selecciona tu modalidad de pedido y añade tus productos favoritos.</p>
+          </div>
 
-<div class="mesa-input">
-  <label for="idMesa">Número de Mesa:</label>
-  <select id="idMesa" [(ngModel)]="idMesa" class="select-mesa">
-    <option value="" disabled>Seleccione una mesa</option>
-    <option
-      *ngFor="let mesa of mesas"
-      [value]="mesa.id"
-      [disabled]="mesa.estado === 'ocupada' || mesa.estado === 'reservada'">
-      {{ mesa.id }}
-      <span *ngIf="mesa.estado === 'ocupada'">(Ocupada)</span>
-      <span *ngIf="mesa.estado === 'reservada'">(Reservada)</span>
-    </option>
-  </select>
-</div>
+          <!-- Switch Local vs Domicilio -->
+          <div class="btn-group bg-light p-1 rounded-pill border" role="group">
+            <button type="button" 
+                    class="btn btn-sm rounded-pill px-3 fw-semibold transition-all"
+                    [class.btn-dark]="tipoPedido === 'MESA'"
+                    [class.text-muted]="tipoPedido !== 'MESA'"
+                    (click)="tipoPedido = 'MESA'">
+              <i class="bi bi-shop me-1"></i> En Local / Mesa
+            </button>
+            <button type="button" 
+                    class="btn btn-sm rounded-pill px-3 fw-semibold transition-all"
+                    [class.btn-dark]="tipoPedido === 'DOMICILIO'"
+                    [class.text-muted]="tipoPedido !== 'DOMICILIO'"
+                    (click)="tipoPedido = 'DOMICILIO'">
+              <i class="bi bi-truck me-1"></i> A Domicilio
+            </button>
+          </div>
+        </div>
 
-<div *ngFor="let seccion of ['bebida', 'entrante', 'tapa', 'postre']">
-  <h3 class="seccion-titulo">{{ obtenerNombreSeccion(seccion) }}</h3>
-  <div class="productos-grid" *ngIf="productosPorSeccion[seccion] && productosPorSeccion[seccion].length > 0">
-    <div class="producto" *ngFor="let producto of productosPorSeccion[seccion]">
-      <div class="img-box">
-        <img [src]="'assets/images/productos/' + producto.imagen" class="img-producto" alt="{{producto.nombre}}">
-      </div>
-      <div class="info-box">
-        <h4 class="nombre">{{ producto.nombre }}</h4>
-        <div class="desc">{{ producto.descripcion }}</div>
-        <div class="precio">{{ producto.precio | currency:'EUR' }}</div>
-        <div class="acciones">
-          <button class="remove-btn" 
-                  *ngIf="getCantidad(producto) > 0 && isLoggedIn" 
-                  (click)="onRemove(producto)">
-            <span class="material-icons">-</span>
-          </button>
-          <span class="cantidad" *ngIf="getCantidad(producto) > 0">{{ getCantidad(producto) }}</span>
-          <button class="add-btn" 
-                  *ngIf="isLoggedIn" 
-                  (click)="onAdd(producto)">
-            <span class="material-icons">+</span>
-          </button>
-          <span class="aviso" *ngIf="!isLoggedIn">Inicia sesión para agregar productos en el carrito</span>
+        <hr class="my-3 text-muted opacity-25">
+
+        <!-- Opción 1: MESA (LOCAL) -->
+        <div *ngIf="tipoPedido === 'MESA'" class="row align-items-center">
+          <div class="col-md-6 col-lg-5">
+            <label class="form-label small fw-bold text-secondary">Mesa asignada:</label>
+            <div class="input-group">
+              <span class="input-group-text bg-light border-end-0"><i class="bi bi-qr-code-scan"></i></span>
+              <select class="form-select border-start-0" [(ngModel)]="idMesa" [disabled]="mesaBloqueadaPorQr">
+                <option [ngValue]="null" disabled>-- Selecciona número de mesa --</option>
+                <option *ngFor="let mesa of mesas" [value]="mesa.id">Mesa #{{ mesa.id }} ({{ mesa.estado }})</option>
+              </select>
+            </div>
+            <small *ngIf="mesaBloqueadaPorQr" class="text-success mt-1 d-block fw-semibold">
+              <i class="bi bi-check-circle-fill me-1"></i> Mesa detectada escaneando el código QR
+            </small>
+          </div>
+        </div>
+
+        <!-- Opción 2: DOMICILIO Y GOOGLE MAPS -->
+        <div *ngIf="tipoPedido === 'DOMICILIO'" class="mt-2">
+          <div class="row g-3">
+            <div class="col-md-5">
+              <label class="form-label small fw-bold text-secondary">Calle y Número:</label>
+              <input type="text" class="form-control" placeholder="Ej: Av. Sinforiano Madroñero, 12" [(ngModel)]="calleNumero">
+            </div>
+
+            <div class="col-md-3">
+              <label class="form-label small fw-bold text-secondary">Piso / Puerta:</label>
+              <input type="text" class="form-control" placeholder="Ej: 3ºB, Bl. 2" [(ngModel)]="pisoPuerta">
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label small fw-bold text-secondary">Código Postal:</label>
+              <input type="text" class="form-control" placeholder="Ej: 06011" [(ngModel)]="codigoPostal">
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label small fw-bold text-secondary">Teléfono de contacto:</label>
+              <input type="tel" class="form-control" placeholder="Ej: 600 000 000" [(ngModel)]="telefonoContacto">
+            </div>
+
+            <div class="col-md-6 d-flex align-items-end">
+              <a [href]="googleMapsUrl" 
+                 target="_blank" 
+                 class="btn btn-outline-danger w-100 fw-semibold d-flex align-items-center justify-content-center gap-2"
+                 [class.disabled]="!calleNumero">
+                <i class="bi bi-geo-alt-fill fs-5 text-danger"></i>
+                <span>Ver Ubicación en Google Maps</span>
+                <i class="bi bi-box-arrow-up-right small"></i>
+              </a>
+            </div>
+          </div>
+
+          <!-- Mapa Embebido dinámico -->
+          <div *ngIf="calleNumero" class="mt-3 rounded-4 overflow-hidden border shadow-sm" style="height: 180px;">
+            <iframe [src]="googleMapsEmbedUrl" 
+                    width="100%" 
+                    height="100%" 
+                    style="border:0;" 
+                    allowfullscreen="" 
+                    loading="lazy">
+            </iframe>
+          </div>
         </div>
       </div>
     </div>
+
+    <!-- FILTRO RÁPIDO DE CATEGORÍAS -->
+    <div class="d-flex gap-2 overflow-auto pb-3 mb-2 no-scrollbar">
+      <button class="btn btn-sm rounded-pill px-3 fw-semibold text-nowrap"
+              [class.btn-dark]="categoriaSeleccionada === 'todos'"
+              [class.btn-outline-secondary]="categoriaSeleccionada !== 'todos'"
+              (click)="filtrarCategoria('todos')">
+        Todos
+      </button>
+      <button class="btn btn-sm rounded-pill px-3 fw-semibold text-nowrap"
+              [class.btn-dark]="categoriaSeleccionada === 'bebida'"
+              [class.btn-outline-secondary]="categoriaSeleccionada !== 'bebida'"
+              (click)="filtrarCategoria('bebida')">
+        <i class="bi bi-cup-straw me-1"></i> Bebidas
+      </button>
+      <button class="btn btn-sm rounded-pill px-3 fw-semibold text-nowrap"
+              [class.btn-dark]="categoriaSeleccionada === 'entrante'"
+              [class.btn-outline-secondary]="categoriaSeleccionada !== 'entrante'"
+              (click)="filtrarCategoria('entrante')">
+        <i class="bi bi-egg-fried me-1"></i> Entrantes
+      </button>
+      <button class="btn btn-sm rounded-pill px-3 fw-semibold text-nowrap"
+              [class.btn-dark]="categoriaSeleccionada === 'tapa'"
+              [class.btn-outline-secondary]="categoriaSeleccionada !== 'tapa'"
+              (click)="filtrarCategoria('tapa')">
+        <i class="bi bi-pie-chart me-1"></i> Tapas
+      </button>
+      <button class="btn btn-sm rounded-pill px-3 fw-semibold text-nowrap"
+              [class.btn-dark]="categoriaSeleccionada === 'postre'"
+              [class.btn-outline-secondary]="categoriaSeleccionada !== 'postre'"
+              (click)="filtrarCategoria('postre')">
+        <i class="bi bi-cake2 me-1"></i> Postres
+      </button>
+    </div>
+
+    <!-- TARJETAS DE PRODUCTOS -->
+    <div class="row g-3 mb-5 pb-5">
+      <div *ngFor="let producto of productosFiltrados" class="col-12 col-sm-6 col-md-4 col-lg-3">
+        <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden bg-white product-card">
+          <div class="position-relative">
+            <img [src]="producto.imagen || 'assets/images/default-food.jpg'" 
+                 class="card-img-top object-fit-cover" 
+                 style="height: 150px;" 
+                 [alt]="producto.nombre">
+            <span class="badge bg-dark position-absolute top-0 end-0 m-2 rounded-pill px-2 py-1">
+              {{ producto.precio | currency:'EUR' }}
+            </span>
+          </div>
+
+          <div class="card-body d-flex flex-column justify-content-between p-3">
+            <div>
+              <h6 class="fw-bold mb-1 text-dark text-truncate">{{ producto.nombre }}</h6>
+              <p class="text-muted small mb-2 text-line-clamp-2" style="font-size: 0.825rem;">
+                {{ producto.descripcion || 'Delicioso producto recién preparado.' }}
+              </p>
+            </div>
+
+            <div class="d-flex align-items-center justify-content-between mt-2 pt-2 border-top">
+              <span class="fw-bold text-dark">{{ producto.precio | currency:'EUR' }}</span>
+
+              <div class="d-flex align-items-center bg-light rounded-pill p-1 border">
+                <button class="btn btn-sm btn-icon rounded-circle p-0" 
+                        [disabled]="getCantidad(producto) === 0"
+                        (click)="onRemove(producto)"
+                        style="width: 28px; height: 28px;">
+                  <i class="bi bi-dash"></i>
+                </button>
+                <span class="px-2 fw-bold small text-dark">{{ getCantidad(producto) }}</span>
+                <button class="btn btn-sm btn-dark btn-icon rounded-circle p-0" 
+                        (click)="onAdd(producto)"
+                        style="width: 28px; height: 28px;">
+                  <i class="bi bi-plus"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
 
-<div class="carrito-resumen" *ngIf="hayProductosSeleccionados()">
-  <h3>Resumen del pedido</h3>
-  <ul>
-    <li *ngFor="let item of productosSeleccionados">
-      {{ item.producto.nombre }} x {{ item.cantidad }} = {{ item.producto.precio * item.cantidad | currency:'EUR' }}
-    </li>
-  </ul>
-  <div class="total">
-    Total a pagar: {{ calcularTotal() | currency:'EUR' }}
+<!-- CARRITO FLOTANTE INFERIOR -->
+<div *ngIf="hayProductosSeleccionados()" 
+     class="position-fixed bottom-0 start-0 end-0 p-3 floating-cart-bar z-3">
+  <div class="container max-width-md">
+    <div class="bg-dark text-white rounded-4 p-3 shadow-lg d-flex align-items-center justify-content-between border border-secondary">
+      <div class="d-flex align-items-center gap-3">
+        <div class="badge bg-primary rounded-pill fs-6 px-3 py-2">
+          {{ getTotalItems() }}
+        </div>
+        <div>
+          <div class="text-white-50 small">Total estimado</div>
+          <div class="fw-bold fs-5 mb-0">{{ calcularTotal() | currency:'EUR' }}</div>
+        </div>
+      </div>
+
+      <button class="btn btn-light rounded-pill px-4 py-2 fw-bold d-flex align-items-center gap-2" (click)="confirmarPedido()">
+        <span>Confirmar Pedido</span>
+        <i class="bi bi-arrow-right"></i>
+      </button>
+    </div>
   </div>
-  <button class="confirmar-btn" (click)="confirmarPedido()" [disabled]="!idMesa">
-    Confirmar Pedido
-  </button>
 </div>

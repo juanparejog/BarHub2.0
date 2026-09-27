@@ -1,10 +1,13 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { AuthService } from '../../auth/auth.service';
 import { MesaService } from '../../admin/pages/mesas/services/mesa';
 import { ProductoService } from '../../admin/pages/productos/services/producto';
 import { Mesa } from '../../admin/pages/mesas/interface/mesa';
 import { Producto } from '../../admin/pages/productos/interface/producto';
+
+export type TipoPedido = 'MESA' | 'DOMICILIO';
 
 interface ProductoSeleccionado {
   producto: Producto;
@@ -21,10 +24,61 @@ export class CartaComponent implements OnInit {
   mesas: Mesa[] = [];
   productos: Producto[] = [];
   productosSeleccionados: ProductoSeleccionado[] = [];
+  
+  // Selección de tipo de servicio
+  tipoPedido: TipoPedido = 'MESA';
   idMesa: number | null = null;
+  mesaBloqueadaPorQr = false;
+
+  // Campos desglosados para Domicilio
+  calleNumero = '';
+  pisoPuerta = '';
+  codigoPostal = '';
+  telefonoContacto = '';
+
+  categoriaSeleccionada = 'todos';
+
   showToast = false;
   toastMessage = '';
   toastType: 'success' | 'error' | 'info' = 'info';
+
+  constructor(
+    private authService: AuthService,
+    private mesaService: MesaService,
+    private productoService: ProductoService,
+    private route: ActivatedRoute,
+    private router: Router,
+    private sanitizer: DomSanitizer
+  ) {}
+
+  ngOnInit() {
+    this.isLoggedIn = this.authService.isLoggedIn();
+
+    this.mesaService.get().subscribe({
+      next: data => {
+        console.log('Mesas recibidas:', data);
+        this.mesas = data || [];
+      },
+      error: err => console.error('Error cargando mesas:', err)
+    });
+
+    this.productoService.get().subscribe({
+      next: data => {
+        console.log('Productos recibidos:', data);
+        this.productos = data || [];
+      },
+      error: err => console.error('Error cargando productos:', err)
+    });
+
+    this.route.queryParams.subscribe(params => {
+      if (params['mesa']) {
+        this.idMesa = Number(params['mesa']);
+        this.tipoPedido = 'MESA';
+        this.mesaBloqueadaPorQr = true;
+        this.showToastMessage(`Mesa #${this.idMesa} detectada por QR`, 'success');
+      }
+    });
+  }
 
   showToastMessage(message: string, type: 'success' | 'error' | 'info' = 'info') {
     this.toastMessage = message;
@@ -33,127 +87,123 @@ export class CartaComponent implements OnInit {
     setTimeout(() => this.showToast = false, 3000);
   }
 
-  constructor(
-    private authService: AuthService,
-    private mesaService: MesaService,
-    private productoService: ProductoService,
-    private router: Router
-  ) {}
-
-  ngOnInit() {
-    this.isLoggedIn = this.authService.isLoggedIn();
-    this.mesaService.get().subscribe(data => this.mesas = data);
-    this.productoService.get().subscribe(data => this.productos = data);
+  // --- LÓGICA GOOGLE MAPS ---
+  get direccionCompleta(): string {
+    const partes = [this.calleNumero, this.pisoPuerta, this.codigoPostal].filter(p => p && p.trim() !== '');
+    return partes.join(', ');
   }
 
-  // Lógica botón +
-  onAdd(producto: Producto) {
-    // Buscar si el producto ya está en la lista de seleccionados
-    const productoExistente = this.productosSeleccionados.find(
-      item => item.producto.id === producto.id
-    );
+  get googleMapsUrl(): string {
+    if (!this.calleNumero && !this.codigoPostal) {
+      return 'https://www.google.com/maps';
+    }
+    const query = encodeURIComponent(this.direccionCompleta);
+    return `https://www.google.com/maps/search/?api=1&query=${query}`;
+  }
 
-    if (productoExistente) {
-      // Si ya existe, incrementar la cantidad
-      productoExistente.cantidad++;
+  get googleMapsEmbedUrl(): SafeResourceUrl {
+    const query = this.direccionCompleta ? encodeURIComponent(this.direccionCompleta) : 'España';
+    const url = `https://maps.google.com/maps?q=${query}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
+    return this.sanitizer.bypassSecurityTrustResourceUrl(url);
+  }
+
+  // --- FILTRADO DE PRODUCTOS ---
+  filtrarCategoria(cat: string) {
+    this.categoriaSeleccionada = cat;
+  }
+
+  get productosFiltrados(): Producto[] {
+    if (!this.productos || this.productos.length === 0) {
+      return [];
+    }
+
+    if (this.categoriaSeleccionada === 'todos') {
+      return this.productos;
+    }
+
+    return this.productos.filter(p => {
+      // Compara p.tipoProducto o p.tipo aceptando variaciones de nombre de propiedad
+      const tipoObj = (p as any).tipoProducto || (p as any).tipo || '';
+      return String(tipoObj).toLowerCase().trim() === this.categoriaSeleccionada.toLowerCase().trim();
+    });
+  }
+
+  // --- CARRITO ---
+  onAdd(producto: Producto) {
+    const item = this.productosSeleccionados.find(i => i.producto.id === producto.id);
+    if (item) {
+      item.cantidad++;
     } else {
-      // Si no existe, agregarlo con cantidad 1
-      this.productosSeleccionados.push({
-        producto: producto,
-        cantidad: 1
-      });
+      this.productosSeleccionados.push({ producto, cantidad: 1 });
     }
   }
 
-  // Disminuir cantidad
   onRemove(producto: Producto) {
-    const index = this.productosSeleccionados.findIndex(
-      item => item.producto.id === producto.id
-    );
-    
+    const index = this.productosSeleccionados.findIndex(i => i.producto.id === producto.id);
     if (index !== -1) {
       if (this.productosSeleccionados[index].cantidad > 1) {
-        // Si hay más de 1, reducir la cantidad
         this.productosSeleccionados[index].cantidad--;
       } else {
-        // Si solo hay 1, eliminar el producto de seleccionados
         this.productosSeleccionados.splice(index, 1);
       }
     }
   }
 
-  // Obtener la cantidad de un producto
   getCantidad(producto: Producto): number {
-    const productoSeleccionado = this.productosSeleccionados.find(
-      item => item.producto.id === producto.id
-    );
-    return productoSeleccionado ? productoSeleccionado.cantidad : 0;
+    const item = this.productosSeleccionados.find(i => i.producto.id === producto.id);
+    return item ? item.cantidad : 0;
   }
 
-  // Verificar si hay productos seleccionados
+  getTotalItems(): number {
+    return this.productosSeleccionados.reduce((sum, item) => sum + item.cantidad, 0);
+  }
+
   hayProductosSeleccionados(): boolean {
     return this.productosSeleccionados.length > 0;
   }
 
-  // Calcular el total del pedido
   calcularTotal(): number {
-    return this.productosSeleccionados.reduce(
-      (total, item) => total + (item.producto.precio * item.cantidad), 
-      0
-    );
+    return this.productosSeleccionados.reduce((total, item) => total + (item.producto.precio * item.cantidad), 0);
   }
 
-  // Confirmar pedido
   confirmarPedido() {
-    // Confirmar que el usuario haya iniciado sesion
     if (!this.authService.isLoggedIn()) {
-      this.showToastMessage('Debe iniciar sesión para continuar');
-      setTimeout(() => {
-        this.router.navigate(['/login']);
-      }, 2000);
+      this.showToastMessage('Debe iniciar sesión para realizar un pedido', 'error');
+      setTimeout(() => this.router.navigate(['/login']), 1800);
       return;
     }
 
-    // Validar que se haya seleccionado al menos un producto
     if (!this.hayProductosSeleccionados()) {
-      this.showToastMessage('Debe seleccionar al menos un producto');
+      this.showToastMessage('Seleccione al menos un producto de la carta', 'info');
       return;
     }
 
-    // Validar que se haya ingresado el ID de mesa
-    if (!this.idMesa) {
-      this.showToastMessage('Debe ingresar el número de mesa');
+    if (this.tipoPedido === 'MESA' && !this.idMesa) {
+      this.showToastMessage('Por favor, selecciona o introduce el número de mesa', 'error');
       return;
     }
 
-    // Guardar el pedido en el localStorage para usarlo en la siguiente página
-    localStorage.setItem('pedidoTemporal', JSON.stringify({
-      idMesa: this.idMesa,
-      productos: this.productosSeleccionados
-    }));
+    if (this.tipoPedido === 'DOMICILIO') {
+      if (!this.calleNumero.trim()) {
+        this.showToastMessage('Indica la calle y número de entrega', 'error');
+        return;
+      }
+      if (!this.telefonoContacto.trim()) {
+        this.showToastMessage('Proporciona un teléfono de contacto', 'error');
+        return;
+      }
+    }
 
-    // Redireccionar a la página de confirmación
+    const pedidoPayload = {
+      tipoPedido: this.tipoPedido,
+      idMesa: this.tipoPedido === 'MESA' ? this.idMesa : null,
+      direccionEnvio: this.tipoPedido === 'DOMICILIO' ? this.direccionCompleta : null,
+      telefonoContacto: this.tipoPedido === 'DOMICILIO' ? this.telefonoContacto : null,
+      productos: this.productosSeleccionados,
+      precioTotal: this.calcularTotal()
+    };
+
+    localStorage.setItem('pedidoTemporal', JSON.stringify(pedidoPayload));
     this.router.navigate(['/confirmar-pedido']);
   }
-
-  get productosPorSeccion(): { [seccion: string]: Producto[] } {
-    const secciones = ['bebida', 'entrante', 'tapa', 'postre'] as const;
-    const agrupados: { [key: string]: Producto[] } = {};
-  
-    secciones.forEach(seccion => {
-      agrupados[seccion] = this.productos.filter(p => p.tipoProducto === seccion);
-    });
-  
-    return agrupados;
-  }
-  
-  obtenerNombreSeccion(seccion: string): string {
-    const nombres: { [key: string]: string } = {
-      'bebida': 'Bebidas',
-      'entrante': 'Entrantes',
-      'tapa': 'Tapas Principales',
-      'postre': 'Postres'
-    };
-    return nombres[seccion] || seccion;
-  }  
 }
