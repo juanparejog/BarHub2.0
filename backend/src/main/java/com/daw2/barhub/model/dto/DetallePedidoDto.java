@@ -24,51 +24,58 @@ public class DetallePedidoDto {
     @JsonProperty("id_producto")
     private Long idProducto;
 
+    @JsonProperty("producto_nombre")
+    private String productoNombre;
+
     private Integer cantidad;
 
     @JsonProperty("precio_unitario")
     private BigDecimal precioUnitario;
 
-    public static DetallePedidoDto from(DetallePedido detallePedido){
-        DetallePedidoDto dto = null;
-
-        if(detallePedido != null){
-            dto = new DetallePedidoDto();
-            dto.setId(detallePedido.getId());
-            dto.setIdPedido(detallePedido.getPedido().getId());
-            dto.setIdProducto(detallePedido.getProducto().getId());
-            dto.setCantidad(detallePedido.getCantidad());
-            dto.setPrecioUnitario(detallePedido.getPrecioUnitario());
+    public static DetallePedidoDto from(DetallePedido detallePedido) {
+        if (detallePedido == null) {
+            return null;
         }
+
+        DetallePedidoDto dto = new DetallePedidoDto();
+        dto.setId(detallePedido.getId());
+
+        if (detallePedido.getPedido() != null) {
+            dto.setIdPedido(detallePedido.getPedido().getId());
+        }
+
+        if (detallePedido.getProducto() != null) {
+            dto.setIdProducto(detallePedido.getProducto().getId());
+            dto.setProductoNombre(detallePedido.getProducto().getNombre());
+        }
+
+        dto.setCantidad(detallePedido.getCantidad());
+        dto.setPrecioUnitario(detallePedido.getPrecioUnitario());
 
         return dto;
     }
 
-    public static List<DetallePedidoDto> from(List<DetallePedido> detallePedidos){
+    public static List<DetallePedidoDto> from(List<DetallePedido> detallePedidos) {
         List<DetallePedidoDto> dtos = new ArrayList<>();
-
-        if (detallePedidos != null){
-            dtos = new ArrayList<DetallePedidoDto>();
-            for (DetallePedido detallePedido : detallePedidos){
+        if (detallePedidos != null) {
+            for (DetallePedido detallePedido : detallePedidos) {
                 dtos.add(from(detallePedido));
             }
         }
-
         return dtos;
     }
 
     public DetallePedido to() {
         DetallePedido detallePedido = new DetallePedido();
-
         detallePedido.setId(getId());
 
-        if(idPedido != null){
+        if (idPedido != null) {
             Pedido pedidoEntity = new Pedido();
             pedidoEntity.setId(idPedido);
             detallePedido.setPedido(pedidoEntity);
         }
 
-        if(idProducto != null){
+        if (idProducto != null) {
             Producto productoEntity = new Producto();
             productoEntity.setId(idProducto);
             detallePedido.setProducto(productoEntity);
@@ -78,5 +85,9 @@ public class DetallePedidoDto {
         detallePedido.setPrecioUnitario(getPrecioUnitario());
 
         return detallePedido;
+    }
+
+    public Long getProductoId() {
+        return this.idProducto;
     }
 }

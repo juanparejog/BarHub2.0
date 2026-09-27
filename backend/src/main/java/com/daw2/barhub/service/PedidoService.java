@@ -1,5 +1,6 @@
 package com.daw2.barhub.service;
 
+import com.daw2.barhub.model.dto.PedidoDto;
 import com.daw2.barhub.model.entity.Pedido;
 
 import java.util.List;
@@ -16,4 +17,8 @@ public interface PedidoService {
     Pedido update(long id, Pedido entity);
 
     List<Pedido> findByUsuarioIdWithDetalles(Long usuarioId);
+
+    List<Pedido> findByUsername(String username);
+    Pedido crearPedidoSeguro(PedidoDto pedidoDto, String username);
+    Pedido updateFromDto(long id, PedidoDto pedidoDto);
 }

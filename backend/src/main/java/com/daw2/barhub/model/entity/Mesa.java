@@ -23,8 +23,11 @@ public class Mesa {
     @Column(unique=true, nullable=false)
     private String codigoqr;
 
-    @Column
+    @Column(name = "token_qr", unique = true)
+    private String tokenQr;
+
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private EstadoMesa estado;
 
     @CreationTimestamp

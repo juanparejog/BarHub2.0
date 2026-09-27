@@ -2,6 +2,7 @@ package com.daw2.barhub.model.entity;
 
 import com.daw2.barhub.auth.models.User;
 import com.daw2.barhub.model.Enum.EstadoPedido;
+import com.daw2.barhub.model.Enum.TipoPedido;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -29,20 +30,32 @@ public class Pedido {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_user", nullable = false)
     @JsonBackReference
     private User user;
 
-    @ManyToOne
-    @JoinColumn(name = "id_mesa", nullable = false)
+    // Ahora es opcional (nullable = true) para permitir pedidos a domicilio
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_mesa", nullable = true)
     private Mesa mesa;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "tipo_pedido", nullable = false)
+    private TipoPedido tipoPedido = TipoPedido.MESA;
+
+    // Campos exclusivos para entrega a domicilio
+    @Column(name = "direccion_envio")
+    private String direccionEnvio;
+
+    @Column(name = "telefono_contacto")
+    private String telefonoContacto;
 
     @Column
     private Date fecha;
 
-    @Column
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private EstadoPedido estado;
 
     @Column(precision = 10, scale = 2)
@@ -68,7 +81,7 @@ public class Pedido {
         return (mesa != null) ? mesa.getId() : null;
     }
 
-    @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private List<DetallePedido> detalles = new ArrayList<>();
 }

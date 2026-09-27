@@ -25,18 +25,18 @@ public class Pago {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_pedido", nullable = false)
     private Pedido pedido;
 
-    @Column
     @Enumerated(EnumType.STRING)
     @JsonProperty("metodo_pago")
+    @Column(name = "metodo_pago", nullable = false)
     private MetodoPago metodoPago;
 
-    @Column
     @Enumerated(EnumType.STRING)
     @JsonProperty("estado_pago")
+    @Column(name = "estado_pago", nullable = false)
     private EstadoPago estadoPago;
 
     @Column(precision = 10, scale = 2)
@@ -44,8 +44,8 @@ public class Pago {
     @JsonProperty("total")
     private BigDecimal total;
 
-    @Column
     @JsonProperty("fecha_pago")
+    @Column(name = "fecha_pago")
     private LocalDate fechaPago;
 
     @CreationTimestamp
