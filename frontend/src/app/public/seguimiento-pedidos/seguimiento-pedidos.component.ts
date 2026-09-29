@@ -1,4 +1,6 @@
-import { Component, OnInit, OnDestroy  } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Subject, timer } from 'rxjs';
+import { switchMap, takeUntil } from 'rxjs/operators';
 import { PedidoService } from '../services/pedido';
 import { Pedido } from '../interface/pedido';
 
@@ -10,6 +12,7 @@ import { Pedido } from '../interface/pedido';
 export class SeguimientoPedidosComponent implements OnInit, OnDestroy {
   pedidos: Pedido[] = [];
   usuario: any;
+  private destroy$ = new Subject<void>();
   private timers: any[] = [];
 
   constructor(private pedidoService: PedidoService) {}
@@ -17,11 +20,19 @@ export class SeguimientoPedidosComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.usuario = JSON.parse(localStorage.getItem('user') || 'null');
     if (this.usuario?.id) {
-      this.pedidoService.getPedidosByUsuario(this.usuario.id).subscribe(data => {
-        this.pedidos = data.filter(pedido => this.filtrarPedidosActivos(pedido));
-        this.programarEliminaciones();
-      });
+      this.iniciarRefrescoAutomatico();
     }
+  }
+
+  private iniciarRefrescoAutomatico() {
+    // Consulta cada 5 segundos
+    timer(0, 5000).pipe(
+      switchMap(() => this.pedidoService.getPedidosByUsuario(this.usuario.id)),
+      takeUntil(this.destroy$)
+    ).subscribe(data => {
+      this.pedidos = data.filter(pedido => this.filtrarPedidosActivos(pedido));
+      this.programarEliminaciones();
+    });
   }
 
   private filtrarPedidosActivos(pedido: Pedido): boolean {
@@ -35,6 +46,10 @@ export class SeguimientoPedidosComponent implements OnInit, OnDestroy {
   }
 
   private programarEliminaciones() {
+    // Limpiamos los timers anteriores para no duplicar
+    this.timers.forEach(timer => clearTimeout(timer));
+    this.timers = [];
+
     this.pedidos.forEach(pedido => {
       const fechaPedido = new Date(pedido.fecha);
       const fechaLimite = new Date(fechaPedido);
@@ -63,7 +78,8 @@ export class SeguimientoPedidosComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    // Limpiar timers al destruir el componente
+    this.destroy$.next();
+    this.destroy$.complete();
     this.timers.forEach(timer => clearTimeout(timer));
   }
 }

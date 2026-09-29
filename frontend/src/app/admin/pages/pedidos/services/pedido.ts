@@ -3,12 +3,23 @@ import { Observable } from "rxjs";
 import { HttpClient } from "@angular/common/http";
 import { environment } from "src/environments/environment";
 import { Pedido } from "../interface/pedido";
+import { Socket } from 'ngx-socket-io';
 
 @Injectable({ providedIn: 'root' })
 export class PedidoService {
   private URL_PEDIDOS = `${environment.urlBackendSpring}/pedidos`;
 
-  constructor(private httpClient: HttpClient) { }
+  constructor(private socket: Socket, private httpClient: HttpClient) { }
+
+  // Emitir actualización
+  actualizarEstadoSocket(pedido: Pedido) {
+    this.socket.emit('cambioEstadoPedido', pedido);
+  }
+
+  // Escuchar actualizaciones globales
+  onEstadoCambiado() {
+    return this.socket.fromEvent<Pedido>('pedidoActualizado');
+  }
 
   get(): Observable<Pedido[]> {
     return this.httpClient.get<Pedido[]>(`${this.URL_PEDIDOS}/`);
@@ -32,5 +43,9 @@ export class PedidoService {
 
   getDetallesPedidos(): Observable<Pedido[]> {
     return this.httpClient.get<Pedido[]>(`${this.URL_PEDIDOS}/getAllDetalles`);
+  }
+
+  postCrearSeguro(pedidoDto: any): Observable<any> {
+    return this.httpClient.post<any>(`${this.URL_PEDIDOS}crear-seguro`, pedidoDto);
   }
 }
