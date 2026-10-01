@@ -5,7 +5,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { AppRoutingModule } from './app-routing.module';
 import { UicomponentsModule } from './uicomponents/uicomponents.module';
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
-import { AuthInterceptor } from './auth/token.interceptor';
+import { AuthInterceptor } from './auth/auth.interceptor';
 import { ReactiveFormsModule } from '@angular/forms';
 import { CartaComponent } from './public/carta/carta.component';
 import { ContactoComponent } from './public/contacto/contacto.component';
