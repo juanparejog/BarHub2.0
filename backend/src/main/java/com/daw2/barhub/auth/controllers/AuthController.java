@@ -1,6 +1,5 @@
 package com.daw2.barhub.auth.controllers;
 
-
 import com.daw2.barhub.auth.jwt.JwtUtils;
 import com.daw2.barhub.auth.models.Role;
 import com.daw2.barhub.auth.models.RoleEnum;
@@ -28,7 +27,6 @@ import java.util.stream.Collectors;
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
 @RequestMapping("/api/auth")
-///api/auth
 public class AuthController {
   @Autowired
   AuthenticationManager authenticationManager;
@@ -45,9 +43,6 @@ public class AuthController {
   @Autowired
   JwtUtils jwtUtils;
 
-  /*
-  {"username": "us01", "password":"1234"}
-   */
   @PostMapping("/login")
   public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
 
@@ -94,33 +89,40 @@ public class AuthController {
     Set<String> strRoles = signUpRequest.getRole();
     Set<Role> roles = new HashSet<>();
 
-    if (strRoles == null) {
+    if (strRoles == null || strRoles.isEmpty()) {
       Role userRole = roleRepository.findByName(RoleEnum.ROLE_CLIENTE)
-              .orElseThrow(() -> new RuntimeException("Error: Rol no encontrado."));
+              .orElseThrow(() -> new RuntimeException("Error: Rol ROLE_CLIENTE no encontrado en la BD."));
       roles.add(userRole);
     } else {
       strRoles.forEach(role -> {
-        switch (role) {
-          case "admin":
+        switch (role.toUpperCase()) {
+          case "ADMIN":
+          case "ROLE_ADMIN":
             Role adminRole = roleRepository.findByName(RoleEnum.ROLE_ADMIN)
-                    .orElseThrow(() -> new RuntimeException("Error: Rol no encontrado."));
+                    .orElseThrow(() -> new RuntimeException("Error: Rol ROLE_ADMIN no encontrado en la BD."));
             roles.add(adminRole);
             break;
-          case "emple":
+
+          case "EMPLE":
+          case "EMPLEADO":
+          case "ROLE_EMPLEADO":
             Role modRole = roleRepository.findByName(RoleEnum.ROLE_EMPLEADO)
-                    .orElseThrow(() -> new RuntimeException("Error: Rol no encontrado."));
+                    .orElseThrow(() -> new RuntimeException("Error: Rol ROLE_EMPLEADO no encontrado en la BD."));
             roles.add(modRole);
             break;
+
+          case "CLIENTE":
+          case "ROLE_CLIENTE":
           default:
             Role userRole = roleRepository.findByName(RoleEnum.ROLE_CLIENTE)
-                    .orElseThrow(() -> new RuntimeException("Error: Rol no encontrado."));
+                    .orElseThrow(() -> new RuntimeException("Error: Rol ROLE_CLIENTE no encontrado en la BD."));
             roles.add(userRole);
+            break;
         }
       });
     }
 
     user.setRoles(roles);
-
     userRepository.save(user);
 
     return ResponseEntity.ok(new MessageResponse("Usuario registrado correctamente."));

@@ -12,9 +12,7 @@ public class BarHubApplication {
 
         // Hashear una contraseña al iniciar la app
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-        String rawPassword = "1234";
-        String hashedPassword = encoder.encode(rawPassword);
-
-        System.out.println("Contraseña hasheada: " + hashedPassword);
+        System.out.println("HASH REAL juan: " + encoder.encode("juan1234*%"));
+        System.out.println("HASH REAL BCrypt: " + encoder.encode("123456"));
     }
 }

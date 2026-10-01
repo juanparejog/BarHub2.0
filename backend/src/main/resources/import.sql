@@ -4,13 +4,19 @@ INSERT INTO roles (name) VALUES ('ROLE_ADMIN');
 INSERT INTO roles (name) VALUES ('ROLE_CLIENTE');
 INSERT INTO roles (name) VALUES ('ROLE_EMPLEADO');
 
-INSERT INTO users (username, password, email) VALUES ('admin', '$2a$10$3uz5MXAJkIX4Gqg4jyYmMOy5jMMUs45yZzMcz2MDo2wy6r7jl/tUS', 'admin@gmail.com');
-INSERT INTO users (username, password, email) VALUES ('cliente', '$2a$10$3uz5MXAJkIX4Gqg4jyYmMOy5jMMUs45yZzMcz2MDo2wy6r7jl/tUS', 'cliente@gmail.com');
-INSERT INTO users (username, password, email) VALUES ('emple', '$2a$10$3uz5MXAJkIX4Gqg4jyYmMOy5jMMUs45yZzMcz2MDo2wy6r7jl/tUS', 'emple@gmail.com');
+-- Hash BCrypt real para contraseña: "juan1234*%"
+INSERT INTO users (username, password, email) VALUES ('Juan', '$2a$10$tTrV.eBQnV8zcZ7Ig1Ws2eUp8H4kNr5DxUViGS03ruQ0OWAezG4Km', 'juan@barhub.com');
+
+-- Hashes con contraseña "123456" para pruebas
+INSERT INTO users (username, password, email) VALUES ('admin', '$2a$10$Q3FfQzrIQ.gpPlsGroPuHOMheerTKabMbVWbKZpleqorUaT3L2GDC', 'admin@gmail.com');
+INSERT INTO users (username, password, email) VALUES ('cliente', '$2a$10$Q3FfQzrIQ.gpPlsGroPuHOMheerTKabMbVWbKZpleqorUaT3L2GDC', 'cliente@gmail.com');
+INSERT INTO users (username, password, email) VALUES ('emple', '$2a$10$Q3FfQzrIQ.gpPlsGroPuHOMheerTKabMbVWbKZpleqorUaT3L2GDC', 'emple@gmail.com');
 
 INSERT INTO user_roles (user_id, role_id) VALUES (1, 1);
-INSERT INTO user_roles (user_id, role_id) VALUES (2, 2);
-INSERT INTO user_roles (user_id, role_id) VALUES (3, 3);
+INSERT INTO user_roles (user_id, role_id) VALUES (2, 1);
+INSERT INTO user_roles (user_id, role_id) VALUES (3, 2);
+INSERT INTO user_roles (user_id, role_id) VALUES (4, 3);
+
 
 INSERT INTO mesas (codigoQR, estado, created_at, updated_at) VALUES ('QR001', 'DISPONIBLE', NOW(), NOW());
 INSERT INTO mesas (codigoQR, estado, created_at, updated_at) VALUES ('QR002', 'DISPONIBLE', NOW(), NOW());
