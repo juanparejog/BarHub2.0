@@ -131,38 +131,62 @@ export class ConfirmarPedidoComponent implements OnInit {
 
   private procesarPedido(paymentMethodId: string | null) {
     if (!this.pedidoTemporal) return;
-
-    // Construcción del DTO unificado compatible con el endpoint seguro del backend
+  
+    const mesaIdNum = this.pedidoTemporal.idMesa ? Number(this.pedidoTemporal.idMesa) : null;
+  
+    // Si no hay paymentMethodId de Stripe (pago con tarjeta), enviamos 'EFECTIVO'
+    const valorMetodoPago = paymentMethodId ? paymentMethodId : 'EFECTIVO';
+  
     const dtoPayload = {
+      tipoPedido: this.pedidoTemporal.tipoPedido,
       tipo_pedido: this.pedidoTemporal.tipoPedido,
-      id_mesa: this.pedidoTemporal.tipoPedido === 'MESA' ? this.pedidoTemporal.idMesa : null,
+      
+      idMesa: mesaIdNum,
+      id_mesa: mesaIdNum,
+      
+      mesa: mesaIdNum ? { id: mesaIdNum } : null,
+  
+      direccionEnvio: this.pedidoTemporal.tipoPedido === 'DOMICILIO' ? this.pedidoTemporal.direccionEnvio : null,
       direccion_envio: this.pedidoTemporal.tipoPedido === 'DOMICILIO' ? this.pedidoTemporal.direccionEnvio : null,
+  
+      telefonoContacto: this.tipoPedidoDomicilio ? this.pedidoTemporal.telefonoContacto : null,
       telefono_contacto: this.tipoPedidoDomicilio ? this.pedidoTemporal.telefonoContacto : null,
+  
+      precioTotal: this.calcularTotal(),
       precio_total: this.calcularTotal(),
-      paymentMethodId: paymentMethodId,
-      estado: 'pendiente',
+  
+      paymentMethodId: valorMetodoPago,
+      payment_method_id: valorMetodoPago,
+      estado: 'PENDIENTE',
+  
       detalles: this.pedidoTemporal.productos.map(item => ({
+        idProducto: item.producto.id,
         id_producto: item.producto.id,
         cantidad: item.cantidad,
+        precioUnitario: item.producto.precio,
         precio_unitario: item.producto.precio
       }))
     };
-
-    // Petición al endpoint backend seguro
+  
+    console.log('Enviando DTO al backend:', dtoPayload);
+  
     this.pedidoService.postCrearSeguro(dtoPayload).subscribe({
-      next: (pedidoCreado: any) => {
-        const idGenerado = pedidoCreado.id || Math.floor(Math.random() * 10000);
-        this.generarTicketPDF(idGenerado);
-        localStorage.removeItem('pedidoTemporal');
+      next: (res) => {
+        console.log('Pedido creado con éxito', res);
         this.showToastMessage('¡Pedido realizado con éxito!', 'success');
-        
+  
+        const idPedidoCreado = res.id || res.idPedido || 1;
+        this.generarTicketPDF(idPedidoCreado);
+  
+        localStorage.removeItem('pedidoTemporal');
+  
         setTimeout(() => {
-          this.router.navigate(['/seguimiento-pedidos']);
-        }, 2000);
+          this.router.navigate(['/carta']);
+        }, 2500);
       },
       error: (err) => {
         console.error('Error al guardar el pedido:', err);
-        this.showToastMessage(err.error?.message || 'Error al procesar el pedido con el servidor', 'error');
+        this.showToastMessage('Error al procesar el pedido', 'error');
       }
     });
   }
@@ -178,65 +202,90 @@ export class ConfirmarPedidoComponent implements OnInit {
     }
   }
 
-  // Generación de Ticket PDF estilizado
   generarTicketPDF(pedidoId: number) {
     if (!this.pedidoTemporal) return;
-
+  
     const productosFormatted = this.pedidoTemporal.productos.map(item => [
-      { text: item.producto.nombre, alignment: 'left' },
-      { text: item.producto.precio.toFixed(2) + ' €', alignment: 'right' },
-      { text: item.cantidad.toString(), alignment: 'center' },
-      { text: (item.producto.precio * item.cantidad).toFixed(2) + ' €', alignment: 'right' }
+      { text: `${item.cantidad}x ${item.producto.nombre}`, fontSize: 8, bold: true },
+      { text: (item.producto.precio * item.cantidad).toFixed(2) + ' €', alignment: 'right', fontSize: 8 }
     ]);
-
+  
     const esDomicilio = this.tipoPedidoDomicilio;
-    const destinoInfo = esDomicilio 
-      ? `DOMICILIO: ${this.pedidoTemporal.direccionEnvio} (Tel: ${this.pedidoTemporal.telefonoContacto})` 
-      : `MESA EN LOCAL: #${this.pedidoTemporal.idMesa}`;
-
+    const fechaActual = new Date();
+    const fechaStr = fechaActual.toLocaleDateString('es-ES') + ' ' + fechaActual.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+  
     const docDefinition: any = {
+      pageSize: {
+        width: 226.77,
+        height: 'auto'
+      },
+      pageMargins: [12, 12, 12, 12],
       content: [
         { text: 'BARHUB RESTAURANT', style: 'header' },
-        { text: `Ticket Nº: BH-${pedidoId.toString().padStart(6, '0')}`, style: 'subHeader' },
-        { text: 'Food Service Project S.L.', style: 'companyDetails' },
-        { text: 'Av. Sinforiano Madroñero, Badajoz', style: 'companyDetails' },
-        { text: `Fecha: ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}`, style: 'transactionInfo' },
-        { text: '--------------------------------------------------------------------------------------------------' },
-        { text: destinoInfo, style: 'destinoStyle' },
-        { text: '--------------------------------------------------------------------------------------------------' },
+        { text: 'Food Service Project S.L.', style: 'subtext' },
+        { text: 'CIF: B-12345678', style: 'subtext' },
+        { text: 'Av. Sinforiano Madroñero, Badajoz', style: 'subtext' },
+        
+        { text: '---------------------------------------------------', style: 'divider' },
+  
+        { text: `TICKET SIMPLIFICADO`, style: 'ticketTitle' },
+        { text: `Nº: BH-${pedidoId.toString().padStart(6, '0')}`, style: 'ticketNum' },
+        { text: `Fecha: ${fechaStr}`, style: 'subtext' },
+  
+        { text: '---------------------------------------------------', style: 'divider' },
+  
+        {
+          text: esDomicilio 
+            ? `ENTREGA A DOMICILIO\n${this.pedidoTemporal.direccionEnvio}\nTel: ${this.pedidoTemporal.telefonoContacto}`
+            : `MESA: #${this.pedidoTemporal.idMesa}`,
+          style: 'tipoPedido'
+        },
+  
+        { text: '---------------------------------------------------', style: 'divider' },
+  
+        // Lista de productos compacta tipo Bar
         {
           table: {
-            widths: ['*', 'auto', 'auto', 'auto'],
+            widths: ['*', 'auto'],
             body: [
-              ['Producto', 'Precio U.', 'Cant.', 'Subtotal'],
               ...productosFormatted
             ]
           },
-          layout: 'lightHorizontalLines'
+          layout: 'noBorders'
         },
-        { text: '--------------------------------------------------------------------------------------------------' },
+  
+        { text: '---------------------------------------------------', style: 'divider' },
+  
+        // Totales
         {
           columns: [
-            { text: 'TOTAL PEDIDO:', style: 'totalLabel', width: '*' },
+            { text: 'TOTAL:', style: 'totalLabel', width: '*' },
             { text: this.calcularTotal().toFixed(2) + ' €', style: 'totalValue', width: 'auto' }
-          ],
-          margin: [0, 5, 0, 5]
+          ]
         },
-        { text: `Método de Pago: ${this.metodoPago.toUpperCase()}`, style: 'companyDetails' },
-        { text: '\n¡Muchas gracias por su confianza!', style: 'thankYou' }
+        { text: `(IVA Incluido)`, style: 'ivaText' },
+        { text: `Pago: ${this.metodoPago.toUpperCase()}`, style: 'subtext', margin: [0, 4, 0, 0] },
+  
+        { text: '---------------------------------------------------', style: 'divider' },
+  
+        { text: '¡Gracias por su visita!', style: 'footer' },
+        { text: 'www.barhub.es', style: 'footerSub' }
       ],
       styles: {
-        header: { fontSize: 14, bold: true, alignment: 'center' },
-        subHeader: { fontSize: 10, bold: true, alignment: 'center', margin: [0, 2, 0, 2] },
-        companyDetails: { fontSize: 8, alignment: 'center' },
-        transactionInfo: { fontSize: 8, alignment: 'center', margin: [0, 2, 0, 2] },
-        destinoStyle: { fontSize: 9, bold: true, alignment: 'center', margin: [0, 4, 0, 4] },
+        header: { fontSize: 13, bold: true, alignment: 'center', margin: [0, 0, 0, 2] },
+        subtext: { fontSize: 7, alignment: 'center', color: '#333333' },
+        divider: { fontSize: 8, alignment: 'center', margin: [0, 2, 0, 2], color: '#666666' },
+        ticketTitle: { fontSize: 9, bold: true, alignment: 'center' },
+        ticketNum: { fontSize: 10, bold: true, alignment: 'center' },
+        tipoPedido: { fontSize: 8, bold: true, alignment: 'center', margin: [0, 2, 0, 2] },
         totalLabel: { fontSize: 11, bold: true },
         totalValue: { fontSize: 11, bold: true, alignment: 'right' },
-        thankYou: { fontSize: 9, italic: true, alignment: 'center' }
+        ivaText: { fontSize: 6, alignment: 'right', italic: true, color: '#555555' },
+        footer: { fontSize: 8, bold: true, alignment: 'center', margin: [0, 6, 0, 0] },
+        footerSub: { fontSize: 7, alignment: 'center', color: '#555555' }
       }
     };
-
+  
     (pdfMake as any).createPdf(docDefinition).download(`ticket_BarHub_BH-${pedidoId}.pdf`);
   }
 }

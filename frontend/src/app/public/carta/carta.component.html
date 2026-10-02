@@ -136,10 +136,11 @@
       <div *ngFor="let producto of productosFiltrados" class="col-12 col-sm-6 col-md-4 col-lg-3">
         <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden bg-white product-card">
           <div class="position-relative">
-            <img [src]="producto.imagen || 'assets/images/default-food.jpg'" 
-                 class="card-img-top object-fit-cover" 
-                 style="height: 150px;" 
-                 [alt]="producto.nombre">
+            <img [src]="getImagenUrl(producto.imagen)" 
+              class="card-img-top object-fit-cover" 
+              style="height: 150px;" 
+              [alt]="producto.nombre"
+              (error)="$any($event.target).src = 'assets/images/default.jpg'">
             <span class="badge bg-dark position-absolute top-0 end-0 m-2 rounded-pill px-2 py-1">
               {{ producto.precio | currency:'EUR' }}
             </span>

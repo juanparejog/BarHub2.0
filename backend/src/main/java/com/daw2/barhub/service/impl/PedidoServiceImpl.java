@@ -14,6 +14,7 @@ import com.daw2.barhub.model.repository.PedidoRepository;
 import com.daw2.barhub.model.repository.ProductoRepository;
 import com.daw2.barhub.service.PedidoService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -99,11 +100,21 @@ public class PedidoServiceImpl implements PedidoService {
     @Override
     @Transactional
     public Pedido crearPedidoSeguro(PedidoDto pedidoDto, String username) {
-        User usuario = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado: " + username));
-
         Pedido pedido = new Pedido();
-        pedido.setUser(usuario);
+
+        // LÓGICA DE USUARIO / INVITADO (DENTRO DEL MÉTODO)
+        String userAuth = (username != null) ? username :
+                (SecurityContextHolder.getContext().getAuthentication() != null
+                        ? SecurityContextHolder.getContext().getAuthentication().getName()
+                        : null);
+
+        if (userAuth != null && !userAuth.equals("anonymousUser")) {
+            User usuario = userRepository.findByUsername(userAuth).orElse(null);
+            pedido.setUser(usuario);
+        } else {
+            pedido.setUser(null); // Pedido de usuario anónimo/invitado
+        }
+
         pedido.setFecha(new Date());
         pedido.setEstado(pedidoDto.getEstado() != null ? pedidoDto.getEstado() : EstadoPedido.pendiente);
         pedido.setPrecioTotal(pedidoDto.getPrecioTotal());
@@ -118,7 +129,6 @@ public class PedidoServiceImpl implements PedidoService {
         } else {
             pedido.setTipoPedido(TipoPedido.MESA);
             if (pedidoDto.getMesaId() != null) {
-                // Se usa el repositorio de forma directa
                 Mesa mesa = mesaRepository.findById(pedidoDto.getMesaId()).orElse(null);
                 if (mesa == null) {
                     throw new IllegalArgumentException("La mesa especificada no existe");
@@ -138,7 +148,6 @@ public class PedidoServiceImpl implements PedidoService {
                 detalle.setPedido(pedido);
 
                 if (detalleDto.getProductoId() != null) {
-                    // Se obtiene el Producto usando findById o findById().orElse(null)
                     Producto producto = productoRepository.findById(detalleDto.getProductoId()).orElse(null);
                     if (producto == null) {
                         throw new RuntimeException("Producto no encontrado id: " + detalleDto.getProductoId());

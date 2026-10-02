@@ -26,8 +26,21 @@ export class GestionarPagosEfectivoComponent implements OnInit {
     this.cargando = true;
     this.pagoService.getPagosPendientesEfectivo().subscribe({
       next: (data: any) => {
-        // Se asume que data es un array o viene dentro de una propiedad 'data'
-        this.pagos = Array.isArray(data) ? data : (data?.data || []);
+        const listaRaw = Array.isArray(data) ? data : (data?.data || []);
+
+        this.pagos = listaRaw.map((item: any) => {
+          return {
+            ...item,
+            id: item.id,
+            id_pedido: item.idPedido || item.id_pedido || item.id,
+            total: item.precioTotal || item.precio_total || item.total || 0,
+            estado_pago: item.estadoPago || item.estado_pago || item.estado || 'pendiente',
+            tipo_pedido: item.tipoPedido || item.tipo_pedido,
+            id_mesa: item.idMesa || item.id_mesa || item.mesa?.id
+          };
+        });
+  
+        console.log('Pagos pendientes procesados:', this.pagos);
         this.cargando = false;
       },
       error: (err) => {
@@ -36,6 +49,13 @@ export class GestionarPagosEfectivoComponent implements OnInit {
         this.cargando = false;
       }
     });
+  }
+  
+  get totalPendiente(): number {
+    return this.pagos.reduce((acc, p) => {
+      const monto = p.total || (p as any).precioTotal || (p as any).precio_total || 0;
+      return acc + Number(monto);
+    }, 0);
   }
 
   marcarComoPagado(pago: Pago) {
@@ -63,9 +83,5 @@ export class GestionarPagosEfectivoComponent implements OnInit {
     this.toastType = type;
     this.showToast = true;
     setTimeout(() => (this.showToast = false), 3000);
-  }
-
-  get totalPendiente(): number {
-    return this.pagos.reduce((acc, p) => acc + (p.total || 0), 0);
   }
 }

@@ -1,9 +1,11 @@
 import { Injectable } from "@angular/core";
+import { HttpHeaders } from '@angular/common/http';
 import { Observable } from "rxjs";
 import { HttpClient } from "@angular/common/http";
 import { environment } from "src/environments/environment";
 import { Pedido } from "../interface/pedido";
 import { Socket } from 'ngx-socket-io';
+
 
 @Injectable({ providedIn: 'root' })
 export class PedidoService {
@@ -45,7 +47,17 @@ export class PedidoService {
     return this.httpClient.get<Pedido[]>(`${this.URL_PEDIDOS}/getAllDetalles`);
   }
 
-  postCrearSeguro(pedidoDto: any): Observable<any> {
-    return this.httpClient.post<any>(`${this.URL_PEDIDOS}crear-seguro`, pedidoDto);
+  postCrearSeguro(dto: any): Observable<any> {
+    const token = localStorage.getItem('token'); 
+  
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
+  
+    return this.httpClient.post<any>(
+      `${this.URL_PEDIDOS}`, 
+      dto, 
+      { headers }
+    );
   }
 }

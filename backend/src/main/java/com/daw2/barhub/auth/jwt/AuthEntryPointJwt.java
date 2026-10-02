@@ -21,6 +21,18 @@ public class AuthEntryPointJwt implements AuthenticationEntryPoint {
   private static final Logger logger = LoggerFactory.getLogger(AuthEntryPointJwt.class);
 
   @Override
+  public void commence(HttpServletRequest request, HttpServletResponse response,
+                       AuthenticationException authException) throws IOException, ServletException {
+
+    // Imprime la URI exacta que provocó el 401
+    System.out.println(">>> Peticion bloqueada por falta de JWT: " + request.getMethod() + " " + request.getRequestURI());
+
+    logger.error("Unauthorized error: {}", authException.getMessage());
+    response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Error: Unauthorized");
+  }
+
+  /*
+  @Override
   public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException)
       throws IOException, ServletException {
     logger.error("Unauthorized error: {}", authException.getMessage());
@@ -36,6 +48,6 @@ public class AuthEntryPointJwt implements AuthenticationEntryPoint {
 
     final ObjectMapper mapper = new ObjectMapper();
     mapper.writeValue(response.getOutputStream(), body);
-  }
+  } */
 
 }

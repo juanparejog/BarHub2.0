@@ -206,4 +206,18 @@ export class CartaComponent implements OnInit {
     localStorage.setItem('pedidoTemporal', JSON.stringify(pedidoPayload));
     this.router.navigate(['/confirmar-pedido']);
   }
+
+  getImagenUrl(nombreImagen: string | undefined): string {
+    if (!nombreImagen || nombreImagen.trim() === '') {
+      return 'assets/images/default-food.jpg';
+    }
+  
+    // Si ya viene con la ruta assets/ completa desde la base de datos
+    if (nombreImagen.startsWith('assets/')) {
+      return encodeURI(nombreImagen);
+    }
+  
+    // Si solo viene el nombre del archivo (ej: "agua_mineral.jpg" o "vino tinto.jpg")
+    return `assets/images/productos/${encodeURI(nombreImagen.trim())}`;
+  }
 }

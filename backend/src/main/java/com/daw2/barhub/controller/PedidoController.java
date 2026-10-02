@@ -16,6 +16,7 @@ import java.util.List;
 @Slf4j
 @RestController
 @RequestMapping("/pedidos")
+@CrossOrigin(origins = "http://localhost:4200")
 public class PedidoController {
 
     private final PedidoService pedidoService;
@@ -45,8 +46,11 @@ public class PedidoController {
     @PostMapping
     public ResponseEntity<?> create(@Valid @RequestBody PedidoDto pedidoDto, Authentication authentication) {
         try {
-            // Se inyecta el usuario autenticado automáticamente desde la sesión JWT
-            String username = authentication.getName();
+            // Extraemos el username solo si la autenticación existe y no es anónima
+            String username = (authentication != null && authentication.isAuthenticated() && !authentication.getName().equals("anonymousUser"))
+                    ? authentication.getName()
+                    : null;
+
             Pedido pedidoCreado = pedidoService.crearPedidoSeguro(pedidoDto, username);
             return ResponseEntity.status(HttpStatus.CREATED).body(PedidoDto.from(pedidoCreado));
         } catch (IllegalArgumentException e) {

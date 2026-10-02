@@ -12,7 +12,7 @@ public class BarHubApplication {
 
         // Hashear una contraseña al iniciar la app
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-        System.out.println("HASH REAL juan: " + encoder.encode("juan1234*%"));
-        System.out.println("HASH REAL BCrypt: " + encoder.encode("123456"));
+        //System.out.println("HASH REAL juan: " + encoder.encode("juan1234*%"));
+        //System.out.println("HASH REAL BCrypt: " + encoder.encode("123456"));
     }
 }

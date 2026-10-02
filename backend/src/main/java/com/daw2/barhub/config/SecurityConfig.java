@@ -56,30 +56,18 @@ public class SecurityConfig {
                 .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        // 1. Permisos pre-flight de CORS
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
-                        // 2. Endpoints públicos (Auth, imágenes/archivos estáticos, SWAGGER si usas)
+                        .requestMatchers("/error").permitAll()
+                        .requestMatchers("/socket.io", "/socket.io/**", "/socket.io/*").permitAll()
+
                         .requestMatchers("/api/auth/**", "/auth/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/productos/**", "/productos/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/mesas/**", "/mesas/**").permitAll()
 
-                        // 3. Endpoints para Clientes, Empleados y Admin
-                        .requestMatchers(HttpMethod.POST, "/api/pedidos/**", "/pedidos/**").hasAnyRole("CLIENTE", "EMPLEADO", "ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/api/pedidos/mis-pedidos", "/pedidos/mis-pedidos").hasAnyRole("CLIENTE", "EMPLEADO", "ADMIN")
+                        // --- PERMITIR CREACIÓN DE PEDIDOS (Tanto a usuarios logueados como anónimos) ---
+                        .requestMatchers(HttpMethod.POST, "/pedidos", "/pedidos/**", "/api/pedidos", "/api/pedidos/**").permitAll()
 
-                        // 4. Endpoints exclusivos para empleados y admin (Gestión)
-                        .requestMatchers("/api/pagos/**", "/pagos/**").hasAnyRole("EMPLEADO", "ADMIN")
-                        .requestMatchers("/api/detalles_pedidos/**", "/detalles_pedidos/**").hasAnyRole("EMPLEADO", "ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/api/pedidos/**", "/pedidos/**").hasAnyRole("EMPLEADO", "ADMIN")
-                        .requestMatchers(HttpMethod.POST, "/api/mesas/**", "/mesas/**").hasAnyRole("EMPLEADO", "ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/api/mesas/**", "/mesas/**").hasAnyRole("EMPLEADO", "ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/api/mesas/**", "/mesas/**").hasAnyRole("EMPLEADO", "ADMIN")
-
-                        // 5. Panel de Administración
-                        .requestMatchers("/api/usuarios/**", "/usuarios/**", "/api/roles/**", "/roles/**").hasRole("ADMIN")
-
-                        // CUALQUIER OTRA PETICIÓN REQUIERE AUTENTICACIÓN
                         .anyRequest().authenticated()
                 );
 
