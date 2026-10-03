@@ -1,9 +1,9 @@
 package com.daw2.barhub.model.dto;
 
 import com.daw2.barhub.auth.models.User;
+import com.daw2.barhub.model.Enum.EstadoPago;
 import com.daw2.barhub.model.Enum.EstadoPedido;
 import com.daw2.barhub.model.Enum.TipoPedido;
-import com.daw2.barhub.model.dto.DetallePedidoDto;
 import com.daw2.barhub.model.entity.Mesa;
 import com.daw2.barhub.model.entity.Pedido;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -40,10 +40,14 @@ public class PedidoDto {
     private Date fecha;
     private EstadoPedido estado;
 
+    @JsonProperty("estado_pago")
+    private EstadoPago estadoPago = EstadoPago.PENDIENTE;
+
     @JsonProperty("precio_total")
     private BigDecimal precioTotal;
 
-    private String paymentMethodId;
+    @JsonProperty("metodo_pago")
+    private String metodoPago;
 
     private List<DetallePedidoDto> detalles = new ArrayList<>();
 
@@ -68,8 +72,9 @@ public class PedidoDto {
         dto.setTelefonoContacto(pedido.getTelefonoContacto());
         dto.setFecha(pedido.getFecha());
         dto.setEstado(pedido.getEstado());
+        dto.setEstadoPago(pedido.getEstadoPago());
         dto.setPrecioTotal(pedido.getPrecioTotal());
-        dto.setPaymentMethodId(pedido.getPaymentMethodId());
+        dto.setMetodoPago(pedido.getMetodoPago());
 
         if (pedido.getDetalles() != null && !pedido.getDetalles().isEmpty()) {
             dto.setDetalles(DetallePedidoDto.from(pedido.getDetalles()));
@@ -109,13 +114,13 @@ public class PedidoDto {
         pedido.setTelefonoContacto(getTelefonoContacto());
         pedido.setFecha(getFecha());
         pedido.setEstado(getEstado());
+        pedido.setEstadoPago(getEstadoPago() != null ? getEstadoPago() : EstadoPago.PENDIENTE);
         pedido.setPrecioTotal(getPrecioTotal());
-        pedido.setPaymentMethodId(getPaymentMethodId());
+        pedido.setMetodoPago(getMetodoPago());
 
         return pedido;
     }
 
-    // Compatibilidad con invocaciones antiguas .getTotal()
     public BigDecimal getTotal() {
         return this.precioTotal;
     }

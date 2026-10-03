@@ -21,4 +21,6 @@ public interface PedidoService {
     List<Pedido> findByUsername(String username);
     Pedido crearPedidoSeguro(PedidoDto pedidoDto, String username);
     Pedido updateFromDto(long id, PedidoDto pedidoDto);
+
+    List<Pedido> findPedidosPendientesEfectivo();
 }

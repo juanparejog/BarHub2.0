@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { Subject, timer } from 'rxjs';
-import { switchMap, takeUntil } from 'rxjs/operators';
+import { Subject, timer, of } from 'rxjs';
+import { switchMap, takeUntil, catchError } from 'rxjs/operators';
 import { PedidoService } from '../services/pedido';
 import { Pedido } from '../interface/pedido';
 
@@ -19,7 +19,8 @@ export class SeguimientoPedidosComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.usuario = JSON.parse(localStorage.getItem('user') || 'null');
-    if (this.usuario?.id) {
+    // Ya no dependemos estrictamente del id en la llamada, pero verificamos que esté logueado
+    if (this.usuario) {
       this.iniciarRefrescoAutomatico();
     }
   }
@@ -27,7 +28,12 @@ export class SeguimientoPedidosComponent implements OnInit, OnDestroy {
   private iniciarRefrescoAutomatico() {
     // Consulta cada 5 segundos
     timer(0, 5000).pipe(
-      switchMap(() => this.pedidoService.getPedidosByUsuario(this.usuario.id)),
+      switchMap(() => this.pedidoService.getMisPedidos().pipe(
+        catchError(err => {
+          console.error('Error al obtener mis pedidos:', err);
+          return of([]); // Retorna array vacío si falla para mantener el timer activo
+        })
+      )),
       takeUntil(this.destroy$)
     ).subscribe(data => {
       this.pedidos = data.filter(pedido => this.filtrarPedidosActivos(pedido));
@@ -46,8 +52,7 @@ export class SeguimientoPedidosComponent implements OnInit, OnDestroy {
   }
 
   private programarEliminaciones() {
-    // Limpiamos los timers anteriores para no duplicar
-    this.timers.forEach(timer => clearTimeout(timer));
+    this.timers.forEach(t => clearTimeout(t));
     this.timers = [];
 
     this.pedidos.forEach(pedido => {
@@ -59,11 +64,11 @@ export class SeguimientoPedidosComponent implements OnInit, OnDestroy {
       const tiempoRestante = fechaLimite.getTime() - Date.now();
       
       if (tiempoRestante > 0) {
-        const timer = setTimeout(() => {
+        const t = setTimeout(() => {
           this.eliminarPedidoAutomatico(pedido);
         }, tiempoRestante);
         
-        this.timers.push(timer);
+        this.timers.push(t);
       }
     });
   }
@@ -80,6 +85,6 @@ export class SeguimientoPedidosComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.destroy$.next();
     this.destroy$.complete();
-    this.timers.forEach(timer => clearTimeout(timer));
+    this.timers.forEach(t => clearTimeout(t));
   }
 }

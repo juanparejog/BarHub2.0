@@ -1,6 +1,7 @@
 package com.daw2.barhub.model.entity;
 
 import com.daw2.barhub.auth.models.User;
+import com.daw2.barhub.model.Enum.EstadoPago;
 import com.daw2.barhub.model.Enum.EstadoPedido;
 import com.daw2.barhub.model.Enum.TipoPedido;
 import com.fasterxml.jackson.annotation.JsonBackReference;
@@ -35,7 +36,6 @@ public class Pedido {
     @JsonBackReference
     private User user;
 
-    // Ahora es opcional (nullable = true) para permitir pedidos a domicilio
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_mesa", nullable = true)
     private Mesa mesa;
@@ -44,7 +44,6 @@ public class Pedido {
     @Column(name = "tipo_pedido", nullable = false)
     private TipoPedido tipoPedido = TipoPedido.MESA;
 
-    // Campos exclusivos para entrega a domicilio
     @Column(name = "direccion_envio")
     private String direccionEnvio;
 
@@ -62,8 +61,12 @@ public class Pedido {
     @Digits(integer = 10, fraction = 2)
     private BigDecimal precioTotal;
 
-    @Column(name = "payment_method_id")
-    private String paymentMethodId;
+    @Column(name = "metodo_pago")
+    private String metodoPago;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "estado_pago", nullable = false)
+    private EstadoPago estadoPago = EstadoPago.PENDIENTE;
 
     @CreationTimestamp
     private Instant createdAt;

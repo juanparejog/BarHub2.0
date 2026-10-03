@@ -25,9 +25,15 @@ public class PedidoController {
         this.pedidoService = pedidoService;
     }
 
-    @GetMapping
+    @GetMapping({"", "/"})
     public ResponseEntity<List<PedidoDto>> index() {
         return ResponseEntity.ok(PedidoDto.from(pedidoService.findAll()));
+    }
+
+    @GetMapping("/pendientes-efectivo")
+    public ResponseEntity<List<PedidoDto>> getPendientesEfectivo() {
+        List<Pedido> pedidos = pedidoService.findPedidosPendientesEfectivo();
+        return ResponseEntity.ok(PedidoDto.from(pedidos));
     }
 
     @GetMapping("/mis-pedidos")
@@ -46,7 +52,6 @@ public class PedidoController {
     @PostMapping
     public ResponseEntity<?> create(@Valid @RequestBody PedidoDto pedidoDto, Authentication authentication) {
         try {
-            // Extraemos el username solo si la autenticación existe y no es anónima
             String username = (authentication != null && authentication.isAuthenticated() && !authentication.getName().equals("anonymousUser"))
                     ? authentication.getName()
                     : null;
@@ -78,7 +83,7 @@ public class PedidoController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> update(@PathVariable Long id, @Valid @RequestBody PedidoDto pedidoDto) {
+    public ResponseEntity<?> update(@PathVariable Long id, @RequestBody PedidoDto pedidoDto) {
         try {
             Pedido pedidoActualizado = pedidoService.updateFromDto(id, pedidoDto);
             if (pedidoActualizado != null) {

@@ -2,6 +2,7 @@ package com.daw2.barhub.service.impl;
 
 import com.daw2.barhub.auth.models.User;
 import com.daw2.barhub.auth.repository.UserRepository;
+import com.daw2.barhub.model.Enum.EstadoPago;
 import com.daw2.barhub.model.Enum.EstadoPedido;
 import com.daw2.barhub.model.Enum.TipoPedido;
 import com.daw2.barhub.model.dto.PedidoDto;
@@ -78,6 +79,9 @@ public class PedidoServiceImpl implements PedidoService {
 
             pedidoExistente.setFecha(entity.getFecha());
             pedidoExistente.setEstado(entity.getEstado());
+            if (entity.getEstadoPago() != null) {
+                pedidoExistente.setEstadoPago(entity.getEstadoPago());
+            }
             pedidoExistente.setPrecioTotal(entity.getPrecioTotal());
 
             return pedidoRepository.save(pedidoExistente);
@@ -85,10 +89,6 @@ public class PedidoServiceImpl implements PedidoService {
             return null;
         }
     }
-
-    // -------------------------------------------------------------------------
-    // MÉTODOS AÑADIDOS PARA SOPORTE DE CONTROLADOR, QR Y PEDIDOS A DOMICILIO
-    // -------------------------------------------------------------------------
 
     @Override
     public List<Pedido> findByUsername(String username) {
@@ -102,7 +102,6 @@ public class PedidoServiceImpl implements PedidoService {
     public Pedido crearPedidoSeguro(PedidoDto pedidoDto, String username) {
         Pedido pedido = new Pedido();
 
-        // LÓGICA DE USUARIO / INVITADO (DENTRO DEL MÉTODO)
         String userAuth = (username != null) ? username :
                 (SecurityContextHolder.getContext().getAuthentication() != null
                         ? SecurityContextHolder.getContext().getAuthentication().getName()
@@ -112,15 +111,22 @@ public class PedidoServiceImpl implements PedidoService {
             User usuario = userRepository.findByUsername(userAuth).orElse(null);
             pedido.setUser(usuario);
         } else {
-            pedido.setUser(null); // Pedido de usuario anónimo/invitado
+            pedido.setUser(null);
         }
 
         pedido.setFecha(new Date());
         pedido.setEstado(pedidoDto.getEstado() != null ? pedidoDto.getEstado() : EstadoPedido.pendiente);
         pedido.setPrecioTotal(pedidoDto.getPrecioTotal());
-        pedido.setPaymentMethodId(pedidoDto.getPaymentMethodId());
+        pedido.setMetodoPago(pedidoDto.getMetodoPago());
 
-        // Distinción entre pedido en MESA y DOMICILIO
+        if (pedidoDto.getMetodoPago() != null && pedidoDto.getMetodoPago().equalsIgnoreCase("tarjeta")) {
+            pedido.setEstadoPago(EstadoPago.COMPLETADO);
+        } else if (pedidoDto.getEstadoPago() != null) {
+            pedido.setEstadoPago(pedidoDto.getEstadoPago());
+        } else {
+            pedido.setEstadoPago(EstadoPago.PENDIENTE);
+        }
+
         if (pedidoDto.getTipoPedido() == TipoPedido.DOMICILIO) {
             pedido.setTipoPedido(TipoPedido.DOMICILIO);
             pedido.setDireccionEnvio(pedidoDto.getDireccionEnvio());
@@ -139,7 +145,6 @@ public class PedidoServiceImpl implements PedidoService {
             }
         }
 
-        // Mapeo de detalles del pedido
         if (pedidoDto.getDetalles() != null && !pedidoDto.getDetalles().isEmpty()) {
             pedidoDto.getDetalles().forEach(detalleDto -> {
                 DetallePedido detalle = new DetallePedido();
@@ -169,6 +174,9 @@ public class PedidoServiceImpl implements PedidoService {
             if (pedidoDto.getEstado() != null) {
                 pedidoExistente.setEstado(pedidoDto.getEstado());
             }
+            if (pedidoDto.getEstadoPago() != null) {
+                pedidoExistente.setEstadoPago(pedidoDto.getEstadoPago());
+            }
             if (pedidoDto.getPrecioTotal() != null) {
                 pedidoExistente.setPrecioTotal(pedidoDto.getPrecioTotal());
             }
@@ -181,6 +189,10 @@ public class PedidoServiceImpl implements PedidoService {
             return pedidoRepository.save(pedidoExistente);
         }
         return null;
+    }
+
+    public List<Pedido> findPedidosPendientesEfectivo() {
+        return pedidoRepository.findByMetodoPagoIgnoreCaseAndEstadoPago("efectivo", EstadoPago.PENDIENTE);
     }
 
     public List<Pedido> findPedidosConDetallesByUsuarioId(Long usuarioId) {

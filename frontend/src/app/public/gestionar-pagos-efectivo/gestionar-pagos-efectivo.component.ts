@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { PagoService } from '../services/pago';
-import { Pago } from '../../admin/pages/pagos/interface/pago';
+import { PedidoService } from '../services/pedido';
+import { Pedido, EstadoPago } from '../../public/interface/pedido';
 
 @Component({
   selector: 'app-gestionar-pagos-efectivo',
@@ -8,80 +8,86 @@ import { Pago } from '../../admin/pages/pagos/interface/pago';
   styleUrls: ['./gestionar-pagos-efectivo.component.css']
 })
 export class GestionarPagosEfectivoComponent implements OnInit {
-  pagos: Pago[] = [];
-  cargando = false;
-  procesandoId: number | null = null;
+  pedidosPendientes: Pedido[] = [];
+  cargando: boolean = false;
+  
+  pedidoSeleccionado: Pedido | null = null;
+  montoEntregado: number = 0;
+  cambioDevolver: number = 0;
 
-  showToast = false;
-  toastMessage = '';
-  toastType: 'success' | 'error' | 'info' = 'info';
+  constructor(private pedidoService: PedidoService) {}
 
-  constructor(private pagoService: PagoService) {}
-
-  ngOnInit() {
-    this.cargarPagos();
+  ngOnInit(): void {
+    this.cargarPedidosPendientesDePago();
   }
 
-  cargarPagos() {
+  cargarPedidosPendientesDePago(): void {
     this.cargando = true;
-    this.pagoService.getPagosPendientesEfectivo().subscribe({
-      next: (data: any) => {
-        const listaRaw = Array.isArray(data) ? data : (data?.data || []);
-
-        this.pagos = listaRaw.map((item: any) => {
-          return {
-            ...item,
-            id: item.id,
-            id_pedido: item.idPedido || item.id_pedido || item.id,
-            total: item.precioTotal || item.precio_total || item.total || 0,
-            estado_pago: item.estadoPago || item.estado_pago || item.estado || 'pendiente',
-            tipo_pedido: item.tipoPedido || item.tipo_pedido,
-            id_mesa: item.idMesa || item.id_mesa || item.mesa?.id
-          };
-        });
-  
-        console.log('Pagos pendientes procesados:', this.pagos);
+    
+    this.pedidoService.getPendientesEfectivo().subscribe({
+      next: (pedidos) => {
+        this.pedidosPendientes = pedidos;
         this.cargando = false;
       },
       error: (err) => {
-        console.error('Error al obtener pagos pendientes:', err);
-        this.showToastMessage('Error al cargar la lista de pagos', 'error');
+        console.error('Error al cargar pedidos pendientes de pago:', err);
         this.cargando = false;
       }
     });
   }
-  
-  get totalPendiente(): number {
-    return this.pagos.reduce((acc, p) => {
-      const monto = p.total || (p as any).precioTotal || (p as any).precio_total || 0;
-      return acc + Number(monto);
-    }, 0);
+
+  seleccionarPedido(pedido: Pedido): void {
+    this.pedidoSeleccionado = pedido;
+    const total = pedido.precioTotal ?? (pedido as any).total ?? 0;
+    this.montoEntregado = total;
+    this.calcularCambio();
   }
 
-  marcarComoPagado(pago: Pago) {
-    if (!pago.id) return;
+  calcularCambio(): void {
+    if (this.pedidoSeleccionado) {
+      const total = this.pedidoSeleccionado.precioTotal ?? (this.pedidoSeleccionado as any).total ?? 0;
+      const cambio = this.montoEntregado - total;
+      this.cambioDevolver = cambio > 0 ? cambio : 0;
+    }
+  }
 
-    this.procesandoId = pago.id;
-
-    this.pagoService.marcarPagoComoCompletado(pago as any).subscribe({
+  confirmarCobroEfectivo(): void {
+    if (!this.pedidoSeleccionado) return;
+  
+    const total = this.pedidoSeleccionado.precioTotal ?? (this.pedidoSeleccionado as any).total ?? 0;
+  
+    if (this.montoEntregado < total) {
+      alert('El monto entregado es menor al total del pedido.');
+      return;
+    }
+  
+    const payloadActualizacion = {
+      id: this.pedidoSeleccionado.id,
+      id_mesa: this.pedidoSeleccionado.mesaId || (this.pedidoSeleccionado as any).id_mesa,
+      tipo_pedido: (this.pedidoSeleccionado as any).tipoPedido || (this.pedidoSeleccionado as any).tipo_pedido || 'MESA',
+      estado: this.pedidoSeleccionado.estado || 'PENDIENTE',
+      
+      estado_pago: 'COMPLETADO',
+      metodo_pago: 'EFECTIVO',
+      precio_total: Number(total),
+  
+      detalles: (this.pedidoSeleccionado.detalles || []).map((det: any) => ({
+        id_producto: det.id_producto || det.producto?.id || 0,
+        cantidad: det.cantidad,
+        precio_unitario: det.precio_unitario || det.precioUnitario || 0
+      }))
+    };
+  
+    this.pedidoService.put(payloadActualizacion as any).subscribe({
       next: () => {
-        pago.estado_pago = 'completado';
-        this.pagos = this.pagos.filter(p => p.id !== pago.id);
-        this.procesandoId = null;
-        this.showToastMessage(`Pedido #${pago.pedido?.id || pago.id_pedido} cobrado correctamente`, 'success');
+        alert('Pago procesado correctamente');
+        this.pedidoSeleccionado = null;
+        this.cargarPedidosPendientesDePago();
       },
       error: (err) => {
-        console.error('Error al marcar como pagado:', err);
-        this.showToastMessage('Error al procesar el cobro', 'error');
-        this.procesandoId = null;
+        console.error('Error al procesar el pago:', err);
+        alert('Ocurrió un error al registrar el pago');
       }
     });
-  }
-
-  showToastMessage(message: string, type: 'success' | 'error' | 'info' = 'info') {
-    this.toastMessage = message;
-    this.toastType = type;
-    this.showToast = true;
-    setTimeout(() => (this.showToast = false), 3000);
   }
 }

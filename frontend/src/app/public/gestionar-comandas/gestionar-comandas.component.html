@@ -1,17 +1,26 @@
 <h2 class="titulo-comandas">Gestión de Comandas</h2>
+
 <div *ngIf="pedidosNoServidos.length === 0" class="sin-comandas">
   <p class="sinComandas">No hay comandas registradas.</p>
 </div>
+
 <div *ngFor="let pedido of pedidosNoServidos" class="comanda-card">
   <div class="comanda-header">
-    <strong>Pedido #{{ pedido.id }}</strong> - <strong>Mesa #{{ pedido.id_mesa }}</strong> - {{ pedido.fecha | date:'dd/MM/yyyy HH:mm' }}
-    <span class="estado-pedido" [ngClass]="pedido.estado">
+    <strong>Pedido #{{ pedido.id }}</strong> - 
+    <strong>Mesa #{{ pedido.mesaId || pedido.id_mesa || pedido.idMesa }}</strong> - 
+    {{ pedido.fecha | date:'dd/MM/yyyy HH:mm' }}
+    <span class="estado-pedido" [ngClass]="(pedido.estado || '').toLowerCase()">
         {{ getLabelEstado(pedido.estado) }}
     </span>
   </div>
+
   <div class="comanda-info">
-    <p><strong>Total:</strong> {{ pedido.total | currency:'EUR':'symbol':'1.2-2' }}</p>
+    <p>
+      <strong>Total:</strong> 
+      {{ (pedido.precioTotal ?? pedido.precio_total ?? pedido.total ?? 0) | currency:'EUR':'symbol':'1.2-2' }}
+    </p>
   </div>
+
   <div class="comanda-detalles">
     <table>
       <thead>
@@ -24,18 +33,23 @@
       </thead>
       <tbody>
         <tr *ngFor="let det of pedido.detalles || []">
-            <td>{{ det.producto?.nombre }}</td>
+            <td>{{ det.producto?.nombre || det.productoNombre || 'Producto' }}</td>
             <td>{{ det.cantidad }}</td>
-            <td>{{ det.precio_unitario | currency:'EUR':'symbol':'1.2-2' }}</td>
-            <td>{{ (det.cantidad * det.precio_unitario) | currency:'EUR':'symbol':'1.2-2' }}</td>
+            <td>
+              {{ (det.precio_unitario ?? det.precioUnitario ?? det.producto?.precio ?? 0) | currency:'EUR':'symbol':'1.2-2' }}
+            </td>
+            <td>
+              {{ (det.cantidad * (det.precio_unitario ?? det.precioUnitario ?? det.producto?.precio ?? 0)) | currency:'EUR':'symbol':'1.2-2' }}
+            </td>
         </tr>
       </tbody>
     </table>
   </div>
+
   <div class="comanda-actions">
     <button *ngFor="let estado of estados"
-            [disabled]="pedido.estado === estado.value"
-            [ngClass]="estado.value"
+            [disabled]="(pedido.estado || '').toUpperCase() === estado.value"
+            [ngClass]="estado.value.toLowerCase()"
             (click)="cambiarEstado(pedido, estado.value)">
       {{ estado.label }}
     </button>

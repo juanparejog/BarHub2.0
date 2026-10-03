@@ -13,13 +13,12 @@ spring:
   application:
     name: BarHub
   datasource:
-    url: jdbc:mysql://127.0.0.1:3306/barhub2.0
+    url: jdbc:mysql://127.0.0.1:3306/barhub2_0
     username: ${DB_USER}
     password: ${DB_PASSWORD}
     driverClassName: com.mysql.cj.jdbc.Driver
   jpa:
     defer-datasource-initialization: true
-    # Usa el dialecto moderno de MySQL / MariaDB para Hibernate 6
     database-platform: org.hibernate.dialect.MySQLDialect
     hibernate:
       ddl-auto: update

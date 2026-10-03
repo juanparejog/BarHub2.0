@@ -7,7 +7,7 @@
     <strong>Pedido #{{ pedido.id }}</strong>
     <span class="estado">{{ pedido.estado | titlecase }}</span>
     <span class="fecha">{{ pedido.fecha | date:'dd/MM/yyyy' }}</span>
-    <span class="total">{{ pedido.total | currency:'EUR':'symbol':'1.2-2' }}</span>
+    <span class="total">{{ pedido.precioTotal | currency:'EUR':'symbol':'1.2-2' }}</span>
   </div>
   <div class="pedido-detalles" *ngIf="pedido.detalles && pedido.detalles.length > 0">
     <table>

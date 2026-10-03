@@ -106,64 +106,30 @@ export class ConfirmarPedidoComponent implements OnInit {
 
   async finalizarPedido() {
     if (!this.pedidoTemporal) return;
-
-    if (this.metodoPago === 'tarjeta') {
-      if (!this.stripe || !this.card) {
-        this.showToastMessage('Suscripción a pasarela de pago no disponible', 'error');
-        return;
-      }
-
-      const { error, paymentMethod } = await this.stripe.createPaymentMethod({
-        type: 'card',
-        card: this.card,
-      });
-
-      if (error) {
-        this.showToastMessage(error.message ?? 'Error procesando la tarjeta', 'error');
-        return;
-      }
-
-      this.procesarPedido(paymentMethod?.id || null);
-    } else {
-      this.procesarPedido(null);
-    }
+  
+    this.procesarPedido();
   }
-
-  private procesarPedido(paymentMethodId: string | null) {
+  
+  private procesarPedido() {
     if (!this.pedidoTemporal) return;
   
     const mesaIdNum = this.pedidoTemporal.idMesa ? Number(this.pedidoTemporal.idMesa) : null;
-  
-    // Si no hay paymentMethodId de Stripe (pago con tarjeta), enviamos 'EFECTIVO'
-    const valorMetodoPago = paymentMethodId ? paymentMethodId : 'EFECTIVO';
+    const esTarjeta = this.metodoPago?.toLowerCase() === 'tarjeta';
   
     const dtoPayload = {
-      tipoPedido: this.pedidoTemporal.tipoPedido,
-      tipo_pedido: this.pedidoTemporal.tipoPedido,
-      
-      idMesa: mesaIdNum,
       id_mesa: mesaIdNum,
-      
-      mesa: mesaIdNum ? { id: mesaIdNum } : null,
-  
-      direccionEnvio: this.pedidoTemporal.tipoPedido === 'DOMICILIO' ? this.pedidoTemporal.direccionEnvio : null,
+      tipo_pedido: this.pedidoTemporal.tipoPedido,
       direccion_envio: this.pedidoTemporal.tipoPedido === 'DOMICILIO' ? this.pedidoTemporal.direccionEnvio : null,
-  
-      telefonoContacto: this.tipoPedidoDomicilio ? this.pedidoTemporal.telefonoContacto : null,
       telefono_contacto: this.tipoPedidoDomicilio ? this.pedidoTemporal.telefonoContacto : null,
   
-      precioTotal: this.calcularTotal(),
-      precio_total: this.calcularTotal(),
-  
-      paymentMethodId: valorMetodoPago,
-      payment_method_id: valorMetodoPago,
       estado: 'PENDIENTE',
+      estado_pago: 'PENDIENTE',
+      metodo_pago: esTarjeta ? 'TARJETA' : 'EFECTIVO',
+      precio_total: Number(this.calcularTotal()),
   
       detalles: this.pedidoTemporal.productos.map(item => ({
-        idProducto: item.producto.id,
         id_producto: item.producto.id,
         cantidad: item.cantidad,
-        precioUnitario: item.producto.precio,
         precio_unitario: item.producto.precio
       }))
     };
@@ -175,7 +141,7 @@ export class ConfirmarPedidoComponent implements OnInit {
         console.log('Pedido creado con éxito', res);
         this.showToastMessage('¡Pedido realizado con éxito!', 'success');
   
-        const idPedidoCreado = res.id || res.idPedido || 1;
+        const idPedidoCreado = res.id || 1;
         this.generarTicketPDF(idPedidoCreado);
   
         localStorage.removeItem('pedidoTemporal');
@@ -243,7 +209,7 @@ export class ConfirmarPedidoComponent implements OnInit {
   
         { text: '---------------------------------------------------', style: 'divider' },
   
-        // Lista de productos compacta tipo Bar
+        // Lista de productos compacta
         {
           table: {
             widths: ['*', 'auto'],

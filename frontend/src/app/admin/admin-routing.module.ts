@@ -15,11 +15,6 @@ import { EditarMesaComponent } from './pages/mesas/editar-mesas/editar-mesas.com
 import { GestionarMesaComponent } from './pages/mesas/gestionar-mesas/gestionar-mesa.component';
 import { VerMesaComponent } from './pages/mesas/ver-mesa/ver-mesa.component';
 
-// Rutas Pagos
-import { EditarPagoComponent } from './pages/pagos/editar-pagos/editar-pagos.component';
-import { GestionarPagoComponent } from './pages/pagos/gestionar-pagos/gestionar-pago.component';
-import { VerPagoComponent } from './pages/pagos/ver-pago/ver-pago.component';
-
 // Rutas Pedidos
 import { EditarPedidoComponent } from './pages/pedidos/editar-pedidos/editar-pedidos.component';
 import { GestionarPedidoComponent } from './pages/pedidos/gestionar-pedidos/gestionar-pedido.component';
@@ -54,13 +49,7 @@ const routes: Routes = [
       { path: 'editar-mesas/:id', component: EditarMesaComponent },
       { path: 'gestionar-mesas', component: GestionarMesaComponent },
       { path: 'ver-mesa/:id', component: VerMesaComponent },
-
-      // Pagos
-      { path: 'crear-pago', component: EditarPagoComponent },
-      { path: 'editar-pago/:id', component: EditarPagoComponent },
-      { path: 'gestionar-pagos', component: GestionarPagoComponent },
-      { path: 'ver-pago/:id', component: VerPagoComponent },
-
+      
       // Pedidos
       { path: 'crear-pedido', component: EditarPedidoComponent },
       { path: 'editar-pedido/:id', component: EditarPedidoComponent },

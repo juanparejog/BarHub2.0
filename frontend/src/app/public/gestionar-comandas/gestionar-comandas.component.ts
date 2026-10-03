@@ -11,11 +11,12 @@ import { Pedido } from '../../admin/pages/pedidos/interface/pedido';
   styleUrls: ['./gestionar-comandas.component.css']
 })
 export class GestionarComandasComponent implements OnInit, OnDestroy {
-  pedidos: Pedido[] = [];
+  pedidos: any[] = [];
+  
   estados = [
-    { value: 'pendiente', label: 'Pendiente' },
-    { value: 'preparado', label: 'Preparado' },
-    { value: 'servido', label: 'Servido' }
+    { value: 'PENDIENTE', label: 'Pendiente' },
+    { value: 'PREPARADO', label: 'Preparado' },
+    { value: 'SERVIDO', label: 'Servido' }
   ];
   
   private destroy$ = new Subject<void>();
@@ -30,46 +31,79 @@ export class GestionarComandasComponent implements OnInit, OnDestroy {
   }
 
   iniciarRefrescoAutomatico() {
-    // Consulta los pedidos cada 5 segundos
     timer(0, 5000).pipe(
       switchMap(() => this.pedidoService.get()),
       takeUntil(this.destroy$)
-    ).subscribe(pedidos => {
-      const sinServir = pedidos.filter(p => p.estado !== 'servido');
-      
-      sinServir.forEach(pedido => {
-        this.detalleService.getByPedidoId(pedido.id!).subscribe(detalles => {
-          pedido.detalles = detalles;
+    ).subscribe({
+      next: (pedidos: any[]) => {
+        const sinServir = pedidos.filter(p => {
+          const estadoUpper = String(p.estado || '').toUpperCase();
+          return estadoUpper !== 'SERVIDO';
         });
-      });
 
-      this.pedidos = sinServir;
+        sinServir.forEach(pedido => {
+          if (!pedido.detalles || pedido.detalles.length === 0) {
+            this.detalleService.getByPedidoId(pedido.id!).subscribe({
+              next: (detalles) => pedido.detalles = detalles,
+              error: () => {}
+            });
+          }
+        });
+
+        this.pedidos = sinServir;
+      },
+      error: (err) => console.error('Error al refrescar comandas:', err)
     });
   }
 
-  cambiarEstado(pedido: Pedido, nuevoEstado: string) {
-    if (pedido.estado === nuevoEstado) return;
+  cambiarEstado(pedido: any, nuevoEstado: string) {
+    const estadoActual = String(pedido.estado || '').toUpperCase();
+    if (estadoActual === nuevoEstado) return;
     
-    const actualizado = { ...pedido, estado: nuevoEstado };
-    this.pedidoService.put(actualizado).subscribe({
+    const totalCalc = pedido.precioTotal ?? pedido.precio_total ?? pedido.total ?? 0;
+    const mesaNum = pedido.mesaId ?? pedido.id_mesa ?? pedido.idMesa;
+
+    const payloadActualizacion = {
+      id: pedido.id,
+      id_mesa: mesaNum,
+      tipo_pedido: pedido.tipoPedido || pedido.tipo_pedido || 'MESA',
+      estado: nuevoEstado,
+      estado_pago: pedido.estadoPago || pedido.estado_pago || 'PENDIENTE',
+      metodo_pago: pedido.metodoPago || pedido.metodo_pago || 'EFECTIVO',
+      precio_total: Number(totalCalc),
+      detalles: (pedido.detalles || []).map((det: any) => ({
+        id_producto: det.id_producto || det.producto?.id || 0,
+        cantidad: det.cantidad,
+        precio_unitario: det.precio_unitario || det.precioUnitario || det.producto?.precio || 0
+      }))
+    };
+
+    this.pedidoService.put(payloadActualizacion as any).subscribe({
       next: () => {
         pedido.estado = nuevoEstado;
-        // Si el estado pasa a servido, lo eliminamos localmente de inmediato
-        if (nuevoEstado === 'servido') {
+        if (nuevoEstado === 'SERVIDO') {
           this.pedidos = this.pedidos.filter(p => p.id !== pedido.id);
         }
       },
-      error: () => alert('Error actualizando el estado del pedido')
+      error: (err) => {
+        console.error('Error actualizando el estado:', err);
+        alert('Error actualizando el estado del pedido');
+      }
     });
   }
 
   getLabelEstado(estado: string): string {
-    const encontrado = this.estados.find(e => e.value === estado);
-    return encontrado ? encontrado.label : 'Desconocido';
+    if (!estado) return 'Desconocido';
+    const estadoUpper = estado.toUpperCase();
+    const encontrado = this.estados.find(e => e.value === estadoUpper);
+    return encontrado ? encontrado.label : estado;
   }
 
-  get pedidosNoServidos(): Pedido[] {
-    return this.pedidos.filter(pedido => pedido.estado !== 'servido');
+  get pedidosNoServidos(): any[] {
+    return this.pedidos.filter(pedido => {
+      const estadoUpper = String(pedido.estado || '').toUpperCase();
+      return estadoUpper !== 'SERVIDO';
+    });
   }
 
   ngOnDestroy() {

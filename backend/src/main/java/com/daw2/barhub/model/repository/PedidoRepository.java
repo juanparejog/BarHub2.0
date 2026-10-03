@@ -1,5 +1,6 @@
 package com.daw2.barhub.model.repository;
 
+import com.daw2.barhub.model.Enum.EstadoPago;
 import com.daw2.barhub.model.entity.Pedido;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -18,4 +19,7 @@ public interface PedidoRepository extends JpaRepository<Pedido, Long> {
 
     @Query("SELECT p FROM Pedido p LEFT JOIN FETCH p.detalles")
     List<Pedido> findAllWithDetalles();
+
+    // Consulta para la vista de cobro en caja en efectivo
+    List<Pedido> findByMetodoPagoIgnoreCaseAndEstadoPago(String metodoPago, EstadoPago estadoPago);
 }
