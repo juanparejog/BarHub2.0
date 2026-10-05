@@ -1,9 +1,263 @@
-.navbar-nav .fw-semibold {
-    max-width: 120px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    display: inline-block;
-    vertical-align: middle;
+/* ==========================================================================
+   ESTILOS NAVBAR MEJORADA - BARHUB
+   ========================================================================== */
+
+/* Contenedor principal de la Navbar */
+.custom-navbar {
+  background: rgba(10, 35, 66, 0.94); /* Oxford Blue transparente */
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 4px 20px rgba(10, 35, 66, 0.3);
+  padding: 8px 0;
+  transition: all 0.3s ease;
+  z-index: 1000;
+}
+
+.navbar-container {
+  padding-left: 2rem;
+  padding-right: 2rem;
+}
+
+/* Logo de la marca */
+.custom-brand {
+  padding: 0;
+  display: flex;
+  align-items: center;
+}
+
+.brand-logo {
+  width: 75px;
+  height: auto;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+}
+
+.custom-brand:hover .brand-logo {
+  transform: scale(1.06);
+}
+
+/* Enlaces del menú principal */
+.main-nav-links .nav-link {
+  color: #e2e8f0 !important;
+  font-weight: 500;
+  font-size: 0.98rem;
+  padding: 8px 14px !important;
+  position: relative;
+  transition: color 0.3s ease, transform 0.2s ease;
+}
+
+/* Línea inferior animada al pasar el cursor o estar activo */
+.main-nav-links .nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: 2px;
+  left: 50%;
+  width: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #7da7d9, #ffffff);
+  border-radius: 2px;
+  transition: width 0.3s ease, left 0.3s ease;
+}
+
+.main-nav-links .nav-link:hover,
+.main-nav-links .nav-link.active {
+  color: #ffffff !important;
+}
+
+.main-nav-links .nav-link:hover::after,
+.main-nav-links .nav-link.active::after {
+  width: 70%;
+  left: 15%;
+}
+
+/* Distintivo especial para el link Admin */
+.admin-badge-link {
+  color: #f59e0b !important;
+  font-weight: 600 !important;
+}
+
+.admin-badge-link::after {
+  background: #f59e0b !important;
+}
+
+/* Botones de Autenticación */
+.btn-login {
+  color: #e2e8f0 !important;
+  font-weight: 500;
+  padding: 6px 12px !important;
+  transition: color 0.3s ease;
+}
+
+.btn-login:hover {
+  color: #ffffff !important;
+}
+
+.custom-btn-register {
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  border: none;
+  color: #ffffff;
+  font-weight: 600;
+  padding: 7px 18px;
+  border-radius: 20px;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.custom-btn-register:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(59, 130, 246, 0.45);
+  background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+}
+
+/* Menú de usuario (Dropdown) */
+.user-dropdown-toggle {
+  color: #ffffff !important;
+  padding: 4px 8px !important;
+  border-radius: 20px;
+  transition: background-color 0.2s ease;
+}
+
+.user-dropdown-toggle:hover,
+.user-dropdown-toggle[aria-expanded="true"] {
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+.user-avatar-wrapper {
+  font-size: 1.4rem;
+  color: #7da7d9;
+  display: flex;
+  align-items: center;
+  transition: transform 0.2s ease;
+}
+
+.user-dropdown-toggle:hover .user-avatar-wrapper {
+  transform: scale(1.1);
+  color: #ffffff;
+}
+
+.user-name {
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+/* Estilos del desplegable (Dropdown) */
+.custom-dropdown {
+  background: #0f2d52;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
+  padding: 8px 0;
+  margin-top: 10px !important;
+
+  /* Animación de entrada */
+  animation: dropdownFadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.custom-dropdown .dropdown-item {
+  color: #cbd5e1;
+  padding: 8px 18px;
+  font-size: 0.92rem;
+  font-weight: 500;
+  transition: background-color 0.2s ease, color 0.2s ease, transform 0.15s ease;
+}
+
+.custom-dropdown .dropdown-item:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+  transform: translateX(4px);
+}
+
+.custom-dropdown .dropdown-divider {
+  border-color: rgba(255, 255, 255, 0.1);
+  margin: 6px 0;
+}
+
+.custom-dropdown .logout-item {
+  color: #f87171;
+}
+
+.custom-dropdown .logout-item:hover {
+  background-color: rgba(239, 68, 68, 0.15);
+  color: #fca5a5;
+}
+
+/* Toggler / Menú hamburguesa móvil */
+.custom-toggler {
+  border: none;
+  padding: 6px;
+}
+
+.custom-toggler:focus {
+  box-shadow: none;
+}
+
+/* Keyframes de Animaciones */
+@keyframes dropdownFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.98);
   }
-  
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ==========================================================================
+   ADAPTATIVO / RESPONSIVE
+   ========================================================================== */
+
+@media (max-width: 991.98px) {
+  .navbar-container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .navbar-collapse {
+    background: rgba(10, 35, 66, 0.98);
+    border-radius: 12px;
+    padding: 16px;
+    margin-top: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+  }
+
+  .main-nav-links .nav-link::after {
+    display: none; /* Desactivar underline en móvil para un layout más limpio */
+  }
+
+  .main-nav-links .nav-link {
+    padding: 10px 12px !important;
+    border-radius: 6px;
+  }
+
+  .main-nav-links .nav-link:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+  }
+
+  .auth-section {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .custom-btn-register {
+    width: 100%;
+    text-align: center;
+    margin-top: 8px;
+  }
+
+  .auth-buttons {
+    flex-direction: column;
+    align-items: stretch !important;
+  }
+
+  .btn-login {
+    text-align: center;
+  }
+}
