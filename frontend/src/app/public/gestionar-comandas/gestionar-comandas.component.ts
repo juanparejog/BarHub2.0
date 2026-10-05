@@ -3,7 +3,6 @@ import { Subject, timer } from 'rxjs';
 import { switchMap, takeUntil } from 'rxjs/operators';
 import { DetallesService } from '../../admin/pages/detalles_pedidos/services/detalle';
 import { PedidoService } from '../../admin/pages/pedidos/services/pedido';
-import { Pedido } from '../../admin/pages/pedidos/interface/pedido';
 
 @Component({
   selector: 'app-gestionar-comandas',
@@ -18,6 +17,8 @@ export class GestionarComandasComponent implements OnInit, OnDestroy {
     { value: 'PREPARADO', label: 'Preparado' },
     { value: 'SERVIDO', label: 'Servido' }
   ];
+
+  filtroEstado: string = 'TODOS';
   
   private destroy$ = new Subject<void>();
 
@@ -42,10 +43,19 @@ export class GestionarComandasComponent implements OnInit, OnDestroy {
         });
 
         sinServir.forEach(pedido => {
-          if (!pedido.detalles || pedido.detalles.length === 0) {
+          // Si no tiene detalles o los productos no tienen nombre válido
+          const necesitaDetalles = !pedido.detalles || 
+            pedido.detalles.length === 0 || 
+            pedido.detalles.some((d: any) => !this.getNombreProducto(d) || this.getNombreProducto(d) === 'Producto');
+
+          if (necesitaDetalles) {
             this.detalleService.getByPedidoId(pedido.id!).subscribe({
-              next: (detalles) => pedido.detalles = detalles,
-              error: () => {}
+              next: (detalles: any[]) => {
+                if (detalles && detalles.length > 0) {
+                  pedido.detalles = detalles;
+                }
+              },
+              error: (err) => console.error('Error cargando detalles:', err)
             });
           }
         });
@@ -54,6 +64,35 @@ export class GestionarComandasComponent implements OnInit, OnDestroy {
       },
       error: (err) => console.error('Error al refrescar comandas:', err)
     });
+  }
+
+  /**
+   * Extrae el nombre del producto buscando en todos los posibles nombres
+   * de propiedades que pueda devolver el Backend de Spring Boot.
+   */
+  getNombreProducto(det: any): string {
+    if (!det) return 'Sin nombre';
+
+    const nombre = 
+      det.producto?.nombre ||
+      det.productoNombre ||
+      det.nombreProducto ||
+      det.nombre_producto ||
+      det.nombre ||
+      det.titulo ||
+      det.description;
+
+    if (nombre && nombre.trim() !== '') {
+      return nombre;
+    }
+
+    return 'Producto';
+  }
+
+  esDomicilio(pedido: any): boolean {
+    const tipo = String(pedido.tipoPedido || pedido.tipo_pedido || '').toUpperCase();
+    const mesa = pedido.mesaId ?? pedido.id_mesa ?? pedido.idMesa;
+    return tipo === 'DOMICILIO' || !mesa || mesa === 0;
   }
 
   cambiarEstado(pedido: any, nuevoEstado: string) {
@@ -105,6 +144,70 @@ export class GestionarComandasComponent implements OnInit, OnDestroy {
       return estadoUpper !== 'SERVIDO';
     });
   }
+
+  getPedidosFiltrados(): any[] {
+    if (!this.pedidosNoServidos) return [];
+    if (this.filtroEstado === 'TODOS') {
+      return this.pedidosNoServidos;
+    }
+    return this.pedidosNoServidos.filter(
+      (p) => (p.estado || '').toUpperCase() === this.filtroEstado
+    );
+  }
+
+  getCountPorEstado(estado: string): number {
+    if (!this.pedidosNoServidos) return 0;
+    return this.pedidosNoServidos.filter(
+      (p) => (p.estado || '').toUpperCase() === estado
+    ).length;
+  }
+
+// Devuelve la clase CSS correspondiente según el tipo de pedido
+getTipoPedidoClass(pedido: any): string {
+  const tipo = String(pedido.tipoPedido || pedido.tipo_pedido || '').toUpperCase();
+  
+  if (tipo === 'DOMICILIO' || tipo === 'DELIVERY') {
+    return 'is-domicilio';
+  }
+  if (tipo === 'RECOGER' || tipo === 'TAKEAWAY' || tipo === 'PARA_LLEVAR' || tipo === 'LLEVAR') {
+    return 'is-recoger';
+  }
+  
+  // Si no tiene mesa pero tampoco especifica tipo, lo consideramos recogida si no hay mesa
+  const mesa = pedido.mesaId ?? pedido.id_mesa ?? pedido.idMesa;
+  if (!mesa || mesa === 0) {
+    return 'is-recoger';
+  }
+
+  return 'is-mesa';
+}
+
+// Devuelve el icono de Material Icons adecuado
+getTipoPedidoIcon(pedido: any): string {
+  const tipoClass = this.getTipoPedidoClass(pedido);
+  switch (tipoClass) {
+    case 'is-domicilio':
+      return 'delivery_dining';
+    case 'is-recoger':
+      return 'shopping_bag';
+    default:
+      return 'table_restaurant';
+  }
+}
+
+// Devuelve la etiqueta de texto para el header de la comanda
+getTipoPedidoLabel(pedido: any): string {
+  const tipoClass = this.getTipoPedidoClass(pedido);
+  switch (tipoClass) {
+    case 'is-domicilio':
+      return 'A Domicilio';
+    case 'is-recoger':
+      return 'Recoger en Tienda';
+    default:
+      const mesa = pedido.mesaId ?? pedido.id_mesa ?? pedido.idMesa;
+      return `Mesa ${mesa || ''}`;
+  }
+}
 
   ngOnDestroy() {
     this.destroy$.next();

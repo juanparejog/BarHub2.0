@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { PedidoService } from '../services/pedido';
-import { Pedido, EstadoPago } from '../../public/interface/pedido';
+import { Pedido } from '../../public/interface/pedido';
 
 @Component({
   selector: 'app-gestionar-pagos-efectivo',
@@ -38,23 +38,34 @@ export class GestionarPagosEfectivoComponent implements OnInit {
 
   seleccionarPedido(pedido: Pedido): void {
     this.pedidoSeleccionado = pedido;
-    const total = pedido.precioTotal ?? (pedido as any).total ?? 0;
+    const total = pedido.precioTotal ?? (pedido as any).precio_total ?? (pedido as any).total ?? 0;
     this.montoEntregado = total;
     this.calcularCambio();
   }
 
   calcularCambio(): void {
     if (this.pedidoSeleccionado) {
-      const total = this.pedidoSeleccionado.precioTotal ?? (this.pedidoSeleccionado as any).total ?? 0;
+      const total = this.pedidoSeleccionado.precioTotal ?? (this.pedidoSeleccionado as any).precio_total ?? (this.pedidoSeleccionado as any).total ?? 0;
       const cambio = this.montoEntregado - total;
       this.cambioDevolver = cambio > 0 ? cambio : 0;
     }
   }
 
+  sumarEfectivo(cantidad: number): void {
+    const actual = parseFloat(this.montoEntregado as any) || 0;
+    this.montoEntregado = parseFloat((actual + cantidad).toFixed(2));
+    this.calcularCambio();
+  }
+
+  getTotalPendiente(): number {
+    if (!this.pedidosPendientes) return 0;
+    return this.pedidosPendientes.reduce((acc, p) => acc + (p.precioTotal ?? (p as any).precio_total ?? 0), 0);
+  }
+
   confirmarCobroEfectivo(): void {
     if (!this.pedidoSeleccionado) return;
   
-    const total = this.pedidoSeleccionado.precioTotal ?? (this.pedidoSeleccionado as any).total ?? 0;
+    const total = this.pedidoSeleccionado.precioTotal ?? (this.pedidoSeleccionado as any).precio_total ?? (this.pedidoSeleccionado as any).total ?? 0;
   
     if (this.montoEntregado < total) {
       alert('El monto entregado es menor al total del pedido.');
@@ -64,7 +75,7 @@ export class GestionarPagosEfectivoComponent implements OnInit {
     const payloadActualizacion = {
       id: this.pedidoSeleccionado.id,
       id_mesa: this.pedidoSeleccionado.mesaId || (this.pedidoSeleccionado as any).id_mesa,
-      tipo_pedido: (this.pedidoSeleccionado as any).tipoPedido || (this.pedidoSeleccionado as any).tipo_pedido || 'MESA',
+      tipo_pedido: (this.pedidoSeleccionado as any).tipoPedido || (this.pedidoSeleccionado as any).tipo_pedido || 'DOMICILIO',
       estado: this.pedidoSeleccionado.estado || 'PENDIENTE',
       
       estado_pago: 'COMPLETADO',
@@ -89,5 +100,79 @@ export class GestionarPagosEfectivoComponent implements OnInit {
         alert('Ocurrió un error al registrar el pago');
       }
     });
+  }
+
+  getTipoPedidoClass(pedido: any): string {
+    if (!pedido) return 'is-mesa';
+
+    const tipo = String(
+      pedido.tipoPedido ?? 
+      pedido.tipo_pedido ?? 
+      pedido.tipo ?? 
+      pedido.tipoServicio ?? 
+      ''
+    ).trim().toUpperCase();
+
+    if (tipo === 'DOMICILIO' || tipo === 'DELIVERY' || tipo.includes('DOMICILIO')) {
+      return 'is-domicilio';
+    }
+
+    if (tipo === 'RECOGER' || tipo === 'TAKEAWAY' || tipo === 'PARA_LLEVAR' || tipo === 'LLEVAR') {
+      return 'is-recoger';
+    }
+
+    const mesa = pedido.mesaId ?? pedido.id_mesa ?? pedido.idMesa ?? pedido.mesa;
+    
+    if (mesa !== undefined && mesa !== null && Number(mesa) > 0) {
+      return 'is-mesa';
+    }
+
+    return 'is-domicilio';
+  }
+
+  getTipoPedidoIcon(pedido: any): string {
+    const tipoClass = this.getTipoPedidoClass(pedido);
+    switch (tipoClass) {
+      case 'is-domicilio':
+        return 'delivery_dining';
+      case 'is-recoger':
+        return 'shopping_bag';
+      default:
+        return 'table_restaurant';
+    }
+  }
+
+  getTipoPedidoLabel(pedido: any): string {
+    const tipoClass = this.getTipoPedidoClass(pedido);
+    switch (tipoClass) {
+      case 'is-domicilio':
+        return 'A Domicilio';
+      case 'is-recoger':
+        return 'Recoger en Tienda';
+      default:
+        const mesa = pedido.mesaId ?? pedido.id_mesa ?? pedido.idMesa;
+        return `Mesa ${mesa || ''}`;
+    }
+  }
+
+  getTipoPedidoSubtext(pedido: any): string {
+    const tipoClass = this.getTipoPedidoClass(pedido);
+    switch (tipoClass) {
+      case 'is-domicilio':
+        return 'Entrega a Domicilio';
+      case 'is-recoger':
+        return 'Pedido para Recoger en Tienda';
+      default:
+        const mesa = pedido.mesaId ?? pedido.id_mesa ?? pedido.idMesa;
+        return `Servicio en Mesa ${mesa || ''}`;
+    }
+  }
+
+  cobrarExacto(): void {
+    if (this.pedidoSeleccionado) {
+      const total = this.pedidoSeleccionado.precioTotal ?? (this.pedidoSeleccionado as any).precio_total ?? 0;
+      this.montoEntregado = Number(total);
+      this.calcularCambio();
+    }
   }
 }

@@ -1,86 +1,444 @@
-.titulo-pagos {
-  text-align: center;
-  margin: 40px 0 10px 0;
-  font-size: 2.7rem;
-  color: #fff;
-  font-weight: 800;
-  letter-spacing: -0.5px;
-  text-shadow: 2px 2px 10px #1B1B1B99;
-  background: none;
-  width: 100%;
+/* ==========================================================================
+   ESTILOS BASE Y CONTENEDOR
+   ========================================================================== */
+   .gestion-cobros-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   }
-  .sinPagos {
-    text-align: center;
-    margin: 40px 0 10px 0;
-    font-size: 1.5rem;
-    color: #fff;
+  
+  .main-title {
+    color: #0f172a;
     font-weight: 800;
-    letter-spacing: -0.5px;
-    text-shadow: 2px 2px 10px #1B1B1B99;
-    background: none;
-    width: 100%;
-  }
-  .pago-card {
-    background: #fff;
-    border-radius: 12px;
-    box-shadow: 0 2px 12px rgba(23,96,41,0.08);
-    margin: 24px auto;
-    padding: 20px 24px;
-    width: 90%;
-    max-width: 600px;
-  }
-  .pago-header {
-    font-size: 1.2rem;
-    margin-bottom: 8px;
+    font-size: 1.8rem;
     display: flex;
-    justify-content: space-between;
     align-items: center;
   }
-  .estado-pago.pendiente {
-    background: #fdf6e3;
-    color: #e67e22;
-    padding: 4px 10px;
-    border-radius: 6px;
-    font-weight: bold;
+  
+  .title-icon {
+    color: #16a34a;
+    font-size: 2.2rem;
+  }
+  
+  .subtitle {
+    font-size: 0.92rem;
+  }
+  
+  /* KPIs de Cabecera */
+  .kpi-pills-group {
+    background: #ffffff;
+    padding: 6px 12px;
+    border-radius: 50px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  }
+  
+  .kpi-pill {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 12px;
+  }
+  
+  .kpi-pill + .kpi-pill {
+    border-left: 1px solid #e2e8f0;
+  }
+  
+  .kpi-pill-label {
+    display: block;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    font-weight: 700;
+    color: #64748b;
+    line-height: 1;
+  }
+  
+  .kpi-pill-val {
+    font-size: 1rem;
+    font-weight: 800;
+    color: #0f172a;
+  }
+  
+  /* ==========================================================================
+     PANEL DE LISTADO DE PEDIDOS Y ESTILOS POR TIPO
+     ========================================================================== */
+  .panel-card {
+    background: #ffffff;
+    border-radius: 20px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+    overflow: hidden;
+  }
+  
+  .panel-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #1e293b;
+  }
+  
+  .pedido-item-card {
+    background: #f8fafc;
+    border: 2px solid #f1f5f9;
+    border-radius: 16px;
+    padding: 14px 16px;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .pedido-item-card:hover {
+    background: #ffffff;
+    border-color: #cbd5e1;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  }
+  
+  .pedido-item-card.selected {
+    background: #f0fdf4;
+    border-color: #22c55e;
+    box-shadow: 0 4px 14px rgba(34, 197, 94, 0.15);
+  }
+  
+  /* BASE ICONOS DE CANAL */
+  .channel-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+  }
+  
+  /* 1. MESA (Azul) */
+  .channel-icon.is-mesa {
+    background: #dbeafe;
+    color: #2563eb;
+  }
+  .badge-channel.is-mesa {
+    background: #e0f2fe;
+    color: #0369a1;
+  }
+  
+  /* 2. A DOMICILIO (Púrpura) */
+  .channel-icon.is-domicilio {
+    background: #f3e8ff;
+    color: #7e22ce;
+  }
+  .badge-channel.is-domicilio {
+    background: #f3e8ff;
+    color: #6b21a8;
+  }
+  
+  /* 3. RECOGER EN TIENDA (Ámbar / Amarillo) */
+  .channel-icon.is-recoger {
+    background: #fef3c7;
+    color: #d97706;
+  }
+  .badge-channel.is-recoger {
+    background: #fef3c7;
+    color: #b45309;
+  }
+  
+  /* BADGES DE CANAL */
+  .badge-channel {
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 3px 9px;
+    border-radius: 12px;
+  }
+  
+  .pedido-id {
+    font-weight: 800;
+    color: #0f172a;
     font-size: 1rem;
   }
-  .pago-info {
-    margin-bottom: 12px;
+  
+  .pedido-time {
+    display: block;
+    font-size: 0.78rem;
+    margin-top: 2px;
   }
-  .pago-detalles table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-bottom: 12px;
+  
+  .pedido-total {
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: #0f172a;
   }
-  .pago-detalles th, .pago-detalles td {
-    padding: 8px 10px;
-    border-bottom: 1px solid #e0e0e0;
-    text-align: left;
-  }
-  .pago-detalles th {
-    background: #f7f7f7;
-    font-weight: 600;
-  }
-  .pago-detalles tr:last-child td {
-    border-bottom: none;
-  }
-  .btn-completar {
-    background: #2ecc71;
-    color: #fff;
+  
+  .btn-cobrar-sm {
+    background: #16a34a;
+    color: #ffffff;
     border: none;
-    border-radius: 6px;
-    padding: 10px 22px;
-    font-size: 1.1rem;
-    font-weight: bold;
+    font-weight: 700;
+    border-radius: 8px;
+    padding: 4px 10px;
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    transition: background 0.2s ease;
+  }
+  
+  .btn-cobrar-sm:hover {
+    background: #15803d;
+    color: #ffffff;
+  }
+  
+  /* State Vacío */
+  .empty-icon-wrap {
+    width: 64px;
+    height: 64px;
+    background: #dcfce7;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .empty-icon-wrap .material-icons {
+    font-size: 2.2rem;
+  }
+  
+  /* ==========================================================================
+     TERMINAL DE COBRO TÁCTIL (PANEL DERECHO)
+     ========================================================================== */
+  .terminal-card {
+    background: #ffffff;
+    border-radius: 24px;
+    overflow: hidden;
+    border: 1px solid #e2e8f0 !important;
+  }
+  
+  .terminal-header {
+    background: #f8fafc;
+    border-bottom: 1px solid #e2e8f0;
+  }
+  
+  .btn-close-custom {
+    background: #e2e8f0;
+    border: none;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #475569;
     cursor: pointer;
-    transition: background 0.2s;
+    transition: all 0.2s ease;
   }
-  .btn-completar:hover {
-    background: #27ae60;
+  
+  .btn-close-custom:hover {
+    background: #cbd5e1;
+    color: #0f172a;
   }
-  .sin-pagos {
+  
+  /* Grilla de Totales */
+  .amount-display-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  
+  .display-box {
+    background: #f8fafc;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 14px;
     text-align: center;
-    color: #888;
-    font-size: 1.1rem;
-    margin: 40px 0;
-  }  
+  }
+  
+  .box-label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #64748b;
+    margin-bottom: 4px;
+  }
+  
+  .box-value {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: #0f172a;
+  }
+  
+  .change-box.is-ready {
+    background: #f0fdf4;
+    border-color: #86efac;
+  }
+  
+  .change-box.is-ready .box-value {
+    color: #16a34a;
+  }
+  
+  /* Campo de Efectivo */
+  .form-label-custom {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #334155;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+  }
+  
+  .input-cash-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+  
+  .currency-symbol {
+    position: absolute;
+    left: 16px;
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #64748b;
+  }
+  
+  .cash-input {
+    padding-left: 38px;
+    padding-right: 90px;
+    height: 56px;
+    font-size: 1.5rem;
+    font-weight: 800;
+    border-radius: 14px;
+    border: 2px solid #cbd5e1;
+    background: #ffffff;
+    color: #0f172a;
+    transition: border-color 0.2s ease;
+  }
+  
+  .cash-input:focus {
+    border-color: #16a34a;
+    box-shadow: 0 0 0 4px rgba(22, 163, 74, 0.15);
+  }
+  
+  .btn-exact-cash {
+    position: absolute;
+    right: 10px;
+    background: #e2e8f0;
+    border: none;
+    font-weight: 700;
+    font-size: 0.8rem;
+    color: #334155;
+    padding: 8px 12px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+  }
+  
+  .btn-exact-cash:hover {
+    background: #cbd5e1;
+  }
+  
+  /* Atajos Billetes */
+  .fast-cash-label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #64748b;
+    margin-bottom: 8px;
+  }
+  
+  .fast-cash-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+  }
+  
+  .btn-fast-cash {
+    background: #ffffff;
+    border: 1.5px solid #cbd5e1;
+    border-radius: 12px;
+    padding: 10px 4px;
+    font-weight: 800;
+    font-size: 0.95rem;
+    color: #1e293b;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .btn-fast-cash:hover {
+    background: #f1f5f9;
+    border-color: #94a3b8;
+    transform: translateY(-1px);
+  }
+  
+  .btn-fast-cash.btn-clear {
+    background: #fef2f2;
+    border-color: #fca5a5;
+    color: #dc2626;
+  }
+  
+  .btn-fast-cash.btn-clear:hover {
+    background: #fee2e2;
+  }
+  
+  /* Mensaje Alerta Incompleto */
+  .alert-insufficient {
+    background: #fff7ed;
+    border: 1px solid #ffedd5;
+    color: #c2410c;
+    padding: 10px 14px;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+  }
+  
+  /* Botones Finales */
+  .actions-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .btn-confirm-pay {
+    background: #16a34a;
+    color: #ffffff;
+    border: none;
+    border-radius: 14px;
+    padding: 14px;
+    font-weight: 800;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    box-shadow: 0 4px 14px rgba(22, 163, 74, 0.25);
+  }
+  
+  .btn-confirm-pay:hover:not(:disabled) {
+    background: #15803d;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 18px rgba(22, 163, 74, 0.35);
+  }
+  
+  .btn-confirm-pay:disabled {
+    background: #cbd5e1;
+    color: #94a3b8;
+    box-shadow: none;
+    cursor: not-allowed;
+  }
+  
+  .btn-cancel-pay {
+    background: transparent;
+    border: none;
+    color: #64748b;
+    font-weight: 600;
+    font-size: 0.9rem;
+    padding: 8px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: color 0.2s ease;
+  }
+  
+  .btn-cancel-pay:hover {
+    color: #0f172a;
+    background: #f1f5f9;
+  }

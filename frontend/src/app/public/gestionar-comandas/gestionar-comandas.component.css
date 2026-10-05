@@ -1,66 +1,326 @@
-.titulo-comandas {
-  text-align: center;
-  margin: 40px 0 10px 0;
-  font-size: 2.7rem;
-  color: #fff;
-  font-weight: 800;
-  letter-spacing: -0.5px;
-  text-shadow: 2px 2px 10px #1B1B1B99;
-  background: none;
-  width: 100%;
+/* ==========================================================================
+   ESTILOS GENERALES Y CONTENEDOR
+   ========================================================================== */
+   .gestion-comandas-container {
+    max-width: 1500px;
+    margin: 0 auto;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   }
-  .sinComandas {
-    text-align: center;
-    margin: 40px 0 10px 0;
-    font-size: 1.5rem;
-    color: #fff;
+  
+  .main-title {
+    color: #0f172a;
     font-weight: 800;
-    letter-spacing: -0.5px;
-    text-shadow: 2px 2px 10px #1B1B1B99;
-    background: none;
-    width: 100%;
-  }
-
-  .comanda-card {
-    background: #fff;
-    border-radius: 12px;
-    box-shadow: 0 2px 12px rgba(23,96,41,0.08);
-    margin: 24px auto;
-    padding: 20px 24px;
-    width: 90%;
-    max-width: 600px;
-  }
-  .comanda-header {
-    font-size: 1.2rem;
-    margin-bottom: 8px;
+    font-size: 1.8rem;
     display: flex;
-    justify-content: space-between;
     align-items: center;
   }
-  .estado-pedido.pendiente { background: #fdf6e3; color: #e67e22; padding: 4px 10px; border-radius: 6px; font-weight: bold;}
-  .estado-pedido.preparado { background: #e3f2fd; color: #3498db; padding: 4px 10px; border-radius: 6px; font-weight: bold;}
-  .estado-pedido.servido   { background: #eafaf1; color: #218838; padding: 4px 10px; border-radius: 6px; font-weight: bold;}
-  .comanda-info { margin-bottom: 12px; }
-  .comanda-detalles table { width: 100%; border-collapse: collapse; margin-bottom: 12px; }
-  .comanda-detalles th, .comanda-detalles td { padding: 8px 10px; border-bottom: 1px solid #e0e0e0; text-align: left; }
-  .comanda-detalles th { background: #f7f7f7; font-weight: 600; }
-  .comanda-detalles tr:last-child td { border-bottom: none; }
-  .comanda-actions { display: flex; gap: 10px; }
-  .comanda-actions button {
-    border: none;
-    border-radius: 6px;
-    padding: 8px 18px;
-    font-size: 1.1rem;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background 0.2s;
+  
+  .title-icon {
+    color: #ea580c;
+    font-size: 2.2rem;
   }
-  .comanda-actions button.pendiente { background: #fff4e6; color: #e67e22; }
-  .comanda-actions button.preparado { background: #e3f2fd; color: #3498db; }
-  .comanda-actions button.servido   { background: #eafaf1; color: #218838; }
-  .comanda-actions button:disabled { opacity: 0.7; cursor: not-allowed; border: 1.5px dashed #ccc; }
-  .sin-comandas { text-align: center; color: #888; font-size: 1.1rem; margin: 40px 0; }  
+  
+  /* Pestañas de Filtro */
+  .kds-filter-tabs .tab-btn {
+    border: none;
+    background: transparent;
+    padding: 8px 16px;
+    border-radius: 12px;
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: #64748b;
+    display: flex;
+    align-items: center;
+    transition: all 0.2s ease;
+    cursor: pointer;
+  }
+  
+  .kds-filter-tabs .tab-btn:hover {
+    background: #f1f5f9;
+    color: #1e293b;
+  }
+  
+  .kds-filter-tabs .tab-btn.active {
+    background: #0f172a;
+    color: #ffffff;
+  }
+  
+  .kds-filter-tabs .tab-btn.tab-pendiente.active {
+    background: #ea580c;
+    color: #ffffff;
+  }
+  
+  .kds-filter-tabs .tab-btn.tab-preparado.active {
+    background: #0284c7;
+    color: #ffffff;
+  }
+  
+  /* ==========================================================================
+     TARJETAS DE COMANDA (KDS CARDS)
+     ========================================================================== */
+  .comanda-kds-card {
+    background: #ffffff;
+    border-radius: 20px;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .comanda-kds-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+  }
+  
+  /* Bordes laterales por estado */
+  .comanda-kds-card.estado-border-pendiente {
+    border-left: 6px solid #f97316 !important;
+  }
+  
+  .comanda-kds-card.estado-border-preparado {
+    border-left: 6px solid #0284c7 !important;
+  }
+  
+  .comanda-kds-card.estado-border-servido {
+    border-left: 6px solid #16a34a !important;
+  }
+  
+  /* Header de la Tarjeta */
+  .comanda-card-header {
+    background: #ffffff;
+  }
+  
+  .mesa-badge {
+    background: #f1f5f9;
+    color: #0f172a;
+    font-weight: 800;
+    font-size: 0.95rem;
+    padding: 6px 12px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  
+  .mesa-badge.is-llevar {
+    background: #fef3c7;
+    color: #b45309;
+  }
+  
+  .pedido-num {
+    font-size: 0.9rem;
+    font-weight: 800;
+    color: #64748b;
+  }
+  
+  /* Insignias de Estado */
+  .badge-status {
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  
+  .status-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+  }
+  
+  .badge-status.pendiente {
+    background: #fff7ed;
+    color: #c2410c;
+    border: 1px solid #ffedd5;
+  }
+  
+  .badge-status.pendiente .status-dot {
+    background: #f97316;
+  }
+  
+  .badge-status.preparado {
+    background: #f0f9ff;
+    color: #0369a1;
+    border: 1px solid #e0f2fe;
+  }
+  
+  .badge-status.preparado .status-dot {
+    background: #0284c7;
+  }
+  
+  .badge-status.servido {
+    background: #f0fdf4;
+    color: #15803d;
+    border: 1px solid #dcfce7;
+  }
+  
+  .badge-status.servido .status-dot {
+    background: #16a34a;
+  }
+  
+  /* Sub-header */
+  .comanda-card-sub-header {
+    background: #fafafa;
+    font-size: 0.85rem;
+  }
+  
+  /* Lista de Productos */
+  .products-list {
+    max-height: 240px;
+    overflow-y: auto;
+  }
+  
+  .product-item:last-child {
+    border-bottom: none !important;
+  }
+  
+  .product-qty-badge {
+    background: #0f172a;
+    color: #ffffff;
+    font-weight: 800;
+    font-size: 0.85rem;
+    padding: 2px 8px;
+    border-radius: 8px;
+    min-width: 30px;
+    text-align: center;
+  }
+  
+  .product-name {
+    font-size: 0.95rem;
+    line-height: 1.3;
+  }
+  
+  /* Botones de Cambio de Estado */
+  .btn-status-action {
+    border: 1.5px solid #e2e8f0;
+    background: #ffffff;
+    color: #64748b;
+    font-weight: 700;
+    font-size: 0.8rem;
+    padding: 8px 6px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  
+  .btn-status-action:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 3px 8px rgba(0,0,0,0.06);
+  }
+  
+  .btn-status-action.pendiente:hover:not(:disabled) {
+    border-color: #f97316;
+    color: #c2410c;
+    background: #fff7ed;
+  }
+  
+  .btn-status-action.preparado:hover:not(:disabled) {
+    border-color: #0284c7;
+    color: #0369a1;
+    background: #f0f9ff;
+  }
+  
+  .btn-status-action.servido:hover:not(:disabled) {
+    border-color: #16a34a;
+    color: #15803d;
+    background: #f0fdf4;
+  }
+  
+  .btn-status-action.active-current {
+    opacity: 0.85;
+    cursor: default;
+  }
+  
+  .btn-status-action.active-current.pendiente {
+    background: #ea580c;
+    color: #ffffff;
+    border-color: #ea580c;
+  }
+  
+  .btn-status-action.active-current.preparado {
+    background: #0284c7;
+    color: #ffffff;
+    border-color: #0284c7;
+  }
+  
+  .btn-status-action.active-current.servido {
+    background: #16a34a;
+    color: #ffffff;
+    border-color: #16a34a;
+  }
+  
+  /* Estado Vacío */
+  .empty-kds-card {
+    background: #ffffff;
+    border-radius: 24px;
+    border: 2px dashed #e2e8f0;
+  }
+  
+  .empty-icon-circle {
+    width: 72px;
+    height: 72px;
+    background: #f0fdf4;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 
-.estado-pedido.pendiente { background: #fdf6e3; color: #e67e22; }
-.estado-pedido.preparado { background: #e3f2fd; color: #3498db; }
-.estado-pedido.servido   { background: #eafaf1; color: #218838; }
+  .mesa-badge {
+    background: #f1f5f9;
+    color: #0f172a;
+    font-weight: 800;
+    font-size: 0.95rem;
+    padding: 6px 12px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  
+  .mesa-badge.is-domicilio {
+    background: #f3e8ff;
+    color: #6b21a8;
+  }
+
+/* Base de la insignia del tipo de pedido */
+.tipo-pedido-badge {
+  font-weight: 800;
+  font-size: 0.88rem;
+  padding: 6px 12px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+}
+
+.tipo-pedido-badge .material-icons {
+  font-size: 1.1rem;
+}
+
+/* 1. MESA (Local) */
+.tipo-pedido-badge.is-mesa {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+/* 2. A DOMICILIO (Delivery) */
+.tipo-pedido-badge.is-domicilio {
+  background: #f3e8ff;
+  color: #6b21a8;
+  border: 1px solid #e9d5ff;
+}
+
+/* 3. RECOGER EN TIENDA (Take Away / Recogida) */
+.tipo-pedido-badge.is-recoger {
+  background: #fef3c7;
+  color: #b45309;
+  border: 1px solid #fde68a;
+}

@@ -1,94 +1,216 @@
-<div class="container mt-4">
-  <h2>Gestión de Cobros en Efectivo</h2>
+<link href="https://fonts.googleapis.com/icon?family=Material-Icons" rel="stylesheet">
 
-  <div *ngIf="cargando" class="text-center my-4">
-    <p>Cargando pedidos pendientes...</p>
+<div class="gestion-cobros-container py-4 px-2 px-md-4">
+
+  <!-- ENCABEZADO DE PÁGINA -->
+  <header class="header-section mb-4 d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
+    <div>
+      <h2 class="main-title mb-1">
+        <span class="material-icons title-icon align-middle me-2">point_of_sale</span>
+        Cobros en Efectivo
+      </h2>
+      <p class="subtitle text-muted mb-0">Gestión de caja en tiempo real y cálculo de cambio para el personal.</p>
+    </div>
+
+    <!-- METRICAS DE CABECERA -->
+    <div class="kpi-pills-group d-flex align-items-center gap-2">
+      <div class="kpi-pill">
+        <span class="material-icons text-warning">pending_actions</span>
+        <div>
+          <span class="kpi-pill-label">Pendientes</span>
+          <span class="kpi-pill-val">{{ pedidosPendientes.length }}</span>
+        </div>
+      </div>
+      <div class="kpi-pill">
+        <span class="material-icons text-success">payments</span>
+        <div>
+          <span class="kpi-pill-label">Por Cobrar</span>
+          <span class="kpi-pill-val">{{ getTotalPendiente() | currency:'EUR' }}</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ESTADO DE CARGA -->
+  <div *ngIf="cargando" class="loading-state card border-0 shadow-sm p-5 text-center my-4">
+    <div class="spinner-border text-success mx-auto mb-3" role="status"></div>
+    <h5 class="fw-bold text-dark">Cargando pedidos pendientes...</h5>
   </div>
 
-  <div class="row" *ngIf="!cargando">
-    <div class="col-md-7">
-      <div class="card shadow-sm">
-        <div class="card-header bg-primary text-white">
-          <h5 class="mb-0">Pedidos Pendientes de Pago</h5>
+  <!-- CONTENIDO PRINCIPAL -->
+  <div class="row g-4" *ngIf="!cargando">
+
+    <!-- COLUMNA IZQUIERDA: LISTA DE CUENTAS PENDIENTES -->
+    <div [class]="pedidoSeleccionado ? 'col-12 col-lg-6 col-xl-5' : 'col-12'">
+      <div class="card panel-card h-100 border-0">
+        
+        <div class="panel-header d-flex align-items-center justify-content-between p-3 border-bottom">
+          <div class="d-flex align-items-center gap-2">
+            <span class="material-icons text-primary fs-5">receipt_long</span>
+            <h5 class="panel-title mb-0">Cuentas Pendientes</h5>
+          </div>
+          <span class="badge bg-light text-dark border px-2 py-1 fs-7 fw-bold">
+            {{ pedidosPendientes.length }} {{ pedidosPendientes.length === 1 ? 'pedido' : 'pedidos' }}
+          </span>
         </div>
-        <div class="card-body">
-          <div *ngIf="pedidosPendientes.length === 0" class="alert alert-info">
-            No hay pedidos pendientes de cobro en este momento.
+
+        <div class="panel-body p-3">
+          
+          <!-- ESTADO VACÍO -->
+          <div *ngIf="pedidosPendientes.length === 0" class="empty-state text-center py-5 px-3">
+            <div class="empty-icon-wrap mb-3">
+              <span class="material-icons text-success">check_circle_outline</span>
+            </div>
+            <h5 class="fw-bold text-dark mb-1">¡Al día! Todo cobrado</h5>
           </div>
 
-          <table *ngIf="pedidosPendientes.length > 0" class="table table-hover align-middle">
-            <thead>
-              <tr>
-                <th>Nº Pedido</th>
-                <th>Mesa</th>
-                <th>Total</th>
-                <th>Estado Pago</th>
-                <th>Acción</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let pedido of pedidosPendientes">
-                <td>#{{ pedido.id }}</td>
-                <td>{{ pedido.mesaId ? 'Mesa ' + pedido.mesaId : 'Para llevar / Domicilio' }}</td>
-                <td><strong>{{ pedido.precioTotal | currency:'EUR' }}</strong></td>
-                <td>
-                  <span class="badge bg-warning text-dark">{{ pedido.estadoPago }}</span>
-                </td>
-                <td>
-                  <button class="btn btn-sm btn-success" (click)="seleccionarPedido(pedido)">
-                    Cobrar
+          <!-- LISTADO DE PEDIDOS -->
+          <div *ngIf="pedidosPendientes.length > 0" class="pedidos-list d-flex flex-column gap-2">
+            <div 
+              *ngFor="let pedido of pedidosPendientes" 
+              class="pedido-item-card"
+              [class.selected]="pedidoSeleccionado?.id === pedido.id"
+              (click)="seleccionarPedido(pedido)">
+              
+              <div class="d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center gap-3">
+                  
+                  <!-- ICONO Y BADGE SEGÚN TIPO -->
+                  <div class="channel-icon" [ngClass]="getTipoPedidoClass(pedido)">
+                    <span class="material-icons">
+                      {{ getTipoPedidoIcon(pedido) }}
+                    </span>
+                  </div>
+
+                  <div>
+                    <div class="d-flex align-items-center gap-2">
+                      <span class="pedido-id">#{{ pedido.id }}</span>
+                      
+                      <span class="badge-channel" [ngClass]="getTipoPedidoClass(pedido)">
+                        {{ getTipoPedidoLabel(pedido) }}
+                      </span>
+                    </div>
+                    <span class="pedido-time text-muted">
+                      <span class="material-icons align-middle fs-7 me-1">schedule</span>Pendiente de cobro
+                    </span>
+                  </div>
+                </div>
+
+                <div class="text-end">
+                  <div class="pedido-total">{{ (pedido.precioTotal ?? $any(pedido).precio_total ?? 0) | currency:'EUR' }}</div>
+                  <button class="btn btn-cobrar-sm btn-sm mt-1" (click)="seleccionarPedido(pedido); $event.stopPropagation()">
+                    <span>Cobrar</span>
+                    <span class="material-icons fs-7">chevron_right</span>
                   </button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
         </div>
       </div>
     </div>
 
-    <!-- Panel de Cobro en Efectivo -->
-    <div class="col-md-5" *ngIf="pedidoSeleccionado">
-      <div class="card shadow-sm border-success">
-        <div class="card-header bg-success text-white">
-          <h5 class="mb-0">Procesar Pago - Pedido #{{ pedidoSeleccionado.id }}</h5>
+    <!-- COLUMNA DERECHA: TERMINAL DE COBRO TÁCTIL -->
+    <div class="col-12 col-lg-6 col-xl-7" *ngIf="pedidoSeleccionado">
+      <div class="card terminal-card border-0 shadow-lg position-sticky" style="top: 20px;">
+        
+        <div class="terminal-header p-3 d-flex align-items-center justify-content-between">
+          <div class="d-flex align-items-center gap-2">
+            <span class="material-icons text-success fs-4">point_of_sale</span>
+            <div>
+              <h5 class="mb-0 fw-bold">Cobrar Pedido #{{ pedidoSeleccionado.id }}</h5>
+              <small class="text-muted fw-semibold">
+                <span class="material-icons align-middle fs-6 me-1" [ngClass]="getTipoPedidoClass(pedidoSeleccionado)">
+                  {{ getTipoPedidoIcon(pedidoSeleccionado) }}
+                </span>
+                {{ getTipoPedidoSubtext(pedidoSeleccionado) }}
+              </small>
+            </div>
+          </div>
+          <button type="button" class="btn-close-custom" (click)="pedidoSeleccionado = null" title="Cerrar panel">
+            <span class="material-icons">close</span>
+          </button>
         </div>
-        <div class="card-body">
-          <div class="mb-3">
-            <label class="form-label">Total a Pagar:</label>
-            <h3 class="text-primary">{{ pedidoSeleccionado.precioTotal | currency:'EUR' }}</h3>
+
+        <div class="terminal-body p-3 p-md-4">
+          
+          <div class="amount-display-grid mb-4">
+            <div class="display-box total-box">
+              <span class="box-label">Total a Pagar</span>
+              <span class="box-value">{{ (pedidoSeleccionado.precioTotal ?? $any(pedidoSeleccionado).precio_total ?? 0) | currency:'EUR' }}</span>
+            </div>
+
+            <div class="display-box change-box" [class.is-ready]="montoEntregado >= (pedidoSeleccionado.precioTotal ?? $any(pedidoSeleccionado).precio_total ?? 0)">
+              <span class="box-label">Cambio a Devolver</span>
+              <span class="box-value">{{ cambioDevolver | currency:'EUR' }}</span>
+            </div>
           </div>
 
-          <div class="mb-3">
-            <label for="montoEntregado" class="form-label">Monto Entregado (Efectivo):</label>
-            <input
-              type="number"
-              id="montoEntregado"
-              class="form-control form-control-lg"
-              [(ngModel)]="montoEntregado"
-              (input)="calcularCambio()"
-              min="{{ pedidoSeleccionado.precioTotal }}"
-              step="0.01"
-            />
+          <div class="form-group mb-3">
+            <label for="montoEntregado" class="form-label-custom">
+              <span class="material-icons align-middle fs-6 me-1 text-primary">payments</span>
+              Efectivo Recibido (€)
+            </label>
+            <div class="input-cash-wrap">
+              <span class="currency-symbol">€</span>
+              <input
+                type="number"
+                id="montoEntregado"
+                class="form-control cash-input"
+                [(ngModel)]="montoEntregado"
+                (input)="calcularCambio()"
+                step="0.01"
+                placeholder="0.00"
+                autofocus
+              />
+              <button 
+                type="button" 
+                class="btn-exact-cash"
+                (click)="cobrarExacto()">
+                Exacto
+              </button>
+            </div>
           </div>
 
-          <div class="mb-3">
-            <label class="form-label">Cambio a Devolver:</label>
-            <h4 class="text-success">{{ cambioDevolver | currency:'EUR' }}</h4>
+          <div class="fast-cash-section mb-4">
+            <label class="fast-cash-label">Atajos de Billetes:</label>
+            <div class="fast-cash-grid">
+              <button type="button" class="btn-fast-cash" (click)="sumarEfectivo(5)">+5€</button>
+              <button type="button" class="btn-fast-cash" (click)="sumarEfectivo(10)">+10€</button>
+              <button type="button" class="btn-fast-cash" (click)="sumarEfectivo(20)">+20€</button>
+              <button type="button" class="btn-fast-cash" (click)="sumarEfectivo(50)">+50€</button>
+              <button type="button" class="btn-fast-cash btn-clear" (click)="montoEntregado = 0; calcularCambio()">
+                <span class="material-icons fs-6">backspace</span>
+              </button>
+            </div>
           </div>
 
-          <div class="d-grid gap-2">
+          <div *ngIf="montoEntregado > 0 && montoEntregado < (pedidoSeleccionado.precioTotal ?? $any(pedidoSeleccionado).precio_total ?? 0)" class="alert-insufficient mb-3">
+            <span class="material-icons fs-5 me-2">warning</span>
+            <span>Faltan <strong>{{ ((pedidoSeleccionado.precioTotal ?? $any(pedidoSeleccionado).precio_total ?? 0) - montoEntregado) | currency:'EUR' }}</strong> para completar el pago.</span>
+          </div>
+
+          <div class="actions-grid">
             <button 
-              class="btn btn-success btn-lg" 
-              [disabled]="montoEntregado < pedidoSeleccionado.precioTotal"
+              class="btn btn-confirm-pay" 
+              [disabled]="montoEntregado < (pedidoSeleccionado.precioTotal ?? $any(pedidoSeleccionado).precio_total ?? 0)"
               (click)="confirmarCobroEfectivo()">
-              Confirmar y Registrar Pago
+              <span class="material-icons">check_circle</span>
+              <span>Confirmar y Registrar Pago</span>
             </button>
-            <button class="btn btn-outline-secondary" (click)="pedidoSeleccionado = null">
+            
+            <button class="btn btn-cancel-pay" (click)="pedidoSeleccionado = null">
               Cancelar
             </button>
           </div>
+
         </div>
+
       </div>
     </div>
+
   </div>
+
 </div>

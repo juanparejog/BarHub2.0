@@ -1,57 +1,155 @@
-<h2 class="titulo-comandas">Gestión de Comandas</h2>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
-<div *ngIf="pedidosNoServidos.length === 0" class="sin-comandas">
-  <p class="sinComandas">No hay comandas registradas.</p>
-</div>
+<div class="gestion-comandas-container py-4 px-2 px-md-4">
 
-<div *ngFor="let pedido of pedidosNoServidos" class="comanda-card">
-  <div class="comanda-header">
-    <strong>Pedido #{{ pedido.id }}</strong> - 
-    <strong>Mesa #{{ pedido.mesaId || pedido.id_mesa || pedido.idMesa }}</strong> - 
-    {{ pedido.fecha | date:'dd/MM/yyyy HH:mm' }}
-    <span class="estado-pedido" [ngClass]="(pedido.estado || '').toLowerCase()">
-        {{ getLabelEstado(pedido.estado) }}
-    </span>
+  <!-- ENCABEZADO DE PÁGINA -->
+  <header class="header-section mb-4 d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
+    <div>
+      <h2 class="main-title mb-1">
+        <span class="material-icons title-icon me-2">soup_kitchen</span>
+        Pantalla de Comandas (KDS)
+      </h2>
+      <p class="subtitle text-muted mb-0">Control en tiempo real para cocina, sala, recogidas y reparto.</p>
+    </div>
+
+    <!-- FILTROS Y CONTADORES -->
+    <div class="kds-filter-tabs d-flex align-items-center gap-1 bg-white p-1 rounded-4 shadow-sm border">
+      <button 
+        type="button" 
+        class="tab-btn" 
+        [class.active]="filtroEstado === 'TODOS'"
+        (click)="filtroEstado = 'TODOS'">
+        <span>Todos</span>
+        <span class="badge bg-secondary ms-1">{{ pedidosNoServidos.length }}</span>
+      </button>
+      <button 
+        type="button" 
+        class="tab-btn tab-pendiente" 
+        [class.active]="filtroEstado === 'PENDIENTE'"
+        (click)="filtroEstado = 'PENDIENTE'">
+        <span class="material-icons fs-6 me-1">local_fire_department</span>
+        <span>En Cocina</span>
+        <span class="badge bg-warning text-dark ms-1">{{ getCountPorEstado('PENDIENTE') }}</span>
+      </button>
+      <button 
+        type="button" 
+        class="tab-btn tab-preparado" 
+        [class.active]="filtroEstado === 'PREPARADO'"
+        (click)="filtroEstado = 'PREPARADO'">
+        <span class="material-icons fs-6 me-1">done_all</span>
+        <span>Listos</span>
+        <span class="badge bg-info text-dark ms-1">{{ getCountPorEstado('PREPARADO') }}</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ESTADO VACÍO (SIN COMANDAS) -->
+  <div *ngIf="getPedidosFiltrados().length === 0" class="empty-kds-card text-center py-5 my-4">
+    <div class="empty-icon-circle mb-3 mx-auto">
+      <span class="material-icons text-success fs-1">restaurant</span>
+    </div>
+    <h4 class="fw-bold text-dark">No hay comandas activas</h4>
+    <p class="text-muted small mb-0">Todas las comandas han sido procesadas o no hay nuevos pedidos pendientes.</p>
   </div>
 
-  <div class="comanda-info">
-    <p>
-      <strong>Total:</strong> 
-      {{ (pedido.precioTotal ?? pedido.precio_total ?? pedido.total ?? 0) | currency:'EUR':'symbol':'1.2-2' }}
-    </p>
+  <!-- PARRILLA DE COMANDAS (GRID KDS) -->
+  <div class="row g-3 g-md-4" *ngIf="getPedidosFiltrados().length > 0">
+    <div 
+      *ngFor="let pedido of getPedidosFiltrados()" 
+      class="col-12 col-md-6 col-xl-4">
+      
+      <div 
+        class="card comanda-kds-card h-100 border-0"
+        [ngClass]="'estado-border-' + (pedido.estado || 'PENDIENTE').toLowerCase()">
+        
+        <!-- HEADER TARJETA COMANDA -->
+        <div class="comanda-card-header p-3 d-flex align-items-center justify-content-between">
+          <div class="d-flex align-items-center gap-2">
+            
+            <!-- BADGES DE TIPO DE PEDIDO: MESA / DOMICILIO / RECOGER -->
+            <div 
+              class="tipo-pedido-badge" 
+              [ngClass]="getTipoPedidoClass(pedido)">
+              <span class="material-icons">
+                {{ getTipoPedidoIcon(pedido) }}
+              </span>
+              <span>
+                {{ getTipoPedidoLabel(pedido) }}
+              </span>
+            </div>
+
+            <span class="pedido-num">#{{ pedido.id }}</span>
+          </div>
+
+          <!-- BADGE DE ESTADO ACTUAL -->
+          <span class="badge-status" [ngClass]="(pedido.estado || 'PENDIENTE').toLowerCase()">
+            <span class="status-dot"></span>
+            {{ getLabelEstado(pedido.estado) }}
+          </span>
+        </div>
+
+        <!-- SUBHEADER CON HORA Y TOTAL -->
+        <div class="comanda-card-sub-header px-3 py-2 d-flex align-items-center justify-content-between text-muted border-bottom">
+          <div class="time-elapsed d-flex align-items-center gap-1">
+            <span class="material-icons fs-6">schedule</span>
+            <small>{{ pedido.fecha | date:'HH:mm' }} hs</small>
+          </div>
+          <div class="total-monto fw-bold text-dark">
+            {{ (pedido.precioTotal ?? pedido.precio_total ?? pedido.total ?? 0) | currency:'EUR':'symbol':'1.2-2' }}
+          </div>
+        </div>
+
+        <!-- CUERPO CON DETALLES DE PRODUCTOS -->
+        <div class="comanda-card-body p-3">
+          <ul class="list-unstyled products-list mb-0">
+            <li *ngFor="let det of pedido.detalles || []" class="product-item py-2 border-bottom">
+              <div class="d-flex align-items-center justify-content-between gap-2">
+                
+                <div class="d-flex align-items-center gap-2">
+                  <span class="product-qty-badge">{{ det.cantidad }}x</span>
+                  <div>
+                    <span class="product-name fw-semibold text-dark">
+                      {{ getNombreProducto(det) }}
+                    </span>
+                    <small *ngIf="det.notas || det.observaciones" class="d-block text-danger fw-bold fs-7">
+                      <span class="material-icons align-middle fs-7 me-1">error_outline</span>
+                      {{ det.notas || det.observaciones }}
+                    </small>
+                  </div>
+                </div>
+
+                <div class="text-end text-muted small fw-medium">
+                  {{ (det.cantidad * (det.precio_unitario ?? det.precioUnitario ?? det.producto?.precio ?? 0)) | currency:'EUR':'symbol':'1.2-2' }}
+                </div>
+
+              </div>
+            </li>
+          </ul>
+        </div>
+
+        <!-- FOOTER / BOTONES DE CAMBIO DE ESTADO -->
+        <div class="comanda-card-footer p-3 border-top mt-auto bg-light rounded-bottom-4">
+          <div class="d-flex gap-2">
+            <button 
+              *ngFor="let estado of estados"
+              type="button"
+              class="btn btn-status-action flex-fill"
+              [class.active-current]="(pedido.estado || '').toUpperCase() === estado.value"
+              [ngClass]="estado.value.toLowerCase()"
+              [disabled]="(pedido.estado || '').toUpperCase() === estado.value"
+              (click)="cambiarEstado(pedido, estado.value)">
+              
+              <span class="material-icons fs-6 me-1" *ngIf="estado.value === 'PENDIENTE'">local_fire_department</span>
+              <span class="material-icons fs-6 me-1" *ngIf="estado.value === 'PREPARADO'">done</span>
+              <span class="material-icons fs-6 me-1" *ngIf="estado.value === 'SERVIDO'">check_circle</span>
+              <span>{{ estado.label }}</span>
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
   </div>
 
-  <div class="comanda-detalles">
-    <table>
-      <thead>
-        <tr>
-          <th>Producto</th>
-          <th>Cantidad</th>
-          <th>Precio unitario</th>
-          <th>Subtotal</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let det of pedido.detalles || []">
-            <td>{{ det.producto?.nombre || det.productoNombre || 'Producto' }}</td>
-            <td>{{ det.cantidad }}</td>
-            <td>
-              {{ (det.precio_unitario ?? det.precioUnitario ?? det.producto?.precio ?? 0) | currency:'EUR':'symbol':'1.2-2' }}
-            </td>
-            <td>
-              {{ (det.cantidad * (det.precio_unitario ?? det.precioUnitario ?? det.producto?.precio ?? 0)) | currency:'EUR':'symbol':'1.2-2' }}
-            </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-
-  <div class="comanda-actions">
-    <button *ngFor="let estado of estados"
-            [disabled]="(pedido.estado || '').toUpperCase() === estado.value"
-            [ngClass]="estado.value.toLowerCase()"
-            (click)="cambiarEstado(pedido, estado.value)">
-      {{ estado.label }}
-    </button>
-  </div>
 </div>

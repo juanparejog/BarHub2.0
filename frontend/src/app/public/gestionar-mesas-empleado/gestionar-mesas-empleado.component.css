@@ -1,95 +1,442 @@
-.titulo-mesas {
-  text-align: center;
-  margin: 40px 0 10px 0;
-  font-size: 2.7rem;
-  color: #fff;
-  font-weight: 800;
-  letter-spacing: -0.5px;
-  text-shadow: 2px 2px 10px #1B1B1B99;
-  background: none;
-  width: 100%;
+/* ==========================================================================
+   ESTILOS GENERALES Y CONTENEDOR
+   ========================================================================== */
+   .gestion-mesas-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   }
   
-  .mesas-grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 32px;
-    justify-content: center;
-    margin-bottom: 40px;
-  }
-  
-  .mesa-card {
-    width: 260px;
-    padding: 22px 18px 18px 18px;
-    border-radius: 16px;
-    box-shadow: 0 2px 12px rgba(23,96,41,0.08);
-    background: #fff;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    transition: box-shadow 0.2s;
-    position: relative;
-  }
-  
-  .mesa-header {
+  .main-title {
+    color: #1a252c;
+    font-weight: 800;
+    font-size: 1.8rem;
     display: flex;
     align-items: center;
-    gap: 10px;
-    font-size: 1.3rem;
-    margin-bottom: 8px;
   }
   
-  .mesa-num {
-    font-weight: bold;
+  .title-icon {
     color: #176029;
-  }
-  
-  .mesa-icon {
     font-size: 2.2rem;
   }
   
-  .mesa-estado {
+  .subtitle {
+    font-size: 0.92rem;
+  }
+  
+  /* Botón de Refrescar */
+  .btn-refresh {
+    background: #ffffff;
+    border: 1.5px solid #e0e6ed;
+    color: #2c3e50;
+    font-weight: 600;
+    padding: 8px 18px;
+    border-radius: 50px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+    transition: all 0.25s ease;
+  }
+  
+  .btn-refresh:hover {
+    background: #176029;
+    color: #ffffff;
+    border-color: #176029;
+    box-shadow: 0 4px 12px rgba(23, 96, 41, 0.25);
+    transform: translateY(-1px);
+  }
+  
+  .btn-refresh:hover .icon-spin {
+    transform: rotate(180deg);
+    transition: transform 0.5s ease;
+  }
+  
+  /* ==========================================================================
+     TARJETAS DE MÉTRICAS / KPIs
+     ========================================================================== */
+  .kpi-bar {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+  }
+  
+  .kpi-card {
+    background: #ffffff;
+    padding: 16px 20px;
+    border-radius: 16px;
+    border: 1px solid #eef2f6;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+  }
+  
+  .kpi-card .material-icons {
+    font-size: 2.4rem;
+    padding: 10px;
+    border-radius: 12px;
+  }
+  
+  .kpi-value {
+    display: block;
+    font-size: 1.4rem;
+    font-weight: 800;
+    line-height: 1.1;
+    color: #1e293b;
+  }
+  
+  .kpi-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  
+  /* Temas KPI */
+  .kpi-card.total .material-icons { background: #f1f5f9; color: #475569; }
+  .kpi-card.disponible .material-icons { background: #dcfce7; color: #16a34a; }
+  .kpi-card.ocupada .material-icons { background: #fee2e2; color: #dc2626; }
+  .kpi-card.reservada .material-icons { background: #e0f2fe; color: #0284c7; }
+  
+  /* ==========================================================================
+     GRID Y TARJETA DE MESA
+     ========================================================================== */
+  .mesa-col {
+    animation: fadeInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+  
+  .mesa-card {
+    background: #ffffff;
+    border-radius: 20px;
+    border: 2px solid #e2e8f0;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .mesa-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
+  }
+  
+  /* Estados Visuales de Borde Superior e Identificación */
+  .mesa-card.estado-disponible { border-color: #bbf7d0; }
+  .mesa-card.estado-ocupada { border-color: #fca5a5; }
+  .mesa-card.estado-reservada { border-color: #bae6fd; }
+  
+  /* Header de Tarjeta */
+  .mesa-card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
     margin-bottom: 18px;
+  }
+  
+  .mesa-identity {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  
+  .icon-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f8fafc;
+    color: #475569;
+    transition: all 0.3s ease;
+  }
+  
+  .estado-disponible .icon-avatar { background: #f0fdf4; color: #16a34a; }
+  .estado-ocupada .icon-avatar { background: #fef2f2; color: #dc2626; }
+  .estado-reservada .icon-avatar { background: #f0f9ff; color: #0284c7; }
+  
+  .mesa-numero {
+    font-size: 1.15rem;
+    font-weight: 700;
+    margin: 0;
+    color: #0f172a;
+  }
+  
+  .mesa-subtext {
+    font-size: 0.75rem;
+    color: #94a3b8;
+    font-weight: 500;
+  }
+  
+  /* Badges de Estado Animados */
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 30px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+  }
+  
+  .status-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+  
+  .badge-disponible {
+    background: #dcfce7;
+    color: #15803d;
+  }
+  
+  .badge-ocupada {
+    background: #fee2e2;
+    color: #b91c1c;
+  }
+  .badge-ocupada .status-dot {
+    animation: pulseGlowRed 1.5s infinite;
+  }
+  
+  .badge-reservada {
+    background: #e0f2fe;
+    color: #0369a1;
+  }
+  .badge-reservada .status-dot {
+    animation: pulseGlowBlue 1.5s infinite;
+  }
+  
+  /* ==========================================================================
+     SELECTOR DE ESTADOS INTERACTIVO (SEGMENTED CONTROL)
+     ========================================================================== */
+  .mesa-card-body {
+    margin-bottom: 18px;
+  }
+  
+  .state-selector-label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #64748b;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+  }
+  
+  .state-selector-group {
+    display: flex;
+    background: #f1f5f9;
+    padding: 4px;
+    border-radius: 12px;
+    gap: 4px;
+  }
+  
+  .state-btn {
+    flex: 1;
+    border: none;
+    background: transparent;
+    padding: 8px 4px;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    cursor: pointer;
+    color: #64748b;
+    transition: all 0.2s ease;
+  }
+  
+  .state-btn .material-icons {
     font-size: 1.1rem;
   }
   
-  .mesa-actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    justify-content: center;
+  .state-btn-text {
+    font-size: 0.68rem;
+    font-weight: 700;
   }
   
-  .mesa-actions button {
+  .state-btn:hover {
+    background: rgba(255, 255, 255, 0.6);
+    color: #1e293b;
+  }
+  
+  /* Estado Activo del Botón */
+  .state-btn.active {
+    background: #ffffff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  }
+  
+  .state-btn.active[data-state="disponible"] { color: #16a34a; }
+  .state-btn.active[data-state="ocupada"] { color: #dc2626; }
+  .state-btn.active[data-state="reservada"] { color: #0284c7; }
+  
+  /* ==========================================================================
+     FOOTER TARJETA & ACCIÓN QR
+     ========================================================================== */
+  .btn-qr-action {
+    width: 100%;
+    border: 1px dashed #cbd5e1;
+    background: #f8fafc;
+    color: #475569;
+    font-weight: 600;
+    font-size: 0.85rem;
+    padding: 9px;
+    border-radius: 10px;
     display: flex;
     align-items: center;
-    gap: 4px;
-    border: none;
-    border-radius: 6px;
-    padding: 7px 13px;
-    font-size: 1rem;
-    font-weight: 500;
+    justify-content: center;
+    gap: 6px;
     cursor: pointer;
-    transition: background 0.2s, color 0.2s;
-    background: #e9ecef;
-    color: #176029;
-    outline: none;
+    transition: all 0.2s ease;
   }
   
-  .mesa-actions button.disponible {
-    background: #eafaf1;
-    color: #218838;
-  }
-  .mesa-actions button.reservada {
-    background: #e3f2fd;
-    color: #3498db;
-  }
-  .mesa-actions button:disabled {
-    opacity: 0.7;
-    cursor: not-allowed;
-    border: 1.5px dashed #ccc;
+  .btn-qr-action .material-icons {
+    font-size: 1.1rem;
   }
   
-  .mesa-card.disponible { border: 2.5px solid #2ecc71; }
-  .mesa-card.reservada { border: 2.5px solid #3498db; }
+  .btn-qr-action:hover {
+    background: #176029;
+    color: #ffffff;
+    border-color: #176029;
+    border-style: solid;
+  }
   
+  /* ==========================================================================
+     MODAL REDISEÑADO
+     ========================================================================== */
+  .modal-backdrop-custom {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(4px);
+    z-index: 1040;
+  }
+  
+  .qr-modal-content {
+    border-radius: 24px;
+    border: none;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+    animation: modalScaleIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  
+  .qr-modal-header {
+    padding: 20px 24px 10px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  
+  .btn-close-custom {
+    background: #f1f5f9;
+    border: none;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #64748b;
+    cursor: pointer;
+    transition: background 0.2s ease;
+  }
+  
+  .btn-close-custom:hover {
+    background: #e2e8f0;
+    color: #0f172a;
+  }
+  
+  .qr-modal-body {
+    padding: 20px 24px;
+    text-align: center;
+  }
+  
+  .qr-frame {
+    background: #ffffff;
+    padding: 16px;
+    border-radius: 16px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    display: inline-block;
+    margin-bottom: 16px;
+  }
+  
+  .qr-image {
+    max-width: 180px;
+    height: auto;
+    display: block;
+  }
+  
+  .qr-instructions {
+    color: #64748b;
+    font-size: 0.85rem;
+    line-height: 1.4;
+    margin: 0;
+  }
+  
+  .qr-modal-footer {
+    padding: 10px 24px 24px 24px;
+  }
+  
+  .btn-modal-close {
+    width: 100%;
+    background: #0f172a;
+    color: #ffffff;
+    border: none;
+    padding: 12px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background 0.2s ease;
+  }
+  
+  .btn-modal-close:hover {
+    background: #1e293b;
+  }
+  
+  /* ==========================================================================
+     ANIMACIONES KEYFRAMES
+     ========================================================================== */
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  @keyframes modalScaleIn {
+    from {
+      opacity: 0;
+      transform: scale(0.92);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+  
+  @keyframes pulseGlowRed {
+    0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.7); }
+    70% { box-shadow: 0 0 0 6px rgba(220, 38, 38, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); }
+  }
+  
+  @keyframes pulseGlowBlue {
+    0% { box-shadow: 0 0 0 0 rgba(2, 132, 199, 0.7); }
+    70% { box-shadow: 0 0 0 6px rgba(2, 132, 199, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(2, 132, 199, 0); }
+  }

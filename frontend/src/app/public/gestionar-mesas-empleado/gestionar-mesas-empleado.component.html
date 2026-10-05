@@ -1,79 +1,148 @@
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
-<div class="container py-4">
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <div>
-      <h2 class="fw-bold text-dark mb-1">Gestión de Mesas y Sala</h2>
-      <p class="text-muted small mb-0">Control de disponibilidad y códigos QR para pedidos en mesa.</p>
-    </div>
-    <button class="btn btn-outline-primary btn-sm rounded-pill px-3" (click)="cargarMesas()">
-      <span class="material-icons align-middle fs-6 me-1">refresh</span> Refrescar Sala
-    </button>
-  </div>
+<div class="gestion-mesas-container py-4 px-2 px-md-4">
 
-  <!-- Vista Grid de Mesas -->
-  <div class="row g-3">
-    <div *ngFor="let mesa of mesas" class="col-sm-6 col-md-4 col-lg-3">
-      <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden position-relative">
+  <!-- CABECERA DE SECCIÓN Y MÉTRICAS -->
+  <header class="header-section mb-4 d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
+    <div>
+      <h2 class="main-title mb-1">
+        <span class="material-icons title-icon align-middle me-2">grid_view</span>
+        Gestión de Mesas y Sala
+      </h2>
+      <p class="subtitle text-muted mb-0">Monitorea en tiempo real la ocupación y gestiona los accesos QR.</p>
+    </div>
+
+    <div class="d-flex align-items-center gap-2">
+      <button class="btn btn-refresh d-flex align-items-center gap-2" (click)="cargarMesas()">
+        <span class="material-icons icon-spin">refresh</span>
+        <span>Refrescar Sala</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- BARRA DE ESTADÍSTICAS RÁPIDAS (KPIs) -->
+  <section class="kpi-bar mb-4">
+    <div class="kpi-card total">
+      <span class="material-icons">table_restaurant</span>
+      <div>
+        <span class="kpi-value">{{ mesas.length }}</span>
+        <span class="kpi-label">Total Mesas</span>
+      </div>
+    </div>
+    <div class="kpi-card disponible">
+      <span class="material-icons">check_circle</span>
+      <div>
+        <span class="kpi-value">{{ getCountByEstado('DISPONIBLE') }}</span>
+        <span class="kpi-label">Disponibles</span>
+      </div>
+    </div>
+    <div class="kpi-card ocupada">
+      <span class="material-icons">no_meals</span>
+      <div>
+        <span class="kpi-value">{{ getCountByEstado('OCUPADA') }}</span>
+        <span class="kpi-label">Ocupadas</span>
+      </div>
+    </div>
+    <div class="kpi-card reservada">
+      <span class="material-icons">event_seat</span>
+      <div>
+        <span class="kpi-value">{{ getCountByEstado('RESERVADA') }}</span>
+        <span class="kpi-label">Reservadas</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- GRID DE TARJETAS DE MESAS -->
+  <div class="row g-4">
+    <div *ngFor="let mesa of mesas; let i = index" 
+         class="col-12 col-sm-6 col-md-4 col-xl-3 mesa-col"
+         [style.animation-delay]="(i * 0.04) + 's'">
+
+      <div class="mesa-card" [class]="'estado-' + (mesa.estado | lowercase)">
         
-        <!-- Header de la Tarjeta -->
-        <div class="card-header border-0 bg-light p-3 d-flex align-items-center justify-content-between">
-          <div class="d-flex align-items-center gap-2">
-            <span class="material-icons text-primary fs-3">{{ getIconForEstado(mesa.estado) }}</span>
-            <span class="fw-bold fs-5 text-dark">Mesa #{{ mesa.codigoqr || mesa.id }}</span>
+        <!-- HEADER TARJETA: Número + Badge Estado -->
+        <div class="mesa-card-header">
+          <div class="mesa-identity">
+            <div class="icon-avatar">
+              <span class="material-icons">{{ getIconForEstado(mesa.estado) }}</span>
+            </div>
+            <div>
+              <h3 class="mesa-numero">Mesa #{{ mesa.codigoqr || mesa.id }}</h3>
+              <span class="mesa-subtext">Sala Principal</span>
+            </div>
           </div>
-          <span class="badge rounded-pill px-2 py-1 small" [ngClass]="getBadgeClass(mesa.estado)">
+
+          <span class="status-badge" [ngClass]="getBadgeClass(mesa.estado)">
+            <span class="status-dot"></span>
             {{ getLabelForEstado(mesa.estado) }}
           </span>
         </div>
 
-        <!-- Cuerpo -->
-        <div class="card-body p-3 text-center">
-          <!-- Selector de Estados -->
-          <div class="btn-group-vertical w-100 gap-1" role="group">
+        <!-- CUERPO TARJETA: Selector de Estados Tipo Segmented Switch -->
+        <div class="mesa-card-body">
+          <label class="state-selector-label">Cambiar Estado:</label>
+          <div class="state-selector-group">
             <button 
               *ngFor="let estado of estados" 
-              class="btn btn-sm text-start d-flex align-items-center justify-content-between rounded-2 px-3 py-2"
-              [class.btn-primary]="mesa.estado === estado.value"
-              [class.btn-outline-secondary]="mesa.estado !== estado.value"
-              (click)="setEstado(mesa, estado.value)">
-              
-              <div class="d-flex align-items-center gap-2">
-                <span class="material-icons fs-6">{{ estado.icon }}</span>
-                <span>{{ estado.label }}</span>
-              </div>
-              <span *ngIf="mesa.estado === estado.value" class="material-icons fs-6">check</span>
+              type="button"
+              class="state-btn"
+              [class.active]="mesa.estado === estado.value"
+              [attr.data-state]="estado.value | lowercase"
+              (click)="setEstado(mesa, estado.value)"
+              [title]="estado.label">
+              <span class="material-icons">{{ estado.icon }}</span>
+              <span class="state-btn-text">{{ estado.label }}</span>
             </button>
           </div>
         </div>
 
-        <!-- Footer con Acción QR -->
-        <div class="card-footer bg-white border-0 p-3 pt-0 text-center">
-          <button class="btn btn-light btn-sm w-100 rounded-pill text-muted border fw-semibold" (click)="verQr(mesa)">
-            <span class="material-icons align-middle fs-6 me-1">qr_code_2</span> Ver QR de Mesa
+        <!-- FOOTER TARJETA: Acción de Código QR -->
+        <div class="mesa-card-footer">
+          <button type="button" class="btn-qr-action" (click)="verQr(mesa)">
+            <span class="material-icons">qr_code_2</span>
+            <span>Ver QR de Mesa</span>
           </button>
         </div>
 
       </div>
+
     </div>
   </div>
+
 </div>
 
-<!-- Modal para Previsualizar QR -->
-<div class="modal fade show d-block tab-index-1 bg-dark bg-opacity-50" *ngIf="mesaSeleccionadaQr" tabindex="-1">
+<!-- MODAL REDISEÑADO DE CÓDIGO QR -->
+<div class="modal-backdrop-custom fade show" *ngIf="mesaSeleccionadaQr" (click)="cerrarModalQr()"></div>
+
+<div class="modal fade show d-block" *ngIf="mesaSeleccionadaQr" tabindex="-1" role="dialog" aria-modal="true">
   <div class="modal-dialog modal-dialog-centered modal-sm">
-    <div class="modal-content rounded-4 border-0 shadow">
-      <div class="modal-header border-0 pb-0">
-        <h5 class="modal-title fw-bold">QR Mesa #{{ mesaSeleccionadaQr.codigoqr || mesaSeleccionadaQr.id }}</h5>
-        <button type="button" class="btn-close" (click)="cerrarModalQr()"></button>
+    <div class="modal-content qr-modal-content">
+      
+      <div class="qr-modal-header">
+        <div class="d-flex align-items-center gap-2">
+          <span class="material-icons text-primary">qr_code_scanner</span>
+          <h5 class="modal-title">Mesa #{{ mesaSeleccionadaQr.codigoqr || mesaSeleccionadaQr.id }}</h5>
+        </div>
+        <button type="button" class="btn-close-custom" (click)="cerrarModalQr()">
+          <span class="material-icons">close</span>
+        </button>
       </div>
-      <div class="modal-body text-center p-4">
-        <img [src]="getUrlQr(mesaSeleccionadaQr.codigoqr, mesaSeleccionadaQr.id)" alt="QR Mesa" class="img-fluid rounded-3 border p-2 mb-3 shadow-sm">
-        <p class="text-muted small mb-0">Escanea este código desde la mesa para abrir la Carta Digital directamente.</p>
+
+      <div class="qr-modal-body">
+        <div class="qr-frame">
+          <img [src]="getUrlQr(mesaSeleccionadaQr.codigoqr, mesaSeleccionadaQr.id)" 
+               alt="Código QR de Mesa" 
+               class="qr-image">
+        </div>
+        <p class="qr-instructions">
+          Escanea este código desde el teléfono para acceder directamente a la Carta Digital asignada a esta mesa.
+        </p>
       </div>
-      <div class="modal-footer border-0 pt-0">
-        <button type="button" class="btn btn-secondary btn-sm w-100 rounded-pill" (click)="cerrarModalQr()">Cerrar</button>
+
+      <div class="qr-modal-footer">
+        <button type="button" class="btn-modal-close" (click)="cerrarModalQr()">Entendido</button>
       </div>
+
     </div>
   </div>
 </div>

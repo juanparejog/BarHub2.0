@@ -23,6 +23,11 @@ export class GestionarMesasEmpleadoComponent implements OnInit {
     this.cargarMesas();
   }
 
+  getCountByEstado(estadoNombre: string): number {
+    if (!this.mesas) return 0;
+    return this.mesas.filter(m => String(m.estado).toUpperCase() === estadoNombre.toUpperCase()).length;
+  }
+
   cargarMesas() {
     this.mesaService.get().subscribe({
       next: (data) => (this.mesas = data),
