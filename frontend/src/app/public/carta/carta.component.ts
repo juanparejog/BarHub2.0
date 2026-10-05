@@ -8,6 +8,7 @@ import { Mesa } from '../../admin/pages/mesas/interface/mesa';
 import { Producto } from '../../admin/pages/productos/interface/producto';
 
 export type TipoPedido = 'MESA' | 'DOMICILIO';
+export type TipoVivienda = 'piso' | 'casa' | 'urbanizacion';
 
 interface ProductoSeleccionado {
   producto: Producto;
@@ -31,8 +32,18 @@ export class CartaComponent implements OnInit {
   mesaBloqueadaPorQr = false;
 
   // Campos desglosados para Domicilio
-  calleNumero = '';
-  pisoPuerta = '';
+  calle = '';
+  tipoVivienda: TipoVivienda = 'piso';
+  
+  // Para Piso
+  portalNum = '';
+  pisoNum = '';
+  puerta = '';
+
+  // Para Casa / Urbanización
+  casaNum = '';
+  urbanizacionNombre = '';
+
   codigoPostal = '';
   telefonoContacto = '';
 
@@ -56,7 +67,6 @@ export class CartaComponent implements OnInit {
 
     this.mesaService.get().subscribe({
       next: data => {
-        console.log('Mesas recibidas:', data);
         this.mesas = data || [];
       },
       error: err => console.error('Error cargando mesas:', err)
@@ -64,7 +74,6 @@ export class CartaComponent implements OnInit {
 
     this.productoService.get().subscribe({
       next: data => {
-        console.log('Productos recibidos:', data);
         this.productos = data || [];
       },
       error: err => console.error('Error cargando productos:', err)
@@ -87,27 +96,73 @@ export class CartaComponent implements OnInit {
     setTimeout(() => this.showToast = false, 3000);
   }
 
-  // --- LÓGICA GOOGLE MAPS ---
-  get direccionCompleta(): string {
-    const partes = [this.calleNumero, this.pisoPuerta, this.codigoPostal].filter(p => p && p.trim() !== '');
+
+  get datosServicioCompletos(): boolean {
+    if (this.tipoPedido === 'MESA') {
+      return this.idMesa !== null;
+    }
+
+    if (this.tipoPedido === 'DOMICILIO') {
+      if (!this.calle.trim() || !this.telefonoContacto.trim()) {
+        return false;
+      }
+
+      if (this.tipoVivienda === 'piso') {
+        return !!(this.portalNum.trim() && this.pisoNum.trim() && this.puerta.trim());
+      } else if (this.tipoVivienda === 'casa') {
+        return !!this.casaNum.trim();
+      } else if (this.tipoVivienda === 'urbanizacion') {
+
+        return !!this.casaNum.trim();
+      }
+    }
+
+    return false;
+  }
+
+  get detalleViviendaTexto(): string {
+    if (this.tipoVivienda === 'piso') {
+      const portal = this.portalNum ? `Portal ${this.portalNum}` : '';
+      const piso = this.pisoNum ? `${this.pisoNum}º` : '';
+      const puerta = this.puerta ? this.puerta.toUpperCase() : '';
+      return [portal, piso, puerta].filter(p => p !== '').join(' ');
+    } else if (this.tipoVivienda === 'casa') {
+      return `Nº ${this.casaNum}`;
+    } else if (this.tipoVivienda === 'urbanizacion') {
+      const urba = this.urbanizacionNombre.trim() ? `Urb. ${this.urbanizacionNombre.trim()}, ` : '';
+      return `${urba}Nº/Chalet ${this.casaNum.trim()}`;
+    }
+    return '';
+  }
+
+  get direccionParaMaps(): string {
+    if (!this.calle) return '';
+  
+    let numero = '';
+    if (this.tipoVivienda === 'piso') {
+      numero = this.portalNum ? ` ${this.portalNum}` : '';
+    } else if (this.tipoVivienda === 'casa' || this.tipoVivienda === 'urbanizacion') {
+      numero = this.casaNum ? ` ${this.casaNum}` : '';
+    }
+  
+    const partes = [`${this.calle.trim()}${numero}`, this.codigoPostal].filter(p => p && p.trim() !== '');
     return partes.join(', ');
   }
 
   get googleMapsUrl(): string {
-    if (!this.calleNumero && !this.codigoPostal) {
+    if (!this.calle && !this.codigoPostal) {
       return 'https://www.google.com/maps';
     }
-    const query = encodeURIComponent(this.direccionCompleta);
+    const query = encodeURIComponent(this.direccionParaMaps);
     return `https://www.google.com/maps/search/?api=1&query=${query}`;
   }
 
   get googleMapsEmbedUrl(): SafeResourceUrl {
-    const query = this.direccionCompleta ? encodeURIComponent(this.direccionCompleta) : 'España';
-    const url = `https://maps.google.com/maps?q=${query}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
+    const query = this.direccionParaMaps ? encodeURIComponent(this.direccionParaMaps) : 'España';
+    const url = `https://maps.google.com/maps?q=${query}&t=&z=18&ie=UTF8&iwloc=&output=embed`;
     return this.sanitizer.bypassSecurityTrustResourceUrl(url);
   }
 
-  // --- FILTRADO DE PRODUCTOS ---
   filtrarCategoria(cat: string) {
     this.categoriaSeleccionada = cat;
   }
@@ -122,14 +177,20 @@ export class CartaComponent implements OnInit {
     }
 
     return this.productos.filter(p => {
-      // Compara p.tipoProducto o p.tipo aceptando variaciones de nombre de propiedad
       const tipoObj = (p as any).tipoProducto || (p as any).tipo || '';
       return String(tipoObj).toLowerCase().trim() === this.categoriaSeleccionada.toLowerCase().trim();
     });
   }
 
-  // --- CARRITO ---
   onAdd(producto: Producto) {
+    if (!this.datosServicioCompletos) {
+      const msg = this.tipoPedido === 'MESA' 
+        ? 'Por favor, selecciona una mesa antes de añadir productos.' 
+        : 'Por favor, completa los datos de la dirección antes de añadir productos.';
+      this.showToastMessage(msg, 'error');
+      return;
+    }
+
     const item = this.productosSeleccionados.find(i => i.producto.id === producto.id);
     if (item) {
       item.cantidad++;
@@ -158,6 +219,11 @@ export class CartaComponent implements OnInit {
     return this.productosSeleccionados.reduce((sum, item) => sum + item.cantidad, 0);
   }
 
+  get direccionCompleta(): string {
+    const partes = [this.calle, this.detalleViviendaTexto, this.codigoPostal].filter(p => p && p.trim() !== '');
+    return partes.join(', ');
+  }
+
   hayProductosSeleccionados(): boolean {
     return this.productosSeleccionados.length > 0;
   }
@@ -173,25 +239,14 @@ export class CartaComponent implements OnInit {
       return;
     }
 
+    if (!this.datosServicioCompletos) {
+      this.showToastMessage('Debes indicar tu mesa o los datos de domicilio requeridos', 'error');
+      return;
+    }
+
     if (!this.hayProductosSeleccionados()) {
       this.showToastMessage('Seleccione al menos un producto de la carta', 'info');
       return;
-    }
-
-    if (this.tipoPedido === 'MESA' && !this.idMesa) {
-      this.showToastMessage('Por favor, selecciona o introduce el número de mesa', 'error');
-      return;
-    }
-
-    if (this.tipoPedido === 'DOMICILIO') {
-      if (!this.calleNumero.trim()) {
-        this.showToastMessage('Indica la calle y número de entrega', 'error');
-        return;
-      }
-      if (!this.telefonoContacto.trim()) {
-        this.showToastMessage('Proporciona un teléfono de contacto', 'error');
-        return;
-      }
     }
 
     const pedidoPayload = {
@@ -211,13 +266,9 @@ export class CartaComponent implements OnInit {
     if (!nombreImagen || nombreImagen.trim() === '') {
       return 'assets/images/default-food.jpg';
     }
-  
-    // Si ya viene con la ruta assets/ completa desde la base de datos
     if (nombreImagen.startsWith('assets/')) {
       return encodeURI(nombreImagen);
     }
-  
-    // Si solo viene el nombre del archivo (ej: "agua_mineral.jpg" o "vino tinto.jpg")
     return `assets/images/productos/${encodeURI(nombreImagen.trim())}`;
   }
 }

@@ -1,32 +1,151 @@
-<h2>Mis pedidos</h2>
-<div *ngIf="pedidos.length === 0">
-  <p class="sinPedidos">No tienes pedidos realizados.</p>
-</div>
-<div *ngFor="let pedido of pedidos" class="pedido-card">
-  <div class="pedido-header">
-    <strong>Pedido #{{ pedido.id }}</strong>
-    <span class="estado">{{ pedido.estado | titlecase }}</span>
-    <span class="fecha">{{ pedido.fecha | date:'dd/MM/yyyy' }}</span>
-    <span class="total">{{ pedido.precioTotal | currency:'EUR':'symbol':'1.2-2' }}</span>
-  </div>
-  <div class="pedido-detalles" *ngIf="pedido.detalles && pedido.detalles.length > 0">
-    <table>
-      <thead>
-        <tr>
-          <th>Producto</th>
-          <th>Cantidad</th>
-          <th>Precio unitario</th>
-          <th>Subtotal</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let det of pedido.detalles">
-          <td>{{ det.producto?.nombre }}</td>
-          <td>{{ det.cantidad }}</td>
-          <td>{{ det.precio_unitario | currency:'EUR':'symbol':'1.2-2' }}</td>
-          <td>{{ (det.cantidad * det.precio_unitario) | currency:'EUR':'symbol':'1.2-2' }}</td>
-        </tr>
-      </tbody>
-    </table>
+<div class="pedidos-wrapper">
+  <div class="pedidos-container">
+
+    <!-- Encabezado -->
+    <header class="pedidos-header">
+      <h2>Mis Pedidos</h2>
+      <p class="pedidos-subtitle">Sigue en tiempo real el estado de tus comandas</p>
+    </header>
+
+    <!-- Estado Vacío -->
+    <div *ngIf="pedidos.length === 0" class="sin-pedidos-card">
+      <div class="empty-icon">
+        <i class="bi bi-receipt-cutoff"></i>
+      </div>
+      <h3>No tienes pedidos activos</h3>
+      <p class="sinPedidos">Aún no has realizado ninguna comanda. ¡Explora nuestra carta y haz tu primer pedido!</p>
+    </div>
+
+    <!-- Lista de Pedidos -->
+    <div class="pedidos-list" *ngIf="pedidos.length > 0">
+      
+      <!-- BUCLE DE PEDIDOS -->
+      <div *ngFor="let pedido of pedidos" class="pedido-card">
+        
+        <!-- Header de la tarjeta -->
+        <div class="pedido-card-header">
+          <div class="pedido-main-info">
+            <span class="pedido-badge-id">
+              <i class="bi bi-bag-check-fill me-1"></i> Pedido #{{ pedido.id }}
+            </span>
+            <span class="fecha-info">
+              <i class="bi bi-clock me-1"></i> {{ pedido.fecha | date:'dd/MM/yyyy · HH:mm' }}
+            </span>
+          </div>
+
+          <div class="pedido-price-info">
+            <span class="price-label">TOTAL A PAGAR</span>
+            <span class="price-amount">
+              {{ calcularTotalPedido(pedido) | currency:'EUR':'symbol':'1.2-2' }}
+            </span>
+          </div>
+        </div>
+
+        <!-- TRACKER VISUAL DE ESTADO -->
+        <div class="pedido-status-tracker">
+
+          <!-- Paso 1: Recibido -->
+          <div class="tracker-step" [ngClass]="{
+            'active': isPasoActivo(pedido, 'recibido'),
+            'completed': isPasoCompletado(pedido, 'recibido')
+          }">
+            <div class="step-icon-wrapper">
+              <i class="bi bi-receipt"></i>
+            </div>
+            <span class="step-label">Recibido</span>
+          </div>
+
+          <div class="tracker-line" [ngClass]="{'completed': isPasoCompletado(pedido, 'recibido')}"></div>
+
+          <!-- Paso 2: En cocina -->
+          <div class="tracker-step" [ngClass]="{
+            'active': isPasoActivo(pedido, 'preparacion'),
+            'completed': isPasoCompletado(pedido, 'preparacion')
+          }">
+            <div class="step-icon-wrapper">
+              <i class="bi bi-fire"></i>
+            </div>
+            <span class="step-label">En cocina</span>
+          </div>
+
+          <div class="tracker-line" [ngClass]="{'completed': isPasoCompletado(pedido, 'preparacion')}"></div>
+
+          <!-- Paso 3: Listo para servir -->
+          <div class="tracker-step" [ngClass]="{
+            'active': isPasoActivo(pedido, 'camino'),
+            'completed': isPasoCompletado(pedido, 'camino')
+          }">
+            <div class="step-icon-wrapper">
+              <i class="bi bi-box-seam"></i>
+            </div>
+            <span class="step-label">Listo para servir</span>
+          </div>
+
+          <div class="tracker-line" [ngClass]="{'completed': isPasoCompletado(pedido, 'camino')}"></div>
+
+          <!-- Paso 4: Entregado -->
+          <div class="tracker-step" [ngClass]="{
+            'active': isPasoActivo(pedido, 'entregado'),
+            'completed': isPasoCompletado(pedido, 'entregado')
+          }">
+            <div class="step-icon-wrapper">
+              <i class="bi bi-check-circle-fill"></i>
+            </div>
+            <span class="step-label">Entregado</span>
+          </div>
+
+        </div>
+
+        <!-- ACCORDEÓN CON DETALLES Y NOMBRES DE PRODUCTO (DENTRO DEL BUCLE) -->
+        <details class="pedido-accordion">
+          <summary class="accordion-trigger">
+            <span>Ver artículos del pedido ({{ pedido.detalles?.length || 0 }})</span>
+            <i class="bi bi-chevron-down icon-arrow"></i>
+          </summary>
+
+          <div class="pedido-detalles" *ngIf="pedido.detalles && pedido.detalles.length > 0">
+            <div class="table-responsive">
+              <table class="detalles-table">
+                <thead>
+                  <tr>
+                    <th>Producto</th>
+                    <th class="text-center">Cant.</th>
+                    <th class="text-end">Precio U.</th>
+                    <th class="text-end">Subtotal</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let det of pedido.detalles">
+                    <td class="product-name-cell">
+                      <span class="product-title">
+                        {{ 
+                          det.producto?.nombre || 
+                          det.nombreProducto || 
+                          det.nombre || 
+                          det.producto_nombre ||
+                          (det | json)
+                        }}
+                      </span>
+                    </td>
+                    <td class="text-center">
+                      <span class="qty-badge">{{ det.cantidad }}</span>
+                    </td>
+                    <td class="text-end text-muted">
+                      {{ (det.precio_unitario || det.precioUnitario || det.precio) | currency:'EUR':'symbol':'1.2-2' }}
+                    </td>
+                    <td class="text-end font-bold text-dark">
+                      {{ (det.cantidad * (det.precio_unitario || det.precioUnitario || det.precio || 0)) | currency:'EUR':'symbol':'1.2-2' }}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </details>
+
+      </div>
+
+    </div>
+
   </div>
 </div>

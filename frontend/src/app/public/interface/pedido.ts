@@ -1,6 +1,7 @@
 import { Usuario } from '../../admin/pages/usuarios/interface/usuario';
 import { Mesa } from '../../admin/pages/mesas/interface/mesa';
 import { DetallesPedido } from '../../admin/pages/detalles_pedidos/interface/detalle';
+import { Producto } from '../../admin/pages/productos/interface/producto';
 
 export enum EstadoPago {
     PENDIENTE = 'PENDIENTE',

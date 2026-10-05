@@ -1,29 +1,38 @@
 <div class="home-bar-container">
-    <!-- Carrusel principal al inicio -->
-    <div id="barCarousel" class="home-bar-carousel carousel slide" data-bs-ride="carousel">
+  
+  <!-- Hero Carousel -->
+  <section class="home-hero-section animated-fade-in">
+    <div id="barCarousel" class="home-bar-carousel carousel slide carousel-fade" data-bs-ride="carousel" data-bs-interval="4000">
+      
       <div class="carousel-inner">
         <div class="carousel-item active">
           <img src="assets/images/tapas.jpg" class="d-block w-100 carousel-img" alt="Tapas españolas">
-          <div class="carousel-caption d-none d-md-block">
+          <div class="carousel-caption">
+            <span class="caption-badge"><i class="bi bi-star-fill"></i> Especialidad</span>
             <h5>Nuestras Tapas</h5>
-            <p>Prueba nuestras clásicas tapas de la casa.</p>
+            <p>Prueba nuestras clásicas tapas de la casa elaboradas a diario con ingredientes locales.</p>
           </div>
         </div>
+
         <div class="carousel-item">
           <img src="assets/images/barra.jpg" class="d-block w-100 carousel-img" alt="Barra típica">
-          <div class="carousel-caption d-none d-md-block">
-            <h5>Barra típica</h5>
-            <p>Ambiente familiar y cañas bien tiradas.</p>
+          <div class="carousel-caption">
+            <span class="caption-badge"><i class="bi bi-cup-straw"></i> Ambiente</span>
+            <h5>Barra Típica</h5>
+            <p>Ambiente familiar y cañas tiradas a la temperatura y presión perfectas.</p>
           </div>
         </div>
+
         <div class="carousel-item">
           <img src="assets/images/terraza.jpg" class="d-block w-100 carousel-img" alt="Terraza del bar">
-          <div class="carousel-caption d-none d-md-block">
-            <h5>Terraza del bar</h5>
-            <p>Disfruta del buen tiempo en nuestra terraza.</p>
+          <div class="carousel-caption">
+            <span class="caption-badge"><i class="bi bi-sun"></i> Exterior</span>
+            <h5>Nuestra Terraza</h5>
+            <p>Disfruta del increíble clima de Badajoz al aire libre en la avenida principal.</p>
           </div>
         </div>
       </div>
+
       <button class="carousel-control-prev" type="button" data-bs-target="#barCarousel" data-bs-slide="prev">
         <span class="carousel-control-prev-icon" aria-hidden="true"></span>
         <span class="visually-hidden">Anterior</span>
@@ -33,54 +42,115 @@
         <span class="visually-hidden">Siguiente</span>
       </button>
     </div>
-  
-    <!-- Tarjeta de bienvenida centrada -->
-    <div class="home-bar-content">
-      <div class="home-bar-info-flex">
-        <div class="home-bar-info-text">
-          <div class="home-bar-logo-title">
+  </section>
+
+  <!-- Tarjeta Principal de Bienvenida -->
+  <section class="home-bar-content animated-slide-up">
+    <div class="home-bar-info-flex">
+      
+      <div class="home-bar-info-text">
+        <div class="home-bar-header">
+          <div class="logo-wrapper">
             <img src="assets/images/logo.png" alt="Bar La Avenida Logo" class="home-bar-logo">
-            <div>
-              <h1>Bar la Avenida</h1>
-              <h2 class="subtitle">Tu bar de toa' la vida en Badajoz</h2>
+            <span class="status-indicator" title="Abierto ahora"></span>
+          </div>
+          <div class="home-bar-titles">
+            <h1>Bar La Avenida</h1>
+            <span class="subtitle">Tu bar de toa' la vida en Badajoz</span>
+          </div>
+        </div>
+
+        <p class="lead">
+          Bienvenido a <strong>Bar La Avenida</strong>, la taberna tradicional de referencia en Avenida Sinforiano Madroñero. 
+          Raciones abundantes, tapas caseras recién hechas y el ambiente cercano que buscas. ¡Ven a vivir la verdadera experiencia extremeña!
+        </p>
+
+        <!-- Tarjetas Interactivas de Información -->
+        <div class="home-bar-badges">
+          
+          <div class="info-badge">
+            <div class="badge-icon-box">
+              <i class="bi bi-geo-alt-fill"></i>
+            </div>
+            <div class="badge-content">
+              <strong>Ubicación</strong>
+              <p>Av. Sinforiano Madroñero, Badajoz</p>
             </div>
           </div>
-          <p class="lead">
-            Bienvenido a la Avenida, en la Avenida Sinforiano Madroñero.<br>
-            Tapas caseras, cañas bien tiradas y el mejor ambiente de barrio.<br>
-            ¡Descubre la auténtica experiencia de bar extremeño!
-          </p>
-          <div class="home-bar-info">
-            <p>
-              <strong>📍 Dirección:</strong> Avenida Sinforiano Madroñero, Badajoz<br>
-              <strong>⏰ Horario:</strong> Lunes a Domingo, 8:00 - 23:30<br>
-              <strong>☎️ Reservas:</strong> 924 123 456
-            </p>
+
+          <div class="info-badge">
+            <div class="badge-icon-box">
+              <i class="bi bi-clock-fill"></i>
+            </div>
+            <div class="badge-content">
+              <strong>Horario</strong>
+              <p>Lun - Dom: 8:00 - 23:30</p>
+            </div>
           </div>
-        </div>
-        <div class="home-bar-info-img">
-          <img src="assets/images/laAvenida.jpg"/>
+
+          <div class="info-badge">
+            <div class="badge-icon-box">
+              <i class="bi bi-telephone-fill"></i>
+            </div>
+            <div class="badge-content">
+              <strong>Reservas</strong>
+              <p>924 123 456</p>
+            </div>
+          </div>
+
         </div>
       </div>
+
+      <!-- Imagen con marco flotante y animación -->
+      <div class="home-bar-info-img">
+        <div class="img-wrapper">
+          <img src="assets/images/laAvenida.jpg" alt="Interior Bar La Avenida"/>
+          <div class="img-overlay-tag">
+            <i class="bi bi-heart-fill text-danger"></i> Tradición en Badajoz
+          </div>
+        </div>
+      </div>
+
     </div>
-  
-    <!-- Botones de acción al pie -->
+
+    <!-- Botones de Acción Estilizados -->
     <div class="home-bar-actions">
-        <a routerLink="/carta" class="btn-bar btn-bar-primary">Ver Carta</a>
-        <a routerLink="/auth/login" class="btn-bar btn-bar-outline">Iniciar sesión</a>
-        <a routerLink="/auth/register" class="btn-bar btn-bar-link">Registrarse</a>
+      <a routerLink="/carta" class="btn-bar btn-bar-primary">
+        <i class="bi bi-journal-richtext btn-icon"></i>
+        <span>Ver Carta Digital</span>
+      </a>
+      
+      <a routerLink="/auth/login" class="btn-bar btn-bar-outline">
+        <i class="bi bi-box-arrow-in-right"></i>
+        <span>Iniciar Sesión</span>
+      </a>
+      
+      <a routerLink="/auth/register" class="btn-bar btn-bar-subtle">
+        <i class="bi bi-person-plus"></i>
+        <span>Registrarse</span>
+      </a>
     </div>
-  
-    <!-- Google Maps al final para rellenar -->
-    <div class="home-bar-map">
+  </section>
+
+  <!-- Sección Mapa de Google -->
+  <section class="home-bar-map animated-slide-up-delay">
+    <div class="map-header">
+      <div class="map-header-title">
+        <i class="bi bi-map-fill"></i>
+        <h3>¿Dónde encontrarnos?</h3>
+      </div>
+      <span class="map-subtitle">Avenida Sinforiano Madroñero, Badajoz</span>
+    </div>
+    <div class="map-frame-container">
       <iframe
         width="100%"
-        height="260"
-        frameborder="0"
-        style="border:0; border-radius: 12px;"
+        height="340"
+        loading="lazy"
+        style="border:0;"
         src="https://www.google.com/maps?q=Av.+Sinforiano+Madroñero,+Badajoz&output=embed"
         allowfullscreen>
       </iframe>
     </div>
+  </section>
+
 </div>
-  

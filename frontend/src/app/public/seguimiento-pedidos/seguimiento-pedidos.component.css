@@ -1,103 +1,405 @@
-h2 {
-  text-align: center;
-  margin: 40px 0 10px 0;
-  font-size: 2.7rem;
-  color: #fff;
-  font-weight: 800;
-  letter-spacing: -0.5px;
-  text-shadow: 2px 2px 10px #1B1B1B99;
-  background: none;
-  width: 100%;
-  }
-  .sinPedidos {
-    text-align: center;
-    margin: 40px 0 10px 0;
-    font-size: 1.5rem;
-    color: #fff;
-    font-weight: 800;
-    letter-spacing: -0.5px;
-    text-shadow: 2px 2px 10px #1B1B1B99;
-    background: none;
-    width: 100%;
-  }
-  .pedido-card {
-    background: #fff;
-    border-radius: 8px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.07);
-    margin: 24px 0;
-    padding: 20px 20px 10px 20px;
+/* ==========================================================================
+   SEGUIMIENTO DE PEDIDOS - MODERN UI & ANIMATION STYLES
+   ========================================================================== */
+
+   :host {
+    --primary: #10b981;
+    --primary-hover: #059669;
+    --primary-glow: rgba(16, 185, 129, 0.25);
+    --accent: #2563eb;
+    --bg-gradient: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    --card-bg: #ffffff;
+    --text-main: #0f172a;
+    --text-muted: #64748b;
+    --border-color: #e2e8f0;
+    --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+    --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    --radius: 18px;
+    display: block;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
   }
   
-  .pedido-header {
+  .pedidos-wrapper {
+    min-height: 100vh;
+    padding: 2.5rem 1rem;
+    background: var(--bg-gradient);
+  }
+  
+  .pedidos-container {
+    max-width: 860px;
+    margin: 0 auto;
+  }
+  
+  /* Header */
+  .pedidos-header {
+    text-align: center;
+    margin-bottom: 2.5rem;
+    animation: fadeInDown 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  
+  .pedidos-header h2 {
+    font-size: 2.25rem;
+    font-weight: 800;
+    color: var(--text-main);
+    letter-spacing: -0.025em;
+    margin-bottom: 0.5rem;
+  }
+  
+  .pedidos-subtitle {
+    color: var(--text-muted);
+    font-size: 1.05rem;
+  }
+  
+  /* Tarjeta Estado Vacío */
+  .sin-pedidos-card {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    padding: 3.5rem 2rem;
+    text-align: center;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--border-color);
+    animation: scaleUp 0.4s ease-out;
+  }
+  
+  .empty-icon {
+    width: 80px;
+    height: 80px;
+    background: #f1f5f9;
+    color: var(--text-muted);
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.2rem;
+    margin-bottom: 1.25rem;
+  }
+  
+  /* Tarjeta del Pedido */
+  .pedido-card {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--border-color);
+    margin-bottom: 2rem;
+    overflow: hidden;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+    animation: fadeInUp 0.5s ease-out backwards;
+  }
+  
+  .pedido-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+  }
+  
+  /* Header de la Tarjeta */
+  .pedido-card-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 10px;
-    flex-wrap: wrap;
-    gap: 10px;
+    padding: 1.5rem 1.75rem;
+    border-bottom: 1px dashed var(--border-color);
+    background: #fafafa;
   }
   
-  .estado {
-    padding: 3px 8px;
-    border-radius: 4px;
-    font-weight: bold;
-    background: #e3f2fd;
-    color: #1976d2;
-    margin-left: 8px;
+  .pedido-main-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
   }
   
-  .fecha {
-    color: #888;
-    margin-right: 15px;
+  .pedido-badge-id {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--text-main);
+    display: flex;
+    align-items: center;
   }
   
-  .total {
-    font-weight: bold;
-    color: #2e7d32;
+  .fecha-info {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
   }
   
-  .pedido-detalles table {
+  .pedido-price-info {
+    text-align: right;
+  }
+  
+  .price-label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+  }
+  
+  .price-amount {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--primary);
+  }
+  
+  /* ==========================================================================
+     TRACKER VISUAL DE PASOS (ANIMADO)
+     ========================================================================== */
+  
+  .pedido-status-tracker {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 2.5rem 2rem;
+    position: relative;
+  }
+  
+  .tracker-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    z-index: 2;
+    gap: 0.6rem;
+  }
+  
+  .step-icon-wrapper {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: #f1f5f9;
+    color: #94a3b8;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.35rem;
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    border: 3px solid #ffffff;
+    box-shadow: 0 0 0 2px #e2e8f0;
+  }
+  
+  .step-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    transition: color 0.3s ease;
+  }
+  
+  /* Estado: Completado */
+  .tracker-step.completed .step-icon-wrapper {
+    background: var(--primary);
+    color: #ffffff;
+    box-shadow: 0 0 0 2px var(--primary);
+  }
+  
+  .tracker-step.completed .step-label {
+    color: var(--primary);
+  }
+  
+  /* Estado: Activo (En ejecución actual) */
+  .tracker-step.active .step-icon-wrapper {
+    background: #0f172a;
+    color: #ffffff;
+    box-shadow: 0 0 0 3px #0f172a, 0 0 15px var(--primary-glow);
+    animation: pulseIcon 2s infinite;
+  }
+  
+  .tracker-step.active .step-label {
+    color: var(--text-main);
+    font-weight: 800;
+  }
+  
+  /* Línea conectora entre pasos */
+  .tracker-line {
+    flex: 1;
+    height: 4px;
+    background: #e2e8f0;
+    margin: 0 -10px 1.5rem -10px;
+    position: relative;
+    z-index: 1;
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  
+  .tracker-line.completed::after {
+    content: '';
+    display: block;
+    height: 100%;
+    width: 100%;
+    background: var(--primary);
+    animation: fillLine 0.6s ease-out forwards;
+  }
+  
+  /* ==========================================================================
+     ACORDEÓN Y TABLA DE PRODUCTOS
+     ========================================================================== */
+  
+  .pedido-accordion {
+    border-top: 1px solid var(--border-color);
+    background: #fafafa;
+  }
+  
+  .accordion-trigger {
+    padding: 1.1rem 1.75rem;
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--text-main);
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    list-style: none;
+    user-select: none;
+    transition: background 0.2s ease;
+  }
+  
+  .accordion-trigger::-webkit-details-marker {
+    display: none;
+  }
+  
+  .accordion-trigger:hover {
+    background: #f1f5f9;
+  }
+  
+  .icon-arrow {
+    transition: transform 0.3s ease;
+    font-size: 1.1rem;
+    color: var(--text-muted);
+  }
+  
+  .pedido-accordion[open] .icon-arrow {
+    transform: rotate(180deg);
+  }
+  
+  .pedido-detalles {
+    padding: 0 1.75rem 1.5rem 1.75rem;
+    animation: slideDown 0.3s ease-out;
+  }
+  
+  .detalles-table {
     width: 100%;
     border-collapse: collapse;
-    margin-top: 10px;
+    margin-top: 0.5rem;
   }
   
-  .pedido-detalles th, .pedido-detalles td {
-    padding: 8px 10px;
-    border-bottom: 1px solid #e0e0e0;
-    text-align: left;
+  .detalles-table th {
+    text-transform: uppercase;
+    font-size: 0.725rem;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+    padding: 0.85rem 0.5rem;
+    border-bottom: 2px solid var(--border-color);
   }
   
-  .pedido-detalles th {
-    background: #f7f7f7;
+  .detalles-table td {
+    padding: 1rem 0.5rem;
+    border-bottom: 1px solid #f1f5f9;
+    vertical-align: middle;
+  }
+  
+  .product-title {
     font-weight: 600;
+    color: var(--text-main);
+    display: block;
   }
   
-  .pedido-detalles tr:last-child td {
-    border-bottom: none;
-  }  
-
-  .btn-ocultar, .btn-eliminar {
-    margin-left: 10px;
-    padding: 4px 12px;
-    border: none;
-    border-radius: 4px;
-    font-size: 0.95em;
-    cursor: pointer;
-    transition: background 0.2s;
-  }
-  .btn-ocultar {
-    background: #f1c40f;
-    color: #fff;
-  }
-  .btn-ocultar:hover {
-    background: #f39c12;
-  }
-  .btn-eliminar {
-    background: #e74c3c;
-    color: #fff;
-  }
-  .btn-eliminar:hover {
-    background: #c0392b;
+  .qty-badge {
+    background: #e2e8f0;
+    color: var(--text-main);
+    font-weight: 700;
+    padding: 0.25rem 0.6rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
   }
   
+  /* ==========================================================================
+     KEYFRAMES DE ANIMACIONES
+     ========================================================================== */
+  
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  @keyframes fadeInDown {
+    from {
+      opacity: 0;
+      transform: translateY(-15px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  @keyframes scaleUp {
+    from {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+  
+  @keyframes pulseIcon {
+    0% {
+      transform: scale(1);
+      box-shadow: 0 0 0 0 rgba(15, 23, 42, 0.4);
+    }
+    70% {
+      transform: scale(1.08);
+      box-shadow: 0 0 0 10px rgba(15, 23, 42, 0);
+    }
+    100% {
+      transform: scale(1);
+      box-shadow: 0 0 0 0 rgba(15, 23, 42, 0);
+    }
+  }
+  
+  @keyframes fillLine {
+    from {
+      width: 0%;
+    }
+    to {
+      width: 100%;
+    }
+  }
+  
+  @keyframes slideDown {
+    from {
+      opacity: 0;
+      transform: translateY(-8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  /* Responsive */
+  @media (max-width: 640px) {
+    .pedido-status-tracker {
+      padding: 1.5rem 0.75rem;
+    }
+    
+    .step-icon-wrapper {
+      width: 42px;
+      height: 42px;
+      font-size: 1.1rem;
+    }
+  
+    .step-label {
+      font-size: 0.725rem;
+    }
+  
+    .price-amount {
+      font-size: 1.25rem;
+    }
+  }

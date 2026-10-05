@@ -12,42 +12,107 @@ import { Pedido } from '../interface/pedido';
 export class SeguimientoPedidosComponent implements OnInit, OnDestroy {
   pedidos: Pedido[] = [];
   usuario: any;
+  tipoPedidoDomicilio: boolean = false;
+
   private destroy$ = new Subject<void>();
   private timers: any[] = [];
 
   constructor(private pedidoService: PedidoService) {}
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.usuario = JSON.parse(localStorage.getItem('user') || 'null');
-    // Ya no dependemos estrictamente del id en la llamada, pero verificamos que esté logueado
     if (this.usuario) {
       this.iniciarRefrescoAutomatico();
     }
   }
 
+  private getNivelEstado(pedido: any): number {
+    if (!pedido) return 0;
+
+    const estado = (pedido.estado || '').toString().toLowerCase().trim();
+    const estadoPago = (pedido.estadoPago || '').toString().toUpperCase().trim();
+
+    if (estado === 'servido' || estado === 'entregado' || estado === 'completado') {
+      return 4;
+    }
+
+    if (estado === 'preparado' || estado === 'en_camino' || estado === 'listo') {
+      return 3;
+    }
+
+    if (estado === 'pendiente' || estado === 'en_proceso' || estado === 'en_preparacion' || estado === 'preparando' || estado === 'cocina') {
+      return 2;
+    }
+
+    if (estadoPago === 'PAGADO' || estadoPago === 'COMPLETADO' || estado === 'recibido') {
+      return 1;
+    }
+
+    return 1;
+  }
+
+  isPasoActivo(pedido: any, paso: string): boolean {
+    const nivelActual = this.getNivelEstado(pedido);
+
+    if (paso === 'recibido') return nivelActual === 1;
+    if (paso === 'preparacion') return nivelActual === 2;
+    if (paso === 'camino') return nivelActual === 3
+    if (paso === 'entregado') return nivelActual === 4;
+
+    return false;
+  }
+
+  isPasoCompletado(pedido: any, paso: string): boolean {
+    const nivelActual = this.getNivelEstado(pedido);
+
+    if (paso === 'recibido') return nivelActual > 1;
+    if (paso === 'preparacion') return nivelActual > 2;
+    if (paso === 'camino') return nivelActual > 3;
+    if (paso === 'entregado') return nivelActual >= 4;
+
+    return false;
+  }
+
   private iniciarRefrescoAutomatico() {
-    // Consulta cada 5 segundos
     timer(0, 5000).pipe(
       switchMap(() => this.pedidoService.getMisPedidos().pipe(
         catchError(err => {
           console.error('Error al obtener mis pedidos:', err);
-          return of([]); // Retorna array vacío si falla para mantener el timer activo
+          return of([]);
         })
       )),
       takeUntil(this.destroy$)
     ).subscribe(data => {
-      this.pedidos = data.filter(pedido => this.filtrarPedidosActivos(pedido));
+      this.pedidos = data.filter(pedido => this.filtrarPedidosVisibles(pedido));
       this.programarEliminaciones();
     });
   }
 
-  private filtrarPedidosActivos(pedido: Pedido): boolean {
+  private filtrarPedidosVisibles(pedido: Pedido): boolean {
+    const estado = (pedido.estado || '').toString().toLowerCase().trim();
+
+    if (estado === 'servido' || estado === 'entregado' || estado === 'completado') {
+      const ahora = new Date().getTime();
+      
+      const fechaReferencia = (pedido as any).updatedAt 
+        ? new Date((pedido as any).updatedAt).getTime() 
+        : new Date(pedido.fecha).getTime();
+
+      const diferenciaMinutos = (ahora - fechaReferencia) / (1000 * 60);
+
+      return diferenciaMinutos <= 30;
+    }
+
+    return this.filtrarPedidosDelDia(pedido);
+  }
+
+  private filtrarPedidosDelDia(pedido: Pedido): boolean {
     const ahora = new Date();
     const fechaPedido = new Date(pedido.fecha);
     const fechaLimite = new Date(fechaPedido);
     fechaLimite.setDate(fechaLimite.getDate() + 1);
     fechaLimite.setHours(0, 0, 0, 0);
-    
+
     return ahora < fechaLimite;
   }
 
@@ -60,14 +125,14 @@ export class SeguimientoPedidosComponent implements OnInit, OnDestroy {
       const fechaLimite = new Date(fechaPedido);
       fechaLimite.setDate(fechaLimite.getDate() + 1);
       fechaLimite.setHours(0, 0, 0, 0);
-      
+
       const tiempoRestante = fechaLimite.getTime() - Date.now();
-      
+
       if (tiempoRestante > 0) {
         const t = setTimeout(() => {
           this.eliminarPedidoAutomatico(pedido);
         }, tiempoRestante);
-        
+
         this.timers.push(t);
       }
     });
@@ -82,7 +147,26 @@ export class SeguimientoPedidosComponent implements OnInit, OnDestroy {
     });
   }
 
-  ngOnDestroy() {
+  calcularTotalPedido(pedido: any): number {
+    if (!pedido) return 0;
+
+    const totalDirecto = pedido.precioTotal ?? pedido.precio_total ?? pedido.total ?? pedido.importe;
+    if (totalDirecto !== undefined && totalDirecto !== null && !isNaN(totalDirecto)) {
+      return Number(totalDirecto);
+    }
+
+    if (pedido.detalles && Array.isArray(pedido.detalles)) {
+      return pedido.detalles.reduce((acc: number, det: any) => {
+        const cantidad = det.cantidad || 0;
+        const precio = det.precio_unitario ?? det.precioUnitario ?? det.precio ?? 0;
+        return acc + (cantidad * precio);
+      }, 0);
+    }
+  
+    return 0;
+  }
+
+  ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
     this.timers.forEach(t => clearTimeout(t));

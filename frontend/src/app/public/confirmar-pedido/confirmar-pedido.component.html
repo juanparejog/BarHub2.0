@@ -5,141 +5,159 @@
   (closed)="showToast = false">
 </app-toast>
 
-<div class="confirmar-wrapper py-5 bg-light min-vh-100" *ngIf="pedidoTemporal">
-  <div class="container max-width-lg">
+<div class="confirmar-wrapper" *ngIf="pedidoTemporal">
+  <div class="confirmar-container">
     
-    <!-- Encabezado -->
-    <div class="d-flex align-items-center justify-content-between mb-4">
-      <div>
-        <h2 class="fw-bold text-dark mb-1">Resumen del Pedido</h2>
-        <p class="text-muted small mb-0">Revisa los detalles y selecciona la forma de pago para finalizar.</p>
+    <!-- Header / Nav -->
+    <header class="confirmar-header">
+      <div class="header-titles">
+        <h2>Resumen del Pedido</h2>
+        <p>Revisa los detalles de tu compra y selecciona la forma de pago para finalizar.</p>
       </div>
-      <button class="btn btn-outline-secondary btn-sm rounded-pill px-3" (click)="cancelarPedido()">
-        <i class="bi bi-arrow-left me-1"></i> Volver a la Carta
+      <button class="btn-back" type="button" (click)="cancelarPedido()">
+        <i class="bi bi-arrow-left"></i>
+        <span>Volver a la Carta</span>
       </button>
-    </div>
+    </header>
 
-    <div class="row g-4">
+    <!-- Layout Grid -->
+    <div class="confirmar-grid">
+      
       <!-- Columna Izquierda: Detalles del Pedido y Productos -->
-      <div class="col-lg-7">
+      <div class="col-main">
         
         <!-- Tarjeta Modalidad / Destino -->
-        <div class="card border-0 shadow-sm rounded-4 mb-3">
-          <div class="card-body p-4">
-            <h5 class="fw-bold text-dark mb-3">
-              <i class="bi me-2" [class.bi-shop]="!tipoPedidoDomicilio" [class.bi-truck]="tipoPedidoDomicilio"></i>
-              {{ tipoPedidoDomicilio ? 'Entrega a Domicilio' : 'Servicio en Local' }}
-            </h5>
-
-            <div *ngIf="!tipoPedidoDomicilio" class="bg-light p-3 rounded-3 border">
-              <span class="text-muted small d-block">Ubicación:</span>
-              <strong class="fs-5 text-dark">Mesa #{{ pedidoTemporal.idMesa }}</strong>
+        <section class="info-card">
+          <div class="card-header-flex">
+            <div class="modalidad-badge-icon">
+              <i class="bi" [class.bi-shop]="!tipoPedidoDomicilio" [class.bi-truck]="tipoPedidoDomicilio"></i>
             </div>
-
-            <div *ngIf="tipoPedidoDomicilio" class="bg-light p-3 rounded-3 border">
-              <div class="mb-2">
-                <span class="text-muted small d-block">Dirección de Envío:</span>
-                <strong class="text-dark">{{ pedidoTemporal.direccionEnvio }}</strong>
-              </div>
-              <div>
-                <span class="text-muted small d-block">Teléfono de Contacto:</span>
-                <strong class="text-dark">{{ pedidoTemporal.telefonoContacto }}</strong>
-              </div>
+            <div>
+              <h3>{{ tipoPedidoDomicilio ? 'Entrega a Domicilio' : 'Servicio en Local' }}</h3>
+              <span class="card-subtitle">Detalles del destino de la comanda</span>
             </div>
           </div>
-        </div>
+
+          <!-- Detalles Local -->
+          <div *ngIf="!tipoPedidoDomicilio" class="destino-details-box">
+            <div class="detail-item">
+              <span class="detail-label">Ubicación asignada</span>
+              <strong class="detail-value text-accent">Mesa #{{ pedidoTemporal.idMesa }}</strong>
+            </div>
+          </div>
+
+          <!-- Detalles Domicilio -->
+          <div *ngIf="tipoPedidoDomicilio" class="destino-details-box split">
+            <div class="detail-item">
+              <span class="detail-label">Dirección de Envío</span>
+              <strong class="detail-value">{{ pedidoTemporal.direccionEnvio }}</strong>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Teléfono de Contacto</span>
+              <strong class="detail-value">{{ pedidoTemporal.telefonoContacto }}</strong>
+            </div>
+          </div>
+        </section>
 
         <!-- Tarjeta Tabla de Productos -->
-        <div class="card border-0 shadow-sm rounded-4">
-          <div class="card-body p-4">
-            <h5 class="fw-bold text-dark mb-3">Productos Seleccionados</h5>
+        <section class="info-card">
+          <h3 class="card-title">Productos Seleccionados</h3>
 
-            <div class="table-responsive">
-              <table class="table table-borderless align-middle mb-0">
-                <thead class="border-bottom text-muted small">
-                  <tr>
-                    <th>Producto</th>
-                    <th class="text-center">Cant.</th>
-                    <th class="text-end">Precio U.</th>
-                    <th class="text-end">Subtotal</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr *ngFor="let item of pedidoTemporal.productos" class="border-bottom">
-                    <td class="fw-semibold text-dark">{{ item.producto.nombre }}</td>
-                    <td class="text-center">
-                      <span class="badge bg-light text-dark border px-2 py-1">{{ item.cantidad }}</span>
-                    </td>
-                    <td class="text-end text-muted">{{ item.producto.precio | currency:'EUR' }}</td>
-                    <td class="text-end fw-bold text-dark">{{ (item.producto.precio * item.cantidad) | currency:'EUR' }}</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
+          <div class="table-responsive">
+            <table class="productos-table">
+              <thead>
+                <tr>
+                  <th>Producto</th>
+                  <th class="text-center">Cant.</th>
+                  <th class="text-end">Precio U.</th>
+                  <th class="text-end">Subtotal</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let item of pedidoTemporal.productos">
+                  <td>
+                    <span class="product-name">{{ item.producto.nombre }}</span>
+                  </td>
+                  <td class="text-center">
+                    <span class="qty-pill">{{ item.cantidad }}</span>
+                  </td>
+                  <td class="text-end text-muted">
+                    {{ item.producto.precio | currency:'EUR':'symbol':'1.2-2' }}
+                  </td>
+                  <td class="text-end product-subtotal">
+                    {{ (item.producto.precio * item.cantidad) | currency:'EUR':'symbol':'1.2-2' }}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
-        </div>
+        </section>
 
       </div>
 
       <!-- Columna Derecha: Pago y Finalización -->
-      <div class="col-lg-5">
-        <div class="card border-0 shadow-sm rounded-4 sticky-top" style="top: 20px;">
-          <div class="card-body p-4">
-            <h5 class="fw-bold text-dark mb-3">Resumen de Pago</h5>
+      <div class="col-sidebar">
+        <section class="summary-card">
+          <h3>Resumen de Pago</h3>
 
-            <div class="d-flex justify-content-between mb-2">
-              <span class="text-muted">Subtotal</span>
-              <span class="fw-semibold">{{ calcularTotal() | currency:'EUR' }}</span>
-            </div>
+          <div class="summary-row">
+            <span class="summary-label">Subtotal</span>
+            <span class="summary-value">{{ calcularTotal() | currency:'EUR':'symbol':'1.2-2' }}</span>
+          </div>
 
-            <hr class="my-3">
+          <hr class="summary-divider">
 
-            <div class="d-flex justify-content-between align-items-center mb-4">
-              <span class="fs-5 fw-bold text-dark">Total a Pagar</span>
-              <span class="fs-4 fw-bold text-primary">{{ calcularTotal() | currency:'EUR' }}</span>
-            </div>
+          <div class="summary-row total-row">
+            <span class="total-label">Total a Pagar</span>
+            <span class="total-amount">{{ calcularTotal() | currency:'EUR':'symbol':'1.2-2' }}</span>
+          </div>
 
-            <!-- Selección Método de Pago -->
-            <label class="form-label small fw-bold text-secondary mb-2">Selecciona Método de Pago:</label>
-            <div class="d-grid gap-2 mb-3">
+          <!-- Selección Método de Pago -->
+          <div class="metodo-pago-wrapper">
+            <label class="section-label">Selecciona Método de Pago</label>
+            
+            <div class="payment-options">
               
-              <label class="btn btn-outline-dark p-3 text-start rounded-3 d-flex align-items-center justify-content-between"
-                     [class.active]="metodoPago === 'efectivo'">
-                <div class="d-flex align-items-center gap-2">
-                  <input type="radio" name="metodoPago" [(ngModel)]="metodoPago" value="efectivo" class="form-check-input mt-0">
-                  <span class="fw-semibold">Efectivo / TPV en Mesa</span>
+              <!-- Efectivo -->
+              <label class="payment-option-card" [class.active]="metodoPago === 'efectivo'">
+                <div class="option-left">
+                  <input type="radio" name="metodoPago" [(ngModel)]="metodoPago" value="efectivo" class="radio-input">
+                  <span class="option-title">Efectivo / TPV en Mesa</span>
                 </div>
-                <i class="bi bi-cash-stack fs-5"></i>
+                <i class="bi bi-cash-stack option-icon"></i>
               </label>
 
-              <label class="btn btn-outline-dark p-3 text-start rounded-3 d-flex align-items-center justify-content-between"
-                     [class.active]="metodoPago === 'tarjeta'">
-                <div class="d-flex align-items-center gap-2">
-                  <input type="radio" name="metodoPago" [(ngModel)]="metodoPago" value="tarjeta" (change)="onTarjetaSelected()" class="form-check-input mt-0">
-                  <span class="fw-semibold">Tarjeta de Crédito</span>
+              <!-- Tarjeta -->
+              <label class="payment-option-card" [class.active]="metodoPago === 'tarjeta'">
+                <div class="option-left">
+                  <input type="radio" name="metodoPago" [(ngModel)]="metodoPago" value="tarjeta" (change)="onTarjetaSelected()" class="radio-input">
+                  <span class="option-title">Tarjeta de Crédito</span>
                 </div>
-                <i class="bi bi-credit-card-2-front fs-5"></i>
+                <i class="bi bi-credit-card-2-front option-icon"></i>
               </label>
 
             </div>
+          </div>
 
-            <!-- Contenedor Stripe Card Element -->
-            <div *ngIf="metodoPago === 'tarjeta'" class="bg-light p-3 rounded-3 border mb-3">
-              <div id="card-element"></div>
-              <div class="text-danger small mt-2" role="alert">{{ cardErrors }}</div>
-            </div>
+          <!-- Contenedor Stripe Card Element -->
+          <div *ngIf="metodoPago === 'tarjeta'" class="stripe-container">
+            <div id="card-element"></div>
+            <div class="card-errors" role="alert" *ngIf="cardErrors">{{ cardErrors }}</div>
+          </div>
 
-            <!-- Botones de Acción -->
-            <button class="btn btn-primary w-100 py-3 fw-bold rounded-pill shadow-sm mb-2" (click)="finalizarPedido()">
-              <i class="bi bi-check-circle me-1"></i> Confirmar y Finalizar Pedido
+          <!-- Botones de Acción -->
+          <div class="action-buttons">
+            <button class="btn-confirm-final" type="button" (click)="finalizarPedido()">
+              <i class="bi bi-check-circle-fill"></i>
+              <span>Confirmar y Finalizar Pedido</span>
             </button>
 
-            <button class="btn btn-link text-muted w-100 btn-sm text-decoration-none" (click)="cancelarPedido()">
+            <button class="btn-cancel-link" type="button" (click)="cancelarPedido()">
               Cancelar Pedido
             </button>
-
           </div>
-        </div>
+
+        </section>
       </div>
 
     </div>
