@@ -56,8 +56,37 @@ public class PedidoController {
                     ? authentication.getName()
                     : null;
 
+            // --- VALIDACIONES DE TIPO DE PEDIDO Y REQUERIMIENTOS ---
+            if (pedidoDto.getTipoPedido() == null) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(ErrorDto.from("Es obligatorio especificar el tipo de pedido (MESA, DOMICILIO o RECOGER)."));
+            }
+
+            String tipoPedidoStr = pedidoDto.getTipoPedido().toString().toUpperCase();
+
+            // 1. Si es pedido en MESA (Local), obligatoriamente debe incluir idMesa
+            if ("MESA".equals(tipoPedidoStr) || "LOCAL".equals(tipoPedidoStr)) {
+                if (pedidoDto.getIdMesa() == null) {
+                    log.warn("Petición inválida: Para pedidos en local/mesa es obligatorio seleccionar una mesa.");
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                            .body(ErrorDto.from("Para pedidos en local es obligatorio seleccionar una mesa."));
+                }
+            }
+            // 2. Si es a DOMICILIO, validar dirección de envío
+            else if ("DOMICILIO".equals(tipoPedidoStr)) {
+                if (pedidoDto.getDireccionEnvio() == null || pedidoDto.getDireccionEnvio().trim().isEmpty()) {
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                            .body(ErrorDto.from("Para pedidos a domicilio la dirección de envío es obligatoria."));
+                }
+            }
+            // 3. Si es RECOGER, la mesa debe ser nula o ignorada
+            else if ("RECOGER".equals(tipoPedidoStr)) {
+                // No requiere mesa ni dirección de envío
+            }
+
             Pedido pedidoCreado = pedidoService.crearPedidoSeguro(pedidoDto, username);
             return ResponseEntity.status(HttpStatus.CREATED).body(PedidoDto.from(pedidoCreado));
+
         } catch (IllegalArgumentException e) {
             log.warn("Petición inválida al crear pedido: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ErrorDto.from(e.getMessage()));

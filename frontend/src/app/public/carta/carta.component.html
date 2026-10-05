@@ -8,26 +8,34 @@
 <div class="carta-wrapper">
   <div class="carta-container">
 
-    <!-- SELECCIÓN DE MODALIDAD: MESA VS DOMICILIO -->
+    <!-- SELECCIÓN DE MODALIDAD: MESA VS DOMICILIO VS RECOGER -->
     <section class="card-modalidad">
       <div class="modalidad-header">
         <div class="modalidad-titles">
           <h2>Carta Digital</h2>
-          <p>Selecciona tu modalidad de pedido e indica tu ubicación antes de añadir productos.</p>
+          <p>Selecciona tu modalidad de pedido e indica tu ubicación o tienda de recogida antes de añadir productos.</p>
         </div>
 
-        <!-- Switch Local vs Domicilio -->
+        <!-- Switch Local vs Domicilio vs Recoger -->
         <div class="modalidad-switch-group" role="group">
           <button type="button" 
                   class="btn-switch"
                   [class.active]="tipoPedido === 'MESA'"
-                  (click)="tipoPedido = 'MESA'">
+                  (click)="seleccionarTipoPedido('MESA')">
             <i class="bi bi-shop"></i> En Local / Mesa
           </button>
+
+          <button type="button" 
+                  class="btn-switch"
+                  [class.active]="tipoPedido === 'RECOGER'"
+                  (click)="seleccionarTipoPedido('RECOGER')">
+            <i class="bi bi-bag-check-fill"></i> Para Recoger
+          </button>
+
           <button type="button" 
                   class="btn-switch"
                   [class.active]="tipoPedido === 'DOMICILIO'"
-                  (click)="tipoPedido = 'DOMICILIO'">
+                  (click)="seleccionarTipoPedido('DOMICILIO')">
             <i class="bi bi-truck"></i> A Domicilio
           </button>
         </div>
@@ -52,7 +60,55 @@
         </div>
       </div>
 
-      <!-- Opción 2: DOMICILIO -->
+      <!-- Opción 2: RECOGER EN TIENDA -->
+      <div *ngIf="tipoPedido === 'RECOGER'" class="modalidad-body">
+        <div class="recoger-grid">
+          
+          <!-- Info de Tienda de Recogida -->
+          <div class="form-field col-full">
+            <label class="form-label">Ubicación de Recogida (Tienda Única):</label>
+            <div class="tienda-fixed-info border rounded p-3 bg-light d-flex align-items-center gap-3">
+              <div class="tienda-icon text-success fs-3">
+                <i class="bi bi-geo-alt-fill"></i>
+              </div>
+              <div>
+                <h6 class="mb-1 fw-bold text-dark">{{ UBICACION_RECOGIDA_FIJA.nombre }}</h6>
+                <p class="mb-0 text-muted small">{{ UBICACION_RECOGIDA_FIJA.direccion }} - CP {{ UBICACION_RECOGIDA_FIJA.cp }}</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Teléfono de contacto obligatorio para la recogida -->
+          <div class="form-field col-full mt-2">
+            <label class="form-label">Teléfono de contacto para avisos <span class="required-asterisk">*</span>:</label>
+            <input type="tel" class="form-input" placeholder="Ej: 600 000 000" [(ngModel)]="telefonoContacto">
+          </div>
+
+          <div class="form-field col-full mt-2">
+            <a [href]="googleMapsUrl" 
+               target="_blank" 
+               class="btn-maps">
+              <i class="bi bi-geo-alt-fill"></i>
+              <span>Ver Ubicación de la Tienda en Google Maps</span>
+              <i class="bi bi-box-arrow-up-right external-icon"></i>
+            </a>
+          </div>
+
+        </div>
+
+        <!-- Mapa Embebido centrado en la Tienda -->
+        <div class="map-embed-wrapper mt-3">
+          <iframe [src]="googleMapsEmbedUrl" 
+                  width="100%" 
+                  height="100%" 
+                  style="border:0;" 
+                  allowfullscreen="" 
+                  loading="lazy">
+          </iframe>
+        </div>
+      </div>
+
+      <!-- Opción 3: DOMICILIO -->
       <div *ngIf="tipoPedido === 'DOMICILIO'" class="modalidad-body">
         <div class="domicilio-grid">
           
@@ -161,7 +217,7 @@
     <div *ngIf="!datosServicioCompletos" class="lock-warning-banner">
       <i class="bi bi-exclamation-triangle-fill"></i>
       <span>
-        Por favor, <strong>{{ tipoPedido === 'MESA' ? 'selecciona tu mesa' : 'completa los datos obligatorios de dirección' }}</strong> arriba para poder añadir productos a tu comanda.
+        Por favor, <strong>{{ getMensajeAdvertencia() }}</strong> arriba para poder añadir productos a tu comanda.
       </span>
     </div>
 

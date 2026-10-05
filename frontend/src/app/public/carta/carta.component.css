@@ -31,7 +31,7 @@
   .carta-wrapper {
     width: 100%;
     min-height: 100vh;
-    padding: 24px 16px 140px 16px; /* Espacio inferior extra para no solapar el carrito flotante */
+    padding: 24px 16px 140px 16px;
     background: var(--bg-gradient);
     box-sizing: border-box;
   }
@@ -45,7 +45,7 @@
   }
   
   /* ==========================================================================
-     CARD PRINCIPAL - MODALIDAD (MESA / DOMICILIO)
+     CARD PRINCIPAL - MODALIDAD (MESA / RECOGER / DOMICILIO)
      ========================================================================== */
   
   .card-modalidad {
@@ -85,7 +85,7 @@
     margin: 0;
   }
   
-  /* Switch Local vs Domicilio */
+  /* Switch Local vs Recoger vs Domicilio */
   .modalidad-switch-group {
     display: flex;
     background: #f1f5f9;
@@ -128,7 +128,6 @@
     margin: 22px 0;
   }
   
-  /* Transiciones de contenido modal */
   .modalidad-body {
     animation: fadeInScale 0.35s ease-out forwards;
   }
@@ -206,18 +205,36 @@
     animation: pulseGlow 2s infinite;
   }
   
-  /* Grid Domicilio */
+  /* ESTILOS ESPECÍFICOS PARA RECOGER */
+  .recoger-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .tienda-fixed-info {
+    background: #f8fafc;
+    border: 1px solid var(--border-color) !important;
+    border-radius: var(--radius-md);
+    transition: border-color 0.2s ease;
+  }
+  
+  .tienda-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: rgba(16, 185, 129, 0.12);
+  }
+  
+  /* GRID DOMICILIO */
   .domicilio-grid {
     display: grid;
     grid-template-columns: repeat(12, 1fr);
     gap: 16px;
   }
-  
-  .col-calle { grid-column: span 5; }
-  .col-piso { grid-column: span 3; }
-  .col-cp { grid-column: span 4; }
-  .col-tel { grid-column: span 6; }
-  .col-btn { grid-column: span 6; display: flex; align-items: flex-end; }
   
   .btn-maps {
     width: 100%;
@@ -256,12 +273,12 @@
     overflow: hidden;
     border: 1px solid var(--border-color);
     box-shadow: var(--shadow-sm);
-    height: 220px;
+    height: 240px;
     animation: expandMap 0.4s cubic-bezier(0.16, 1, 0.3, 1);
   }
   
   /* ==========================================================================
-     FILTRO DE CATEGORÍAS (SLIDER HORIZONTAL CON BLUR)
+     FILTRO DE CATEGORÍAS
      ========================================================================== */
   
   .categorias-filter-bar {
@@ -269,11 +286,11 @@
     gap: 10px;
     overflow-x: auto;
     padding: 4px 4px 10px 4px;
-    scrollbar-width: none; /* Firefox */
+    scrollbar-width: none;
   }
   
   .categorias-filter-bar::-webkit-scrollbar {
-    display: none; /* Chrome/Safari */
+    display: none;
   }
   
   .btn-filter {
@@ -308,7 +325,7 @@
   }
   
   /* ==========================================================================
-     GRID Y TARJETAS DE PRODUCTOS (HOVER Y ANIMACIÓN)
+     GRID Y TARJETAS DE PRODUCTOS
      ========================================================================== */
   
   .productos-grid {
@@ -471,7 +488,7 @@
   }
   
   /* ==========================================================================
-     CARRITO FLOTANTE INFERIOR (POP-IN ANIMADO)
+     CARRITO FLOTANTE INFERIOR
      ========================================================================== */
   
   .floating-cart-bar {
@@ -569,172 +586,136 @@
   }
   
   /* ==========================================================================
-     KEYFRAMES DE ANIMACIONES
+     ELEMENTOS DE CONTROL Y FORMULARIOS
+     ========================================================================== */
+  
+  .required-asterisk {
+    color: #ef4444;
+    font-weight: bold;
+  }
+  
+  .lock-warning-banner {
+    background: #fef2f2;
+    border: 1px solid #fca5a5;
+    color: #991b1b;
+    padding: 14px 20px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 0.95rem;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.08);
+  }
+  
+  .lock-warning-banner i {
+    font-size: 1.3rem;
+    color: #dc2626;
+  }
+  
+  .product-card.card-disabled {
+    opacity: 0.75;
+  }
+  
+  /* Selector Vivienda Radio Buttons */
+  .vivienda-selector-group {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    width: 100%;
+  }
+  
+  .vivienda-radio-btn {
+    flex: 1;
+    min-width: 140px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 14px;
+    border: 1px solid rgba(74, 103, 130, 0.2);
+    border-radius: 10px;
+    background: #ffffff;
+    cursor: pointer;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: #4A6782;
+    transition: all 0.2s ease;
+  }
+  
+  .vivienda-radio-btn input {
+    display: none;
+  }
+  
+  .vivienda-radio-btn span {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  
+  .vivienda-radio-btn:hover {
+    background: #f8fafc;
+  }
+  
+  .vivienda-radio-btn.active {
+    background: #0A2342;
+    color: #ffffff;
+    border-color: #0A2342;
+  }
+  
+  /* Grid Layout Modifiers */
+  .col-full { grid-column: span 12; }
+  .col-half { grid-column: span 6; }
+  .col-third { grid-column: span 4; }
+  
+  /* ==========================================================================
+     ANIMACIONES (KEYFRAMES)
      ========================================================================== */
   
   @keyframes fadeInDown {
-    from {
-      opacity: 0;
-      transform: translateY(-20px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
   }
   
   @keyframes fadeInUp {
-    from {
-      opacity: 0;
-      transform: translateY(20px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
   }
   
   @keyframes fadeInScale {
-    from {
-      opacity: 0;
-      transform: scale(0.98);
-    }
-    to {
-      opacity: 1;
-      transform: scale(1);
-    }
+    from { opacity: 0; transform: scale(0.98); }
+    to { opacity: 1; transform: scale(1); }
   }
   
   @keyframes expandMap {
-    from {
-      opacity: 0;
-      max-height: 0;
-    }
-    to {
-      opacity: 1;
-      max-height: 220px;
-    }
+    from { opacity: 0; max-height: 0; }
+    to { opacity: 1; max-height: 240px; }
   }
   
   @keyframes slideUp {
-    from {
-      transform: translateY(120%);
-      opacity: 0;
-    }
-    to {
-      transform: translateY(0);
-      opacity: 1;
-    }
+    from { transform: translateY(120%); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
   }
   
   @keyframes pulseGlow {
-    0%, 100% {
-      opacity: 1;
-    }
-    50% {
-      opacity: 0.6;
-    }
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
   }
   
   @keyframes pulseCount {
-    0% {
-      transform: scale(0.8);
-    }
-    50% {
-      transform: scale(1.2);
-    }
-    100% {
-      transform: scale(1);
-    }
+    0% { transform: scale(0.8); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
   }
-
-  /* Asterisco de campo obligatorio */
-.required-asterisk {
-  color: #ef4444;
-  font-weight: bold;
-}
-
-/* Banner de Aviso Bloqueo */
-.lock-warning-banner {
-  background: #fef2f2;
-  border: 1px solid #fca5a5;
-  color: #991b1b;
-  padding: 14px 20px;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  font-size: 0.95rem;
-  margin-bottom: 20px;
-  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.08);
-}
-
-.lock-warning-banner i {
-  font-size: 1.3rem;
-  color: #dc2626;
-}
-
-/* Estado deshabilitado en tarjeta de producto */
-.product-card.card-disabled {
-  opacity: 0.75;
-}
-
-/* Selector de Tipo de Vivienda */
-.vivienda-selector-group {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-  width: 100%;
-}
-
-.vivienda-radio-btn {
-  flex: 1;
-  min-width: 140px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 10px 14px;
-  border: 1px solid rgba(74, 103, 130, 0.2);
-  border-radius: 10px;
-  background: #ffffff;
-  cursor: pointer;
-  font-size: 0.88rem;
-  font-weight: 600;
-  color: #4A6782;
-  transition: all 0.2s ease;
-}
-
-.vivienda-radio-btn input {
-  display: none;
-}
-
-.vivienda-radio-btn span {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.vivienda-radio-btn:hover {
-  background: #f8fafc;
-}
-
-.vivienda-radio-btn.active {
-  background: #0A2342;
-  color: #ffffff;
-  border-color: #0A2342;
-}
-
-/* Modificadores Grid Formulario */
-.col-full { grid-column: span 12; }
-.col-half { grid-column: span 6; }
-.col-third { grid-column: span 4; }
-
-  /* Responsive */
+  
+  /* ==========================================================================
+     RESPONSIVE (MÓVIL Y TABLET)
+     ========================================================================== */
+  
   @media (max-width: 768px) {
     .col-half, .col-third {
       grid-column: span 12;
     }
-
+  
     .modalidad-header {
       flex-direction: column;
       align-items: flex-start;
@@ -751,10 +732,6 @@
   
     .domicilio-grid {
       grid-template-columns: 1fr;
-    }
-  
-    .col-calle, .col-piso, .col-cp, .col-tel, .col-btn {
-      grid-column: span 1;
     }
   
     .floating-cart-content {

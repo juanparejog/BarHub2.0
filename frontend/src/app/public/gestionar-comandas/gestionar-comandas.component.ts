@@ -162,7 +162,7 @@ export class GestionarComandasComponent implements OnInit, OnDestroy {
     ).length;
   }
 
-// Devuelve la clase CSS correspondiente según el tipo de pedido
+
 getTipoPedidoClass(pedido: any): string {
   const tipo = String(pedido.tipoPedido || pedido.tipo_pedido || '').toUpperCase();
   
@@ -173,7 +173,6 @@ getTipoPedidoClass(pedido: any): string {
     return 'is-recoger';
   }
   
-  // Si no tiene mesa pero tampoco especifica tipo, lo consideramos recogida si no hay mesa
   const mesa = pedido.mesaId ?? pedido.id_mesa ?? pedido.idMesa;
   if (!mesa || mesa === 0) {
     return 'is-recoger';
@@ -182,7 +181,6 @@ getTipoPedidoClass(pedido: any): string {
   return 'is-mesa';
 }
 
-// Devuelve el icono de Material Icons adecuado
 getTipoPedidoIcon(pedido: any): string {
   const tipoClass = this.getTipoPedidoClass(pedido);
   switch (tipoClass) {
@@ -195,7 +193,6 @@ getTipoPedidoIcon(pedido: any): string {
   }
 }
 
-// Devuelve la etiqueta de texto para el header de la comanda
 getTipoPedidoLabel(pedido: any): string {
   const tipoClass = this.getTipoPedidoClass(pedido);
   switch (tipoClass) {

@@ -20,6 +20,9 @@ public interface PedidoRepository extends JpaRepository<Pedido, Long> {
     @Query("SELECT p FROM Pedido p LEFT JOIN FETCH p.detalles")
     List<Pedido> findAllWithDetalles();
 
+    @Query("SELECT p FROM Pedido p WHERE LOWER(p.metodoPago) = 'efectivo' AND p.estadoPago = 'PENDIENTE'")
+    List<Pedido> findPedidosPendientesEfectivo();
+
     // Consulta para la vista de cobro en caja en efectivo
     List<Pedido> findByMetodoPagoIgnoreCaseAndEstadoPago(String metodoPago, EstadoPago estadoPago);
 }

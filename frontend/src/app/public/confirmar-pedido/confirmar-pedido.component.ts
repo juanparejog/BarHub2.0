@@ -8,7 +8,7 @@ import { AuthService } from '../../auth/auth.service';
 
 (pdfMake as any).addVirtualFileSystem(pdfFonts);
 
-export type TipoPedido = 'MESA' | 'DOMICILIO';
+export type TipoPedido = 'MESA' | 'DOMICILIO' | 'RECOGER';
 
 interface ProductoSeleccionado {
   producto: {
@@ -38,7 +38,7 @@ export class ConfirmarPedidoComponent implements OnInit {
   elements: StripeElements | null = null;
   card: any = null;
   cardErrors: string = '';
-  
+
   pedidoTemporal: PedidoTemporal | null = null;
   metodoPago: string = 'efectivo';
 
@@ -78,7 +78,7 @@ export class ConfirmarPedidoComponent implements OnInit {
   calcularTotal(): number {
     if (!this.pedidoTemporal) return 0;
     return this.pedidoTemporal.productos.reduce(
-      (total, item) => total + (item.producto.precio * item.cantidad), 
+      (total, item) => total + (item.producto.precio * item.cantidad),
       0
     );
   }
@@ -106,35 +106,65 @@ export class ConfirmarPedidoComponent implements OnInit {
 
   async finalizarPedido() {
     if (!this.pedidoTemporal) return;
-  
     this.procesarPedido();
   }
-  
+
   private procesarPedido() {
     if (!this.pedidoTemporal) return;
   
-    const mesaIdNum = this.pedidoTemporal.idMesa ? Number(this.pedidoTemporal.idMesa) : null;
+    // 1. Validar requerimiento de MESA si el pedido es en local/mesa
+    if (this.pedidoTemporal.tipoPedido === 'MESA' && !this.pedidoTemporal.idMesa) {
+      this.showToastMessage('Es obligatorio seleccionar una mesa para pedidos en local', 'error');
+      return;
+    }
+  
     const esTarjeta = this.metodoPago?.toLowerCase() === 'tarjeta';
+    const tipo = this.pedidoTemporal.tipoPedido; // 'MESA', 'DOMICILIO' o 'RECOGER'
+  
+    // 2. Gestión de idMesa según el tipo de pedido
+    // Si es RECOGER, le pasamos la mesa o un valor por defecto si el backend lo requiere obligatoriamente
+    let mesaId: number | null = null;
+    if (tipo === 'MESA') {
+      mesaId = Number(this.pedidoTemporal.idMesa);
+    } else if (tipo === 'RECOGER') {
+      // Si tu backend requiere un idMesa obligatorio para pedidos que no son a domicilio,
+      // usamos la mesa asignada o 0 / 1 como identificador de barra/recogida
+      mesaId = this.pedidoTemporal.idMesa ? Number(this.pedidoTemporal.idMesa) : 0;
+    }
+  
+    const direccion = tipo === 'DOMICILIO' ? (this.pedidoTemporal.direccionEnvio || 'Dirección no indicada') : null;
+    const telefono = this.pedidoTemporal.telefonoContacto || '000000000';
   
     const dtoPayload = {
-      id_mesa: mesaIdNum,
-      tipo_pedido: this.pedidoTemporal.tipoPedido,
-      direccion_envio: this.pedidoTemporal.tipoPedido === 'DOMICILIO' ? this.pedidoTemporal.direccionEnvio : null,
-      telefono_contacto: this.tipoPedidoDomicilio ? this.pedidoTemporal.telefonoContacto : null,
-  
+      // Enviar en camelCase (Spring Boot)
+      idMesa: mesaId,
+      tipoPedido: tipo,
+      direccionEnvio: direccion,
+      telefonoContacto: telefono,
+      metodoPago: esTarjeta ? 'TARJETA' : 'EFECTIVO',
       estado: 'PENDIENTE',
-      estado_pago: 'PENDIENTE',
+      estadoPago: 'PENDIENTE',
+      precioTotal: Number(this.calcularTotal()),
+  
+      // Enviar en snake_case
+      id_mesa: mesaId,
+      tipo_pedido: tipo,
+      direccion_envio: direccion,
+      telefono_contacto: telefono,
       metodo_pago: esTarjeta ? 'TARJETA' : 'EFECTIVO',
+      estado_pago: 'PENDIENTE',
       precio_total: Number(this.calcularTotal()),
   
       detalles: this.pedidoTemporal.productos.map(item => ({
+        idProducto: item.producto.id,
         id_producto: item.producto.id,
         cantidad: item.cantidad,
+        precioUnitario: item.producto.precio,
         precio_unitario: item.producto.precio
       }))
     };
   
-    console.log('Enviando DTO al backend:', dtoPayload);
+    console.log('Enviando DTO adaptado al backend:', dtoPayload);
   
     this.pedidoService.postCrearSeguro(dtoPayload).subscribe({
       next: (res) => {
@@ -152,13 +182,21 @@ export class ConfirmarPedidoComponent implements OnInit {
       },
       error: (err) => {
         console.error('Error al guardar el pedido:', err);
-        this.showToastMessage('Error al procesar el pedido', 'error');
+        if (err.error && err.error.message) {
+          this.showToastMessage(err.error.message, 'error');
+        } else {
+          this.showToastMessage('Error al procesar el pedido. Comprueba la mesa seleccionada.', 'error');
+        }
       }
     });
   }
 
   get tipoPedidoDomicilio(): boolean {
     return this.pedidoTemporal?.tipoPedido === 'DOMICILIO';
+  }
+
+  get tipoPedidoRecoger(): boolean {
+    return this.pedidoTemporal?.tipoPedido === 'RECOGER';
   }
 
   cancelarPedido() {
@@ -170,16 +208,22 @@ export class ConfirmarPedidoComponent implements OnInit {
 
   generarTicketPDF(pedidoId: number) {
     if (!this.pedidoTemporal) return;
-  
+
     const productosFormatted = this.pedidoTemporal.productos.map(item => [
       { text: `${item.cantidad}x ${item.producto.nombre}`, fontSize: 8, bold: true },
       { text: (item.producto.precio * item.cantidad).toFixed(2) + ' €', alignment: 'right', fontSize: 8 }
     ]);
-  
-    const esDomicilio = this.tipoPedidoDomicilio;
+
+    let infoPedidoTexto = `MESA: #${this.pedidoTemporal.idMesa}`;
+    if (this.tipoPedidoDomicilio) {
+      infoPedidoTexto = `ENTREGA A DOMICILIO\n${this.pedidoTemporal.direccionEnvio || ''}\nTel: ${this.pedidoTemporal.telefonoContacto || ''}`;
+    } else if (this.tipoPedidoRecoger) {
+      infoPedidoTexto = `PARA RECOGER EN TIENDA\nBarHub Badajoz - Av. Sinforiano Madroñero\nTel: ${this.pedidoTemporal.telefonoContacto || ''}`;
+    }
+
     const fechaActual = new Date();
     const fechaStr = fechaActual.toLocaleDateString('es-ES') + ' ' + fechaActual.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
-  
+
     const docDefinition: any = {
       pageSize: {
         width: 226.77,
@@ -191,24 +235,22 @@ export class ConfirmarPedidoComponent implements OnInit {
         { text: 'Food Service Project S.L.', style: 'subtext' },
         { text: 'CIF: B-12345678', style: 'subtext' },
         { text: 'Av. Sinforiano Madroñero, Badajoz', style: 'subtext' },
-        
+
         { text: '---------------------------------------------------', style: 'divider' },
-  
+
         { text: `TICKET SIMPLIFICADO`, style: 'ticketTitle' },
         { text: `Nº: BH-${pedidoId.toString().padStart(6, '0')}`, style: 'ticketNum' },
         { text: `Fecha: ${fechaStr}`, style: 'subtext' },
-  
+
         { text: '---------------------------------------------------', style: 'divider' },
-  
+
         {
-          text: esDomicilio 
-            ? `ENTREGA A DOMICILIO\n${this.pedidoTemporal.direccionEnvio}\nTel: ${this.pedidoTemporal.telefonoContacto}`
-            : `MESA: #${this.pedidoTemporal.idMesa}`,
+          text: infoPedidoTexto,
           style: 'tipoPedido'
         },
-  
+
         { text: '---------------------------------------------------', style: 'divider' },
-  
+
         // Lista de productos compacta
         {
           table: {
@@ -219,9 +261,9 @@ export class ConfirmarPedidoComponent implements OnInit {
           },
           layout: 'noBorders'
         },
-  
+
         { text: '---------------------------------------------------', style: 'divider' },
-  
+
         // Totales
         {
           columns: [
@@ -231,9 +273,9 @@ export class ConfirmarPedidoComponent implements OnInit {
         },
         { text: `(IVA Incluido)`, style: 'ivaText' },
         { text: `Pago: ${this.metodoPago.toUpperCase()}`, style: 'subtext', margin: [0, 4, 0, 0] },
-  
+
         { text: '---------------------------------------------------', style: 'divider' },
-  
+
         { text: '¡Gracias por su visita!', style: 'footer' },
         { text: 'www.barhub.es', style: 'footerSub' }
       ],
@@ -251,7 +293,7 @@ export class ConfirmarPedidoComponent implements OnInit {
         footerSub: { fontSize: 7, alignment: 'center', color: '#555555' }
       }
     };
-  
+
     (pdfMake as any).createPdf(docDefinition).download(`ticket_BarHub_BH-${pedidoId}.pdf`);
   }
 }

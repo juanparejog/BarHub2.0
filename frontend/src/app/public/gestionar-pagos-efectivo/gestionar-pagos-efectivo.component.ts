@@ -21,12 +21,13 @@ export class GestionarPagosEfectivoComponent implements OnInit {
     this.cargarPedidosPendientesDePago();
   }
 
+  
   cargarPedidosPendientesDePago(): void {
     this.cargando = true;
     
     this.pedidoService.getPendientesEfectivo().subscribe({
       next: (pedidos) => {
-        this.pedidosPendientes = pedidos;
+        this.pedidosPendientes = pedidos || [];
         this.cargando = false;
       },
       error: (err) => {
@@ -34,12 +35,12 @@ export class GestionarPagosEfectivoComponent implements OnInit {
         this.cargando = false;
       }
     });
-  }
+  } 
 
   seleccionarPedido(pedido: Pedido): void {
     this.pedidoSeleccionado = pedido;
     const total = pedido.precioTotal ?? (pedido as any).precio_total ?? (pedido as any).total ?? 0;
-    this.montoEntregado = total;
+    this.montoEntregado = Number(total);
     this.calcularCambio();
   }
 
@@ -71,11 +72,18 @@ export class GestionarPagosEfectivoComponent implements OnInit {
       alert('El monto entregado es menor al total del pedido.');
       return;
     }
+
+    // Mantiene exactamente el tipo de pedido original de la BD
+    const tipoPed = (this.pedidoSeleccionado as any).tipo_pedido || 
+                    (this.pedidoSeleccionado as any).tipoPedido || 
+                    (this.pedidoSeleccionado as any).tipo || 
+                    'RECOGER';
   
     const payloadActualizacion = {
       id: this.pedidoSeleccionado.id,
-      id_mesa: this.pedidoSeleccionado.mesaId || (this.pedidoSeleccionado as any).id_mesa,
-      tipo_pedido: (this.pedidoSeleccionado as any).tipoPedido || (this.pedidoSeleccionado as any).tipo_pedido || 'DOMICILIO',
+      id_mesa: this.pedidoSeleccionado.mesaId || (this.pedidoSeleccionado as any).id_mesa || null,
+      tipo_pedido: tipoPed,
+      tipoPedido: tipoPed,
       estado: this.pedidoSeleccionado.estado || 'PENDIENTE',
       
       estado_pago: 'COMPLETADO',
@@ -103,17 +111,17 @@ export class GestionarPagosEfectivoComponent implements OnInit {
   }
 
   getTipoPedidoClass(pedido: any): string {
-    if (!pedido) return 'is-mesa';
+    if (!pedido) return 'is-recoger';
 
     const tipo = String(
       pedido.tipoPedido ?? 
       pedido.tipo_pedido ?? 
       pedido.tipo ?? 
-      pedido.tipoServicio ?? 
       ''
     ).trim().toUpperCase();
 
-    if (tipo === 'DOMICILIO' || tipo === 'DELIVERY' || tipo.includes('DOMICILIO')) {
+    const direccion = String(pedido.direccionEnvio ?? pedido.direccion_envio ?? '').trim();
+    if (tipo === 'DOMICILIO' || tipo === 'DELIVERY' || (direccion.length > 0 && !direccion.toLowerCase().includes('recogida'))) {
       return 'is-domicilio';
     }
 
@@ -121,13 +129,12 @@ export class GestionarPagosEfectivoComponent implements OnInit {
       return 'is-recoger';
     }
 
-    const mesa = pedido.mesaId ?? pedido.id_mesa ?? pedido.idMesa ?? pedido.mesa;
-    
-    if (mesa !== undefined && mesa !== null && Number(mesa) > 0) {
+    const mesa = pedido.mesaId ?? pedido.id_mesa ?? pedido.idMesa;
+    if (tipo === 'MESA' || (mesa !== undefined && mesa !== null && Number(mesa) > 0)) {
       return 'is-mesa';
     }
 
-    return 'is-domicilio';
+    return 'is-recoger';
   }
 
   getTipoPedidoIcon(pedido: any): string {
@@ -137,8 +144,10 @@ export class GestionarPagosEfectivoComponent implements OnInit {
         return 'delivery_dining';
       case 'is-recoger':
         return 'shopping_bag';
-      default:
+      case 'is-mesa':
         return 'table_restaurant';
+      default:
+        return 'shopping_bag';
     }
   }
 
@@ -149,9 +158,10 @@ export class GestionarPagosEfectivoComponent implements OnInit {
         return 'A Domicilio';
       case 'is-recoger':
         return 'Recoger en Tienda';
+      case 'is-mesa':
       default:
-        const mesa = pedido.mesaId ?? pedido.id_mesa ?? pedido.idMesa;
-        return `Mesa ${mesa || ''}`;
+        const mesa = pedido.id_mesa ?? pedido.mesaId ?? pedido.idMesa;
+        return (mesa && Number(mesa) > 0) ? `Mesa ${mesa}` : 'Mesa Local';
     }
   }
 
@@ -162,9 +172,10 @@ export class GestionarPagosEfectivoComponent implements OnInit {
         return 'Entrega a Domicilio';
       case 'is-recoger':
         return 'Pedido para Recoger en Tienda';
+      case 'is-mesa':
       default:
-        const mesa = pedido.mesaId ?? pedido.id_mesa ?? pedido.idMesa;
-        return `Servicio en Mesa ${mesa || ''}`;
+        const mesa = pedido.id_mesa ?? pedido.mesaId ?? pedido.idMesa;
+        return (mesa && Number(mesa) > 0) ? `Servicio en Mesa ${mesa}` : 'Servicio en Local';
     }
   }
 

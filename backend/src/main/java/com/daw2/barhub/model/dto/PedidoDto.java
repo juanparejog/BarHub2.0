@@ -6,6 +6,7 @@ import com.daw2.barhub.model.Enum.EstadoPedido;
 import com.daw2.barhub.model.Enum.TipoPedido;
 import com.daw2.barhub.model.entity.Mesa;
 import com.daw2.barhub.model.entity.Pedido;
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -20,37 +21,50 @@ import java.util.List;
 @AllArgsConstructor
 @Data
 public class PedidoDto {
+
     private Long id;
 
     @JsonProperty("id_user")
+    @JsonAlias({"idUser", "userId", "user_id"})
     private Long idUser;
 
     @JsonProperty("id_mesa")
+    @JsonAlias({"idMesa", "mesaId", "mesa_id"})
     private Long idMesa;
 
     @JsonProperty("tipo_pedido")
-    private TipoPedido tipoPedido = TipoPedido.MESA;
+    @JsonAlias({"tipoPedido", "tipo", "tipoServicio"})
+    private TipoPedido tipoPedido; // Eliminado el valor por defecto rudo TipoPedido.MESA
 
     @JsonProperty("direccion_envio")
+    @JsonAlias({"direccionEnvio", "direccion"})
     private String direccionEnvio;
 
     @JsonProperty("telefono_contacto")
+    @JsonAlias({"telefonoContacto", "telefono"})
     private String telefonoContacto;
 
     private Date fecha;
+
     private EstadoPedido estado;
 
     @JsonProperty("estado_pago")
+    @JsonAlias({"estadoPago"})
     private EstadoPago estadoPago = EstadoPago.PENDIENTE;
 
     @JsonProperty("precio_total")
+    @JsonAlias({"precioTotal", "total"})
     private BigDecimal precioTotal;
 
     @JsonProperty("metodo_pago")
+    @JsonAlias({"metodoPago"})
     private String metodoPago;
 
     private List<DetallePedidoDto> detalles = new ArrayList<>();
 
+    /**
+     * Mapea una entidad Pedido a PedidoDto devolviendo la estructura completa requerida por la UI.
+     */
     public static PedidoDto from(Pedido pedido) {
         if (pedido == null) {
             return null;
@@ -93,6 +107,9 @@ public class PedidoDto {
         return dtos;
     }
 
+    /**
+     * Convierte el DTO a la Entidad Pedido respetando las reglas de negocio de cada modalidad.
+     */
     public Pedido to() {
         Pedido pedido = new Pedido();
         pedido.setId(getId());
@@ -103,13 +120,26 @@ public class PedidoDto {
             pedido.setUser(userEntity);
         }
 
+        // Asignación estricta de Mesa: Solo si idMesa es válido y no es nulo
         if (idMesa != null && idMesa > 0) {
             Mesa mesaEntity = new Mesa();
             mesaEntity.setId(idMesa);
             pedido.setMesa(mesaEntity);
+        } else {
+            pedido.setMesa(null);
         }
 
-        pedido.setTipoPedido(getTipoPedido() != null ? getTipoPedido() : TipoPedido.MESA);
+        // Mantiene el tipoPedido que viene en el DTO o deduce MESA si se especificó una mesa válida
+        if (getTipoPedido() != null) {
+            pedido.setTipoPedido(getTipoPedido());
+        } else if (getIdMesa() != null && getIdMesa() > 0) {
+            pedido.setTipoPedido(TipoPedido.MESA);
+        } else if (getDireccionEnvio() != null && !getDireccionEnvio().trim().isEmpty()) {
+            pedido.setTipoPedido(TipoPedido.DOMICILIO);
+        } else {
+            pedido.setTipoPedido(TipoPedido.RECOGER);
+        }
+
         pedido.setDireccionEnvio(getDireccionEnvio());
         pedido.setTelefonoContacto(getTelefonoContacto());
         pedido.setFecha(getFecha());
@@ -121,6 +151,7 @@ public class PedidoDto {
         return pedido;
     }
 
+    // Getters / Setters de compatibilidad para el Frontend Angular
     public BigDecimal getTotal() {
         return this.precioTotal;
     }
@@ -129,11 +160,43 @@ public class PedidoDto {
         this.precioTotal = total;
     }
 
+    @JsonProperty("mesaId")
     public Long getMesaId() {
         return this.idMesa;
     }
 
+    @JsonProperty("userId")
     public Long getUserId() {
         return this.idUser;
+    }
+
+    @JsonProperty("tipoPedido")
+    public TipoPedido getTipoPedidoCamelCase() {
+        return this.tipoPedido;
+    }
+
+    @JsonProperty("direccionEnvio")
+    public String getDireccionEnvioCamelCase() {
+        return this.direccionEnvio;
+    }
+
+    @JsonProperty("telefonoContacto")
+    public String getTelefonoContactoCamelCase() {
+        return this.telefonoContacto;
+    }
+
+    @JsonProperty("precioTotal")
+    public BigDecimal getPrecioTotalCamelCase() {
+        return this.precioTotal;
+    }
+
+    @JsonProperty("metodoPago")
+    public String getMetodoPagoCamelCase() {
+        return this.metodoPago;
+    }
+
+    @JsonProperty("estadoPago")
+    public EstadoPago getEstadoPagoCamelCase() {
+        return this.estadoPago;
     }
 }

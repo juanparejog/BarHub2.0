@@ -127,15 +127,30 @@ public class PedidoServiceImpl implements PedidoService {
             pedido.setEstadoPago(EstadoPago.PENDIENTE);
         }
 
-        if (pedidoDto.getTipoPedido() == TipoPedido.DOMICILIO) {
+        // --- GESTIÓN CORRECTA DE LOS TRES TIPOS DE PEDIDO ---
+        TipoPedido tipo = pedidoDto.getTipoPedido();
+
+        if (tipo == TipoPedido.DOMICILIO) {
             pedido.setTipoPedido(TipoPedido.DOMICILIO);
             pedido.setDireccionEnvio(pedidoDto.getDireccionEnvio());
             pedido.setTelefonoContacto(pedidoDto.getTelefonoContacto());
             pedido.setMesa(null);
-        } else {
+
+        } else if (tipo == TipoPedido.RECOGER) {
+            pedido.setTipoPedido(TipoPedido.RECOGER);
+            pedido.setTelefonoContacto(pedidoDto.getTelefonoContacto());
+            pedido.setDireccionEnvio(null);
+            pedido.setMesa(null);
+
+        } else if (tipo == TipoPedido.MESA) {
             pedido.setTipoPedido(TipoPedido.MESA);
-            if (pedidoDto.getMesaId() != null) {
-                Mesa mesa = mesaRepository.findById(pedidoDto.getMesaId()).orElse(null);
+            pedido.setDireccionEnvio(null);
+
+            // Obtener idMesa soporta tanto getMesaId() como getIdMesa()
+            Long mesaId = (pedidoDto.getMesaId() != null) ? pedidoDto.getMesaId() : pedidoDto.getIdMesa();
+
+            if (mesaId != null) {
+                Mesa mesa = mesaRepository.findById(mesaId).orElse(null);
                 if (mesa == null) {
                     throw new IllegalArgumentException("La mesa especificada no existe");
                 }
@@ -143,6 +158,9 @@ public class PedidoServiceImpl implements PedidoService {
             } else {
                 throw new IllegalArgumentException("Para pedidos en local es obligatorio seleccionar una mesa.");
             }
+
+        } else {
+            throw new IllegalArgumentException("Debes seleccionar un tipo de pedido válido (MESA, DOMICILIO o RECOGER).");
         }
 
         if (pedidoDto.getDetalles() != null && !pedidoDto.getDetalles().isEmpty()) {
@@ -152,10 +170,12 @@ public class PedidoServiceImpl implements PedidoService {
                 detalle.setPrecioUnitario(detalleDto.getPrecioUnitario());
                 detalle.setPedido(pedido);
 
-                if (detalleDto.getProductoId() != null) {
-                    Producto producto = productoRepository.findById(detalleDto.getProductoId()).orElse(null);
+                Long prodId = (detalleDto.getProductoId() != null) ? detalleDto.getProductoId() : detalleDto.getIdProducto();
+
+                if (prodId != null) {
+                    Producto producto = productoRepository.findById(prodId).orElse(null);
                     if (producto == null) {
-                        throw new RuntimeException("Producto no encontrado id: " + detalleDto.getProductoId());
+                        throw new RuntimeException("Producto no encontrado id: " + prodId);
                     }
                     detalle.setProducto(producto);
                 }

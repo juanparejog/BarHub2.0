@@ -7,7 +7,7 @@ import { ProductoService } from '../../admin/pages/productos/services/producto';
 import { Mesa } from '../../admin/pages/mesas/interface/mesa';
 import { Producto } from '../../admin/pages/productos/interface/producto';
 
-export type TipoPedido = 'MESA' | 'DOMICILIO';
+export type TipoPedido = 'MESA' | 'DOMICILIO' | 'RECOGER';
 export type TipoVivienda = 'piso' | 'casa' | 'urbanizacion';
 
 interface ProductoSeleccionado {
@@ -26,10 +26,17 @@ export class CartaComponent implements OnInit {
   productos: Producto[] = [];
   productosSeleccionados: ProductoSeleccionado[] = [];
   
-  // Selección de tipo de servicio
+  // Selección de tipo de servicio (MESA, DOMICILIO o RECOGER)
   tipoPedido: TipoPedido = 'MESA';
   idMesa: number | null = null;
   mesaBloqueadaPorQr = false;
+
+  // Ubicación fija de recogida
+  readonly UBICACION_RECOGIDA_FIJA = {
+    nombre: 'BarHub Principal',
+    direccion: 'Avda Sinforiano Madroñero, 13',
+    cp: '06011'
+  };
 
   // Campos desglosados para Domicilio
   calle = '';
@@ -96,10 +103,17 @@ export class CartaComponent implements OnInit {
     setTimeout(() => this.showToast = false, 3000);
   }
 
+  seleccionarTipoPedido(tipo: TipoPedido) {
+    this.tipoPedido = tipo;
+  }
 
   get datosServicioCompletos(): boolean {
     if (this.tipoPedido === 'MESA') {
       return this.idMesa !== null;
+    }
+
+    if (this.tipoPedido === 'RECOGER') {
+      return !!this.telefonoContacto.trim();
     }
 
     if (this.tipoPedido === 'DOMICILIO') {
@@ -112,12 +126,21 @@ export class CartaComponent implements OnInit {
       } else if (this.tipoVivienda === 'casa') {
         return !!this.casaNum.trim();
       } else if (this.tipoVivienda === 'urbanizacion') {
-
         return !!this.casaNum.trim();
       }
     }
 
     return false;
+  }
+
+  getMensajeAdvertencia(): string {
+    if (this.tipoPedido === 'MESA') {
+      return 'selecciona tu mesa';
+    }
+    if (this.tipoPedido === 'RECOGER') {
+      return 'introduce tu teléfono de contacto';
+    }
+    return 'completa los datos obligatorios de dirección';
   }
 
   get detalleViviendaTexto(): string {
@@ -136,6 +159,10 @@ export class CartaComponent implements OnInit {
   }
 
   get direccionParaMaps(): string {
+    if (this.tipoPedido === 'RECOGER') {
+      return `${this.UBICACION_RECOGIDA_FIJA.direccion}, ${this.UBICACION_RECOGIDA_FIJA.cp}`;
+    }
+
     if (!this.calle) return '';
   
     let numero = '';
@@ -150,15 +177,12 @@ export class CartaComponent implements OnInit {
   }
 
   get googleMapsUrl(): string {
-    if (!this.calle && !this.codigoPostal) {
-      return 'https://www.google.com/maps';
-    }
     const query = encodeURIComponent(this.direccionParaMaps);
     return `https://www.google.com/maps/search/?api=1&query=${query}`;
   }
 
   get googleMapsEmbedUrl(): SafeResourceUrl {
-    const query = this.direccionParaMaps ? encodeURIComponent(this.direccionParaMaps) : 'España';
+    const query = encodeURIComponent(this.direccionParaMaps);
     const url = `https://maps.google.com/maps?q=${query}&t=&z=18&ie=UTF8&iwloc=&output=embed`;
     return this.sanitizer.bypassSecurityTrustResourceUrl(url);
   }
@@ -184,10 +208,7 @@ export class CartaComponent implements OnInit {
 
   onAdd(producto: Producto) {
     if (!this.datosServicioCompletos) {
-      const msg = this.tipoPedido === 'MESA' 
-        ? 'Por favor, selecciona una mesa antes de añadir productos.' 
-        : 'Por favor, completa los datos de la dirección antes de añadir productos.';
-      this.showToastMessage(msg, 'error');
+      this.showToastMessage(`Por favor, ${this.getMensajeAdvertencia()} antes de añadir productos.`, 'error');
       return;
     }
 
@@ -220,6 +241,9 @@ export class CartaComponent implements OnInit {
   }
 
   get direccionCompleta(): string {
+    if (this.tipoPedido === 'RECOGER') {
+      return `${this.UBICACION_RECOGIDA_FIJA.direccion}, CP ${this.UBICACION_RECOGIDA_FIJA.cp}`;
+    }
     const partes = [this.calle, this.detalleViviendaTexto, this.codigoPostal].filter(p => p && p.trim() !== '');
     return partes.join(', ');
   }
@@ -240,7 +264,7 @@ export class CartaComponent implements OnInit {
     }
 
     if (!this.datosServicioCompletos) {
-      this.showToastMessage('Debes indicar tu mesa o los datos de domicilio requeridos', 'error');
+      this.showToastMessage(`Debes ${this.getMensajeAdvertencia()}`, 'error');
       return;
     }
 
@@ -253,7 +277,8 @@ export class CartaComponent implements OnInit {
       tipoPedido: this.tipoPedido,
       idMesa: this.tipoPedido === 'MESA' ? this.idMesa : null,
       direccionEnvio: this.tipoPedido === 'DOMICILIO' ? this.direccionCompleta : null,
-      telefonoContacto: this.tipoPedido === 'DOMICILIO' ? this.telefonoContacto : null,
+      ubicacionRecogida: this.tipoPedido === 'RECOGER' ? this.direccionCompleta : null,
+      telefonoContacto: this.tipoPedido === 'DOMICILIO' || this.tipoPedido === 'RECOGER' ? this.telefonoContacto : null,
       productos: this.productosSeleccionados,
       precioTotal: this.calcularTotal()
     };

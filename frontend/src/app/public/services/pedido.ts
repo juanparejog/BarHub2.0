@@ -1,8 +1,7 @@
 import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { map } from 'rxjs/operators';
-import { HttpClient } from "@angular/common/http";
-import { HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { environment } from "src/environments/environment";
 import { Pedido, EstadoPago } from "../interface/pedido";
 import { DetallesPedido } from '../../admin/pages/detalles_pedidos/interface/detalle';
@@ -10,6 +9,17 @@ import { DetallesPedido } from '../../admin/pages/detalles_pedidos/interface/det
 interface PedidoDto {
   id: number;
   id_mesa?: number;
+  idMesa?: number;
+  mesaId?: number;
+  
+  // CAMPOS AÑADIDOS PARA TIPO DE PEDIDO Y DIRECCIÓN
+  tipo_pedido?: string;
+  tipoPedido?: string;
+  direccion_envio?: string;
+  direccionEnvio?: string;
+  telefono_contacto?: string;
+  telefonoContacto?: string;
+
   estado: string;
   fecha: string;
   precioTotal?: number;
@@ -53,7 +63,7 @@ export class PedidoService {
   }
 
   getPendientesEfectivo(): Observable<Pedido[]> {
-    return this.httpClient.get<PedidoDto[]>(`${this.URL_PEDIDOS}/pendientes-efectivo`).pipe(
+    return this.httpClient.get<PedidoDto[]>(`${this.URL_PEDIDOS}/pendientes-efectivo`, { headers: this.getAuthHeaders() }).pipe(
       map((pedidosDto) =>
         pedidosDto.map(pedidoDto => this.mapPedidoDtoToPedido(pedidoDto))
       )
@@ -77,7 +87,7 @@ export class PedidoService {
   }
 
   getPedidosByUsuario(idUsuario: number): Observable<Pedido[]> {
-    return this.httpClient.get<PedidoDto[]>(`${this.URL_PEDIDOS}/usuario/${idUsuario}`).pipe(
+    return this.httpClient.get<PedidoDto[]>(`${this.URL_PEDIDOS}/usuario/${idUsuario}`, { headers: this.getAuthHeaders() }).pipe(
       map((pedidosDto) =>
         pedidosDto.map(pedidoDto => this.mapPedidoDtoToPedido(pedidoDto))
       )
@@ -85,13 +95,28 @@ export class PedidoService {
   }
 
   getMisPedidos(): Observable<Pedido[]> {
-    return this.httpClient.get<Pedido[]>(`${this.URL_PEDIDOS}/mis-pedidos`);
+    return this.httpClient.get<Pedido[]>(`${this.URL_PEDIDOS}/mis-pedidos`, { headers: this.getAuthHeaders() });
   }
 
   private mapPedidoDtoToPedido(dto: PedidoDto): Pedido {
+    const tipo = dto.tipoPedido ?? dto.tipo_pedido ?? '';
+    const dir = dto.direccionEnvio ?? dto.direccion_envio ?? '';
+    const tel = dto.telefonoContacto ?? dto.telefono_contacto ?? '';
+    const mesa = dto.idMesa ?? dto.id_mesa ?? dto.mesaId ?? 0;
+
     return {
       id: dto.id,
-      mesaId: dto.id_mesa ?? 0,
+      mesaId: mesa,
+      id_mesa: mesa,
+      
+      // PRESERVAR PROPIEDADES DE MODALIDAD
+      tipoPedido: tipo,
+      tipo_pedido: tipo,
+      direccionEnvio: dir,
+      direccion_envio: dir,
+      telefonoContacto: tel,
+      telefono_contacto: tel,
+
       estado: dto.estado,
       fecha: dto.fecha,
       precioTotal: dto.precioTotal ?? dto.precio_total ?? dto.total ?? 0,
