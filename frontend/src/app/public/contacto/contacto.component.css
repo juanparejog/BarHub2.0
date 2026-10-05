@@ -1,73 +1,175 @@
 :host {
-    display: block;
-    max-width: 680px;
-    margin: 40px auto 60px auto;
-    padding: 32px 24px;
-    background: #f7fafd;
-    border-radius: 18px;
-    box-shadow: 0 6px 32px rgba(10,35,66,0.10);
-    font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
-    color: #0a2342;
+  --primary-color: #0f172a;
+  --accent-gold: #d97706;
+  --accent-gold-light: #fef3c7;
+  --text-main: #334155;
+  --text-muted: #64748b;
+  --bg-card: #ffffff;
+  --border-color: #e2e8f0;
+
+  display: block;
+  min-height: 80vh;
+  padding: 40px 20px;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  color: var(--text-main);
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+}
+
+.contact-container {
+  max-width: 900px;
+  margin: 0 auto;
+  animation: fadeInUp 0.6s ease-out forwards;
+}
+
+/* Header */
+.contact-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.badge {
+  display: inline-block;
+  padding: 6px 14px;
+  background-color: var(--accent-gold-light);
+  color: var(--accent-gold);
+  font-size: 0.85rem;
+  font-weight: 700;
+  border-radius: 20px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 12px;
+}
+
+h1 {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: var(--primary-color);
+  margin: 0 0 12px 0;
+  letter-spacing: -0.5px;
+}
+
+.intro {
+  font-size: 1.1rem;
+  color: var(--text-muted);
+  max-width: 600px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+/* Layout Grid */
+.contact-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 24px;
+}
+
+/* Cards */
+.contact-card {
+  background: var(--bg-card);
+  border-radius: 16px;
+  padding: 28px;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease;
+}
+
+.contact-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 20px 30px -10px rgba(15, 23, 42, 0.1);
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.icon-wrapper {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background-color: #f1f5f9;
+  color: var(--accent-gold);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+h2 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--primary-color);
+  margin: 0;
+}
+
+/* Item List */
+.info-list {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.label {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--text-muted);
+  letter-spacing: 0.5px;
+}
+
+.value {
+  font-size: 1.05rem;
+  font-weight: 500;
+  color: var(--primary-color);
+}
+
+.value.highlight {
+  font-weight: 700;
+  color: var(--accent-gold);
+}
+
+.link {
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.link:hover {
+  color: var(--accent-gold);
+  text-decoration: underline;
+}
+
+/* Keyframes Animation */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
   }
-  
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  :host {
+    padding: 20px 12px;
+  }
+
   h1 {
-    font-size: 2.2rem;
-    font-weight: bold;
-    letter-spacing: .5px;
-    margin-bottom: 18px;
-    color: #183153;
-    text-align: center;
-    text-shadow: 0 1px 0 #fff;
+    font-size: 1.8rem;
   }
-  
-  h2 {
-    font-size: 1.2rem;
-    font-weight: 600;
-    color: #2a4e7e;
-    margin-top: 26px;
-    margin-bottom: 8px;
-    border-left: 4px solid #4a6782;
-    padding-left: 10px;
+
+  .contact-card {
+    padding: 20px;
   }
-  
-  ul, ol {
-    margin: 0 0 16px 22px;
-    padding: 0;
-    color: #1b2d44;
-    font-size: 1rem;
-  }
-  
-  li {
-    margin-bottom: 7px;
-  }
-  
-  p {
-    margin: 0 0 14px 0;
-    line-height: 1.7;
-    font-size: 1.05rem;
-  }
-  
-  a {
-    color: #2a7ae4;
-    text-decoration: underline;
-    transition: color 0.2s;
-  }
-  a:hover {
-    color: #0a2342;
-    text-decoration: none;
-  }
-  
-  @media (max-width: 700px) {
-    :host {
-      max-width: 98vw;
-      padding: 16px 4vw;
-      font-size: 0.98rem;
-    }
-    h1 {
-      font-size: 1.5rem;
-    }
-    h2 {
-      font-size: 1.05rem;
-    }
-  }
-  
+}
