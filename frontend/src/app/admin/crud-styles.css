@@ -400,3 +400,26 @@
   .sort-icon.active {
     color: #4f46e5; /* Color violeta/índigo primario */
   }
+
+  .drop-zone {
+    border: 2px dashed #ccc;
+    border-radius: 8px;
+    padding: 2rem;
+    text-align: center;
+    background-color: #f8f9fa;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+
+.drop-zone:hover, .drop-zone.drag-over {
+    border-color: #0d6efd;
+    background-color: #e9ecef;
+}
+
+.img-preview {
+    max-height: 150px;
+    max-width: 100%;
+    object-fit: contain;
+    border-radius: 4px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}

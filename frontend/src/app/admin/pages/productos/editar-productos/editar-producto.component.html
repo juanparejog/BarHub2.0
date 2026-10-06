@@ -31,9 +31,35 @@
                 </select>
             </div>
 
+            <!-- Zona Drag and Drop -->
             <div class="mb-3">
-                <label for="imagen" class="form-label">Imagen:</label>
-                <input formControlName="imagen" type="file" class="form-control" id="imagen" accept=".png, .jpg, .jpeg, image/png, image/jpeg">
+                <label class="form-label">Imagen del Producto:</label>
+
+                <div 
+                    class="drop-zone"
+                    [class.drag-over]="isDragging"
+                    (dragover)="onDragOver($event)"
+                    (dragleave)="onDragLeave($event)"
+                    (drop)="onDrop($event)"
+                    (click)="fileInput.click()">
+
+                    <input 
+                        #fileInput 
+                        type="file" 
+                        class="d-none" 
+                        accept="image/png, image/jpeg"
+                        (change)="onFileSelected($event)">
+
+                    <div *ngIf="!previewUrl" class="drop-zone-prompt">
+                        <p class="mb-1 fw-bold">Arrastra y suelta tu imagen aquí</p>
+                        <small class="text-muted">o haz clic para examinar (JPG, PNG)</small>
+                    </div>
+
+                    <div *ngIf="previewUrl" class="preview-container">
+                        <img [src]="previewUrl" alt="Vista previa de la imagen" class="img-preview" />
+                        <p class="mt-2 mb-0 small text-muted">{{ nombreArchivoRenombrado || 'Imagen seleccionada' }}</p>
+                    </div>
+                </div>
             </div>
 
             <div class="d-flex justify-content-end gap-2 mt-4">

@@ -28,31 +28,35 @@ export class ProductoService {
   }
 
   /**
-   * Recibe un producto y la añade
-   * @param producto que se va a añadir
-   * @returns un observable con la producto añadido
-   */
-  post(producto: Producto): Observable<Producto> {
-    return this.httpClient.post<Producto>(this.URL_PRODUCTOS, producto);
-  }
-
-  /**
    * Se busca un producto con el id que se pasa por parámetros
    * @param id del producto que va a buscar
-   * @returns un observable con los productos
+   * @returns un observable con el producto
    */
-   getId(id: string): Observable<Producto> {
+  getId(id: string | number): Observable<Producto> {
     return this.httpClient.get<Producto>(`${this.URL_PRODUCTOS}${id}`);
   }
 
   /**
-   * Se realiza una petición para actualizar un producto
-   * @param producto producto actualizado
-   * @returns un observable con el producto actualizada
+   * Recibe un producto y opcionalmente un archivo de imagen para crearlo
+   * @param producto datos del producto a añadir
+   * @param file archivo de imagen (opcional)
+   * @returns un observable con el producto añadido
    */
-  put(producto: Producto): Observable<Producto> {
+  post(producto: Producto, file?: File | null): Observable<Producto> {
+    const formData = this.crearFormData(producto, file);
+    return this.httpClient.post<Producto>(this.URL_PRODUCTOS, formData);
+  }
+
+  /**
+   * Se realiza una petición para actualizar un producto y opcionalmente su imagen
+   * @param producto producto actualizado
+   * @param file nuevo archivo de imagen (opcional)
+   * @returns un observable con el producto actualizado
+   */
+  put(producto: Producto, file?: File | null): Observable<Producto> {
     const url = `${this.URL_PRODUCTOS}${producto.id}`;
-    return this.httpClient.put<Producto>(url, producto);
+    const formData = this.crearFormData(producto, file);
+    return this.httpClient.put<Producto>(url, formData);
   }
 
   /**
@@ -63,5 +67,27 @@ export class ProductoService {
   del(producto: Producto): Observable<Producto> {
     const url = `${this.URL_PRODUCTOS}${producto.id}`;
     return this.httpClient.delete<Producto>(url);
+  }
+
+  //----------------------------------------------------------
+  // Métodos auxiliares
+  //----------------------------------------------------------
+
+  /**
+   * Empaqueta el objeto Producto (como JSON) y la imagen en un objeto FormData
+   */
+  private crearFormData(producto: Producto, file?: File | null): FormData {
+    const formData = new FormData();
+
+    formData.append(
+      'producto',
+      new Blob([JSON.stringify(producto)], { type: 'application/json' })
+    );
+
+    if (file) {
+      formData.append('file', file);
+    }
+
+    return formData;
   }
 }
