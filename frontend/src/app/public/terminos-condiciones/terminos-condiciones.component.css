@@ -6,6 +6,9 @@
   --text-muted: #64748b;
   --bg-card: #ffffff;
   --border-color: #e2e8f0;
+  --bg-icon: #f1f5f9;
+  --btn-bg: #0f172a;
+  --btn-text: #ffffff;
 
   display: block;
   min-height: 80vh;
@@ -13,6 +16,25 @@
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   color: var(--text-main);
   background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+}
+
+/* ==========================================================================
+   SOPORTE MODO OSCURO (DARK MODE)
+   ========================================================================== */
+:host-context(.dark-theme),
+:host-context(.dark) {
+  --primary-color: #f8fafc;
+  --accent-gold: #f59e0b;
+  --accent-gold-light: rgba(245, 158, 11, 0.18);
+  --text-main: #cbd5e1;
+  --text-muted: #94a3b8;
+  --bg-card: #1e293b;
+  --border-color: #334155;
+  --bg-icon: rgba(255, 255, 255, 0.08);
+  --btn-bg: #f59e0b;
+  --btn-text: #0f172a;
+
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
 }
 
 .legal-container {
@@ -81,12 +103,11 @@ h1 {
 
 .legal-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 18px 28px -10px rgba(15, 23, 42, 0.08);
+  box-shadow: 0 18px 28px -10px rgba(0, 0, 0, 0.3);
 }
 
 .legal-card.focus {
-  border-color: #cbd5e1;
-  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+  border-color: var(--accent-gold);
 }
 
 .card-header {
@@ -102,7 +123,7 @@ h1 {
   width: 42px;
   height: 42px;
   border-radius: 12px;
-  background-color: #f1f5f9;
+  background-color: var(--bg-icon);
   color: var(--accent-gold);
   display: flex;
   align-items: center;
@@ -126,7 +147,11 @@ h2 {
   font-size: 1rem;
   line-height: 1.65;
   color: var(--text-main);
-  margin: 0;
+  margin: 0 0 12px 0;
+}
+
+.description:last-child {
+  margin-bottom: 0;
 }
 
 /* Info List */
@@ -161,19 +186,9 @@ h2 {
   color: var(--accent-gold);
 }
 
-.links-group {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.separator {
-  color: var(--text-muted);
-}
-
 .link {
   text-decoration: none;
+  color: var(--primary-color);
   transition: color 0.2s ease;
 }
 
@@ -205,6 +220,32 @@ h2 {
   color: var(--accent-gold);
   margin-top: 3px;
   flex-shrink: 0;
+}
+
+/* Call to Action Email Button */
+.action-box {
+  margin-top: 16px;
+  display: flex;
+}
+
+.btn-email {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background-color: var(--btn-bg);
+  color: var(--btn-text);
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  text-decoration: none;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.btn-email:hover {
+  background-color: var(--accent-gold);
+  color: #ffffff;
+  transform: translateY(-2px);
 }
 
 /* Footer Date */

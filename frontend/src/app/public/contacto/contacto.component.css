@@ -6,6 +6,7 @@
   --text-muted: #64748b;
   --bg-card: #ffffff;
   --border-color: #e2e8f0;
+  --bg-icon: #f1f5f9;
 
   display: block;
   min-height: 80vh;
@@ -13,6 +14,23 @@
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   color: var(--text-main);
   background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+}
+
+/* ==========================================================================
+   SOPORTE MODO OSCURO (DARK MODE)
+   ========================================================================== */
+:host-context(.dark-theme),
+:host-context(.dark) {
+  --primary-color: #f8fafc;
+  --accent-gold: #f59e0b;
+  --accent-gold-light: rgba(245, 158, 11, 0.18);
+  --text-main: #cbd5e1;
+  --text-muted: #94a3b8;
+  --bg-card: #1e293b;
+  --border-color: #334155;
+  --bg-icon: rgba(255, 255, 255, 0.08);
+
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
 }
 
 .contact-container {
@@ -75,7 +93,7 @@ h1 {
 
 .contact-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 20px 30px -10px rgba(15, 23, 42, 0.1);
+  box-shadow: 0 20px 30px -10px rgba(0, 0, 0, 0.3);
 }
 
 .card-header {
@@ -91,7 +109,7 @@ h1 {
   width: 44px;
   height: 44px;
   border-radius: 12px;
-  background-color: #f1f5f9;
+  background-color: var(--bg-icon);
   color: var(--accent-gold);
   display: flex;
   align-items: center;
@@ -139,6 +157,7 @@ h2 {
 
 .link {
   text-decoration: none;
+  color: var(--primary-color);
   transition: color 0.2s ease;
 }
 
