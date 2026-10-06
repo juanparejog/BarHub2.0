@@ -17,10 +17,15 @@ export class VerPedidoComponent implements OnInit {
 
   constructor(
     private pedidoService: PedidoService,
+    private usuarioService: UsuarioService,
+    private mesaService: MesaService,
     private activatedRoute: ActivatedRoute,
   ) { }
 
   ngOnInit(): void {
+    this.usuarioService.get().subscribe(data => this.users = data);
+    this.mesaService.get().subscribe(data => this.mesas = data);
+    
     this.cargarPedido();
   }
   
@@ -37,7 +42,7 @@ export class VerPedidoComponent implements OnInit {
           console.log('Pedido cargado:', this.pedido);
         },
         error => {
-          console.error('Error al cargar la pedido:', error);
+          console.error('Error al cargar el pedido:', error);
         }
       );
   }   
@@ -45,14 +50,12 @@ export class VerPedidoComponent implements OnInit {
   getUserName(id_user: number | null | undefined): string {
     if (id_user === null || id_user === undefined) return 'Usuario no encontrado';
     const user = this.users.find(u => u.id === id_user);
-    console.log(id_user);
-    return user ? user.nombre : id_user.toString();
+    return user ? (user.nombre || user.username) : id_user.toString();
   }
   
   getMesaCodigo(id_mesa: number | null | undefined): string {
-    if (id_mesa === null || id_mesa === undefined) return 'Mesa no encontrada';
+    if (id_mesa === null || id_mesa === undefined) return 'Sin Mesa';
     const mesa = this.mesas.find(m => m.id === id_mesa);
-    console.log(id_mesa);
-    return mesa ? mesa.codigoqr : id_mesa.toString();
+    return mesa ? mesa.codigoqr : `Mesa #${id_mesa}`;
   }
 }

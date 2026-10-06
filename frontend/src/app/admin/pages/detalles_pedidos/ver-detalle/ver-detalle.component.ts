@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { switchMap } from 'rxjs';
+import { switchMap, forkJoin } from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
 import { PedidoService } from "../../pedidos/services/pedido";
 import { ProductoService } from "../../productos/services/producto";
@@ -17,42 +17,48 @@ export class VerDetalleComponent implements OnInit {
 
   constructor(
     private detalleService: DetallesService,
+    private productoService: ProductoService,
+    private pedidoService: PedidoService,
     private activatedRoute: ActivatedRoute,
   ) { }
 
   ngOnInit(): void {
-    this.cargarDetalle();
+    this.cargarDatos();
   }
-  
-  cargarDetalle() {
-    this.activatedRoute.params
-      .pipe(
-        switchMap(({ id }) => {
-          return this.detalleService.getId(id);
-        }),
-      )
-      .subscribe(
-        detalle => {
-          this.detalle = detalle;
-          console.log('Detalle cargado:', this.detalle);
-        },
-        error => {
-          console.error('Error al cargar el detalle:', error);
-        }
-      );
-  }   
+
+  cargarDatos(): void {
+    forkJoin({
+      productos: this.productoService.get(),
+      pedidos: this.pedidoService.get()
+    }).pipe(
+      switchMap(({ productos, pedidos }) => {
+        this.productos = productos;
+        this.pedidos = pedidos;
+        
+        return this.activatedRoute.params.pipe(
+          switchMap(({ id }) => this.detalleService.getId(id))
+        );
+      })
+    ).subscribe({
+      next: (detalle) => {
+        this.detalle = detalle;
+        console.log('Detalle cargado:', this.detalle);
+      },
+      error: (err) => {
+        console.error('Error al cargar la información:', err);
+      }
+    });
+  }
 
   getPedido(id_pedido: number | null | undefined): string {
-    if (id_pedido === null || id_pedido === undefined) return 'Pedido no encontrado';
+    if (id_pedido === null || id_pedido === undefined) return 'N/A';
     const pedido = this.pedidos.find(p => p.id === id_pedido);
-    console.log(id_pedido);
-    return id_pedido.toString();
+    return pedido ? (pedido.id?.toString() ?? id_pedido.toString()) : `#${id_pedido}`;
   }
-  
+
   getProducto(id_producto: number | null | undefined): string {
     if (id_producto === null || id_producto === undefined) return 'Producto no encontrado';
     const producto = this.productos.find(p => p.id === id_producto);
-    console.log(id_producto);
-    return producto ? producto.nombre : producto.nombre.toString();
+    return producto?.nombre || `ID Producto: ${id_producto}`;
   }
 }

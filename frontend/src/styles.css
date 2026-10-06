@@ -2,6 +2,8 @@
    ESTILOS GLOBALES - BARHUB
    ========================================================================== */
 
+@import './app/admin/crud-styles.css';
+
 /* Variables de Color y Tema */
 :root {
   --primary-bg: #f8fafc;        /* Fondo claro elegante */

@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { ReactiveFormsModule } from '@angular/forms';
 import { AdminRoutingModule } from './admin-routing.module';
 import { UicomponentsModule } from '../uicomponents/uicomponents.module';
+import { SharedModule } from '../shared/shared.module';
 
 import { BienvenidaComponent } from './pages/bienvenida/bienvenida.component';
 import { GestionarDetalleComponent } from './pages/detalles_pedidos/gestionar-detalles/gestionar-detalle.component';
@@ -48,7 +49,8 @@ import { EditarUsuarioComponent } from './pages/usuarios/editar-usuarios/editar-
     RouterModule,
     AdminRoutingModule,
     UicomponentsModule,
-    FormsModule
+    FormsModule,
+    SharedModule
   ]
 })
 export class AdminModule { }

@@ -9,17 +9,24 @@ import { DialogService } from 'src/app/main/services/shared/services/dialog.serv
 })
 
 export class GestionarUsuarioComponent implements OnInit {
-
+  
   usuarios: Usuario[] = [];
+
+  searchTerm: string = '';
+
+  sortColumn: 'username' | 'email' | 'roles' = 'username';
+  sortDirection: 'asc' | 'desc' = 'asc';
+
+  mostrarModalEliminar: boolean = false;
+  usuarioAEliminar: Usuario | null = null;
 
   constructor(
     private usuarioService: UsuarioService,
-    private dialogService: DialogService,
+    private dialogService: DialogService
   ) { }
 
   ngOnInit(): void {
     this.cargarUsuarios();
-    
   }
 
   cargarUsuarios() {
@@ -35,19 +42,93 @@ export class GestionarUsuarioComponent implements OnInit {
     });
   }
 
-  borrarUsuario(usuario: Usuario) {
-    this.dialogService.solicitarConfirmacion(
-      '¿Está seguro de que desea eliminar el usuario?',
-      'Eliminar usuario', 
-      () => {
-        this.usuarioService.del(usuario.id!).subscribe({
-          next: () => {
-            this.dialogService.mostrarToast('Usuario eliminado correctamente');
-            this.cargarUsuarios();
-          },
-          error: (err) => console.error('Error eliminando usuario:', err)
-        });
+  sortBy(column: 'username' | 'email' | 'roles'): void {
+    if (this.sortColumn === column) {
+      this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
+    } else {
+      this.sortColumn = column;
+      this.sortDirection = 'asc';
+    }
+  }
+
+  get usuariosFiltrados(): Usuario[] {
+    if (!this.usuarios) return [];
+    
+    const term = this.searchTerm.toLowerCase().trim();
+
+    let result = this.usuarios.filter(usuario => {
+      const matchUsername = usuario.username?.toLowerCase().includes(term) ?? false;
+      const matchEmail = usuario.email?.toLowerCase().includes(term) ?? false;
+      const matchRoles = usuario.roles?.some(rol => 
+        this.formatearNombreRol(rol.nombre).toLowerCase().includes(term) ||
+        (rol.nombre && rol.nombre.toLowerCase().includes(term))
+      ) ?? false;
+
+      return matchUsername || matchEmail || matchRoles;
+    });
+
+    result.sort((a, b) => {
+      let valA = '';
+      let valB = '';
+
+      if (this.sortColumn === 'roles') {
+        valA = (a.roles || []).map(r => this.formatearNombreRol(r.nombre)).sort().join(', ');
+        valB = (b.roles || []).map(r => this.formatearNombreRol(r.nombre)).sort().join(', ');
+      } else {
+        valA = (a[this.sortColumn] || '').toString().toLowerCase();
+        valB = (b[this.sortColumn] || '').toString().toLowerCase();
       }
-    );
-  }  
+
+      const comparison = valA.localeCompare(valB, undefined, { numeric: true, sensitivity: 'base' });
+      return this.sortDirection === 'asc' ? comparison : -comparison;
+    });
+
+    return result;
+  }
+
+  getRolClass(nombreRol: string | undefined): string {
+    if (!nombreRol) return '';
+    const rolLower = nombreRol.toLowerCase();
+    
+    if (rolLower.includes('admin')) {
+      return 'rol-admin';
+    } else if (rolLower.includes('cliente') || rolLower.includes('client')) {
+      return 'rol-cliente';
+    } else if (rolLower.includes('empleado') || rolLower.includes('user')) {
+      return 'rol-empleado';
+    }
+    return '';
+  }
+
+  formatearNombreRol(nombreRol: string | undefined): string {
+    if (!nombreRol) return '';
+    return nombreRol.replace(/^ROLE_/i, '').toUpperCase();
+  }
+
+  borrarUsuario(usuario: Usuario): void {
+    this.usuarioAEliminar = usuario;
+    this.mostrarModalEliminar = true;
+  }
+
+  confirmarEliminacion(): void {
+    if (!this.usuarioAEliminar || !this.usuarioAEliminar.id) return;
+
+    this.usuarioService.del(this.usuarioAEliminar.id).subscribe({
+      next: () => {
+        this.dialogService.mostrarToast('Usuario eliminado correctamente');
+        this.cargarUsuarios();
+        this.cerrarModal();
+      },
+      error: (err) => {
+        console.error('Error eliminando usuario:', err);
+        this.dialogService.mostrarToast('Error al eliminar el usuario');
+        this.cerrarModal();
+      }
+    });
+  }
+
+  cerrarModal(): void {
+    this.mostrarModalEliminar = false;
+    this.usuarioAEliminar = null;
+  }
 }

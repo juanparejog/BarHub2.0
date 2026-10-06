@@ -1,42 +1,72 @@
-<body *ngIf="usuario">
-    <div class="ps-5 pe-5 pb-0 pt-3">
-        <div class="d-flex justify-content-between align-items-center mt-3 mb-0 me-3 ms-3">
-            <div>
-                <h2 style="color: #003d5a;" class="mt-3">Usuario {{ usuario.id }}</h2>
-            </div>
-            <div>
-                <button [routerLink]="['/admin/gestionar-usuarios']" 
-                style="background-color: #f1f2f6; color: #003d5a; border-color: #003d5a; border-width: 2px;" 
-                class="btn ms-3"><i class="bi bi-arrow-90deg-left"></i></button>
-            </div>
-        </div>
+<div class="crud-container" *ngIf="usuario">
+    <!-- Header Principal -->
+    <div class="crud-header">
+      <div>
+        <h1 class="crud-title">Usuario #{{ usuario.id }}</h1>
+        <p class="text-muted small mb-0">Detalles e información general del usuario</p>
+      </div>
+      <div>
+        <button [routerLink]="['/admin/gestionar-usuarios']" class="btn-crud-secondary d-inline-flex align-items-center gap-2">
+          <i class="bi bi-arrow-left"></i>
+          <span>Volver</span>
+        </button>
+      </div>
     </div>
-    <hr style="margin-left: 30px; margin-top: 0%; margin-right: 30px;">
-    <div class="table-container ps-5 pe-5">
-        <table class="table table-striped shadow">
-            <thead>
-                <tr>
-                    <th style="background-color: #bccdd9; color: #003d5a;" class="ps-4" scope="col">Nombre</th>
-                    <th style="background-color: #bccdd9; color: #003d5a;" class="ps-4" scope="col">Email</th>
-                    <th style="background-color: #bccdd9; color: #003d5a;" scope="col">Roles</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td style="color: rgb(84, 84, 84);" class="ps-4" scope="row">{{ usuario.username }}</td>
-                    <td style="color: rgb(84, 84, 84);" class="ps-4" scope="row">{{ usuario.email }}</td>
-                    <td>
-                        <span *ngIf="usuario.roles && usuario.roles.length > 0; else sinRoles">
-                            <span *ngFor="let rol of usuario.roles; let i = index">
-                              {{ rol }}<span *ngIf="i < usuario.roles.length - 1">, </span>
-                            </span>
-                        </span>
-                        <ng-template #sinRoles>
-                          <span class="text-muted">Sin Roles</span>
-                        </ng-template>
-                    </td>
-                </tr>
-            </tbody>
+  
+    <!-- Contenedor / Tarjeta con Animación -->
+    <div class="crud-card">
+      <div class="table-responsive">
+        <table class="crud-table">
+          <thead>
+            <tr>
+              <th class="ps-4">Nombre de Usuario</th>
+              <th>Email</th>
+              <th>Roles Asignados</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <!-- Nombre -->
+              <td class="ps-4 fw-semibold text-dark">
+                {{ usuario.username }}
+              </td>
+  
+              <!-- Email -->
+              <td class="text-secondary">
+                {{ usuario.email }}
+              </td>
+  
+              <!-- Roles -->
+              <td>
+                <div class="d-flex flex-wrap gap-1 align-items-center">
+                  <ng-container *ngIf="usuario.roles && usuario.roles.length > 0; else sinRolesDetail">
+                    <span 
+                      *ngFor="let rol of usuario.roles" 
+                      class="badge-role" 
+                      [ngClass]="getRolClass(getNombreRol(rol))">
+                      <i class="bi bi-shield-lock"></i>
+                      {{ formatearNombreRol(getNombreRol(rol)) }}
+                    </span>
+                  </ng-container>
+                  
+                  <ng-template #sinRolesDetail>
+                    <span class="badge-role text-muted bg-light border">
+                      <i class="bi bi-exclamation-circle"></i> Sin Roles
+                    </span>
+                  </ng-template>
+                </div>
+              </td>
+            </tr>
+          </tbody>
         </table>
+      </div>
+  
+      <!-- Pie de Tarjeta con botón de Acción -->
+      <div class="p-3 bg-light border-top d-flex justify-content-end">
+        <button [routerLink]="['/admin/editar-usuarios', usuario.id]" class="btn-crud-primary d-inline-flex align-items-center gap-2">
+          <i class="bi bi-pencil-square"></i>
+          <span>Editar Usuario</span>
+        </button>
+      </div>
     </div>
-</body>
+  </div>

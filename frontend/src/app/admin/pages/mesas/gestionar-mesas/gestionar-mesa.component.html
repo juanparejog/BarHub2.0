@@ -1,48 +1,150 @@
-<body *ngIf="mesas">
-    <div class="ps-5 pe-5 pb-0 pt-3">
-        <div class="d-flex justify-content-between align-items-center mt-3 mb-0 me-3 ms-3">
-            <div>
-                <h2 style="color: #176029;" class="mt-3">Mesas</h2>
-            </div>
-            <div>
-                <button [routerLink]="['../crear-mesa']" 
-                    style="background-color: #176029; color: #f1f2f6; cursor: pointer;" class="btn ms-3">+</button>
-                <button [routerLink]="['../']" 
-                    style="background-color: #f1f2f6; color: #176029; border-color: #176029; border-width: 2px;" 
-                    class="btn ms-3"><i class="bi bi-arrow-90deg-left"></i></button>
-            </div>
-        </div>
+<div class="crud-container">
+  <!-- Header Principal -->
+  <div class="crud-header">
+    <div>
+      <h1 class="crud-title">Gestión de Mesas</h1>
+      <p class="text-muted small mb-0">Listado general de mesas del establecimiento</p>
     </div>
-    <hr style="margin-left: 30px; margin-top: 0%; margin-right: 30px;">
-    <div class="table-container ps-5 pe-5">
-        <table class="table table-striped shadow">
-            <thead>
-                <tr>
-                    <th style="background-color: #bccdd9; color: #176029;" class="ps-4" scope="col">CODIGOQR</th>
-                    <th style="background-color: #bccdd9; color: #176029;" scope="col">ESTADO</th>
-                    <th style="background-color: #bccdd9; color: #176029;" scope="col"></th>
-                </tr>
-            </thead>
-            <tbody *ngIf="mesas.length > 0; else sinMesas">
-                <tr *ngFor="let mesa of mesas">
-                    <td style="color: rgb(84, 84, 84);" class="ps-4" scope="row">{{mesa.codigoqr}}</td>
-                    <td style="color: rgb(84, 84, 84);">{{mesa.estado}}</td>
-                    
-                    <td class="border-start text-center" id="acciones">
-                        <i [routerLink]="['/admin/ver-mesa', mesa.id]" class="bi bi-eye me-2" 
-                            style="color: #176029; cursor: pointer;"></i>
-                        <i [routerLink]="['/admin/editar-mesas', mesa.id]" class="bi bi-pencil-square me-2"
-                            style="color: #176029; cursor: pointer;"></i> 
-                        <i (click)="borrarMesa(mesa)" class="bi bi-trash3-fill"
-                            style="color: #176029; cursor: pointer;"></i>
-                    </td>
-                </tr>
-            </tbody>
-            <ng-template #sinMesas>
-                <tr>
-                  <td colspan="3" class="text-center">No hay mesas registradas.</td>
-                </tr>
-            </ng-template>
-        </table>
+    <div class="d-flex align-items-center gap-2">
+      <button [routerLink]="['../crear-mesa']" class="btn-crud-primary d-inline-flex align-items-center gap-2">
+        <i class="bi bi-plus-lg"></i>
+        <span>Nueva Mesa</span>
+      </button>
+      <button [routerLink]="['../']" class="btn-crud-secondary d-inline-flex align-items-center gap-2">
+        <i class="bi bi-arrow-left"></i>
+        <span>Volver</span>
+      </button>
     </div>
-</body>
+  </div>
+
+  <!-- Tarjeta Principal del CRUD -->
+  <div class="crud-card">
+    
+    <!-- Barra Superior / Barra de Filtro Integrada -->
+    <div class="table-toolbar d-flex flex-wrap align-items-center justify-content-between gap-3 p-3 border-bottom bg-light-subtle">
+      <!-- Buscador Estilizado -->
+      <div class="search-box position-relative">
+        <i class="bi bi-search search-icon"></i>
+        <input 
+          type="text" 
+          class="form-control search-input" 
+          placeholder="Buscar por código QR o estado..."
+          [(ngModel)]="searchTerm">
+        <button 
+          *ngIf="searchTerm" 
+          class="btn-clear-search" 
+          type="button" 
+          (click)="searchTerm = ''"
+          title="Limpiar búsqueda">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+
+      <!-- Contador de registros -->
+      <div class="text-muted small fw-medium">
+        Mostrando <span class="text-dark fw-bold">{{ mesasFiltradas.length }}</span> de {{ mesas.length }} mesas
+      </div>
+    </div>
+
+    <!-- Tabla -->
+    <div class="table-responsive">
+      <table class="crud-table mb-0">
+        <thead>
+          <tr>
+            <!-- Columna Código QR -->
+            <th class="ps-4 sortable-th" (click)="sortBy('codigoqr')">
+              <div class="th-content">
+                <span>Código QR</span>
+                <span class="sort-icon" [ngClass]="{'active': sortColumn === 'codigoqr'}">
+                  <i class="bi" [ngClass]="{
+                    'bi-sort-alpha-down': sortColumn === 'codigoqr' && sortDirection === 'asc',
+                    'bi-sort-alpha-up-alt': sortColumn === 'codigoqr' && sortDirection === 'desc',
+                    'bi-arrow-down-up': sortColumn !== 'codigoqr'
+                  }"></i>
+                </span>
+              </div>
+            </th>
+
+            <!-- Columna Estado -->
+            <th class="sortable-th" (click)="sortBy('estado')">
+              <div class="th-content">
+                <span>Estado</span>
+                <span class="sort-icon" [ngClass]="{'active': sortColumn === 'estado'}">
+                  <i class="bi" [ngClass]="{
+                    'bi-sort-alpha-down': sortColumn === 'estado' && sortDirection === 'asc',
+                    'bi-sort-alpha-up-alt': sortColumn === 'estado' && sortDirection === 'desc',
+                    'bi-arrow-down-up': sortColumn !== 'estado'
+                  }"></i>
+                </span>
+              </div>
+            </th>
+
+            <!-- Acciones -->
+            <th class="text-center">Acciones</th>
+          </tr>
+        </thead>
+
+        <tbody *ngIf="mesasFiltradas.length > 0; else sinMesas">
+          <tr *ngFor="let mesa of mesasFiltradas">
+            <!-- Código QR -->
+            <td class="ps-4 font-monospace fw-semibold text-dark">
+              {{ mesa.codigoqr }}
+            </td>
+
+            <!-- Estado -->
+            <td>
+              <span class="badge text-capitalize px-3 py-1"
+                    [ngClass]="{
+                      'bg-success-subtle text-success': mesa.estado === 'disponible',
+                      'bg-danger-subtle text-danger': mesa.estado === 'ocupada',
+                      'bg-warning-subtle text-warning': mesa.estado === 'reservada'
+                    }">
+                {{ mesa.estado }}
+              </span>
+            </td>
+
+            <!-- Acciones -->
+            <td class="text-center">
+              <div class="crud-actions">
+                <i [routerLink]="['/admin/ver-mesa', mesa.id]" 
+                   class="bi bi-eye-fill action-icon view" 
+                   title="Ver Mesa"></i>
+
+                <i [routerLink]="['/admin/editar-mesas', mesa.id]" 
+                   class="bi bi-pencil-fill action-icon edit" 
+                   title="Editar"></i>
+
+                <i (click)="borrarMesa(mesa)" 
+                   class="bi bi-trash3-fill action-icon delete" 
+                   title="Eliminar"></i>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+
+        <!-- Estado vacío -->
+        <ng-template #sinMesas>
+          <tbody>
+            <tr>
+              <td colspan="3" class="text-center py-5 text-muted">
+                <i class="bi bi-inbox fs-1 d-block mb-2 text-secondary opacity-50"></i>
+                <span *ngIf="searchTerm">No se encontraron mesas que coincidan con "<strong>{{ searchTerm }}</strong>".</span>
+                <span *ngIf="!searchTerm">No hay mesas registradas en el sistema.</span>
+              </td>
+            </tr>
+          </tbody>
+        </ng-template>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Confirmar Eliminar -->
+<app-modal-confirmar-eliminar
+  [mostrar]="mostrarModalEliminar"
+  [titulo]="'Eliminar Mesa'"
+  [mensaje]="'¿Estás seguro de que deseas borrar esta mesa? Esta acción no se puede deshacer.'"
+  [nombreElemento]="mesaAEliminar?.codigoqr || ''"
+  (alConfirmar)="confirmarEliminacion()"
+  (alCancelar)="cerrarModal()">
+</app-modal-confirmar-eliminar>

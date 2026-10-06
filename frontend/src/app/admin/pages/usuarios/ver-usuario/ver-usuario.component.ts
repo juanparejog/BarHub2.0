@@ -20,7 +20,32 @@ export class VerUsuarioComponent implements OnInit {
   ngOnInit(): void {
     this.cargarUsuario();
   }
+
+  getNombreRol(rol: any): string {
+    if (!rol) return '';
+    if (typeof rol === 'string') return rol;
+    return rol.nombre || '';
+  }
   
+  getRolClass(nombreRol: string | undefined): string {
+    if (!nombreRol) return '';
+    const rolLower = nombreRol.toLowerCase();
+    
+    if (rolLower.includes('admin')) {
+      return 'rol-admin';
+    } else if (rolLower.includes('cliente') || rolLower.includes('client')) {
+      return 'rol-cliente';
+    } else if (rolLower.includes('empleado') || rolLower.includes('user')) {
+      return 'rol-empleado';
+    }
+    return '';
+  }
+  
+  formatearNombreRol(nombreRol: string | undefined): string {
+    if (!nombreRol) return '';
+    return nombreRol.replace(/^ROLE_/i, '').toUpperCase();
+  }
+
   cargarUsuario() {
     this.activatedRoute.params
       .pipe(

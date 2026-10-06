@@ -1,64 +1,171 @@
-<body>
-    <div class="ps-5 pe-5 pb-0 pt-3">
-        <div class="d-flex justify-content-between align-items-center mt-3 mb-0 me-3 ms-3">
-            <div>
-                <h2 style="color: #176029;" class="mt-3">Usuarios</h2>
-            </div>
-            <div>
-                <button [routerLink]="['/admin/crear-usuario']"
-                    style="background-color: #176029; color: #f1f2f6; cursor: pointer;" 
-                    class="btn ms-3">+</button>
-                <button [routerLink]="['/admin']"
-                    style="background-color: #f1f2f6; color: #176029; border-color: #176029; border-width: 2px;" 
-                    class="btn ms-3"><i class="bi bi-arrow-90deg-left"></i></button>
-            </div>
-        </div>
+<div class="crud-container">
+  <!-- Header Principal -->
+  <div class="crud-header">
+    <div>
+      <h1 class="crud-title">Gestión de Usuarios</h1>
+      <p class="text-muted small mb-0">Listado general de usuarios registrados en el sistema</p>
     </div>
-    <hr style="margin-left: 30px; margin-top: 0%; margin-right: 30px;">
-    <div class="table-container ps-5 pe-5">
-        <table class="table table-striped shadow">
-            <thead>
-                <tr>
-                    <th style="background-color: #bccdd9; color: #176029;" class="ps-4" scope="col">NOMBRE</th>
-                    <th style="background-color: #bccdd9; color: #176029;" class="ps-4" scope="col">EMAIL</th>
-                    <th style="background-color: #bccdd9; color: #176029;" class="ps-4" scope="col">ROLES</th>
-                    <th style="background-color: #bccdd9; color: #176029;" scope="col"></th>
-                </tr>
-            </thead>
-            <tbody *ngIf="usuarios.length > 0; else sinUsuarios">
-                <tr *ngFor="let usuario of usuarios">
-                    <td style="color: rgb(84, 84, 84);" class="ps-4" scope="row">{{usuario.username}}</td>
-                    <td style="color: rgb(84, 84, 84);" class="ps-4" scope="row">{{usuario.email}}</td>
-                    
-                    <td>
-                        <span *ngIf="usuario.roles && usuario.roles.length > 0; else sinRoles">
-                            <span *ngFor="let rol of usuario.roles; let i = index">
-                                {{ rol.nombre }}<span *ngIf="i < usuario.roles.length - 1">, </span>
-                            </span>
-                        </span>
-                        <ng-template #sinRoles>
-                          <span class="text-muted">Sin Roles</span>
-                        </ng-template>
-                    </td>
-                    
-                    <td class="border-start text-center" id="acciones">
-                        <i [routerLink]="['/admin/ver-usuario', usuario.id]" 
-                            class="bi bi-eye me-2" 
-                            style="color: #176029; cursor: pointer;"></i>
-                        <i [routerLink]="['/admin/editar-usuarios', usuario.id]"
-                            class="bi bi-pencil-square me-2"
-                            style="color: #176029; cursor: pointer;"></i> 
-                        <i (click)="borrarUsuario(usuario)" 
-                            class="bi bi-trash3-fill"
-                            style="color: #176029; cursor: pointer;"></i>
-                    </td>
-                </tr>
-            </tbody>
-            <ng-template #sinUsuarios>
-                <tr>
-                  <td colspan="5" class="text-center">No hay usuarios registrados.</td>
-                </tr>
-            </ng-template>
-        </table>
+    <div class="d-flex align-items-center gap-2">
+      <button [routerLink]="['/admin/crear-usuario']" class="btn-crud-primary d-inline-flex align-items-center gap-2">
+        <i class="bi bi-plus-lg"></i>
+        <span>Crear Nuevo</span>
+      </button>
+      <button [routerLink]="['/admin']" class="btn-crud-secondary d-inline-flex align-items-center gap-2">
+        <i class="bi bi-arrow-left"></i>
+        <span>Volver</span>
+      </button>
     </div>
-</body>
+  </div>
+
+  <!-- Tarjeta Principal del CRUD -->
+  <div class="crud-card">
+    
+    <!-- Barra Superior / Barra de Filtro Integrada -->
+    <div class="table-toolbar d-flex flex-wrap align-items-center justify-content-between gap-3 p-3 border-bottom bg-light-subtle">
+      <!-- Buscador Estilizado -->
+      <div class="search-box position-relative">
+        <i class="bi bi-search search-icon"></i>
+        <input 
+          type="text" 
+          class="form-control search-input" 
+          placeholder="Buscar por nombre, correo o rol..."
+          [(ngModel)]="searchTerm">
+        <button 
+          *ngIf="searchTerm" 
+          class="btn-clear-search" 
+          type="button" 
+          (click)="searchTerm = ''"
+          title="Limpiar búsqueda">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+
+      <!-- Contador de registros -->
+      <div class="text-muted small fw-medium">
+        Mostrando <span class="text-dark fw-bold">{{ usuariosFiltrados.length }}</span> de {{ usuarios.length }} usuarios
+      </div>
+    </div>
+
+    <!-- Tabla -->
+    <div class="table-responsive">
+      <table class="crud-table mb-0">
+        <thead>
+          <tr>
+            <!-- Columna Nombre -->
+            <th class="ps-4 sortable-th" (click)="sortBy('username')">
+              <div class="th-content">
+                <span>Nombre</span>
+                <span class="sort-icon" [ngClass]="{'active': sortColumn === 'username'}">
+                  <i class="bi" [ngClass]="{
+                    'bi-sort-alpha-down': sortColumn === 'username' && sortDirection === 'asc',
+                    'bi-sort-alpha-up-alt': sortColumn === 'username' && sortDirection === 'desc',
+                    'bi-arrow-down-up': sortColumn !== 'username'
+                  }"></i>
+                </span>
+              </div>
+            </th>
+
+            <!-- Columna Email -->
+            <th class="sortable-th" (click)="sortBy('email')">
+              <div class="th-content">
+                <span>Email</span>
+                <span class="sort-icon" [ngClass]="{'active': sortColumn === 'email'}">
+                  <i class="bi" [ngClass]="{
+                    'bi-sort-alpha-down': sortColumn === 'email' && sortDirection === 'asc',
+                    'bi-sort-alpha-up-alt': sortColumn === 'email' && sortDirection === 'desc',
+                    'bi-arrow-down-up': sortColumn !== 'email'
+                  }"></i>
+                </span>
+              </div>
+            </th>
+
+            <!-- Columna Roles -->
+            <th class="sortable-th" (click)="sortBy('roles')">
+              <div class="th-content">
+                <span>Roles</span>
+                <span class="sort-icon" [ngClass]="{'active': sortColumn === 'roles'}">
+                  <i class="bi" [ngClass]="{
+                    'bi-sort-down': sortColumn === 'roles' && sortDirection === 'asc',
+                    'bi-sort-up-alt': sortColumn === 'roles' && sortDirection === 'desc',
+                    'bi-arrow-down-up': sortColumn !== 'roles'
+                  }"></i>
+                </span>
+              </div>
+            </th>
+
+            <th class="text-center">Acciones</th>
+          </tr>
+        </thead>
+
+        <tbody *ngIf="usuariosFiltrados.length > 0; else sinUsuarios">
+          <tr *ngFor="let usuario of usuariosFiltrados">
+            <!-- Username -->
+            <td class="ps-4 fw-semibold text-dark">
+              {{ usuario.username }}
+            </td>
+
+            <!-- Email -->
+            <td class="text-secondary">
+              {{ usuario.email }}
+            </td>
+
+            <!-- Roles -->
+            <td>
+              <div class="d-flex flex-wrap gap-1 align-items-center">
+                <ng-container *ngIf="usuario.roles && usuario.roles.length > 0; else sinRoles">
+                  <span *ngFor="let rol of usuario.roles" class="badge-role" [ngClass]="getRolClass(rol.nombre)">
+                    <i class="bi bi-shield-lock"></i>
+                    {{ formatearNombreRol(rol.nombre) }}
+                  </span>
+                </ng-container>
+                <ng-template #sinRoles>
+                  <span class="badge-role text-muted bg-light">Sin Roles</span>
+                </ng-template>
+              </div>
+            </td>
+
+            <!-- Acciones -->
+            <td class="text-center">
+              <div class="crud-actions">
+                <i [routerLink]="['/admin/ver-usuario', usuario.id]" 
+                   class="bi bi-eye-fill action-icon view" 
+                   title="Ver detalle"></i>
+
+                <i [routerLink]="['/admin/editar-usuarios', usuario.id]" 
+                   class="bi bi-pencil-fill action-icon edit" 
+                   title="Editar"></i>
+
+                <i (click)="borrarUsuario(usuario)" 
+                   class="bi bi-trash3-fill action-icon delete" 
+                   title="Eliminar"></i>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+
+        <!-- Estado vacío -->
+        <ng-template #sinUsuarios>
+          <tbody>
+            <tr>
+              <td colspan="4" class="text-center py-5 text-muted">
+                <i class="bi bi-people fs-1 d-block mb-2 text-secondary opacity-50"></i>
+                <span *ngIf="searchTerm">No se encontraron usuarios que coincidan con "<strong>{{ searchTerm }}</strong>".</span>
+                <span *ngIf="!searchTerm">No hay usuarios registrados en el sistema.</span>
+              </td>
+            </tr>
+          </tbody>
+        </ng-template>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Modal General Reutilizable -->
+<app-modal-confirmar-eliminar
+[mostrar]="mostrarModalEliminar"
+[titulo]="'Eliminar Usuario'"
+[mensaje]="'¿Estás seguro de que deseas borrar este usuario? Esta acción no se puede deshacer y perderá sus accesos.'"
+[nombreElemento]="usuarioAEliminar?.username || ''"
+(alConfirmar)="confirmarEliminacion()"
+(alCancelar)="cerrarModal()">
+</app-modal-confirmar-eliminar>

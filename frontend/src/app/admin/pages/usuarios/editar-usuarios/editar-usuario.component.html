@@ -1,94 +1,90 @@
-<style>
-    input {
-        border: 1px solid #97b5c8;
-        background-color: #eff2f9;
-    }
-
-    #guardar {
-        background-color: #fab43d;
-    }
-
-    #volver {
-        background-color: #97b5c8;
-    }
+<div class="crud-container">
+  <div class="crud-form-card">
     
-    .rol-admin {
-      background-color: #f28b82;
-      color: #000;
-      border-radius: 10px;
-    }
-
-    .rol-cliente {
-      background-color: #fdd663;
-      color: #000;
-      border-radius: 10px;
-    }
-
-    .rol-empleado {
-      background-color: #81c995;
-      color: #000;
-      border-radius: 10px;
-    }
-    
-</style>
-
-<div class="row m-auto w-75 pt-5">
-
-    <form (ngSubmit)="guardar()" [formGroup]="formulario" class="container" autocomplete="off">
-
-        <div class="mx-auto">
-            <input id="id" name="id" type="hidden" [value]="formulario.get('id')?.value || -1">
-        </div>
-
-        <div class="row">
-            <div class="col-md-12 mb-3">
-                <label for="username" class="form-label">Nombre:</label>
-                <input formControlName="username" type="text" class="form-control" id="username">
-            </div>
-        </div>
-
-        <div class="row">
-            <div class="col-md-12 mb-3">
-                <label for="email" class="form-label">Email:</label>
-                <input formControlName="email" type="email" class="form-control" id="email">
-            </div>
-        </div>
-
-        <div class="row">
-            <div class="col-md-12 mb-3">
-                <label for="password" class="form-label">Contraseña:</label>
-                <input formControlName="password" type="password" class="form-control" id="password">
-            </div>
-        </div>        
-
-        <div class="row">
-            <div class="col-md-12 mb-3">
-                <label class="form-label">Roles:</label>
-                <div class="d-flex flex-wrap gap-2">
-                    <div *ngFor="let rol of rolesDisponibles" class="form-check form-check-inline">
-                        <input 
-                          type="checkbox" 
-                          class="form-check-input"
-                          [checked]="isRoleChecked(rol)"
-                          (change)="toggleRol(rol)"
-                          id="rol-{{rol.id}}"
-                        >
-                        <label 
-                          class="form-check-label px-2 py-1 rounded"
-                          [ngClass]="getRolClass(rol.nombre)"
-                          for="rol-{{rol.id}}"
-                        >
-                          {{ formatearNombreRol(rol.nombre) }}
-                        </label>
-                      </div>                      
-                </div>
-                <small class="text-muted">Selecciona uno o varios roles para este usuario.</small>
-            </div>
-        </div>
-    </form>
-
-    <div class="d-flex justify-content-end">
-        <button id="volver" class="btn me-1 mt-4" routerLink="/admin/gestionar-usuarios">Volver</button>
-        <button id="guardar" class="btn ms-1 mt-4" (click)="guardar();">Guardar</button>
+    <div class="crud-header mb-4">
+      <h1 class="crud-title">Formulario de Usuario</h1>
+      <p class="text-muted small mb-0">Gestión e información de acceso del usuario</p>
     </div>
+
+    <form (ngSubmit)="guardar()" [formGroup]="formulario" autocomplete="off">
+      <input id="id" name="id" type="hidden" [value]="formulario.get('id')?.value || -1">
+
+      <div class="row">
+        <!-- Nombre de Usuario -->
+        <div class="col-md-6 mb-3">
+          <label for="username" class="form-label">Nombre de Usuario</label>
+          <input 
+            formControlName="username" 
+            type="text" 
+            class="form-control" 
+            id="username" 
+            placeholder="Ingresa el nombre">
+        </div>
+
+        <!-- Correo Electrónico -->
+        <div class="col-md-6 mb-3">
+          <label for="email" class="form-label">Correo Electrónico</label>
+          <input 
+            formControlName="email" 
+            type="email" 
+            class="form-control" 
+            id="email" 
+            placeholder="correo@ejemplo.com">
+        </div>
+
+        <!-- Contraseña -->
+        <div class="col-md-12 mb-3">
+          <label for="password" class="form-label">Contraseña</label>
+          <input 
+            formControlName="password" 
+            type="password" 
+            class="form-control" 
+            id="password" 
+            placeholder="••••••••">
+        </div>
+
+        <!-- Roles Asignados -->
+        <div class="col-md-12 mb-4">
+          <label class="form-label d-block">
+            Roles Asignados <span class="text-danger">* (mínimo 1)</span>
+          </label>
+          
+          <div class="roles-selection-container p-3 rounded border bg-light-subtle"
+               [class.border-danger]="formulario.get('roles')?.invalid && formulario.get('roles')?.touched">
+            
+            <div class="d-flex flex-wrap gap-3">
+              <div *ngFor="let rol of rolesDisponibles" class="form-check custom-role-check d-flex align-items-center">
+                <input
+                  type="checkbox"
+                  class="form-check-input mt-0"
+                  [checked]="isRoleChecked(rol)"
+                  [disabled]="isRoleChecked(rol) && formulario.get('roles')?.value?.length === 1"
+                  (change)="toggleRol(rol)"
+                  id="rol-{{rol.id}}"
+                >
+                <label class="form-check-label badge-role ms-2 cursor-pointer" [ngClass]="getRolClass(rol.nombre)" for="rol-{{rol.id}}">
+                  <i class="bi bi-shield-lock me-1"></i>
+                  {{ formatearNombreRol(rol.nombre) }}
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div *ngIf="formulario.get('roles')?.hasError('requiereRol') && formulario.get('roles')?.touched" class="text-danger small mt-1">
+            Debes asignar al menos un rol al usuario.
+          </div>
+        </div>
+      </div>
+
+      <!-- Botones de Acción -->
+      <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
+        <button type="button" class="btn-crud-secondary" routerLink="/admin/gestionar-usuarios">
+          Cancelar
+        </button>
+        <button type="submit" class="btn-crud-primary" [disabled]="formulario.invalid">
+          Guardar Cambios
+        </button>
+      </div>
+    </form>
+  </div>
 </div>

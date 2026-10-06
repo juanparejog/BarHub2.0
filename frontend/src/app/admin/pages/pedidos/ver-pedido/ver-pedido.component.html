@@ -1,37 +1,99 @@
-<body *ngIf="pedido">
-    <div class="ps-5 pe-5 pb-0 pt-3">
-        <div class="d-flex justify-content-between align-items-center mt-3 mb-0 me-3 ms-3">
-            <div>
-                <h2 style="color: #003d5a;" class="mt-3">Pedido {{ pedido.id }}</h2>
-            </div>
-            <div>
-                <button [routerLink]="['/admin/gestionar-pedidos']" 
-                    style="background-color: #f1f2f6; color: #003d5a; border-color: #003d5a; border-width: 2px;" 
-                    class="btn ms-3"><i class="bi bi-arrow-90deg-left"></i></button>
-            </div>
-        </div>
+<div class="crud-container" *ngIf="pedido">
+  <!-- Header principal -->
+  <div class="crud-header">
+    <div>
+      <h1 class="crud-title">Pedido #{{ pedido.id }}</h1>
+      <p class="text-muted small mb-0">Detalles e información general del pedido</p>
     </div>
-    <hr style="margin-left: 30px; margin-top: 0%; margin-right: 30px;">
-    <div class="table-container ps-5 pe-5">
-        <table class="table table-striped shadow">
-            <thead>
-                <tr>
-                    <th style="background-color: #bccdd9; color: #003d5a;" class="ps-4" scope="col">Mesa</th>
-                    <th style="background-color: #bccdd9; color: #003d5a;" scope="col">Usuario</th>
-                    <th style="background-color: #bccdd9; color: #003d5a;" class="ps-4" scope="col">Estado</th>
-                    <th style="background-color: #bccdd9; color: #003d5a;" scope="col">Fecha</th>
-                    <th style="background-color: #bccdd9; color: #003d5a;" class="ps-4" scope="col">Total</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>{{ getUserName(pedido.id_user) }}</td>
-                    <td>{{ getMesaCodigo(pedido.id_mesa) }}</td>
-                    <td style="color: rgb(84, 84, 84);" class="ps-4" scope="row">{{ pedido.estado }}</td>
-                    <td style="color: rgb(84, 84, 84);">{{ pedido.fecha }}</td>
-                    <td style="color: rgb(84, 84, 84);" class="ps-4" scope="row">{{ pedido.total }}</td>
-                </tr>
-            </tbody>
-        </table>
+    <div>
+      <button [routerLink]="['/admin/gestionar-pedidos']" class="btn-crud-secondary d-inline-flex align-items-center gap-2">
+        <i class="bi bi-arrow-left"></i>
+        <span>Volver</span>
+      </button>
     </div>
-</body>
+  </div>
+
+  <!-- Contenedor / Tarjeta -->
+  <div class="crud-card">
+    <div class="table-responsive">
+      <table class="crud-table">
+        <thead>
+          <tr>
+            <th class="ps-4">Usuario</th>
+            <th>Tipo de Pedido</th>
+            <th>Ubicación / Dirección</th>
+            <th>Estado</th>
+            <th>Fecha</th>
+            <th class="text-end pe-4">Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <!-- Usuario -->
+            <td class="ps-4 fw-semibold text-dark">
+              {{ getUserName(pedido.id_user) }}
+            </td>
+
+            <!-- Tipo de Pedido -->
+            <td>
+              <span class="badge-tipo-pedido" [ngClass]="{
+                  'tipo-recoger': pedido.tipo_pedido?.toLowerCase() === 'recoger',
+                  'tipo-mesa': pedido.tipo_pedido?.toLowerCase() === 'mesa',
+                  'tipo-domicilio': pedido.tipo_pedido?.toLowerCase() === 'domicilio'
+                }">
+                <i class="bi" [ngClass]="{
+                    'bi-bag-fill': pedido.tipo_pedido?.toLowerCase() === 'recoger',
+                    'bi-card-list': pedido.tipo_pedido?.toLowerCase() === 'mesa',
+                    'bi-scooter': pedido.tipo_pedido?.toLowerCase() === 'domicilio'
+                  }"></i>
+                {{ pedido.tipo_pedido }}
+              </span>
+            </td>
+
+            <!-- Detalle de Ubicación -->
+            <td>
+              <span class="fw-medium text-dark" *ngIf="pedido.tipo_pedido?.toLowerCase() === 'mesa'">
+                {{ getMesaCodigo(pedido.id_mesa) }}
+              </span>
+              <span class="fw-medium text-dark" *ngIf="pedido.tipo_pedido?.toLowerCase() === 'domicilio'">
+                {{ pedido.direccion_envio || 'Sin dirección registrada' }}
+              </span>
+              <span class="fw-medium text-dark" *ngIf="pedido.tipo_pedido?.toLowerCase() === 'recoger'">
+                {{ pedido.direccion_tienda || 'Recoger en Local' }}
+              </span>
+            </td>
+
+            <!-- Estado -->
+            <td>
+              <span class="badge text-capitalize px-3 py-1" [ngClass]="{
+                    'bg-warning-subtle text-warning': pedido.estado === 'pendiente',
+                    'bg-success-subtle text-success': pedido.estado === 'completado',
+                    'bg-danger-subtle text-danger': pedido.estado === 'cancelado'
+                  }">
+                {{ pedido.estado }}
+              </span>
+            </td>
+
+            <!-- Fecha formateada -->
+            <td class="text-secondary">
+              {{ pedido.fecha | date:'dd/MM/yyyy HH:mm' }}
+            </td>
+
+            <!-- Total -->
+            <td class="text-end pe-4 font-monospace fw-bold text-dark">
+              {{ pedido.total | currency:'EUR':'symbol':'1.2-2' }}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pie de Tarjeta con botón de Acción -->
+    <div class="p-3 bg-light border-top d-flex justify-content-end">
+      <button [routerLink]="['/admin/editar-pedido', pedido.id]" class="btn-crud-primary d-inline-flex align-items-center gap-2">
+        <i class="bi bi-pencil-square"></i>
+        <span>Editar Pedido</span>
+      </button>
+    </div>
+  </div>
+</div>

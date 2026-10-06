@@ -1,69 +1,46 @@
-<style>
-    input {
-        border: 1px solid #97b5c8;
-        background-color: #eff2f9;
-    }
+<div class="crud-container">
+    <div class="crud-form-card">
+        <h2 class="crud-title mb-4">Gestión de Producto</h2>
 
-    #guardar {
-        background-color: #fab43d;
-    }
+        <form (ngSubmit)="guardar()" [formGroup]="formulario" autocomplete="off">
 
-    #volver {
-        background-color: #97b5c8;
-    }
-</style>
-
-<div class="row m-auto w-75 pt-5">
-
-    <form (ngSubmit)="guardar()" [formGroup]="formulario" class="container" autocomplete="off">
-
-        <div class="mx-auto">
             <input id="id" name="id" type="hidden" value="-1">
-        </div>
 
-        <div class="row">
-            <div class="col-md-12 mb-3">
+            <div class="mb-3">
                 <label for="nombre" class="form-label">Nombre:</label>
-                <input formControlName="nombre" type="text" class="form-control">
+                <input formControlName="nombre" type="text" class="form-control" id="nombre">
             </div>
-        </div>
 
-        <div class="row">
-            <div class="col-md-12 mb-3">
+            <div class="mb-3">
                 <label for="descripcion" class="form-label">Descripción:</label>
-                <input formControlName="descripcion" type="text" class="form-control">
+                <input formControlName="descripcion" type="text" class="form-control" id="descripcion">
             </div>
-        </div>
 
-        <div class="row">
-            <div class="col-md-12 mb-3">
+            <div class="mb-3">
                 <label for="precio" class="form-label">Precio:</label>
-                <input formControlName="precio" type="number" class="form-control">
+                <input formControlName="precio" type="number" class="form-control" id="precio">
             </div>
-        </div>
 
-        <div class="row">
-            <div class="col-md-12 mb-3">
-                <label for="tipo" class="form-label">Tipo:</label>
+            <div class="mb-3">
+                <label for="tipoProducto" class="form-label">Tipo:</label>
                 <select id="tipoProducto" formControlName="tipoProducto" class="form-control" required>
-                  <option value="bebida">Bebida</option>
-                  <option value="entrante">Entrante</option>
-                  <option value="tapa">Tapa</option>
-                  <option value="postre">Postre</option>
+                    <option value="bebida">Bebida</option>
+                    <option value="entrante">Entrante</option>
+                    <option value="tapa">Tapa</option>
+                    <option value="postre">Postre</option>
                 </select>
             </div>
-        </div>
 
-        <div class="row">
-            <div class="col-md-12 mb-3">
-              <label for="imagen" class="form-label">Imagen:</label>
-              <input formControlName="imagen" type="file" class="form-control" id="imagen" accept=".png, .jpg, .jpeg, image/png, image/jpeg">
+            <div class="mb-3">
+                <label for="imagen" class="form-label">Imagen:</label>
+                <input formControlName="imagen" type="file" class="form-control" id="imagen" accept=".png, .jpg, .jpeg, image/png, image/jpeg">
             </div>
-        </div>
-    </form>
 
-    <div class="d-flex justify-content-end">
-        <button id="volver" class="btn me-1 mt-4" routerLink="/admin/gestionar-productos">Volver</button>
-        <button id="guardar" class="btn ms-1 mt-4" (click)="guardar();">Guardar</button>
+            <div class="d-flex justify-content-end gap-2 mt-4">
+                <button type="button" class="btn-crud-secondary" routerLink="/admin/gestionar-productos">Volver</button>
+                <button type="submit" class="btn-crud-primary">Guardar</button>
+            </div>
+
+        </form>
     </div>
 </div>

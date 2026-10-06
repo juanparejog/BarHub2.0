@@ -1,35 +1,75 @@
-<body *ngIf="detalle">
-    <div class="ps-5 pe-5 pb-0 pt-3">
-        <div class="d-flex justify-content-between align-items-center mt-3 mb-0 me-3 ms-3">
-            <div>
-                <h2 style="color: #003d5a;" class="mt-3">Detalles del pedido {{ detalle.id }}</h2>
-            </div>
-            <div>
-                <button [routerLink]="['/admin/gestionar-detalles']" 
-                    style="background-color: #f1f2f6; color: #003d5a; border-color: #003d5a; border-width: 2px;" 
-                    class="btn ms-3"><i class="bi bi-arrow-90deg-left"></i></button>
-            </div>
-        </div>
+<div class="crud-container" *ngIf="detalle">
+  <!-- Header principal -->
+  <div class="crud-header">
+    <div>
+      <h1 class="crud-title">Detalle del Pedido #{{ detalle.id_pedido || detalle.id }}</h1>
+      <p class="text-muted small mb-0">Información detallada de la línea de producto seleccionada</p>
     </div>
-    <hr style="margin-left: 30px; margin-top: 0%; margin-right: 30px;">
-    <div class="table-container ps-5 pe-5">
-        <table class="table table-striped shadow">
-            <thead>
-                <tr>
-                    <th style="background-color: #bccdd9; color: #003d5a;" class="ps-4" scope="col">Pedido</th>
-                    <th style="background-color: #bccdd9; color: #003d5a;" scope="col">Producto</th>
-                    <th style="background-color: #bccdd9; color: #003d5a;" class="ps-4" scope="col">Cantidad</th>
-                    <th style="background-color: #bccdd9; color: #003d5a;" scope="col">Precio por unidad</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>{{ detalle.id_pedido || 'Pedido no encontrado' }}</td>
-                    <td>{{ getProducto(detalle.id_producto) || 'Producto no encontrado' }}</td>
-                    <td style="color: rgb(84, 84, 84);" class="ps-4" scope="row">{{ detalle.cantidad }}</td>
-                    <td style="color: rgb(84, 84, 84);">{{ detalle.precio_unitario }}</td>
-                </tr>
-            </tbody>
-        </table>
+    <div>
+      <button [routerLink]="['/admin/gestionar-detalles']" class="btn-crud-secondary d-inline-flex align-items-center gap-2">
+        <i class="bi bi-arrow-left"></i>
+        <span>Volver</span>
+      </button>
     </div>
-</body>
+  </div>
+
+  <!-- Contenedor / Tarjeta -->
+  <div class="crud-card">
+    <div class="table-responsive">
+      <table class="crud-table">
+        <thead>
+          <tr>
+            <th>ID Pedido</th>
+            <th>Producto</th>
+            <th class="text-center">Cantidad</th>
+            <th class="text-end">Precio / Ud.</th>
+            <th class="text-end">Subtotal</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <!-- ID Pedido -->
+            <td>
+              <span class="badge bg-light text-dark border px-2 py-1 font-monospace">
+                #{{ detalle.id_pedido || 'N/A' }}
+              </span>
+            </td>
+
+            <!-- Producto -->
+            <td class="fw-semibold">
+              <div class="d-flex align-items-center gap-2">
+                <i class="bi bi-box-seam text-primary"></i>
+                <span>{{ getProducto(detalle.id_producto) }}</span>
+              </div>
+            </td>
+
+            <!-- Cantidad -->
+            <td class="text-center">
+              <span class="badge rounded-pill bg-primary-subtle text-primary fw-bold px-3 py-1">
+                {{ detalle.cantidad }}
+              </span>
+            </td>
+
+            <!-- Precio Unitario -->
+            <td class="text-end font-monospace fw-semibold text-secondary">
+              {{ detalle.precio_unitario | currency:'EUR':'symbol':'1.2-2' }}
+            </td>
+
+            <!-- Subtotal -->
+            <td class="text-end font-monospace fw-bold text-dark">
+              {{ ((detalle.cantidad || 0) * (detalle.precio_unitario || 0)) | currency:'EUR':'symbol':'1.2-2' }}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pie de Tarjeta con botón de Acción -->
+    <div class="p-3 bg-light border-top d-flex justify-content-end">
+      <button [routerLink]="['/admin/editar-detalle', detalle.id]" class="btn-crud-primary d-inline-flex align-items-center gap-2">
+        <i class="bi bi-pencil-square"></i>
+        <span>Editar Registro</span>
+      </button>
+    </div>
+  </div>
+</div>

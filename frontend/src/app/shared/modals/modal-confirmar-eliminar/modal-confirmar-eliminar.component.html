@@ -1,0 +1,42 @@
+<div class="modal-backdrop fade show" *ngIf="mostrar"></div>
+
+<div class="modal fade show d-block" tabindex="-1" *ngIf="mostrar" (click)="cancelar()">
+  <div class="modal-dialog modal-dialog-centered" (click)="$event.stopPropagation()">
+    <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+      
+      <!-- Cabecera con advertencia -->
+      <div class="modal-header bg-danger-subtle text-danger border-0 pt-4 px-4 pb-2">
+        <div class="d-flex align-items-center gap-3">
+          <div class="rounded-circle bg-danger text-white d-flex align-items-center justify-content-center p-2" style="width: 42px; height: 42px;">
+            <i class="bi bi-exclamation-triangle-fill fs-5"></i>
+          </div>
+          <div>
+            <h5 class="modal-title fw-bold mb-0 text-dark">{{ titulo }}</h5>
+            <small class="text-danger fw-semibold">Acción irreversible</small>
+          </div>
+        </div>
+        <button type="button" class="btn-close ms-auto" (click)="cancelar()"></button>
+      </div>
+
+      <!-- Cuerpo del Modal -->
+      <div class="modal-body px-4 py-3">
+        <p class="text-secondary mb-2">{{ mensaje }}</p>
+        <div *ngIf="nombreElemento" class="p-2 px-3 bg-light rounded border text-dark fw-bold text-truncate">
+          <i class="bi bi-trash3 me-2 text-danger"></i> {{ nombreElemento }}
+        </div>
+      </div>
+
+      <!-- Botones de Acción -->
+      <div class="modal-footer border-0 px-4 pb-4 pt-2 d-flex justify-content-end gap-2">
+        <button type="button" class="btn btn-light px-4 py-2 rounded-3 fw-medium" (click)="cancelar()">
+          Cancelar
+        </button>
+        <button type="button" class="btn btn-danger px-4 py-2 rounded-3 fw-medium d-inline-flex align-items-center gap-2" (click)="confirmar()">
+          <i class="bi bi-trash3-fill"></i>
+          <span>Eliminar</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>

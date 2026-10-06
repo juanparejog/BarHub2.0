@@ -1,11 +1,141 @@
-h1 {
-  text-align: center;
-  margin: 40px 0 10px 0;
-  font-size: 2.7rem;
-  color: #fff;
-  font-weight: 800;
+/* Variables Generales */
+:root {
+  --primary-color: #4f46e5;
+  --card-radius: 16px;
+  --transition-fast: 0.25s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+/* Keyframes para Animaciones */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulseDot {
+  0% { transform: scale(0.95); opacity: 0.8; }
+  50% { transform: scale(1.3); opacity: 0.3; }
+  100% { transform: scale(0.95); opacity: 0.8; }
+}
+
+/* Encabezado */
+.header-badge {
+  background-color: rgba(79, 70, 229, 0.1);
+  color: #4f46e5;
+  font-size: 0.825rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.admin-title {
+  color: #0f172a;
   letter-spacing: -0.5px;
-  text-shadow: 2px 2px 10px #1B1B1B99;
-  background: none;
-  width: 100%;
+}
+
+.title-divider {
+  width: 60px;
+  height: 4px;
+  background: linear-gradient(90deg, #4f46e5, #06b6d4);
+  border-radius: 2px;
+}
+
+/* Tarjetas KPI Superiores */
+.kpi-card {
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #f1f5f9;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+  animation: fadeInUp 0.4s ease-out forwards;
+}
+
+.kpi-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+}
+
+.live-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  background-color: #22c55e;
+  border-radius: 50%;
+  animation: pulseDot 1.5s infinite ease-in-out;
+}
+
+/* Tarjetas Principales y Animación Escalonada */
+.admin-card-link {
+  display: block;
+  opacity: 0;
+  animation: fadeInUp 0.5s ease-out forwards;
+}
+
+.col-12:nth-child(1) .admin-card-link { animation-delay: 0.08s; }
+.col-12:nth-child(2) .admin-card-link { animation-delay: 0.16s; }
+.col-12:nth-child(3) .admin-card-link { animation-delay: 0.24s; }
+.col-12:nth-child(4) .admin-card-link { animation-delay: 0.32s; }
+.col-12:nth-child(5) .admin-card-link { animation-delay: 0.40s; }
+.col-12:nth-child(6) .admin-card-link { animation-delay: 0.48s; }
+
+.admin-card {
+  border-radius: var(--card-radius);
+  background-color: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.06) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03) !important;
+  transition: all var(--transition-fast);
+}
+
+/* Efectos al pasar el ratón (Hover) */
+.admin-card-link:hover .admin-card {
+  transform: translateY(-6px);
+  box-shadow: 0 16px 28px -8px rgba(79, 70, 229, 0.15) !important;
+  border-color: rgba(79, 70, 229, 0.25) !important;
+}
+
+/* Iconos Dinámicos */
+.icon-wrapper {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  transition: transform var(--transition-fast);
+}
+
+.admin-card-link:hover .icon-wrapper {
+  transform: scale(1.1) rotate(3deg);
+}
+
+.icon-bg-primary { background-color: #e0e7ff; color: #4338ca; }
+.icon-bg-success { background-color: #dcfce7; color: #15803d; }
+.icon-bg-warning { background-color: #fef3c7; color: #b45309; }
+.icon-bg-info    { background-color: #e0f2fe; color: #0369a1; }
+.icon-bg-danger  { background-color: #ffe4e6; color: #be123c; }
+.icon-bg-purple  { background-color: #f3e8ff; color: #6b21a8; }
+
+/* Indicador con Flecha */
+.card-arrow {
+  font-size: 1.1rem;
+  color: #cbd5e1;
+  transition: all var(--transition-fast);
+  opacity: 0.5;
+  transform: translateX(-4px);
+}
+
+.admin-card-link:hover .card-arrow {
+  opacity: 1;
+  color: #4f46e5;
+  transform: translateX(2px);
 }

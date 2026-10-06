@@ -1,54 +1,189 @@
-<body *ngIf="pedidos">
-  <div class="ps-5 pe-5 pb-0 pt-3">
-      <div class="d-flex justify-content-between align-items-center mt-3 mb-0 me-3 ms-3">
-          <div>
-              <h2 style="color: #176029;" class="mt-3">Pedidos</h2>
-          </div>
-          <div>
-              <button [routerLink]="['../crear-pedido']" 
-                  style="background-color: #176029; color: #f1f2f6; cursor: pointer;" class="btn ms-3">+</button>
-              <button [routerLink]="['../']" 
-                  style="background-color: #f1f2f6; color: #176029; border-color: #176029; border-width: 2px;" 
-                  class="btn ms-3"><i class="bi bi-arrow-90deg-left"></i></button>
-          </div>
+<div class="crud-container" *ngIf="pedidos">
+  <!-- Header principal -->
+  <div class="crud-header">
+    <div>
+      <h1 class="crud-title">Gestión de Pedidos</h1>
+      <p class="text-muted small mb-0">Listado general de pedidos registrados en el sistema</p>
+    </div>
+    <div class="d-flex align-items-center gap-2">
+      <button [routerLink]="['../']" class="btn-crud-secondary d-inline-flex align-items-center gap-2">
+        <i class="bi bi-arrow-left"></i>
+        <span>Volver</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Contenedor / Tarjeta de la Tabla -->
+  <div class="crud-card">
+    
+    <!-- Filtros y Ordenación -->
+    <div class="row g-3 mb-3 p-3 border-bottom">
+      <!-- Búsqueda General -->
+      <div class="col-md-4">
+        <div class="input-group">
+          <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+          <input 
+            type="text" 
+            class="form-control" 
+            placeholder="Buscar por usuario, tipo o dirección..." 
+            [(ngModel)]="busqueda">
+        </div>
       </div>
-  </div>
-  <hr style="margin-left: 30px; margin-top: 0%; margin-right: 30px;">
-  <div class="table-container ps-5 pe-5">
-      <table class="table table-striped shadow">
-          <thead>
-              <tr>
-                  <th style="background-color: #bccdd9; color: #176029;" class="ps-4" scope="col">Usuario</th>
-                  <th style="background-color: #bccdd9; color: #176029;" scope="col">Mesa</th>
-                  <th style="background-color: #bccdd9; color: #176029;" scope="col">Estado</th>
-                  <th style="background-color: #bccdd9; color: #176029;" scope="col">Fecha</th>
-                  <th style="background-color: #bccdd9; color: #176029;" scope="col">Total</th>
-                  <th style="background-color: #bccdd9; color: #176029;" scope="col"></th>
-              </tr>
-          </thead>
-          <tbody *ngIf="pedidos.length > 0; else sinPedidos">
-            <tr *ngFor="let pedido of pedidos">
-                <td>{{ pedido.usuario?.username || 'Usuario no encontrado' }}</td>
-                <td>{{ pedido.mesa?.codigoqr || 'Mesa no encontrada' }}</td>              
-                <td>{{ pedido.estado }}</td>
-                <td>{{ pedido.fecha }}</td>
-                <td>{{ pedido.total }}</td>
-                
-                <td class="border-start text-center" id="acciones">
-                    <i [routerLink]="['/admin/ver-pedido', pedido.id]" class="bi bi-eye me-2" 
-                        style="color: #176029; cursor: pointer;"></i>
-                    <i [routerLink]="['/admin/editar-pedido', pedido.id]" class="bi bi-pencil-square me-2"
-                        style="color: #176029; cursor: pointer;"></i> 
-                    <i (click)="borrarPedido(pedido)" class="bi bi-trash3-fill"
-                        style="color: #176029; cursor: pointer;"></i>
-                </td>
-              </tr>
+
+      <!-- Filtro por Estado -->
+      <div class="col-md-3">
+        <select class="form-select" [(ngModel)]="estadoFiltro">
+          <option value="">Todos los Estados</option>
+          <option value="PENDIENTE">PENDIENTE</option>
+          <option value="PREPARADO">PREPARADO</option>
+          <option value="SERVIDO">SERVIDO</option>
+          <option value="COMPLETADO">COMPLETADO</option>
+        </select>
+      </div>
+
+      <!-- Ordenar Por -->
+      <div class="col-md-3">
+        <select class="form-select" [(ngModel)]="criterioOrden">
+          <option value="fecha">Fecha</option>
+          <option value="total">Total (€)</option>
+          <option value="usuario">Usuario</option>
+          <option value="estado">Estado</option>
+        </select>
+      </div>
+
+      <!-- Dirección del Orden -->
+      <div class="col-md-2 d-flex">
+        <button 
+          class="btn btn-outline-secondary w-100 d-flex align-items-center justify-content-center gap-1"
+          (click)="cambiarOrdenDireccion()">
+          <i class="bi" [ngClass]="ordenAscendente ? 'bi-sort-up' : 'bi-sort-down'"></i>
+          <span>{{ ordenAscendente ? 'Asc' : 'Desc' }}</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Tabla de Pedidos -->
+    <div class="table-responsive">
+      <table class="crud-table">
+        <thead>
+          <tr>
+            <th class="ps-4">Usuario</th>
+            <th>Tipo / Destino</th>
+            <th>Estado</th>
+            <th>Fecha</th>
+            <th class="text-end">Total</th>
+            <th class="text-center">Acciones</th>
+          </tr>
+        </thead>
+        <tbody *ngIf="pedidosFiltradosYOrdenados.length > 0; else sinPedidos">
+          <tr *ngFor="let pedido of pedidosFiltradosYOrdenados">
+            <!-- Usuario -->
+            <td class="ps-4 fw-semibold text-dark">
+              {{ pedido.usuario?.username || 'Usuario no encontrado' }}
+            </td>
+
+            <!-- Tipo de Pedido y Detalle -->
+            <td>
+              <div class="d-flex flex-column align-items-start gap-1">
+                <span class="badge-tipo-pedido" [ngClass]="{
+                    'tipo-recoger': pedido.tipo_pedido?.toUpperCase() === 'RECOGER',
+                    'tipo-mesa': pedido.tipo_pedido?.toUpperCase() === 'MESA' || !pedido.tipo_pedido,
+                    'tipo-domicilio': pedido.tipo_pedido?.toUpperCase() === 'DOMICILIO'
+                  }">
+                  <i class="bi me-1" [ngClass]="{
+                      'bi-house-door-fill': pedido.tipo_pedido?.toUpperCase() === 'DOMICILIO',
+                      'bi-shop': pedido.tipo_pedido?.toUpperCase() === 'RECOGER',
+                      'bi-card-list': pedido.tipo_pedido?.toUpperCase() === 'MESA' || !pedido.tipo_pedido
+                    }"></i>
+                  {{ pedido.tipo_pedido || 'MESA' }}
+                </span>
+
+                <small class="text-dark fw-medium" *ngIf="pedido.tipo_pedido?.toUpperCase() === 'MESA' || !pedido.tipo_pedido">
+                  Mesa #{{ pedido.id_mesa }} ({{ pedido.mesa?.codigoqr || 'Sin QR' }})
+                </small>
+                <small class="text-dark fw-medium" *ngIf="pedido.tipo_pedido?.toUpperCase() === 'DOMICILIO'">
+                  {{ pedido.direccion_envio || 'Dirección no disponible' }}
+                </small>
+                <small class="text-dark fw-medium" *ngIf="pedido.tipo_pedido?.toUpperCase() === 'RECOGER'">
+                  {{ pedido.direccion_tienda || 'Tienda Principal' }}
+                </small>
+              </div>
+            </td>
+
+            <!-- Estado -->
+            <td>
+              <span class="badge-estado" [ngClass]="{
+                  'estado-pendiente': pedido.estado?.toUpperCase() === 'PENDIENTE',
+                  'estado-preparado': pedido.estado?.toUpperCase() === 'PREPARADO',
+                  'estado-servido': pedido.estado?.toUpperCase() === 'SERVIDO' || pedido.estado?.toUpperCase() === 'COMPLETADO'
+                }">
+                {{ pedido.estado }}
+              </span>
+            </td>
+
+            <!-- Fecha (Formato D/M/A - H:min:seg) -->
+            <td class="text-secondary">
+              {{ pedido.fecha | date:'dd/MM/yyyy - HH:mm:ss' }}
+            </td>
+
+            <!-- Total -->
+            <td class="text-end font-monospace fw-bold text-dark">
+              {{ pedido.total | currency:'EUR':'symbol':'1.2-2' }}
+            </td>
+
+            <!-- Acciones -->
+            <td class="text-center">
+              <i [routerLink]="['/admin/ver-pedido', pedido.id]" 
+                 class="bi bi-eye-fill action-icon view" 
+                 title="Ver Pedido"></i>
+
+              <i [routerLink]="['/admin/editar-pedido', pedido.id]" 
+                 class="bi bi-pencil-fill action-icon edit" 
+                 title="Editar"></i>
+
+              <i (click)="confirmarBorrado(pedido)" 
+                 class="bi bi-trash3-fill action-icon delete" 
+                 title="Eliminar"></i>
+            </td>
+          </tr>
+        </tbody>
+
+        <ng-template #sinPedidos>
+          <tbody>
+            <tr>
+              <td colspan="6" class="text-center py-5 text-muted">
+                <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                No se encontraron pedidos en el sistema.
+              </td>
+            </tr>
           </tbody>
-          <ng-template #sinPedidos>
-              <tr>
-                <td colspan="3" class="text-center">No hay pedidos registrados.</td>
-              </tr>
-          </ng-template>
+        </ng-template>
       </table>
+    </div>
   </div>
-</body>
+</div>
+
+<!-- Modal de Confirmación de Borrado (Bootstrap Native) -->
+<div class="modal fade" id="modalBorrarPedido" tabindex="-1" aria-hidden="true" #modalBorrar>
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header border-0 pb-0">
+        <h5 class="modal-title fw-bold text-danger">
+          <i class="bi bi-exclamation-triangle-fill me-2"></i>Confirmar Eliminación
+        </h5>
+        <button type="button" class="btn-close" (click)="cerrarModal()"></button>
+      </div>
+      <div class="modal-body py-3">
+        <p class="mb-0" *ngIf="pedidoAEliminar">
+          ¿Está seguro de que desea eliminar el pedido #<strong>{{ pedidoAEliminar.id }}</strong> del usuario 
+          <strong>{{ pedidoAEliminar.usuario?.username || 'Desconocido' }}</strong> por un total de 
+          <strong>{{ pedidoAEliminar.total | currency:'EUR':'symbol':'1.2-2' }}</strong>?
+        </p>
+      </div>
+      <div class="modal-footer border-0 pt-0">
+        <button type="button" class="btn btn-secondary" (click)="cerrarModal()">Cancelar</button>
+        <button type="button" class="btn btn-danger" (click)="ejecutarBorrado()">Eliminar Pedido</button>
+      </div>
+    </div>
+  </div>
+</div>

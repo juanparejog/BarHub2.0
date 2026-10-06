@@ -1,52 +1,187 @@
-<body *ngIf="detalles">
-    <div class="ps-5 pe-5 pb-0 pt-3">
-        <div class="d-flex justify-content-between align-items-center mt-3 mb-0 me-3 ms-3">
-            <div>
-                <h2 style="color: #176029;" class="mt-3">Detalles de los Pedidos</h2>
-            </div>
-            <div>
-                <button [routerLink]="['../crear-detalle']" 
-                    style="background-color: #176029; color: #f1f2f6; cursor: pointer;" class="btn ms-3">+</button>
-                <button [routerLink]="['../']" 
-                    style="background-color: #f1f2f6; color: #176029; border-color: #176029; border-width: 2px;" 
-                    class="btn ms-3"><i class="bi bi-arrow-90deg-left"></i></button>
-            </div>
-        </div>
+<div class="crud-container" *ngIf="detalles">
+  <!-- Header principal -->
+  <div class="crud-header">
+    <div>
+      <h1 class="crud-title">Detalles de los Pedidos</h1>
+      <p class="text-muted small mb-0">Listado general de líneas de pedido registradas en el sistema</p>
     </div>
-    <hr style="margin-left: 30px; margin-top: 0%; margin-right: 30px;">
-    <div class="table-container ps-5 pe-5">
-        <table class="table table-striped shadow">
-            <thead>
-                <tr>
-                    <th style="background-color: #bccdd9; color: #176029;" class="ps-4" scope="col">Pedido</th>
-                    <th style="background-color: #bccdd9; color: #176029;" scope="col">Producto</th>
-                    <th style="background-color: #bccdd9; color: #176029;" scope="col">Cantidad</th>
-                    <th style="background-color: #bccdd9; color: #176029;" scope="col">Precio por Unidad</th>
-                    <th style="background-color: #bccdd9; color: #176029;" scope="col"></th>
-                </tr>
-            </thead>
-            <tbody *ngIf="detalles.length > 0; else sinDetalles">
-              <tr *ngFor="let detalle of detalles">
-                  <td>{{ detalle.id_pedido || 'Pedido no encontrado' }}</td>
-                  <td>{{ detalle.producto?.nombre || 'Producto no encontrado' }}</td>
-                  <td>{{ detalle.cantidad }}</td>
-                  <td>{{ detalle.precio_unitario }}</td>
-                  
-                  <td class="border-start text-center" id="acciones">
-                      <i [routerLink]="['/admin/ver-detalle', detalle.id]" class="bi bi-eye me-2" 
-                          style="color: #176029; cursor: pointer;"></i>
-                      <i [routerLink]="['/admin/editar-detalle', detalle.id]" class="bi bi-pencil-square me-2"
-                          style="color: #176029; cursor: pointer;"></i> 
-                      <i (click)="borrarDetalle(detalle)" class="bi bi-trash3-fill"
-                          style="color: #176029; cursor: pointer;"></i>
-                  </td>
-                </tr>
-            </tbody>
-            <ng-template #sinDetalles>
-                <tr>
-                  <td colspan="3" class="text-center">No hay detalles registrados.</td>
-                </tr>
-            </ng-template>
-        </table>
+    <div class="d-flex align-items-center gap-2">
+      <button [routerLink]="['../crear-detalle']" class="btn-crud-primary d-inline-flex align-items-center gap-2">
+        <i class="bi bi-plus-lg"></i>
+        <span>Nuevo Detalle</span>
+      </button>
+      <button [routerLink]="['../']" class="btn-crud-secondary d-inline-flex align-items-center gap-2">
+        <i class="bi bi-arrow-left"></i>
+        <span>Volver</span>
+      </button>
     </div>
-  </body>
+  </div>
+
+  <!-- Contenedor / Tarjeta de la Tabla -->
+  <div class="crud-card">
+    
+    <!-- Barra Superior / Barra de Filtro Integrada -->
+    <div class="table-toolbar d-flex flex-wrap align-items-center justify-content-between gap-3 p-3 border-bottom bg-light-subtle">
+      <!-- Buscador Estilizado -->
+      <div class="search-box position-relative">
+        <i class="bi bi-search search-icon"></i>
+        <input 
+          type="text" 
+          class="form-control search-input" 
+          placeholder="Buscar por ID pedido o producto..."
+          [(ngModel)]="searchTerm">
+        <button 
+          *ngIf="searchTerm" 
+          class="btn-clear-search" 
+          type="button" 
+          (click)="searchTerm = ''"
+          title="Limpiar búsqueda">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+
+      <!-- Contador de registros -->
+      <div class="text-muted small fw-medium">
+        Mostrando <span class="text-dark fw-bold">{{ detallesFiltrados.length }}</span> de {{ detalles.length }} detalles
+      </div>
+    </div>
+
+    <!-- Tabla -->
+    <div class="table-responsive">
+      <table class="crud-table mb-0">
+        <thead>
+          <tr>
+            <!-- Columna ID Pedido -->
+            <th class="ps-4 sortable-th" (click)="sortBy('id_pedido')">
+              <div class="th-content">
+                <span>ID Pedido</span>
+                <span class="sort-icon" [ngClass]="{'active': sortColumn === 'id_pedido'}">
+                  <i class="bi" [ngClass]="{
+                    'bi-sort-numeric-down': sortColumn === 'id_pedido' && sortDirection === 'asc',
+                    'bi-sort-numeric-up-alt': sortColumn === 'id_pedido' && sortDirection === 'desc',
+                    'bi-arrow-down-up': sortColumn !== 'id_pedido'
+                  }"></i>
+                </span>
+              </div>
+            </th>
+
+            <!-- Columna Producto -->
+            <th class="sortable-th" (click)="sortBy('producto')">
+              <div class="th-content">
+                <span>Producto</span>
+                <span class="sort-icon" [ngClass]="{'active': sortColumn === 'producto'}">
+                  <i class="bi" [ngClass]="{
+                    'bi-sort-alpha-down': sortColumn === 'producto' && sortDirection === 'asc',
+                    'bi-sort-alpha-up-alt': sortColumn === 'producto' && sortDirection === 'desc',
+                    'bi-arrow-down-up': sortColumn !== 'producto'
+                  }"></i>
+                </span>
+              </div>
+            </th>
+
+            <!-- Columna Cantidad -->
+            <th class="text-center sortable-th" (click)="sortBy('cantidad')">
+              <div class="th-content justify-content-center">
+                <span>Cantidad</span>
+                <span class="sort-icon" [ngClass]="{'active': sortColumn === 'cantidad'}">
+                  <i class="bi" [ngClass]="{
+                    'bi-sort-numeric-down': sortColumn === 'cantidad' && sortDirection === 'asc',
+                    'bi-sort-numeric-up-alt': sortColumn === 'cantidad' && sortDirection === 'desc',
+                    'bi-arrow-down-up': sortColumn !== 'cantidad'
+                  }"></i>
+                </span>
+              </div>
+            </th>
+
+            <!-- Columna Precio Unitario -->
+            <th class="text-end sortable-th" (click)="sortBy('precio_unitario')">
+              <div class="th-content justify-content-end">
+                <span>Precio / Ud.</span>
+                <span class="sort-icon" [ngClass]="{'active': sortColumn === 'precio_unitario'}">
+                  <i class="bi" [ngClass]="{
+                    'bi-sort-numeric-down': sortColumn === 'precio_unitario' && sortDirection === 'asc',
+                    'bi-sort-numeric-up-alt': sortColumn === 'precio_unitario' && sortDirection === 'desc',
+                    'bi-arrow-down-up': sortColumn !== 'precio_unitario'
+                  }"></i>
+                </span>
+              </div>
+            </th>
+
+            <th class="text-center">Acciones</th>
+          </tr>
+        </thead>
+
+        <tbody *ngIf="detallesFiltrados.length > 0; else sinDetalles">
+          <tr *ngFor="let detalle of detallesFiltrados">
+            <!-- ID Pedido -->
+            <td class="ps-4">
+              <span class="badge bg-light text-dark border px-2 py-1 font-monospace">
+                #{{ detalle.id_pedido || 'N/A' }}
+              </span>
+            </td>
+
+            <!-- Producto -->
+            <td class="fw-semibold">
+              <div class="d-flex align-items-center gap-2">
+                <i class="bi bi-box-seam text-primary"></i>
+                <span>{{ detalle.producto?.nombre || 'Producto no encontrado' }}</span>
+              </div>
+            </td>
+
+            <!-- Cantidad -->
+            <td class="text-center">
+              <span class="badge rounded-pill bg-primary-subtle text-primary fw-bold px-3 py-1">
+                {{ detalle.cantidad }}
+              </span>
+            </td>
+
+            <!-- Precio Unitario -->
+            <td class="text-end font-monospace fw-semibold text-secondary">
+              {{ detalle.precio_unitario | currency:'EUR':'symbol':'1.2-2' }}
+            </td>
+
+            <!-- Acciones -->
+            <td class="text-center">
+              <div class="crud-actions">
+                <i [routerLink]="['/admin/ver-detalle', detalle.id]" 
+                   class="bi bi-eye-fill action-icon view" 
+                   title="Ver Detalle"></i>
+
+                <i [routerLink]="['/admin/editar-detalle', detalle.id]" 
+                   class="bi bi-pencil-fill action-icon edit" 
+                   title="Editar"></i>
+
+                <i (click)="borrarDetalle(detalle)" 
+                   class="bi bi-trash3-fill action-icon delete" 
+                   title="Eliminar"></i>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+
+        <!-- Estado vacío -->
+        <ng-template #sinDetalles>
+          <tbody>
+            <tr>
+              <td colspan="5" class="text-center py-5 text-muted">
+                <i class="bi bi-inbox fs-1 d-block mb-2 text-secondary opacity-50"></i>
+                <span *ngIf="searchTerm">No se encontraron detalles que coincidan con "<strong>{{ searchTerm }}</strong>".</span>
+                <span *ngIf="!searchTerm">No hay detalles de pedido registrados en el sistema.</span>
+              </td>
+            </tr>
+          </tbody>
+        </ng-template>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Modal General Reutilizable -->
+<app-modal-confirmar-eliminar
+  [mostrar]="mostrarModalEliminar"
+  [titulo]="'Eliminar Detalle de Pedido'"
+  [mensaje]="'¿Estás seguro de que deseas borrar este detalle del pedido? Esta acción no se puede deshacer.'"
+  [nombreElemento]="detalleAEliminar?.producto?.nombre ? ('Detalle de ' + detalleAEliminar?.producto?.nombre + ' (Pedido #' + detalleAEliminar?.id_pedido + ')') : ('Detalle #' + detalleAEliminar?.id)"
+  (alConfirmar)="confirmarEliminacion()"
+  (alCancelar)="cerrarModal()">
+</app-modal-confirmar-eliminar>
