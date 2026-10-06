@@ -1,0 +1,258 @@
+<div class="crud-container">
+  
+    <!-- CABECERA PRINCIPAL -->
+    <div class="crud-header flex-column flex-md-row align-items-start align-items-md-center gap-3">
+      <div>
+        <h2 class="crud-title">📊 Panel de Métricas y Analítica</h2>
+        <p class="text-muted mb-0 font-size-14">Rendimiento en tiempo real de ingresos, productos y modalidades de pedido.</p>
+      </div>
+      
+      <!-- FILTRO DE RANGOS TEMPORALES -->
+      <div class="d-flex flex-wrap gap-2">
+        <button 
+          *ngFor="let r of rangos"
+          type="button"
+          class="btn-rango-filtro"
+          [class.active]="rangoActual === r.key"
+          (click)="cambiarRango(r.key)">
+          {{ r.label }}
+        </button>
+      </div>
+    </div>
+  
+    <!-- FILTROS POR CATEGORÍA DE VISTA -->
+    <div class="d-flex flex-wrap gap-2 mb-4">
+      <button 
+        class="btn-categoria-filtro" 
+        [class.active]="categoriaActiva === 'todas'"
+        (click)="cambiarCategoria('todas')">
+        🌐 Todas las métricas
+      </button>
+      <button 
+        class="btn-categoria-filtro" 
+        [class.active]="categoriaActiva === 'dinero'"
+        (click)="cambiarCategoria('dinero')">
+        💰 Finanzas & Ingresos
+      </button>
+      <button 
+        class="btn-categoria-filtro" 
+        [class.active]="categoriaActiva === 'productos'"
+        (click)="cambiarCategoria('productos')">
+        🍔 Productos & Ventas
+      </button>
+      <button 
+        class="btn-categoria-filtro" 
+        [class.active]="categoriaActiva === 'tipos'"
+        (click)="cambiarCategoria('tipos')">
+        🛵 Modalidad de Pedidos
+      </button>
+    </div>
+  
+    <!-- LOADER CUANDO CARGA -->
+    <div *ngInProcess="cargando" class="text-center py-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Cargando métricas...</span>
+      </div>
+      <p class="mt-2 text-muted fw-bold">Cargando métricas del sistema...</p>
+    </div>
+  
+    <div *ngIf="!cargando">
+  
+      <!-- RESUMEN EN TARJETAS KPI -->
+      <div class="row g-3 mb-4">
+        <div class="col-12 col-sm-6 col-xl-3">
+          <div class="kpi-card">
+            <div class="kpi-icon-box bg-caja">💶</div>
+            <div class="kpi-content">
+              <div class="kpi-label">Ingresos Totales</div>
+              <h3 class="kpi-value text-success">{{ totalIngresos | currency:'EUR':'symbol':'1.2-2' }}</h3>
+            </div>
+          </div>
+        </div>
+  
+        <div class="col-12 col-sm-6 col-xl-3">
+          <div class="kpi-card">
+            <div class="kpi-icon-box bg-pedidos">📦</div>
+            <div class="kpi-content">
+              <div class="kpi-label">Total Pedidos</div>
+              <h3 class="kpi-value text-primary">{{ totalPedidos }}</h3>
+            </div>
+          </div>
+        </div>
+  
+        <div class="col-12 col-sm-6 col-xl-3">
+          <div class="kpi-card">
+            <div class="kpi-icon-box bg-caja">🏷️</div>
+            <div class="kpi-content">
+              <div class="kpi-label">Ticket Promedio</div>
+              <h3 class="kpi-value text-purple">{{ ticketPromedio | currency:'EUR':'symbol':'1.2-2' }}</h3>
+            </div>
+          </div>
+        </div>
+  
+        <div class="col-12 col-sm-6 col-xl-3">
+          <div class="kpi-card">
+            <div class="kpi-icon-box bg-producto">⭐</div>
+            <div class="kpi-content">
+              <div class="kpi-label">Producto Estrella</div>
+              <h3 class="kpi-value fs-6 text-truncate" style="max-width: 140px;" [title]="productoEstrella">
+                {{ productoEstrella }}
+              </h3>
+            </div>
+          </div>
+        </div>
+      </div>
+  
+      <!-- SECCIÓN 1: EVOLUCIÓN DEL DINERO GENERADO -->
+      <div class="row mb-4" *ngIf="categoriaActiva === 'todas' || categoriaActiva === 'dinero'">
+        <div class="col-12">
+          <div class="crud-card p-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h5 class="fw-bold m-0 text-slate-800">📈 Dinero Generado vs Tiempo</h5>
+              <span class="badge-panel-subtle">Evolución en (€)</span>
+            </div>
+            <div class="chart-wrapper-large">
+              <canvas #ingresosChartCanvas></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+  
+      <!-- SECCIÓN 2: MODALIDAD Y RANKING PRODUCTOS -->
+      <div class="row g-4">
+        
+        <!-- GRÁFICA ROSCO: MODALIDAD DE PEDIDOS -->
+        <div class="col-12 col-lg-5" *ngIf="categoriaActiva === 'todas' || categoriaActiva === 'tipos'">
+          <div class="crud-card p-4 h-100">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h5 class="fw-bold m-0 text-slate-800">🛵 Modalidad de Pedidos</h5>
+              <span class="badge-panel-subtle">Distribución</span>
+            </div>
+            <div class="chart-wrapper d-flex align-items-center justify-content-center">
+              <canvas #tiposChartCanvas></canvas>
+            </div>
+          </div>
+        </div>
+  
+        <!-- GRÁFICA BARRAS: TOP PRODUCTOS -->
+        <div class="col-12" [ngClass]="{'col-lg-7': categoriaActiva === 'todas', 'col-lg-12': categoriaActiva === 'productos'}" *ngIf="categoriaActiva === 'todas' || categoriaActiva === 'productos'">
+          <div class="crud-card p-4 h-100">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h5 class="fw-bold m-0 text-slate-800">🏆 Top Productos Más Vendidos</h5>
+              <span class="badge-panel-subtle">Unidades</span>
+            </div>
+            <div class="chart-wrapper">
+              <canvas #productosChartCanvas></canvas>
+            </div>
+          </div>
+        </div>
+  
+      </div>
+  
+      <!-- TABLA DETALLADA DE RANKING DE PRODUCTOS CON SEGMENTACIÓN -->
+      <div class="row mt-4" *ngIf="categoriaActiva === 'todas' || categoriaActiva === 'productos'">
+        <div class="col-12">
+          <div class="crud-card">
+            
+            <!-- CABECERA CON SUBFILTROS DE CATEGORÍA DE PRODUCTO -->
+            <div class="p-3 border-bottom bg-light d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2">
+              <div>
+                <h6 class="fw-bold m-0">📋 Ranking de Productos Vendidos</h6>
+                <small class="text-muted">{{ productosRanking.length }} Productos Únicos</small>
+              </div>
+
+              <!-- NUEVO: SUBFILTRO POR CATEGORÍA DE PRODUCTO (BEBIDA, TAPA, ENTRANTE, ETC.) -->
+              <div class="d-flex flex-wrap gap-1">
+                <button 
+                  type="button"
+                  class="btn btn-sm btn-outline-secondary rounded-pill"
+                  [class.active]="subcategoriaProducto === 'todas'"
+                  (click)="filtrarSubcategoria('todas')">
+                  Todas
+                </button>
+                <button 
+                  type="button"
+                  class="btn btn-sm btn-outline-info rounded-pill"
+                  [class.active]="subcategoriaProducto === 'bebida'"
+                  (click)="filtrarSubcategoria('bebida')">
+                  🍺 Bebidas
+                </button>
+                <button 
+                  type="button"
+                  class="btn btn-sm btn-outline-warning rounded-pill"
+                  [class.active]="subcategoriaProducto === 'tapa'"
+                  (click)="filtrarSubcategoria('tapa')">
+                  🍢 Tapas
+                </button>
+                <button 
+                  type="button"
+                  class="btn btn-sm btn-outline-success rounded-pill"
+                  [class.active]="subcategoriaProducto === 'entrante'"
+                  (click)="filtrarSubcategoria('entrante')">
+                  🥗 Entrantes
+                </button>
+                <button 
+                  type="button"
+                  class="btn btn-sm btn-outline-danger rounded-pill"
+                  [class.active]="subcategoriaProducto === 'postre'"
+                  (click)="filtrarSubcategoria('postre')">
+                  🍰 Postres
+                </button>
+              </div>
+            </div>
+
+            <!-- TABLA DE PRODUCTOS -->
+            <div class="table-responsive">
+              <table class="crud-table">
+                <thead>
+                  <tr>
+                    <th style="width: 80px;">Posición</th>
+                    <th>Producto</th>
+                    <!-- NUEVO: COLUMNA DE CATEGORÍA -->
+                    <th>Categoría</th>
+                    <th class="text-end">Unidades Vendidas</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let prod of productosRanking; let i = index">
+                    <td>
+                      <span class="badge rounded-pill" [ngClass]="{
+                        'bg-warning text-dark': i === 0,
+                        'bg-secondary': i === 1,
+                        'bg-danger': i === 2,
+                        'bg-light text-dark border': i > 2
+                      }">#{{ i + 1 }}</span>
+                    </td>
+                    <td class="fw-semibold text-dark">{{ prod.nombre }}</td>
+
+                    <!-- NUEVO: BADGE VISUAL POR CATEGORÍA -->
+                    <td>
+                      <span class="badge-categoria" [ngClass]="{
+                        'cat-bebida': prod.categoria === 'bebida',
+                        'cat-tapa': prod.categoria === 'tapa',
+                        'cat-entrante': prod.categoria === 'entrante',
+                        'cat-plato': prod.categoria === 'plato',
+                        'cat-postre': prod.categoria === 'postre'
+                      }">
+                        <span *ngIf="prod.categoria === 'bebida'">🍺 Bebida</span>
+                        <span *ngIf="prod.categoria === 'tapa'">🍢 Tapa</span>
+                        <span *ngIf="prod.categoria === 'entrante'">🥗 Entrante</span>
+                        <span *ngIf="prod.categoria === 'plato'">🍖 Plato</span>
+                        <span *ngIf="prod.categoria === 'postre'">🍰 Postre</span>
+                      </span>
+                    </td>
+
+                    <td class="text-end fw-bold text-primary">{{ prod.cantidad }} ud.</td>
+                  </tr>
+                  <tr *ngIf="productosRanking.length === 0">
+                    <td colspan="4" class="text-center py-4 text-muted">No hay registro de ventas de productos en este período.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+  
+    </div>
+  </div>

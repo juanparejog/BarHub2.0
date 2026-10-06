@@ -35,8 +35,27 @@
         <li class="nav-item" *ngIf="isEmple || isAdmin">
           <a class="nav-link" routerLink="/empleado/gestionar-comandas" routerLinkActive="active">Comandas</a>
         </li>
-        <li class="nav-item" *ngIf="isAdmin">
-          <a class="nav-link admin-badge-link" routerLink="/admin" routerLinkActive="active">Admin</a>
+        <li class="nav-item dropdown" *ngIf="isAdmin">
+          <a class="nav-link dropdown-toggle admin-badge-link d-flex align-items-center gap-1" 
+             href="#" 
+             id="adminDropdown" 
+             role="button" 
+             data-bs-toggle="dropdown" 
+             aria-expanded="false">
+            <i class="bi bi-shield-lock-fill"></i> Admin
+          </a>
+          <ul class="dropdown-menu custom-dropdown" aria-labelledby="adminDropdown">
+            <li>
+              <a class="dropdown-item d-flex align-items-center" routerLink="/admin" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+                <i class="bi bi-grid-1x2-fill me-2"></i> Panel de Gestión
+              </a>
+            </li>
+            <li>
+              <a class="dropdown-item d-flex align-items-center" routerLink="/admin/metricas" routerLinkActive="active">
+                <i class="bi bi-bar-chart-line-fill me-2"></i> Métricas
+              </a>
+            </li>
+          </ul>
         </li>
       </ul>
 

@@ -26,6 +26,7 @@
     "@zxing/ngx-scanner": "^19.0.0",
     "bootstrap": "^5.3.3",
     "bootstrap-icons": "^1.11.3",
+    "chart.js": "^4.5.1",
     "jquery": "^3.6.1",
     "ngx-socket-io": "^4.3.0",
     "pdfmake": "^0.2.20",

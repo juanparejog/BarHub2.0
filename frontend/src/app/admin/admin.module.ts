@@ -23,6 +23,7 @@ import { EditarProductoComponent } from './pages/productos/editar-productos/edit
 import { GestionarUsuarioComponent } from './pages/usuarios/gestionar-usuarios/gestionar-usuario.component';
 import { VerUsuarioComponent } from './pages/usuarios/ver-usuario/ver-usuario.component';
 import { EditarUsuarioComponent } from './pages/usuarios/editar-usuarios/editar-usuarios.component';
+import { MetricasComponent } from './pages/metricas/metricas.component';
 
 @NgModule({
   declarations: [
@@ -42,6 +43,7 @@ import { EditarUsuarioComponent } from './pages/usuarios/editar-usuarios/editar-
     GestionarUsuarioComponent,
     VerUsuarioComponent,
     EditarUsuarioComponent,
+    MetricasComponent,
   ],
   imports: [
     CommonModule,

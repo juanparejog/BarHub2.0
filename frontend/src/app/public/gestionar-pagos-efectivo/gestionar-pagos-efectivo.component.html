@@ -187,7 +187,7 @@
             </div>
           </div>
 
-          <div *ngIf="montoEntregado > 0 && montoEntregado < (pedidoSeleccionado.precioTotal ?? $any(pedidoSeleccionado).precio_total ?? 0)" class="alert-insufficient mb-3">
+          <div *ngIf="montoEntregado > 0 && montoEntregado < (pedidoSeleccionado.precioTotal || $any(pedidoSeleccionado).precio_total || 0)" class="alert-insufficient mb-3">
             <span class="material-icons fs-5 me-2">warning</span>
             <span>Faltan <strong>{{ ((pedidoSeleccionado.precioTotal ?? $any(pedidoSeleccionado).precio_total ?? 0) - montoEntregado) | currency:'EUR' }}</strong> para completar el pago.</span>
           </div>
@@ -195,7 +195,7 @@
           <div class="actions-grid">
             <button 
               class="btn btn-confirm-pay" 
-              [disabled]="montoEntregado < (pedidoSeleccionado.precioTotal ?? $any(pedidoSeleccionado).precio_total ?? 0)"
+              [disabled]="montoEntregado < (pedidoSeleccionado.precioTotal || $any(pedidoSeleccionado).precio_total || 0)"
               (click)="confirmarCobroEfectivo()">
               <span class="material-icons">check_circle</span>
               <span>Confirmar y Registrar Pago</span>

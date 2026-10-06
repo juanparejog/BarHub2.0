@@ -1,11 +1,9 @@
 import { Injectable } from "@angular/core";
-import { HttpHeaders } from '@angular/common/http';
+import { HttpHeaders, HttpClient } from '@angular/common/http';
 import { Observable } from "rxjs";
-import { HttpClient } from "@angular/common/http";
 import { environment } from "src/environments/environment";
 import { Pedido } from "../interface/pedido";
 import { Socket } from 'ngx-socket-io';
-
 
 @Injectable({ providedIn: 'root' })
 export class PedidoService {
@@ -13,51 +11,57 @@ export class PedidoService {
 
   constructor(private socket: Socket, private httpClient: HttpClient) { }
 
-  // Emitir actualización
-  actualizarEstadoSocket(pedido: Pedido) {
-    this.socket.emit('cambioEstadoPedido', pedido);
+  // Método auxiliar para obtener cabeceras con Token JWT
+  private getHeaders(): HttpHeaders {
+    const token = localStorage.getItem('token');
+    return new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token || ''}`
+    });
   }
 
-  // Escuchar actualizaciones globales
+  actualizarEstadoSocket(pedido: Pedido) {
+    if (this.socket) {
+      this.socket.emit('cambioEstadoPedido', pedido);
+    }
+  }
+
   onEstadoCambiado() {
     return this.socket.fromEvent<Pedido>('pedidoActualizado');
   }
 
   get(): Observable<Pedido[]> {
-    return this.httpClient.get<Pedido[]>(`${this.URL_PEDIDOS}/`);
-  }  
+    return this.httpClient.get<Pedido[]>(`${this.URL_PEDIDOS}`, { headers: this.getHeaders() });
+  }   
 
   post(pedido: Pedido): Observable<Pedido> {
-    return this.httpClient.post<Pedido>(`${this.URL_PEDIDOS}/`, pedido);
+    return this.httpClient.post<Pedido>(`${this.URL_PEDIDOS}`, pedido, { headers: this.getHeaders() });
   }
 
-  getId(id: string): Observable<Pedido> {
-    return this.httpClient.get<Pedido>(`${this.URL_PEDIDOS}/${id}`);
+  getId(id: string | number): Observable<Pedido> {
+    return this.httpClient.get<Pedido>(`${this.URL_PEDIDOS}/${id}`, { headers: this.getHeaders() });
   }
 
   put(pedido: Pedido): Observable<Pedido> {
-    return this.httpClient.put<Pedido>(`${this.URL_PEDIDOS}/${pedido.id}`, pedido);
+    return this.httpClient.put<Pedido>(`${this.URL_PEDIDOS}/${pedido.id}`, pedido, { headers: this.getHeaders() });
   }
 
   del(pedido: Pedido): Observable<string> {
-    return this.httpClient.delete(`${this.URL_PEDIDOS}/${pedido.id}`, { responseType: 'text' });
+    return this.httpClient.delete(`${this.URL_PEDIDOS}/${pedido.id}`, { 
+      headers: this.getHeaders(), 
+      responseType: 'text' 
+    });
   }
 
   getDetallesPedidos(): Observable<Pedido[]> {
-    return this.httpClient.get<Pedido[]>(`${this.URL_PEDIDOS}/getAllDetalles`);
+    return this.httpClient.get<Pedido[]>(`${this.URL_PEDIDOS}/getAllDetalles`, { 
+      headers: this.getHeaders() 
+    });
   }
 
   postCrearSeguro(dto: any): Observable<any> {
-    const token = localStorage.getItem('token'); 
-  
-    const headers = new HttpHeaders({
-      'Authorization': `Bearer ${token}`
+    return this.httpClient.post<any>(`${this.URL_PEDIDOS}`, dto, { 
+      headers: this.getHeaders() 
     });
-  
-    return this.httpClient.post<any>(
-      `${this.URL_PEDIDOS}`, 
-      dto, 
-      { headers }
-    );
   }
 }

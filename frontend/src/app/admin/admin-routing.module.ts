@@ -30,6 +30,9 @@ import { EditarUsuarioComponent } from './pages/usuarios/editar-usuarios/editar-
 import { GestionarUsuarioComponent } from './pages/usuarios/gestionar-usuarios/gestionar-usuario.component';
 import { VerUsuarioComponent } from './pages/usuarios/ver-usuario/ver-usuario.component';
 
+// Rutas Metricas
+import { MetricasComponent } from './pages/metricas/metricas.component';
+
 const routes: Routes = [
   {
     path: '',
@@ -67,6 +70,9 @@ const routes: Routes = [
       { path: 'editar-usuarios/:id', component: EditarUsuarioComponent },
       { path: 'gestionar-usuarios', component: GestionarUsuarioComponent },
       { path: 'ver-usuario/:id', component: VerUsuarioComponent },
+
+      // Metricas
+      { path: 'metricas', component: MetricasComponent },
 
       { path: '**', redirectTo: '' }
     ]

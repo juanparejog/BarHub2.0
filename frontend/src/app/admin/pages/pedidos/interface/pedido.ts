@@ -8,7 +8,10 @@ export interface Pedido {
   id_mesa?: number | null;
   estado: string;
   fecha: string;
-  total: number;
+
+  total?: number;
+  precio_total?: number;
+  precioTotal?: number;
   
   tipo_pedido?: 'Mesa' | 'Domicilio' | 'Recoger' | string;
   direccion_envio?: string;
