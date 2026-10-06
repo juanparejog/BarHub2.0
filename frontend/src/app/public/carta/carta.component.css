@@ -799,3 +799,52 @@
       font-size: 0.85rem;
     }
   }
+
+  /* ==========================================================================
+   MODO OSCURO - CARTA (Añadir debajo del :host actual)
+   ========================================================================== */
+:host-context(.dark-theme) {
+  --primary: #60a5fa;
+  --primary-hover: #3b82f6;
+  --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  --card-bg: #1e293b;
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --border-color: rgba(255, 255, 255, 0.1);
+  --shadow-sm: 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+  --shadow-md: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 20px 30px -10px rgba(0, 0, 0, 0.4);
+}
+
+/* Sobrescribir fondos con colores fijos en la Carta */
+:host-context(.dark-theme) .modalidad-switch-group,
+:host-context(.dark-theme) .input-select-wrapper,
+:host-context(.dark-theme) .form-select-custom,
+:host-context(.dark-theme) .form-input,
+:host-context(.dark-theme) .input-icon,
+:host-context(.dark-theme) .tienda-fixed-info,
+:host-context(.dark-theme) .quantity-controls,
+:host-context(.dark-theme) .vivienda-radio-btn,
+:host-context(.dark-theme) .btn-back {
+  background-color: #0f172a;
+  color: var(--text-main);
+  border-color: var(--border-color);
+}
+
+:host-context(.dark-theme) .product-img-wrapper {
+  background-color: #0f172a;
+}
+
+:host-context(.dark-theme) .btn-filter {
+  background: #1e293b;
+  color: #e2e8f0;
+}
+
+:host-context(.dark-theme) .categorias-filter-bar {
+  background: rgba(15, 23, 42, 0.85);
+}
+
+:host-context(.dark-theme) .btn-switch:hover:not(.active) {
+  background: rgba(255, 255, 255, 0.1);
+  color: #f8fafc;
+}

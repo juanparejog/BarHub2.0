@@ -403,3 +403,61 @@
       font-size: 1.25rem;
     }
   }
+
+  /* ==========================================================================
+   MODO OSCURO - SEGUIMIENTO DE PEDIDOS
+   ========================================================================== */
+
+/* 1. Redefinir variables base para el modo oscuro */
+:host-context(.dark-theme) {
+  --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  --card-bg: #1e293b;
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --border-color: rgba(255, 255, 255, 0.1);
+  --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -1px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
+}
+
+/* 2. Ajustar fondos y elementos con colores fijos */
+:host-context(.dark-theme) .pedido-card-header,
+:host-context(.dark-theme) .pedido-accordion {
+  background: rgba(15, 23, 42, 0.4); /* Fondo un poco más profundo para las cabeceras */
+}
+
+:host-context(.dark-theme) .accordion-trigger:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+:host-context(.dark-theme) .empty-icon,
+:host-context(.dark-theme) .qty-badge {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-main);
+}
+
+:host-context(.dark-theme) .detalles-table td {
+  border-bottom: 1px solid var(--border-color);
+}
+
+/* 3. Ajustar el Tracker Visual (Animaciones e iconos) */
+:host-context(.dark-theme) .step-icon-wrapper {
+  background: #0f172a;
+  border-color: var(--card-bg); /* Oculta el borde blanco original fundiéndolo con la tarjeta */
+  box-shadow: 0 0 0 2px var(--border-color);
+}
+
+:host-context(.dark-theme) .tracker-line {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* Estado Activo: Invertimos colores para que resalte sobre el fondo oscuro */
+:host-context(.dark-theme) .tracker-step.active .step-icon-wrapper {
+  background: #f8fafc;
+  color: #0f172a;
+  box-shadow: 0 0 0 3px #f8fafc, 0 0 15px var(--primary-glow);
+}
+
+:host-context(.dark-theme) .tracker-step.completed .step-icon-wrapper {
+  box-shadow: 0 0 0 2px var(--primary);
+  border-color: var(--card-bg);
+}

@@ -40,9 +40,23 @@
         </li>
       </ul>
 
-      <!-- Zona de autenticación -->
-      <div class="auth-section">
+      <!-- Zona de autenticación y Modo Oscuro -->
+      <div class="auth-section d-flex align-items-center gap-2">
         
+        <div 
+        class="theme-switch-group me-3" 
+        (click)="toggleTheme()"
+        [title]="(isDarkMode$ | async) ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'">
+        
+        <div class="theme-switch-option" [class.active]="!(isDarkMode$ | async)">
+          <i class="bi bi-sun-fill"></i>
+        </div>
+        
+        <div class="theme-switch-option" [class.active]="isDarkMode$ | async">
+          <i class="bi bi-moon-stars-fill"></i>
+        </div>
+      </div>
+
         <!-- Sin iniciar sesión -->
         <div *ngIf="!sesionIniciada" class="auth-buttons d-flex align-items-center">
           <a class="nav-link btn-login" routerLink="/auth/login">Iniciar sesión</a>

@@ -228,7 +228,7 @@
   }
 
   .main-nav-links .nav-link::after {
-    display: none; /* Desactivar underline en móvil para un layout más limpio */
+    display: none;
   }
 
   .main-nav-links .nav-link {
@@ -261,3 +261,52 @@
     text-align: center;
   }
 }
+
+/* ==========================================================================
+   CONMUTADOR DE TEMA (ESTILO SEGMENTED SWITCH GROUP)
+   ========================================================================== */
+   .theme-switch-group {
+    display: inline-flex;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 30px;
+    padding: 3px;
+    cursor: pointer;
+    user-select: none;
+    transition: all 0.3s ease;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+  }
+  
+  .theme-switch-group:hover {
+    border-color: rgba(255, 255, 255, 0.3);
+    background: rgba(0, 0, 0, 0.4);
+  }
+  
+  .theme-switch-option {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 0.95rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  /* Opción Activa - Modo Claro */
+  .theme-switch-option.active {
+    background: #ffffff;
+    color: #f59e0b; /* Color sol cálido */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+    transform: scale(1.05);
+  }
+  
+  /* Opción Activa cuando cambia a Modo Oscuro */
+  :host-context(.dark-theme) .theme-switch-option.active,
+  .theme-switch-group:has(.bi-moon-stars-fill.active) .theme-switch-option.active {
+    background: #3b82f6; /* Azul resplandeciente para la luna */
+    color: #ffffff;
+    box-shadow: 0 2px 10px rgba(59, 130, 246, 0.4);
+  }
