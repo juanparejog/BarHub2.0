@@ -69,7 +69,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/pedidos", "/pedidos/**", "/api/pedidos", "/api/pedidos/**").permitAll()
 
                         // --- GESTIÓN DE PEDIDOS Y COMANDAS PARA EMPLEADOS / ADMINS ---
-                        .requestMatchers(HttpMethod.GET, "/pedidos/**").hasAnyRole("EMPLEADO", "ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/pedidos/**").hasAnyRole("CLIENTE", "EMPLEADO", "ADMIN")
 
 
                         .anyRequest().authenticated()

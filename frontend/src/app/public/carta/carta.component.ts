@@ -257,12 +257,6 @@ export class CartaComponent implements OnInit {
   }
 
   confirmarPedido() {
-    if (!this.authService.isLoggedIn()) {
-      this.showToastMessage('Debe iniciar sesión para realizar un pedido', 'error');
-      setTimeout(() => this.router.navigate(['/login']), 1800);
-      return;
-    }
-
     if (!this.datosServicioCompletos) {
       this.showToastMessage(`Debes ${this.getMensajeAdvertencia()}`, 'error');
       return;

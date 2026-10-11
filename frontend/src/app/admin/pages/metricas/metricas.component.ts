@@ -162,12 +162,18 @@ export class MetricasComponent implements OnInit, OnDestroy {
   }
 
   extraerFecha(p: Pedido): Date | null {
-    const rawFecha = p.fecha || (p as any).created_at;
+    const rawFecha = p.fecha || (p as any).created_at || (p as any).createdAt;
     if (!rawFecha) return null;
+
+    // Si viene como array de números desde Java (LocalDateTime)
     if (Array.isArray(rawFecha)) {
-      return new Date(rawFecha[0], rawFecha[1] - 1, rawFecha[2], rawFecha[3] || 0, rawFecha[4] || 0);
+      return new Date(rawFecha[0], rawFecha[1] - 1, rawFecha[2], rawFecha[3] || 0, rawFecha[4] || 0, rawFecha[5] || 0);
     }
-    const d = new Date(rawFecha);
+
+    // Reemplazar espacios por 'T' para compatibilidad total con formatos SQL/ISO en todos los navegadores
+    const fechaStr = typeof rawFecha === 'string' ? rawFecha.replace(' ', 'T') : rawFecha;
+    const d = new Date(fechaStr);
+    
     return isNaN(d.getTime()) ? null : d;
   }
 
@@ -224,9 +230,24 @@ export class MetricasComponent implements OnInit, OnDestroy {
       const importe = Number(p.precio_total ?? (p as any).precioTotal ?? p.total ?? 0);
       this.totalIngresos += importe;
 
-      // Agrupar dinero por fecha para el eje X
+      // Agrupar dinero por fecha u hora según el rango seleccionado
       const fechaObj = this.extraerFecha(p);
-      const claveFecha = fechaObj ? fechaObj.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit' }) : 'S/F';
+      let claveFecha = 'Sin Hora';
+
+      if (fechaObj) {
+        if (this.rangoActual === 'dia') {
+          // Si es "Hoy", muestra la hora exacta (ej: "19:27")
+          claveFecha = fechaObj.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+        } else if (this.rangoActual === 'semana') {
+          // Si es "Esta Semana", muestra día y hora (ej: "11/10 - 19:27")
+          const diaMes = fechaObj.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit' });
+          const hora = fechaObj.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+          claveFecha = `${diaMes} - ${hora}`;
+        } else {
+          claveFecha = fechaObj.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit' });
+        }
+      }
+
       ingresosPorFechaMap.set(claveFecha, (ingresosPorFechaMap.get(claveFecha) || 0) + importe);
 
       // Clasificación por tipo de pedido
@@ -246,8 +267,6 @@ export class MetricasComponent implements OnInit, OnDestroy {
       if (Array.isArray(listaDetalles)) {
         listaDetalles.forEach(d => {
           const nombreProd = d.producto?.nombre || (d as any).nombreProducto || (d.id_producto ? `Producto #${d.id_producto}` : null);
-          
-          // Extraer nombre de la categoría del producto si está presente
           const rawCat = d.producto?.tipoProducto || (d as any).categoria || 'varios';
           const catName = typeof rawCat === 'object' && rawCat !== null ? (rawCat.nombre || rawCat.tipo || '') : String(rawCat);
 
@@ -274,6 +293,12 @@ export class MetricasComponent implements OnInit, OnDestroy {
 
     this.labelsEvolucion = Array.from(ingresosPorFechaMap.keys());
     this.datosEvolucion = Array.from(ingresosPorFechaMap.values());
+
+    // Seguridad para evitar que la gráfica quede vacía
+    if (this.labelsEvolucion.length === 0) {
+      this.labelsEvolucion = ['Sin registros'];
+      this.datosEvolucion = [0];
+    }
 
     setTimeout(() => this.renderizarGraficas(), 50);
   }

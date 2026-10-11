@@ -35,4 +35,11 @@
             </tbody>
         </table>
     </div>
+
+    <div class="p-3 d-flex justify-content-end">
+        <button [routerLink]="['/admin/editar-productos', producto.id]" class="btn-crud-primary d-inline-flex align-items-center gap-2">
+          <i class="bi bi-pencil-square"></i>
+          <span>Editar Registro</span>
+        </button>
+    </div>
 </div>
