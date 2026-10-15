@@ -1,72 +1,168 @@
 <div class="crud-container" *ngIf="usuario">
-    <!-- Header Principal -->
-    <div class="crud-header">
-      <div>
-        <h1 class="crud-title">Usuario #{{ usuario.id }}</h1>
-        <p class="text-muted small mb-0">Detalles e información general del usuario</p>
-      </div>
-      <div>
-        <button [routerLink]="['/admin/gestionar-usuarios']" class="btn-crud-secondary d-inline-flex align-items-center gap-2">
-          <i class="bi bi-arrow-left"></i>
-          <span>Volver</span>
-        </button>
-      </div>
+  
+  <!-- Header Principal -->
+  <div class="crud-header mb-4 d-flex justify-content-between align-items-center">
+    <div>
+      <h1 class="crud-title">Detalles del Usuario #{{ usuario.id }}</h1>
+      <p class="text-muted small mb-0">Información completa del usuario registrada en el sistema</p>
     </div>
-  
-    <!-- Contenedor / Tarjeta con Animación -->
-    <div class="crud-card">
-      <div class="table-responsive">
-        <table class="crud-table">
-          <thead>
-            <tr>
-              <th class="ps-4">Nombre de Usuario</th>
-              <th>Email</th>
-              <th>Roles Asignados</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <!-- Nombre -->
-              <td class="ps-4 fw-semibold text-dark">
-                {{ usuario.username }}
-              </td>
-  
-              <!-- Email -->
-              <td class="text-secondary">
-                {{ usuario.email }}
-              </td>
-  
-              <!-- Roles -->
-              <td>
-                <div class="d-flex flex-wrap gap-1 align-items-center">
-                  <ng-container *ngIf="usuario.roles && usuario.roles.length > 0; else sinRolesDetail">
-                    <span 
-                      *ngFor="let rol of usuario.roles" 
-                      class="badge-role" 
-                      [ngClass]="getRolClass(getNombreRol(rol))">
-                      <i class="bi bi-shield-lock"></i>
-                      {{ formatearNombreRol(getNombreRol(rol)) }}
-                    </span>
-                  </ng-container>
-                  
-                  <ng-template #sinRolesDetail>
-                    <span class="badge-role text-muted bg-light border">
-                      <i class="bi bi-exclamation-circle"></i> Sin Roles
-                    </span>
-                  </ng-template>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+    <div class="d-flex align-items-center gap-2">
+      <button [routerLink]="['/admin/editar-usuarios', usuario.id]" class="btn-crud-primary d-inline-flex align-items-center gap-2">
+        <i class="bi bi-pencil-square"></i>
+        <span>Editar Usuario</span>
+      </button>
+      <button [routerLink]="['/admin/gestionar-usuarios']" class="btn-crud-secondary d-inline-flex align-items-center gap-2">
+        <i class="bi bi-arrow-left"></i>
+        <span>Volver</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- TARJETA CABECERA DE PERFIL -->
+  <div class="crud-card mb-4 p-4">
+    <div class="d-flex flex-column flex-md-row align-items-center gap-4">
+      
+      <!-- Avatar de Perfil -->
+      <div class="position-relative flex-shrink-0" style="width: 90px; height: 90px;">
+        <img [src]="obtenerImagenUsuario()" 
+             [alt]="usuario.username" 
+             (error)="manejarErrorImagen($event)"
+             class="rounded-circle border border-3 border-white shadow-sm w-100 h-100" 
+             style="object-fit: cover;" />
+        
+        <!-- Fallback si la imagen no existe -->
+        <div class="avatar-placeholder-fallback rounded-circle bg-light border border-3 border-white shadow-sm align-items-center justify-content-center w-100 h-100 d-none">
+          <i class="bi bi-person-fill text-secondary fs-1"></i>
+        </div>
       </div>
-  
-      <!-- Pie de Tarjeta con botón de Acción -->
-      <div class="p-3 bg-light border-top d-flex justify-content-end">
-        <button [routerLink]="['/admin/editar-usuarios', usuario.id]" class="btn-crud-primary d-inline-flex align-items-center gap-2">
-          <i class="bi bi-pencil-square"></i>
-          <span>Editar Usuario</span>
-        </button>
+
+      <!-- Nombre y Roles -->
+      <div class="flex-grow-1 text-center text-md-start">
+        <h2 class="h3 mb-1 fw-bold text-dark">{{ obtenerNombreCompleto() }}</h2>
+        <div class="text-muted mb-2">&#64;{{ usuario.username }}</div>
+        
+        <!-- Badges de Roles -->
+        <div class="d-flex flex-wrap gap-1 justify-content-center justify-content-md-start align-items-center">
+          <ng-container *ngIf="usuario.roles && usuario.roles.length > 0; else sinRoles">
+            <span *ngFor="let rol of usuario.roles" class="badge-role" [ngClass]="getRolClass(getNombreRol(rol))">
+              <i class="bi bi-shield-lock me-1"></i>
+              {{ formatearNombreRol(getNombreRol(rol)) }}
+            </span>
+          </ng-container>
+          <ng-template #sinRoles>
+            <span class="badge-role text-muted bg-light border">Sin Roles</span>
+          </ng-template>
+        </div>
       </div>
     </div>
   </div>
+
+  <!-- GRID CON DETALLES DEL USUARIO -->
+  <div class="row g-4">
+    
+    <!-- Bloque 1: Información de Cuenta y Contacto -->
+    <div class="col-lg-6">
+      <div class="crud-card h-100 p-4">
+        <h5 class="fw-bold text-dark mb-3 border-bottom pb-2">
+          <i class="bi bi-person-lines-fill text-primary me-2"></i>Información Personal y Cuenta
+        </h5>
+
+        <div class="row g-3">
+          <div class="col-sm-6">
+            <span class="text-muted small d-block">ID de Usuario</span>
+            <span class="fw-semibold text-dark">#{{ usuario.id }}</span>
+          </div>
+
+          <div class="col-sm-6">
+            <span class="text-muted small d-block">Nombre de Usuario</span>
+            <span class="fw-semibold text-dark">&#64;{{ usuario.username }}</span>
+          </div>
+
+          <div class="col-sm-6">
+            <span class="text-muted small d-block">Correo Electrónico</span>
+            <span class="fw-semibold text-dark">{{ usuario.email }}</span>
+          </div>
+
+          <div class="col-sm-6">
+            <span class="text-muted small d-block">Teléfono de Contacto</span>
+            <span class="fw-semibold text-dark">{{ usuario.telefono || 'No registrado' }}</span>
+          </div>
+
+          <div class="col-sm-6">
+            <span class="text-muted small d-block">Nombre</span>
+            <span class="fw-semibold text-dark">{{ usuario.nombre || 'No registrado' }}</span>
+          </div>
+
+          <div class="col-sm-6">
+            <span class="text-muted small d-block">Apellidos</span>
+            <span class="fw-semibold text-dark">{{ obtenerApellidos() || 'No registrados' }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bloque 2: Dirección y Entrega -->
+    <div class="col-lg-6">
+      <div class="crud-card h-100 p-4">
+        <h5 class="fw-bold text-dark mb-3 border-bottom pb-2">
+          <i class="bi bi-house-door-fill text-primary me-2"></i>Dirección y Datos de Envío
+        </h5>
+
+        <div class="row g-3">
+          <div class="col-sm-6">
+            <span class="text-muted small d-block">Tipo de Vivienda</span>
+            <span class="fw-semibold text-dark text-capitalize">{{ usuario.tipoVivienda || 'No especificada' }}</span>
+          </div>
+
+          <div class="col-sm-6">
+            <span class="text-muted small d-block">Código Postal</span>
+            <span class="fw-semibold text-dark">{{ usuario.codigoPostal || 'No especificado' }}</span>
+          </div>
+
+          <div class="col-12">
+            <span class="text-muted small d-block">Calle / Dirección</span>
+            <span class="fw-semibold text-dark">{{ usuario.calle || 'No registrada' }}</span>
+          </div>
+
+          <!-- Campos específicos según tipo de vivienda -->
+          <div class="col-sm-4" *ngIf="usuario.portalNum">
+            <span class="text-muted small d-block">Portal / Nº</span>
+            <span class="fw-semibold text-dark">{{ usuario.portalNum }}</span>
+          </div>
+
+          <div class="col-sm-4" *ngIf="usuario.pisoNum">
+            <span class="text-muted small d-block">Piso</span>
+            <span class="fw-semibold text-dark">{{ usuario.pisoNum }}</span>
+          </div>
+
+          <div class="col-sm-4" *ngIf="usuario.puerta">
+            <span class="text-muted small d-block">Puerta</span>
+            <span class="fw-semibold text-dark">{{ usuario.puerta }}</span>
+          </div>
+
+          <div class="col-sm-6" *ngIf="usuario.urbanizacionNombre">
+            <span class="text-muted small d-block">Urbanización</span>
+            <span class="fw-semibold text-dark">{{ usuario.urbanizacionNombre }}</span>
+          </div>
+
+          <div class="col-sm-6" *ngIf="usuario.casaNum">
+            <span class="text-muted small d-block">Nº Casa / Chalet</span>
+            <span class="fw-semibold text-dark">{{ usuario.casaNum }}</span>
+          </div>
+
+          <!-- Instrucciones de Entrega -->
+          <div class="col-12 mt-3 pt-2 border-top">
+            <span class="text-muted small d-block mb-1">Instrucciones Especiales de Entrega</span>
+            <p class="small text-secondary mb-0 bg-light p-2 rounded border" *ngIf="usuario.instruccionesEntrega; else sinInstrucciones">
+              <i class="bi bi-chat-left-text me-1"></i> {{ usuario.instruccionesEntrega }}
+            </p>
+            <ng-template #sinInstrucciones>
+              <span class="text-muted small italic">Sin instrucciones adicionales</span>
+            </ng-template>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

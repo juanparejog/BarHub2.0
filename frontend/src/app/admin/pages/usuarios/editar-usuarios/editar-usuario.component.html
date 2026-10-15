@@ -1,77 +1,253 @@
 <div class="crud-container">
   <div class="crud-form-card">
     
-    <div class="crud-header mb-4">
-      <h1 class="crud-title">Formulario de Usuario</h1>
-      <p class="text-muted small mb-0">Gestión e información de acceso del usuario</p>
+    <!-- Cabecera -->
+    <div class="crud-header mb-4 d-flex justify-content-between align-items-center">
+      <div>
+        <h1 class="crud-title">{{ editar ? 'Editar Usuario #' + formulario.get('id')?.value : 'Crear Nuevo Usuario' }}</h1>
+        <p class="text-muted small mb-0">Gestión de datos de perfil, dirección y credenciales de acceso</p>
+      </div>
+      <button type="button" routerLink="/admin/gestionar-usuarios" class="btn-crud-secondary d-inline-flex align-items-center gap-2">
+        <i class="bi bi-arrow-left"></i>
+        <span>Volver al listado</span>
+      </button>
     </div>
 
     <form (ngSubmit)="guardar()" [formGroup]="formulario" autocomplete="off">
       <input id="id" name="id" type="hidden" [value]="formulario.get('id')?.value || -1">
 
-      <div class="row">
-        <!-- Nombre de Usuario -->
-        <div class="col-md-6 mb-3">
-          <label for="username" class="form-label">Nombre de Usuario</label>
-          <input 
-            formControlName="username" 
-            type="text" 
-            class="form-control" 
-            id="username" 
-            placeholder="Ingresa el nombre">
-        </div>
-
-        <!-- Correo Electrónico -->
-        <div class="col-md-6 mb-3">
-          <label for="email" class="form-label">Correo Electrónico</label>
-          <input 
-            formControlName="email" 
-            type="email" 
-            class="form-control" 
-            id="email" 
-            placeholder="correo@ejemplo.com">
-        </div>
-
-        <!-- Contraseña -->
-        <div class="col-md-12 mb-3">
-          <label for="password" class="form-label">Contraseña</label>
-          <input 
-            formControlName="password" 
-            type="password" 
-            class="form-control" 
-            id="password" 
-            placeholder="••••••••">
-        </div>
-
-        <!-- Roles Asignados -->
-        <div class="col-md-12 mb-4">
-          <label class="form-label d-block">
-            Roles Asignados <span class="text-danger">* (mínimo 1)</span>
-          </label>
+      <!-- SECCIÓN 1: IMAGEN DE PERFIL (DRAG & DROP) -->
+      <div class="card mb-4 border-0 bg-light-subtle shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title text-dark fw-semibold mb-3">
+            <i class="bi bi-image text-primary me-2"></i>Foto de Perfil
+          </h5>
           
-          <div class="roles-selection-container p-3 rounded border bg-light-subtle"
-               [class.border-danger]="formulario.get('roles')?.invalid && formulario.get('roles')?.touched">
-            
-            <div class="d-flex flex-wrap gap-3">
-              <div *ngFor="let rol of rolesDisponibles" class="form-check custom-role-check d-flex align-items-center">
-                <input
-                  type="checkbox"
-                  class="form-check-input mt-0"
-                  [checked]="isRoleChecked(rol)"
-                  [disabled]="isRoleChecked(rol) && formulario.get('roles')?.value?.length === 1"
-                  (change)="toggleRol(rol)"
-                  id="rol-{{rol.id}}"
-                >
-                <label class="form-check-label badge-role ms-2 cursor-pointer" [ngClass]="getRolClass(rol.nombre)" for="rol-{{rol.id}}">
-                  <i class="bi bi-shield-lock me-1"></i>
-                  {{ formatearNombreRol(rol.nombre) }}
-                </label>
+          <div class="d-flex flex-column flex-md-row gap-4 align-items-center">
+            <!-- Zona Drag and Drop -->
+            <div class="dropzone-container flex-grow-1 w-100 p-4 border border-2 border-dashed rounded text-center cursor-pointer position-relative"
+                 [class.border-primary]="isDragging"
+                 [class.bg-white]="isDragging"
+                 (dragover)="onDragOver($event)"
+                 (dragleave)="onDragLeave($event)"
+                 (drop)="onDrop($event)"
+                 (click)="fileInput.click()">
+              
+              <input #fileInput type="file" accept="image/*" class="d-none" (change)="onFileSelected($event)">
+              
+              <i class="bi bi-cloud-arrow-up fs-1 text-primary d-block mb-2"></i>
+              <p class="mb-1 fw-semibold text-dark">Arrastra y suelta aquí la imagen de usuario</p>
+              <p class="text-muted small mb-0">o haz clic para buscar en tu equipo (PNG, JPG, WEBP)</p>
+            </div>
+
+            <!-- Previsualización de la Imagen -->
+            <div class="text-center position-relative flex-shrink-0" style="width: 110px;">
+              <div class="avatar-preview-box rounded-circle border shadow-sm mx-auto position-relative overflow-hidden" 
+                   style="width: 100px; height: 100px; background-color: #f8f9fa;">
+                <img *ngIf="imagenPreview; else noPreview" 
+                     [src]="imagenPreview" 
+                     (error)="manejarErrorImagenPreview()" 
+                     alt="Previsualización" 
+                     class="w-100 h-100 object-fit-cover" />
+                <ng-template #noPreview>
+                  <div class="w-100 h-100 d-flex align-items-center justify-content-center text-secondary">
+                    <i class="bi bi-person-fill fs-1"></i>
+                  </div>
+                </ng-template>
+              </div>
+
+              <button *ngIf="imagenPreview" 
+                      type="button" 
+                      (click)="eliminarImagen()" 
+                      class="btn btn-danger btn-sm rounded-circle position-absolute top-0 end-0 shadow-sm"
+                      title="Quitar foto">
+                <i class="bi bi-x"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECCIÓN 2: INFORMACIÓN DE CUENTA Y ROL -->
+      <div class="card mb-4 border-0 bg-light-subtle shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title text-dark fw-semibold mb-3">
+            <i class="bi bi-shield-lock text-primary me-2"></i>Credenciales y Roles
+          </h5>
+
+          <div class="row">
+            <!-- Username -->
+            <div class="col-md-6 mb-3">
+              <label for="username" class="form-label fw-medium">Nombre de Usuario <span class="text-danger">*</span></label>
+              <input formControlName="username" type="text" class="form-control" id="username" placeholder="ej. jparejo">
+              <div *ngIf="formulario.get('username')?.touched && formulario.get('username')?.hasError('required')" class="text-danger small mt-1">
+                El nombre de usuario es obligatorio.
+              </div>
+            </div>
+
+            <!-- Email -->
+            <div class="col-md-6 mb-3">
+              <label for="email" class="form-label fw-medium">Correo Electrónico <span class="text-danger">*</span></label>
+              <input formControlName="email" type="email" class="form-control" id="email" placeholder="correo@ejemplo.com">
+              <div *ngIf="formulario.get('email')?.touched && formulario.get('email')?.hasError('required')" class="text-danger small mt-1">
+                El correo electrónico es obligatorio.
+              </div>
+              <div *ngIf="formulario.get('email')?.touched && formulario.get('email')?.hasError('email')" class="text-danger small mt-1">
+                Formato de correo no válido.
+              </div>
+            </div>
+
+            <!-- Contraseña -->
+            <div class="col-md-12 mb-3">
+              <label for="password" class="form-label fw-medium">
+                Contraseña <span class="text-muted small fw-normal" *ngIf="editar">(dejar en blanco para conservar la actual)</span>
+              </label>
+              <input formControlName="password" type="password" class="form-control" id="password" placeholder="••••••••">
+            </div>
+
+            <!-- Roles Asignados -->
+            <div class="col-md-12 mb-2">
+              <label class="form-label d-block fw-medium">
+                Roles Asignados <span class="text-danger">* (mínimo 1)</span>
+              </label>
+              <div class="roles-selection-container p-3 rounded border bg-white"
+                   [class.border-danger]="formulario.get('roles')?.invalid && formulario.get('roles')?.touched">
+                <div class="d-flex flex-wrap gap-3">
+                  <div *ngFor="let rol of rolesDisponibles" class="form-check custom-role-check d-flex align-items-center">
+                    <input
+                      type="checkbox"
+                      class="form-check-input mt-0"
+                      [checked]="isRoleChecked(rol)"
+                      [disabled]="isRoleChecked(rol) && formulario.get('roles')?.value?.length === 1"
+                      (change)="toggleRol(rol)"
+                      id="rol-{{rol.id}}"
+                    >
+                    <label class="form-check-label badge-role ms-2 cursor-pointer" [ngClass]="getRolClass(rol.nombre)" for="rol-{{rol.id}}">
+                      <i class="bi bi-shield-lock me-1"></i>
+                      {{ formatearNombreRol(rol.nombre) }}
+                    </label>
+                  </div>
+                </div>
+              </div>
+              <div *ngIf="formulario.get('roles')?.hasError('requiereRol') && formulario.get('roles')?.touched" class="text-danger small mt-1">
+                Debes asignar al menos un rol al usuario.
               </div>
             </div>
           </div>
+        </div>
+      </div>
 
-          <div *ngIf="formulario.get('roles')?.hasError('requiereRol') && formulario.get('roles')?.touched" class="text-danger small mt-1">
-            Debes asignar al menos un rol al usuario.
+      <!-- SECCIÓN 3: DATOS PERSONALES -->
+      <div class="card mb-4 border-0 bg-light-subtle shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title text-dark fw-semibold mb-3">
+            <i class="bi bi-person text-primary me-2"></i>Información Personal
+          </h5>
+
+          <div class="row">
+            <!-- Nombre -->
+            <div class="col-md-4 mb-3">
+              <label for="nombre" class="form-label fw-medium">Nombre</label>
+              <input formControlName="nombre" type="text" class="form-control" id="nombre" placeholder="Nombre de pila">
+            </div>
+
+            <!-- Primer Apellido -->
+            <div class="col-md-4 mb-3">
+              <label for="apellido1" class="form-label fw-medium">Primer Apellido</label>
+              <input formControlName="apellido1" type="text" class="form-control" id="apellido1" placeholder="Primer apellido">
+            </div>
+
+            <!-- Segundo Apellido -->
+            <div class="col-md-4 mb-3">
+              <label for="apellido2" class="form-label fw-medium">Segundo Apellido</label>
+              <input formControlName="apellido2" type="text" class="form-control" id="apellido2" placeholder="Segundo apellido">
+            </div>
+
+            <!-- Teléfono -->
+            <div class="col-md-6 mb-3">
+              <label for="telefono" class="form-label fw-medium">Teléfono de Contacto</label>
+              <input formControlName="telefono" type="tel" class="form-control" id="telefono" placeholder="ej. 600123456">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECCIÓN 4: DIRECCIÓN Y VIVIENDA -->
+      <div class="card mb-4 border-0 bg-light-subtle shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title text-dark fw-semibold mb-3">
+            <i class="bi bi-geo-alt text-primary me-2"></i>Dirección y Datos de Envío
+          </h5>
+
+          <div class="row">
+            <!-- Tipo de Vivienda -->
+            <div class="col-md-4 mb-3">
+              <label for="tipoVivienda" class="form-label fw-medium">Tipo de Vivienda</label>
+              <select formControlName="tipoVivienda" id="tipoVivienda" class="form-select">
+                <option value="piso">Piso / Ap. / Ático</option>
+                <option value="casa">Casa Unifamiliar</option>
+                <option value="urbanizacion">Urbanización</option>
+              </select>
+            </div>
+
+            <!-- Calle -->
+            <div class="col-md-5 mb-3">
+              <label for="calle" class="form-label fw-medium">Calle / Avenida / Plaza</label>
+              <input formControlName="calle" type="text" class="form-control" id="calle" placeholder="Nombre de la vía y número">
+            </div>
+
+            <!-- Código Postal -->
+            <div class="col-md-3 mb-3">
+              <label for="codigoPostal" class="form-label fw-medium">Código Postal</label>
+              <input formControlName="codigoPostal" type="text" class="form-control" id="codigoPostal" placeholder="28001">
+            </div>
+
+            <!-- Campos condicionales según el tipo de vivienda -->
+            <ng-container [ngSwitch]="formulario.get('tipoVivienda')?.value">
+              
+              <!-- Si es Piso -->
+              <ng-container *ngSwitchCase="'piso'">
+                <div class="col-md-4 mb-3">
+                  <label for="portalNum" class="form-label fw-medium">Portal / Nº</label>
+                  <input formControlName="portalNum" type="text" class="form-control" id="portalNum" placeholder="ej. 12">
+                </div>
+                <div class="col-md-4 mb-3">
+                  <label for="pisoNum" class="form-label fw-medium">Piso</label>
+                  <input formControlName="pisoNum" type="text" class="form-control" id="pisoNum" placeholder="ej. 3º">
+                </div>
+                <div class="col-md-4 mb-3">
+                  <label for="puerta" class="form-label fw-medium">Puerta</label>
+                  <input formControlName="puerta" type="text" class="form-control" id="puerta" placeholder="ej. B">
+                </div>
+              </ng-container>
+
+              <!-- Si es Casa -->
+              <ng-container *ngSwitchCase="'casa'">
+                <div class="col-md-12 mb-3">
+                  <label for="casaNum" class="form-label fw-medium">Número de Casa / Parcela</label>
+                  <input formControlName="casaNum" type="text" class="form-control" id="casaNum" placeholder="ej. Nº 45">
+                </div>
+              </ng-container>
+
+              <!-- Si es Urbanización -->
+              <ng-container *ngSwitchCase="'urbanizacion'">
+                <div class="col-md-6 mb-3">
+                  <label for="urbanizacionNombre" class="form-label fw-medium">Nombre de la Urbanización</label>
+                  <input formControlName="urbanizacionNombre" type="text" class="form-control" id="urbanizacionNombre" placeholder="ej. Los Olivos">
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label for="casaNum" class="form-label fw-medium">Número de Bloque / Chalet</label>
+                  <input formControlName="casaNum" type="text" class="form-control" id="casaNum" placeholder="ej. Chalet 12">
+                </div>
+              </ng-container>
+
+            </ng-container>
+
+            <!-- Instrucciones de Entrega -->
+            <div class="col-md-12 mb-2">
+              <label for="instruccionesEntrega" class="form-label fw-medium">Instrucciones Especiales de Entrega</label>
+              <textarea formControlName="instruccionesEntrega" id="instruccionesEntrega" class="form-control" rows="2" placeholder="ej. Dejar en recepción, llamar al timbre izquierdo..."></textarea>
+            </div>
           </div>
         </div>
       </div>
@@ -82,9 +258,10 @@
           Cancelar
         </button>
         <button type="submit" class="btn-crud-primary" [disabled]="formulario.invalid">
-          Guardar Cambios
+          {{ editar ? 'Guardar Cambios' : 'Crear Usuario' }}
         </button>
       </div>
+
     </form>
   </div>
-</div>
+</div>  

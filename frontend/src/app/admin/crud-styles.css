@@ -620,3 +620,18 @@
     border-color: #818cf8 !important;
     background-color: #1e293b !important;
   }
+
+  .dropzone-container {
+    background-color: #f8f9fa;
+    border-color: #dee2e6 !important;
+    transition: all 0.2s ease-in-out;
+  }
+  
+  .dropzone-container:hover, .dropzone-container.border-primary {
+    background-color: #f1f3f5;
+    border-color: #0d6efd !important;
+  }
+  
+  .cursor-pointer {
+    cursor: pointer;
+  }

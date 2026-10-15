@@ -14,6 +14,7 @@ function minimoUnRolValidator(control: AbstractControl): ValidationErrors | null
 @Component({
   selector: 'app-editar-usuario',
   templateUrl: './editar-usuario.component.html',
+  styleUrls: ['./editar-usuario.component.css']
 })
 export class EditarUsuarioComponent implements OnInit {
 
@@ -22,11 +23,31 @@ export class EditarUsuarioComponent implements OnInit {
     username: ['', Validators.required],
     email: ['', [Validators.required, Validators.email]],
     password: [''],
-    roles: [[], [minimoUnRolValidator]]
+    roles: [[], [minimoUnRolValidator]],
+    // Nuevos campos de información personal
+    nombre: [''],
+    apellido1: [''],
+    apellido2: [''],
+    telefono: [''],
+    // Campos de dirección y vivienda
+    tipoVivienda: ['piso'],
+    calle: [''],
+    codigoPostal: [''],
+    portalNum: [''],
+    pisoNum: [''],
+    puerta: [''],
+    urbanizacionNombre: [''],
+    casaNum: [''],
+    instruccionesEntrega: [''],
+    imagen: ['']
   });
 
   editar: boolean = false;
   rolesDisponibles: Rol[] = [];
+
+  // Variables para Drag and Drop e Vista Previa de Imagen
+  isDragging: boolean = false;
+  imagenPreview: string | null = null;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -39,18 +60,105 @@ export class EditarUsuarioComponent implements OnInit {
   ngOnInit(): void {
     this.cargarRoles();
     if (this.router.url.includes('editar')) {
-      this.cargarUsuario();
       this.editar = true;
+      this.cargarUsuario();
     }
   }
 
   cargarRoles(): void {
-    this.rolService.getRoles().subscribe(roles => {
-      this.rolesDisponibles = roles;
+    this.rolService.getRoles().subscribe({
+      next: (roles) => this.rolesDisponibles = roles,
+      error: (err) => console.error('Error al cargar roles:', err)
     });
   }
 
-  guardar() {
+  cargarUsuario(): void {
+    this.activatedRoute.params
+      .pipe(switchMap(({ id }) => this.usuarioService.getId(id)))
+      .subscribe({
+        next: (usuario: Usuario) => {
+          this.formulario.patchValue({
+            ...usuario,
+            roles: usuario.roles || []
+          });
+
+          // Establecer la vista previa de la imagen si existe
+          if (usuario.imagen) {
+            this.imagenPreview = usuario.imagen.startsWith('http') || usuario.imagen.startsWith('data:') || usuario.imagen.startsWith('assets/')
+              ? usuario.imagen
+              : `assets/images/usuarios/${usuario.imagen}`;
+          } else if (usuario.username) {
+            this.imagenPreview = `assets/images/usuarios/${usuario.username}.jpg`;
+          }
+        },
+        error: () => this.router.navigate(['/admin/gestionar-usuarios'])
+      });
+  }
+
+  /* ==========================================
+     DRAG AND DROP & GESTIÓN DE IMAGEN
+     ========================================== */
+  onDragOver(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragging = true;
+  }
+
+  onDragLeave(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragging = false;
+  }
+
+  onDrop(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragging = false;
+
+    if (event.dataTransfer && event.dataTransfer.files.length > 0) {
+      const file = event.dataTransfer.files[0];
+      this.procesarArchivo(file);
+    }
+  }
+
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      const file = input.files[0];
+      this.procesarArchivo(file);
+    }
+  }
+
+  procesarArchivo(file: File): void {
+    if (!file.type.startsWith('image/')) {
+      alert('Por favor, selecciona un archivo de imagen válido.');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const base64Image = reader.result as string;
+      this.imagenPreview = base64Image;
+      this.formulario.patchValue({ imagen: base64Image });
+      this.formulario.markAsDirty();
+    };
+    reader.readAsDataURL(file);
+  }
+
+  eliminarImagen(): void {
+    this.imagenPreview = null;
+    this.formulario.patchValue({ imagen: '' });
+    this.formulario.markAsDirty();
+  }
+
+  manejarErrorImagenPreview(): void {
+    this.imagenPreview = null;
+  }
+
+  /* ==========================================
+     MÉTODOS DE GUARDADO Y FORMULARIO
+     ========================================== */
+  guardar(): void {
     if (this.formulario.invalid) {
       this.formulario.markAllAsTouched();
       return;
@@ -64,29 +172,11 @@ export class EditarUsuarioComponent implements OnInit {
     }
   }
 
-  cargarUsuario() {
-    this.activatedRoute.params
-      .pipe(switchMap(({ id }) => this.usuarioService.getId(id)))
-      .subscribe({
-        next: (usuario: Usuario) => {
-          this.formulario.reset({
-            ...usuario,
-            roles: usuario.roles || []
-          });
-        },
-        error: () => this.router.navigate(['/admin/gestionar-usuarios'])
-      });
-  }
-
-  crearUsuario() {
+  crearUsuario(): void {
     const rawVal = this.formulario.getRawValue();
-    
-    const nuevoUsuario: Usuario = {
-      username: rawVal.username,
-      email: rawVal.email,
-      password: rawVal.password,
-      roles: rawVal.roles
-    };
+
+    // Eliminar campos vacíos opcionales si fuera necesario
+    const nuevoUsuario: Usuario = { ...rawVal };
 
     this.usuarioService.post(nuevoUsuario).subscribe({
       next: () => this.router.navigate(['/admin/gestionar-usuarios']),
@@ -94,20 +184,16 @@ export class EditarUsuarioComponent implements OnInit {
     });
   }
 
-  editarUsuario() {
+  editarUsuario(): void {
     const datosUsuario = this.formulario.getRawValue();
-  
+
     if (!datosUsuario.password) {
       delete datosUsuario.password;
     }
-  
+
     this.usuarioService.put(datosUsuario).subscribe({
-      next: () => {
-        this.router.navigate(['/admin/gestionar-usuarios']);
-      },
-      error: (err) => {
-        console.error('Error en la petición PUT:', err);
-      }
+      next: () => this.router.navigate(['/admin/gestionar-usuarios']),
+      error: (err) => console.error('Error en la petición PUT:', err)
     });
   }
 
@@ -144,14 +230,15 @@ export class EditarUsuarioComponent implements OnInit {
   }
 
   formatearNombreRol(nombre: string): string {
-    return nombre ? nombre.replace('ROLE_', '') : '';
+    return nombre ? nombre.replace(/^ROLE_/i, '').toUpperCase() : '';
   }
 
   getRolClass(nombre: string): string {
     if (!nombre) return '';
-    if (nombre.includes('ADMIN')) return 'rol-admin';
-    if (nombre.includes('CLIENTE')) return 'rol-cliente';
-    if (nombre.includes('EMPLEADO')) return 'rol-empleado';
+    const rolLower = nombre.toLowerCase();
+    if (rolLower.includes('admin')) return 'rol-admin';
+    if (rolLower.includes('cliente') || rolLower.includes('client')) return 'rol-cliente';
+    if (rolLower.includes('empleado') || rolLower.includes('user')) return 'rol-empleado';
     return '';
   }
 }

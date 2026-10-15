@@ -7,7 +7,6 @@ import { DialogService } from 'src/app/main/services/shared/services/dialog.serv
   selector: 'app-gestionar-usuario',
   templateUrl: './gestionar-usuario.component.html'
 })
-
 export class GestionarUsuarioComponent implements OnInit {
   
   usuarios: Usuario[] = [];
@@ -51,6 +50,28 @@ export class GestionarUsuarioComponent implements OnInit {
     }
   }
 
+  obtenerImagenUsuario(usuario: Usuario): string {
+    if (usuario.imagen) {
+      if (usuario.imagen.startsWith('assets/') || usuario.imagen.startsWith('http')) {
+        return usuario.imagen;
+      }
+      return `assets/images/usuarios/${usuario.imagen}`;
+    }
+    
+    return `assets/images/usuarios/${usuario.username}.jpg`;
+  }
+
+  obtenerApellidos(usuario: Usuario): string {
+    return [usuario.apellido1, usuario.apellido2].filter(Boolean).join(' ');
+  }
+
+  obtenerNombreCompleto(usuario: Usuario): string {
+    const apellidos = this.obtenerApellidos(usuario);
+    const nombre = usuario.nombre || '';
+    const completo = `${nombre} ${apellidos}`.trim();
+    return completo.length > 0 ? completo : usuario.username;
+  }
+
   get usuariosFiltrados(): Usuario[] {
     if (!this.usuarios) return [];
     
@@ -59,12 +80,15 @@ export class GestionarUsuarioComponent implements OnInit {
     let result = this.usuarios.filter(usuario => {
       const matchUsername = usuario.username?.toLowerCase().includes(term) ?? false;
       const matchEmail = usuario.email?.toLowerCase().includes(term) ?? false;
+      const matchNombre = usuario.nombre?.toLowerCase().includes(term) ?? false;
+      const matchApellido1 = usuario.apellido1?.toLowerCase().includes(term) ?? false;
+      const matchApellido2 = usuario.apellido2?.toLowerCase().includes(term) ?? false;
       const matchRoles = usuario.roles?.some(rol => 
         this.formatearNombreRol(rol.nombre).toLowerCase().includes(term) ||
         (rol.nombre && rol.nombre.toLowerCase().includes(term))
       ) ?? false;
 
-      return matchUsername || matchEmail || matchRoles;
+      return matchUsername || matchEmail || matchNombre || matchApellido1 || matchApellido2 || matchRoles;
     });
 
     result.sort((a, b) => {
@@ -106,7 +130,7 @@ export class GestionarUsuarioComponent implements OnInit {
   }
 
   borrarUsuario(usuario: Usuario): void {
-    this.usuarioAEliminar = usuario;
+    this.usuarioAEliminar = usuario;  
     this.mostrarModalEliminar = true;
   }
 
@@ -130,5 +154,11 @@ export class GestionarUsuarioComponent implements OnInit {
   cerrarModal(): void {
     this.mostrarModalEliminar = false;
     this.usuarioAEliminar = null;
+  }
+
+  onImgError(event: Event): void {
+    const imgElement = event.target as HTMLImageElement;
+    imgElement.src = 'assets/images/usuarios/default.jpg';
+    imgElement.onerror = null;
   }
 }

@@ -114,11 +114,7 @@ public class User {
   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
   @JsonManagedReference
   private List<Pedido> pedidos = new ArrayList<>();
-
-  /**
-   * Método útil en el backend para formatear la dirección de entrega
-   * según el tipo de vivienda seleccionado antes de guardarla en un Pedido.
-   */
+  
   public String getDireccionFormateada() {
     if (calle == null) return "";
 

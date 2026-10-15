@@ -28,7 +28,7 @@
         <input 
           type="text" 
           class="form-control search-input" 
-          placeholder="Buscar por nombre, correo o rol..."
+          placeholder="Buscar por nombre, apellidos, correo o rol..."
           [(ngModel)]="searchTerm">
         <button 
           *ngIf="searchTerm" 
@@ -51,10 +51,10 @@
       <table class="crud-table mb-0">
         <thead>
           <tr>
-            <!-- Columna Nombre -->
+            <!-- Columna Nombre y Usuario -->
             <th class="ps-4 sortable-th" (click)="sortBy('username')">
               <div class="th-content">
-                <span>Nombre</span>
+                <span>Usuario / Nombre</span>
                 <span class="sort-icon" [ngClass]="{'active': sortColumn === 'username'}">
                   <i class="bi" [ngClass]="{
                     'bi-sort-alpha-down': sortColumn === 'username' && sortDirection === 'asc',
@@ -99,9 +99,34 @@
 
         <tbody *ngIf="usuariosFiltrados.length > 0; else sinUsuarios">
           <tr *ngFor="let usuario of usuariosFiltrados">
-            <!-- Username -->
-            <td class="ps-4 fw-semibold text-dark">
-              {{ usuario.username }}
+            <!-- Avatar, Nombre completo y Username -->
+            <td class="ps-4">
+              <div class="d-flex align-items-center gap-3">
+                <!-- Imagen / Avatar de Perfil en Assets -->
+                <div class="user-avatar-wrapper position-relative" style="width: 42px; height: 42px;">
+                  <img [src]="obtenerImagenUsuario(usuario)" 
+                       [alt]="usuario.username" 
+                       (error)="onImgError($event)"
+                       class="rounded-circle border" 
+                       style="width: 42px; height: 42px; object-fit: cover;" />
+                  
+                  <!-- Fallback si la imagen no existe en assets/images/usuarios/ -->
+                  <div class="avatar-placeholder-fallback rounded-circle bg-light align-items-center justify-content-center border d-none" 
+                       style="width: 42px; height: 42px;">
+                    <i class="bi bi-person-fill text-secondary fs-5"></i>
+                  </div>
+                </div>
+
+                <!-- Datos de Nombre y Nickname -->
+                <div>
+                  <div class="fw-semibold text-dark">
+                    {{ obtenerNombreCompleto(usuario) }}
+                  </div>
+                  <div class="text-muted small" *ngIf="usuario.nombre || usuario.apellido1">
+                    &#64;{{ usuario.username }}
+                  </div>
+                </div>
+              </div>
             </td>
 
             <!-- Email -->
@@ -162,10 +187,10 @@
 
 <!-- Modal General Reutilizable -->
 <app-modal-confirmar-eliminar
-[mostrar]="mostrarModalEliminar"
-[titulo]="'Eliminar Usuario'"
-[mensaje]="'¿Estás seguro de que deseas borrar este usuario? Esta acción no se puede deshacer y perderá sus accesos.'"
-[nombreElemento]="usuarioAEliminar?.username || ''"
-(alConfirmar)="confirmarEliminacion()"
-(alCancelar)="cerrarModal()">
+  [mostrar]="mostrarModalEliminar"
+  [titulo]="'Eliminar Usuario'"
+  [mensaje]="'¿Estás seguro de que deseas borrar este usuario? Esta acción no se puede deshacer y perderá sus accesos.'"
+  [nombreElemento]="usuarioAEliminar?.username || ''"
+  (alConfirmar)="confirmarEliminacion()"
+  (alCancelar)="cerrarModal()">
 </app-modal-confirmar-eliminar>
