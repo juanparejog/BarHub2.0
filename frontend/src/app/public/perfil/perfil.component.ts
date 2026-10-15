@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
 import { UsuarioService } from '../../admin/pages/usuarios/services/usuario';
 import { Usuario } from '../../admin/pages/usuarios/interface/usuario';
 
@@ -16,13 +17,15 @@ export class PerfilComponent implements OnInit {
   usuarioActual!: Usuario;
 
   mostrarModalImagen: boolean = false;
-  imagenPreview: string = '';
-  archivoSeleccionado: File | null = null;
   isDragging: boolean = false;
+  archivoSeleccionado: File | null = null;
+  imagenPreview: string | ArrayBuffer | null = null;
+  nombreArchivoRenombrado: string = '';
 
   constructor(
     private fb: FormBuilder,
-    private usuarioService: UsuarioService
+    private usuarioService: UsuarioService,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -122,55 +125,17 @@ export class PerfilComponent implements OnInit {
           codigoPostal: usuario.codigoPostal || '',
           instruccionesEntrega: usuario.instruccionesEntrega || ''
         });
+
+        if (usuario.imagen) {
+          this.imagenPreview = `assets/images/usuarios/${usuario.imagen}`;
+          this.nombreArchivoRenombrado = usuario.imagen;
+        }
       },
       error: (err) => {
         console.error('Error al cargar el usuario:', err);
         this.mensajeError = 'No se pudieron cargar los datos del perfil desde el servidor.';
       }
     });
-  }
-
-  guardarNuevaImagen(): void {
-    if (this.imagenPreview) {
-      this.perfilForm.patchValue({ imagen: this.imagenPreview });
-      this.mensajeExito = '¡Imagen actualizada! Pulsa "Guardar Cambios" para aplicar todo.';
-      this.cerrarModalImagen();
-      setTimeout(() => this.mensajeExito = '', 4000);
-    }
-  }
-
-  getImagenPerfilUrl(): string {
-    const imagenBD = this.perfilForm?.get('imagen')?.value || this.usuarioActual?.imagen;
-    const username = this.perfilForm?.get('username')?.value || this.usuarioActual?.username;
-
-    if (imagenBD) {
-      return imagenBD;
-    }
-    if (username) {
-      return `assets/images/usuarios/${username}.jpg`;
-    }
-    return 'assets/images/usuarios/default.jpg';
-  }
-
-  onImageError(event: any): void {
-    event.target.src = 'assets/images/usuarios/default.jpg';
-  }
-
-  abrirModalImagen(): void {
-    this.mostrarModalImagen = true;
-  }
-
-  cerrarModalImagen(): void {
-    this.mostrarModalImagen = false;
-    this.archivoSeleccionado = null;
-    this.imagenPreview = '';
-  }
-
-  onFileSelected(event: any): void {
-    const file = event.target.files[0];
-    if (file) {
-      this.procesarArchivo(file);
-    }
   }
 
   onDragOver(event: DragEvent): void {
@@ -189,32 +154,96 @@ export class PerfilComponent implements OnInit {
     event.preventDefault();
     event.stopPropagation();
     this.isDragging = false;
-    
-    const files = event.dataTransfer?.files;
-    if (files && files.length > 0) {
-      this.procesarArchivo(files[0]);
+
+    if (event.dataTransfer?.files && event.dataTransfer.files.length > 0) {
+      const file = event.dataTransfer.files[0];
+      this.procesarArchivo(file);
     }
   }
 
-  procesarArchivo(file: File): void {
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      this.procesarArchivo(input.files[0]);
+    }
+  }
+
+  private procesarArchivo(file: File): void {
     if (!file.type.startsWith('image/')) {
       this.mensajeError = 'Por favor, selecciona un archivo de imagen válido.';
       return;
     }
-    
-    const username = this.perfilForm.get('username')?.value || 'usuario';
-    const archivoRenombrado = new File([file], `${username}.jpg`, { type: file.type });
-    this.archivoSeleccionado = archivoRenombrado;
+
+    this.archivoSeleccionado = file;
+    this.actualizarNombreArchivo();
 
     const reader = new FileReader();
-    reader.onload = (e: any) => {
-      this.imagenPreview = e.target.result;
-    };
+    reader.onload = () => this.imagenPreview = reader.result;
     reader.readAsDataURL(file);
+  }
+
+  private obtenerArchivoRenombrado(): File | null {
+    if (!this.archivoSeleccionado) return null;
+
+    const usernameForm = this.perfilForm.get('username')?.value || 'usuario';
+    
+    const nombreLimpio = usernameForm
+      .toLowerCase()
+      .trim()
+      .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9]/g, "-")
+      .replace(/-+/g, "-");
+
+    const extension = this.archivoSeleccionado.name.split('.').pop() || 'jpg';
+    this.nombreArchivoRenombrado = `${nombreLimpio}.${extension}`;
+
+    return new File([this.archivoSeleccionado], this.nombreArchivoRenombrado, {
+      type: this.archivoSeleccionado.type
+    });
+  }
+
+  private actualizarNombreArchivo(): void {
+    if (this.archivoSeleccionado) {
+      this.obtenerArchivoRenombrado();
+    }
+  }
+
+  guardarNuevaImagen(): void {
+    if (this.archivoSeleccionado) {
+      this.mensajeExito = '¡Imagen seleccionada! Pulsa "Guardar Cambios" para aplicarla.';
+      this.cerrarModalImagen();
+      setTimeout(() => this.mensajeExito = '', 4000);
+    }
+  }
+
+  getImagenPerfilUrl(): string {
+    if (this.imagenPreview && typeof this.imagenPreview === 'string') {
+      return this.imagenPreview;
+    }
+    const username = this.perfilForm?.get('username')?.value || this.usuarioActual?.username;
+    if (username) {
+      return `assets/images/usuarios/${username}.jpg`;
+    }
+    return 'assets/images/usuarios/default.jpg';
+  }
+
+  onImageError(event: any): void {
+    event.target.src = 'assets/images/usuarios/default.jpg';
+  }
+
+  abrirModalImagen(): void {
+    this.mostrarModalImagen = true;
+  }
+
+  cerrarModalImagen(): void {
+    this.mostrarModalImagen = false;
   }
 
   guardarPerfil(): void {
     if (this.perfilForm.valid) {
+      const archivoFinal = this.obtenerArchivoRenombrado();
+      const nombreImagenFinal = archivoFinal ? archivoFinal.name : (this.usuarioActual?.imagen || this.perfilForm.value.imagen);
+
       const formValues = this.perfilForm.getRawValue();
 
       const usuarioActualizado: Usuario = {
@@ -226,11 +255,11 @@ export class PerfilComponent implements OnInit {
         nombre: formValues.nombre,
         apellido1: formValues.apellido1,
         apellido2: formValues.apellido2,
-        imagen: formValues.imagen,
+        imagen: nombreImagenFinal,
         telefono: formValues.telefono,
         calle: formValues.calle,
         tipoVivienda: formValues.tipoVivienda,
-        portalNum: formValues.portalNum,
+        portalNum: formValues.portalNum,  
         pisoNum: formValues.pisoNum,
         puerta: formValues.puerta,
         urbanizacionNombre: formValues.urbanizacionNombre,
@@ -239,12 +268,15 @@ export class PerfilComponent implements OnInit {
         instruccionesEntrega: formValues.instruccionesEntrega
       };
 
-      this.usuarioService.put(usuarioActualizado).subscribe({
+      this.usuarioService.put(usuarioActualizado, archivoFinal).subscribe({
         next: (response) => {
           this.usuarioActual = response;
-          this.mensajeExito = '¡Perfil y datos guardados correctamente en el servidor!';
-          this.mensajeError = '';
-          setTimeout(() => this.mensajeExito = '', 4000);
+          if (response.imagen) {
+            localStorage.setItem('imagen', `assets/images/usuarios/${response.imagen}`);
+          }
+          this.router.navigate(['/home']).then(() => {
+            window.location.reload();
+          });
         },
         error: (err) => {
           console.error('Error al actualizar el perfil:', err);
@@ -256,4 +288,4 @@ export class PerfilComponent implements OnInit {
       this.perfilForm.markAllAsTouched();
     }
   }
-}
+}   

@@ -33,7 +33,25 @@ export class MenuComponent implements OnInit {
     return this.authService.getNombreUsuario();
   }
 
+  get imagenUsuario(): string {
+    const imagenGuardada = localStorage.getItem('imagen');
+    if (imagenGuardada) {
+      return imagenGuardada;
+    }
+    const username = localStorage.getItem('username');
+    if (username) {
+      return `assets/images/usuarios/${username}.jpg`;
+    }
+    return 'assets/images/usuarios/default.jpg';
+  }
+
   cerrarSesion() {
+    localStorage.removeItem('imagen');
+    localStorage.removeItem('usuarioId');
+    localStorage.removeItem('roles');
+    localStorage.removeItem('username');
+    localStorage.removeItem('token');
+
     this.authService.logout();
   }
 
@@ -47,5 +65,9 @@ export class MenuComponent implements OnInit {
 
   get isCliente(): boolean {
     return this.authService.hasRole(['ROLE_CLIENTE', 'ROLE_EMPLEADO', 'ROLE_ADMIN']);
+  }
+
+  onImageError(event: any): void {
+    event.target.src = 'assets/images/usuarios/default.jpg';
   }
 }

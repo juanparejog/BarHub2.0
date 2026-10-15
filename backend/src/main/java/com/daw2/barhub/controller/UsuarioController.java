@@ -10,11 +10,19 @@ import com.daw2.barhub.auth.repository.RoleRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.text.Normalizer;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -31,7 +39,9 @@ public class UsuarioController {
     private PasswordEncoder passwordEncoder;
 
     @Autowired
-    private RoleRepository roleRepository; // Inyectamos RoleRepository para recuperar las entidades gestionadas por JPA
+    private RoleRepository roleRepository;
+
+    private final String UPLOAD_DIR = "../frontend/src/assets/images/usuarios/";
 
     @Autowired
     public UsuarioController(UserService userService) {
@@ -74,16 +84,23 @@ public class UsuarioController {
         }
     }
 
-    @PutMapping("{id}")
+    @PutMapping(value = "/{id}", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
     @Transactional
-    public ResponseEntity<?> update(@PathVariable Long id, @RequestBody UsuarioDto usuarioDto) {
+    public ResponseEntity<?> update(
+            @PathVariable Long id,
+            @RequestPart("usuario") UsuarioDto usuarioDto,
+            @RequestPart(value = "file", required = false) MultipartFile file) {
         try {
             User usuarioExistente = userService.findById(id);
             if (usuarioExistente == null) {
                 throw new RuntimeException("Usuario no encontrado");
             }
 
-            // 1. Datos básicos y personales
+            if (file != null && !file.isEmpty()) {
+                String nombreImagen = guardarImagenEnDisco(file, usuarioDto.getUsername());
+                usuarioExistente.setImagen(nombreImagen);
+            }
+
             usuarioExistente.setUsername(usuarioDto.getUsername());
             usuarioExistente.setEmail(usuarioDto.getEmail());
             usuarioExistente.setNombre(usuarioDto.getNombre());
@@ -96,7 +113,6 @@ public class UsuarioController {
                 try {
                     usuarioExistente.setTipoVivienda(TipoVivienda.valueOf(usuarioDto.getTipoVivienda().toLowerCase()));
                 } catch (Exception e) {
-                    // Manejar si viene en formato incorrecto
                 }
             }
 
@@ -107,7 +123,6 @@ public class UsuarioController {
             usuarioExistente.setCasaNum(usuarioDto.getCasaNum());
             usuarioExistente.setCodigoPostal(usuarioDto.getCodigoPostal());
             usuarioExistente.setInstruccionesEntrega(usuarioDto.getInstruccionesEntrega());
-            usuarioExistente.setImagen(usuarioDto.getImagen());
 
             if (usuarioDto.getPassword() != null && !usuarioDto.getPassword().isBlank()) {
                 usuarioExistente.setPassword(passwordEncoder.encode(usuarioDto.getPassword()));
@@ -115,12 +130,10 @@ public class UsuarioController {
 
             if (usuarioDto.getRoles() != null) {
                 usuarioExistente.getRoles().clear();
-
                 Set<Role> rolesPersistidos = usuarioDto.getRoles().stream()
                         .map(rolDto -> roleRepository.findById(rolDto.getId())
                                 .orElseThrow(() -> new RuntimeException("Rol no encontrado con ID: " + rolDto.getId())))
                         .collect(Collectors.toSet());
-
                 usuarioExistente.getRoles().addAll(rolesPersistidos);
             }
 
@@ -142,5 +155,34 @@ public class UsuarioController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(ErrorDto.from("Error al eliminar usuario: " + e.getMessage()));
         }
+    }
+
+    private String guardarImagenEnDisco(MultipartFile file, String nombreUsuario) throws IOException {
+        if (nombreUsuario == null || nombreUsuario.isBlank()) {
+            nombreUsuario = "usuario";
+        }
+
+        String nombreLimpio = Normalizer.normalize(nombreUsuario.toLowerCase().trim(), Normalizer.Form.NFD)
+                .replaceAll("[\\p{InCombiningDiacriticalMarks}]", "")
+                .replaceAll("[^a-z0-9]", "-")
+                .replaceAll("-+", "-");
+
+        String originalFilename = file.getOriginalFilename();
+        String extension = "jpg";
+        if (originalFilename != null && originalFilename.contains(".")) {
+            extension = originalFilename.substring(originalFilename.lastIndexOf(".") + 1);
+        }
+
+        String nombreFinal = nombreLimpio + "." + extension;
+
+        Path uploadPath = Paths.get(UPLOAD_DIR).toAbsolutePath().normalize();
+        if (!Files.exists(uploadPath)) {
+            Files.createDirectories(uploadPath);
+        }
+
+        Path filePath = uploadPath.resolve(nombreFinal);
+        Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+
+        return nombreFinal;
     }
 }

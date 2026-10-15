@@ -86,15 +86,22 @@
         <div *ngIf="sesionIniciada" class="user-menu">
           <ul class="navbar-nav">
             <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle user-dropdown-toggle d-flex align-items-center" 
+              <a class="nav-link dropdown-toggle user-dropdown-toggle d-flex align-items-center gap-2" 
                  href="#" 
                  role="button" 
                  data-bs-toggle="dropdown" 
                  aria-expanded="false">
+
+                <!-- Avatar del usuario con imagen o respaldo por defecto -->
                 <div class="user-avatar-wrapper">
-                  <i class="bi bi-person-circle"></i>
+                  <img [src]="imagenUsuario" 
+                       (error)="onImageError($event)" 
+                       class="rounded-circle object-fit-cover shadow-sm border border-1 border-primary" 
+                       style="width: 35px; height: 35px;" 
+                       alt="Avatar">
                 </div>
-                <span *ngIf="nombreUsuario" class="user-name ms-2 fw-semibold">{{ nombreUsuario }}</span>
+              
+                <span *ngIf="nombreUsuario" class="user-name fw-semibold">{{ nombreUsuario }}</span>
               </a>
               <ul class="dropdown-menu dropdown-menu-end custom-dropdown">
                 <li>
