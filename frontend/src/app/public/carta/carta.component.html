@@ -110,6 +110,18 @@
 
       <!-- Opción 3: DOMICILIO -->
       <div *ngIf="tipoPedido === 'DOMICILIO'" class="modalidad-body">
+        
+        <!-- Banner de sugerencia con los datos del perfil -->
+        <div class="profile-suggestion-banner mb-3 p-3 rounded border d-flex justify-content-between align-items-center" style="background-color: var(--card-bg); border-color: var(--border-color) !important;">
+          <div class="d-flex align-items-center gap-2">
+            <i class="bi bi-person-badge fs-4 text-primary"></i>
+            <span class="small fw-semibold" style="color: var(--text-main);">¿Quieres usar la dirección y teléfono guardados en tu perfil?</span>
+          </div>
+          <button type="button" class="btn btn-sm btn-primary px-3 py-2 fw-bold" (click)="cargarDatosPerfil()">
+            <i class="bi bi-magic me-1"></i> Usar mis datos
+          </button>
+        </div>
+
         <div class="domicilio-grid">
           
           <!-- Calle y Nombre -->

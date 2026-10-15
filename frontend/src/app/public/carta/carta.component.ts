@@ -4,8 +4,10 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { AuthService } from '../../auth/auth.service';
 import { MesaService } from '../../admin/pages/mesas/services/mesa';
 import { ProductoService } from '../../admin/pages/productos/services/producto';
+import { UsuarioService } from '../../admin/pages/usuarios/services/usuario';
 import { Mesa } from '../../admin/pages/mesas/interface/mesa';
 import { Producto } from '../../admin/pages/productos/interface/producto';
+import { Usuario } from '../../admin/pages/usuarios/interface/usuario';
 
 export type TipoPedido = 'MESA' | 'DOMICILIO' | 'RECOGER';
 export type TipoVivienda = 'piso' | 'casa' | 'urbanizacion';
@@ -26,28 +28,23 @@ export class CartaComponent implements OnInit {
   productos: Producto[] = [];
   productosSeleccionados: ProductoSeleccionado[] = [];
   
-  // Selección de tipo de servicio (MESA, DOMICILIO o RECOGER)
   tipoPedido: TipoPedido = 'MESA';
   idMesa: number | null = null;
   mesaBloqueadaPorQr = false;
 
-  // Ubicación fija de recogida
   readonly UBICACION_RECOGIDA_FIJA = {
     nombre: 'BarHub Principal',
     direccion: 'Avda Sinforiano Madroñero, 13',
     cp: '06011'
   };
 
-  // Campos desglosados para Domicilio
   calle = '';
   tipoVivienda: TipoVivienda = 'piso';
   
-  // Para Piso
   portalNum = '';
   pisoNum = '';
   puerta = '';
 
-  // Para Casa / Urbanización
   casaNum = '';
   urbanizacionNombre = '';
 
@@ -64,6 +61,7 @@ export class CartaComponent implements OnInit {
     private authService: AuthService,
     private mesaService: MesaService,
     private productoService: ProductoService,
+    private usuarioService: UsuarioService,
     private route: ActivatedRoute,
     private router: Router,
     private sanitizer: DomSanitizer
@@ -105,6 +103,36 @@ export class CartaComponent implements OnInit {
 
   seleccionarTipoPedido(tipo: TipoPedido) {
     this.tipoPedido = tipo;
+  }
+
+  cargarDatosPerfil() {
+    const idGuardado = localStorage.getItem('usuarioId') || localStorage.getItem('id');
+    if (!idGuardado) {
+      this.showToastMessage('No se encontró una sesión activa de usuario', 'error');
+      return;
+    }
+
+    this.usuarioService.getId(Number(idGuardado)).subscribe({
+      next: (usuario: Usuario) => {
+        if (usuario) {
+          this.calle = usuario.calle || '';
+          this.tipoVivienda = (usuario.tipoVivienda?.toLowerCase() as TipoVivienda) || 'piso';
+          this.portalNum = usuario.portalNum || '';
+          this.pisoNum = usuario.pisoNum || '';
+          this.puerta = usuario.puerta || '';
+          this.urbanizacionNombre = usuario.urbanizacionNombre || '';
+          this.casaNum = usuario.casaNum || '';
+          this.codigoPostal = usuario.codigoPostal || '';
+          this.telefonoContacto = usuario.telefono || '';
+          
+          this.showToastMessage('¡Datos de tu perfil cargados con éxito!', 'success');
+        }
+      },
+      error: (err) => {
+        console.error('Error al cargar datos del perfil:', err);
+        this.showToastMessage('No se pudieron cargar los datos del perfil', 'error');
+      }
+    });
   }
 
   get datosServicioCompletos(): boolean {
