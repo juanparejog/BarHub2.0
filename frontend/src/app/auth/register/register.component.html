@@ -8,12 +8,14 @@
 
   <h2>Registro</h2>
   <form #registerForm="ngForm" (ngSubmit)="onSubmit()">
+    
+    <!-- Nombre de usuario -->
     <label>
       <span>Nombre de usuario</span>
       <input type="text" [(ngModel)]="form.username" name="username" 
              #username="ngModel" required minlength="3"
              placeholder="Usuario"
-             [class.is-invalid]="username.invalid && (username.dirty || username.touched)">
+             [class.is-invalid]="(username.invalid || usernameRestricted) && (username.dirty || username.touched)">
       <div *ngIf="username.errors?.['required'] && (username.dirty || username.touched)" class="invalid-feedback">
         El nombre de usuario es requerido
       </div>
@@ -23,13 +25,42 @@
       <div *ngIf="usernameTaken" class="invalid-feedback">
         Este usuario ya está registrado
       </div>
+      <div *ngIf="usernameRestricted" class="invalid-feedback">
+        El nombre de usuario "default" está reservado y no se puede utilizar.
+      </div>
     </label>
 
+    <!-- Nombre y Apellidos (Obligatorios para evitar error 500) -->
+    <div class="row-fields">
+      <label class="half-width">
+        <span>Nombre</span>
+        <input type="text" [(ngModel)]="form.nombre" name="nombre" 
+               #nombre="ngModel" required
+               placeholder="Nombre"
+               [class.is-invalid]="nombre.invalid && (nombre.dirty || nombre.touched)">
+        <div *ngIf="nombre.invalid && (nombre.dirty || nombre.touched)" class="invalid-feedback">
+          El nombre es requerido
+        </div>
+      </label>
+
+      <label class="half-width">
+        <span>Primer Apellido</span>
+        <input type="text" [(ngModel)]="form.apellido1" name="apellido1" 
+               #apellido1="ngModel" required
+               placeholder="Primer apellido"
+               [class.is-invalid]="apellido1.invalid && (apellido1.dirty || apellido1.touched)">
+        <div *ngIf="apellido1.invalid && (apellido1.dirty || apellido1.touched)" class="invalid-feedback">
+          El apellido es requerido
+        </div>
+      </label>
+    </div>
+
+    <!-- Correo -->
     <label>
       <span>Correo</span>
       <input type="email" [(ngModel)]="form.email" name="email" 
              #email="ngModel" required pattern="[^@]+@[^@]+\.[a-zA-Z]{2,6}"
-             placeholder="Correo"
+             placeholder="Correo electrónico"
              [class.is-invalid]="email.invalid && (email.dirty || email.touched)">
       <div *ngIf="email.errors?.['required'] && (email.dirty || email.touched)" class="invalid-feedback">
         El correo es requerido
@@ -39,6 +70,7 @@
       </div>
     </label>
 
+    <!-- Contraseña -->
     <label>
       <span>Contraseña</span>
       <div class="input-eye-row">
@@ -52,8 +84,8 @@
           placeholder="Contraseña"
           [class.is-invalid]="password.invalid && (password.dirty || password.touched)">
         <button type="button" class="eye-btn" (click)="showPassword = !showPassword" tabindex="-1">
-          <svg *ngIf="!showPassword" xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24"><path stroke="#888" stroke-width="2" d="M1 12S5 5 12 5s11 7 11 7-4 7-11 7S1 12 1 12Z"/><circle cx="12" cy="12" r="3" stroke="#888" stroke-width="2"/></svg>
-          <svg *ngIf="showPassword" xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24"><path stroke="#888" stroke-width="2" d="M17.94 17.94C16.12 19.13 14.13 19.77 12 19.77c-7 0-11-7-11-7a20.87 20.87 0 0 1 4.31-5.12M6.06 6.06C7.88 4.87 9.87 4.23 12 4.23c7 0 11 7 11 7a20.87 20.87 0 0 1-4.31 5.12M1 1l22 22"/></svg>
+          <svg *ngIf="!showPassword" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24"><path stroke="currentColor" stroke-width="2" d="M1 12S5 5 12 5s11 7 11 7-4 7-11 7S1 12 1 12Z"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/></svg>
+          <svg *ngIf="showPassword" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24"><path stroke="currentColor" stroke-width="2" d="M17.94 17.94C16.12 19.13 14.13 19.77 12 19.77c-7 0-11-7-11-7a20.87 20.87 0 0 1 4.31-5.12M6.06 6.06C7.88 4.87 9.87 4.23 12 4.23c7 0 11 7 11 7a20.87 20.87 0 0 1-4.31 5.12M1 1l22 22"/></svg>
         </button>
       </div>
       <div *ngIf="password.errors?.['required'] && (password.dirty || password.touched)" class="invalid-feedback">
@@ -64,6 +96,7 @@
       </div>
     </label>
     
+    <!-- Repetir Contraseña -->
     <label>
       <span>Repetir Contraseña</span>
       <div class="input-eye-row">
@@ -75,8 +108,8 @@
                placeholder="Repite tu contraseña"
                [class.is-invalid]="(confirmPasswordCtrl.invalid || form.password !== confirmPassword) && (confirmPasswordCtrl.dirty || confirmPasswordCtrl.touched)">
         <button type="button" class="eye-btn" (click)="showConfirmPassword = !showConfirmPassword" tabindex="-1">
-          <svg *ngIf="!showConfirmPassword" xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="none" viewBox="0 0 24 24"><path stroke="#888" stroke-width="2" d="M1 12S5 5 12 5s11 7 11 7-4 7-11 7S1 12 1 12Z"/><circle cx="12" cy="12" r="3" stroke="#888" stroke-width="2"/></svg>
-          <svg *ngIf="showConfirmPassword" xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="none" viewBox="0 0 24 24"><path stroke="#888" stroke-width="2" d="M17.94 17.94C16.12 19.13 14.13 19.77 12 19.77c-7 0-11-7-11-7a20.87 20.87 0 0 1 4.31-5.12M6.06 6.06C7.88 4.87 9.87 4.23 12 4.23c7 0 11 7 11 7a20.87 20.87 0 0 1-4.31 5.12M1 1l22 22"/></svg>
+          <svg *ngIf="!showConfirmPassword" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24"><path stroke="currentColor" stroke-width="2" d="M1 12S5 5 12 5s11 7 11 7-4 7-11 7S1 12 1 12Z"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/></svg>
+          <svg *ngIf="showConfirmPassword" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24"><path stroke="currentColor" stroke-width="2" d="M17.94 17.94C16.12 19.13 14.13 19.77 12 19.77c-7 0-11-7-11-7a20.87 20.87 0 0 1 4.31-5.12M6.06 6.06C7.88 4.87 9.87 4.23 12 4.23c7 0 11 7 11 7a20.87 20.87 0 0 1-4.31 5.12M1 1l22 22"/></svg>
         </button>
       </div>
       <div *ngIf="confirmPasswordCtrl.errors?.['required'] && (confirmPasswordCtrl.dirty || confirmPasswordCtrl.touched)" class="invalid-feedback">
@@ -87,6 +120,7 @@
       </div>
     </label>
 
+    <!-- Políticas -->
     <label class="checkbox-politicas">
       <input
         type="checkbox"
