@@ -13,6 +13,7 @@ import { HomeComponent } from './public/home/home.component';
 import { SeguimientoPedidosComponent } from './public/seguimiento-pedidos/seguimiento-pedidos.component';
 import { PoliticaPrivacidadComponent } from './public/politica-privacidad/politica-privacidad.component';
 import { TerminosCondicionesComponent } from './public/terminos-condiciones/terminos-condiciones.component';
+import { PerfilComponent } from './public/perfil/perfil.component';
 
 const routes: Routes = [
   // Ruta por defecto
@@ -35,6 +36,7 @@ const routes: Routes = [
   { path: 'contacto', component: ContactoComponent },
   { path: 'politica-privacidad', component: PoliticaPrivacidadComponent },
   { path: 'terminos-condiciones', component: TerminosCondicionesComponent },
+  { path: 'perfil', component: PerfilComponent },
 
   // Rutas Empleados / Personal
   { 

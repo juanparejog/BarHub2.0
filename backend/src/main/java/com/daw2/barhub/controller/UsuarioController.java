@@ -5,6 +5,7 @@ import com.daw2.barhub.model.dto.ErrorDto;
 import com.daw2.barhub.model.dto.UsuarioDto;
 import com.daw2.barhub.auth.models.User;
 import com.daw2.barhub.auth.models.Role;
+import com.daw2.barhub.auth.models.TipoVivienda;
 import com.daw2.barhub.auth.repository.RoleRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,7 +75,7 @@ public class UsuarioController {
     }
 
     @PutMapping("{id}")
-    @Transactional // AÑADIDO: Importante para sincronizaciones de colecciones JPA
+    @Transactional
     public ResponseEntity<?> update(@PathVariable Long id, @RequestBody UsuarioDto usuarioDto) {
         try {
             User usuarioExistente = userService.findById(id);
@@ -82,20 +83,39 @@ public class UsuarioController {
                 throw new RuntimeException("Usuario no encontrado");
             }
 
-            // 1. Datos básicos
+            // 1. Datos básicos y personales
             usuarioExistente.setUsername(usuarioDto.getUsername());
             usuarioExistente.setEmail(usuarioDto.getEmail());
+            usuarioExistente.setNombre(usuarioDto.getNombre());
+            usuarioExistente.setApellido1(usuarioDto.getApellido1());
+            usuarioExistente.setApellido2(usuarioDto.getApellido2());
+            usuarioExistente.setTelefono(usuarioDto.getTelefono());
+            usuarioExistente.setCalle(usuarioDto.getCalle());
+
+            if (usuarioDto.getTipoVivienda() != null) {
+                try {
+                    usuarioExistente.setTipoVivienda(TipoVivienda.valueOf(usuarioDto.getTipoVivienda().toLowerCase()));
+                } catch (Exception e) {
+                    // Manejar si viene en formato incorrecto
+                }
+            }
+
+            usuarioExistente.setPortalNum(usuarioDto.getPortalNum());
+            usuarioExistente.setPisoNum(usuarioDto.getPisoNum());
+            usuarioExistente.setPuerta(usuarioDto.getPuerta());
+            usuarioExistente.setUrbanizacionNombre(usuarioDto.getUrbanizacionNombre());
+            usuarioExistente.setCasaNum(usuarioDto.getCasaNum());
+            usuarioExistente.setCodigoPostal(usuarioDto.getCodigoPostal());
+            usuarioExistente.setInstruccionesEntrega(usuarioDto.getInstruccionesEntrega());
+            usuarioExistente.setImagen(usuarioDto.getImagen());
 
             if (usuarioDto.getPassword() != null && !usuarioDto.getPassword().isBlank()) {
                 usuarioExistente.setPassword(passwordEncoder.encode(usuarioDto.getPassword()));
             }
 
-            // 2. ACTUALIZACIÓN DE ROLES:
             if (usuarioDto.getRoles() != null) {
-                // Limpiar la relación previa en la tabla intermedia user_roles
                 usuarioExistente.getRoles().clear();
 
-                // Recuperar las entidades Role desde la base de datos a partir de los DTOs recibidos
                 Set<Role> rolesPersistidos = usuarioDto.getRoles().stream()
                         .map(rolDto -> roleRepository.findById(rolDto.getId())
                                 .orElseThrow(() -> new RuntimeException("Rol no encontrado con ID: " + rolDto.getId())))

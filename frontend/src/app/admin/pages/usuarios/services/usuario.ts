@@ -13,7 +13,6 @@ export class UsuarioService {
 
   constructor(private httpClient: HttpClient) { }
 
-  // Añadir este método
   private handleError(error: HttpErrorResponse): Observable<never> {
     let errorMessage = 'Error desconocido';
     if (error.error instanceof ErrorEvent) {
@@ -28,7 +27,6 @@ export class UsuarioService {
     return throwError(() => new Error(errorMessage));
   }
 
-  // Métodos existentes con corrección de URLs y manejo de errores
   get(): Observable<Usuario[]> {
     return this.httpClient.get<Usuario[]>(this.URL_USUARIOS + '/')
       .pipe(catchError(this.handleError));

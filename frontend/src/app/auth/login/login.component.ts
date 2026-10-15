@@ -44,15 +44,22 @@ export class LoginComponent {
     };
   
     this.authService.login(credentials).subscribe({
-      next: (res) => {
+      next: (res: any) => {
         localStorage.setItem('token', res.token);
       
         const payload = JSON.parse(atob(res.token.split('.')[1]));
 
         localStorage.setItem('roles', JSON.stringify(payload.roles));
-        localStorage.setItem('username', payload.username);
-      
-        console.log('roles:', JSON.stringify(payload.roles))
+        localStorage.setItem('username', payload.username || payload.sub);
+        
+        const userId = payload.id || payload.userId || res.id;
+        if (userId) {
+          localStorage.setItem('usuarioId', userId.toString());
+        }
+
+        console.log('roles:', JSON.stringify(payload.roles));
+        console.log('ID guardado:', localStorage.getItem('usuarioId'));
+
         this.router.navigate(['/carta']);
       },
       error: (err) => {
@@ -61,5 +68,4 @@ export class LoginComponent {
       }
     });
   }
-  
 }

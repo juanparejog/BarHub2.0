@@ -1,0 +1,239 @@
+/* Animación sutil de entrada para la tarjeta principal */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(25px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Tarjeta principal con efectos de elevación */
+.perfil-card {
+  background: #ffffff;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.perfil-card:hover {
+  box-shadow: 0 1.25rem 2.5rem rgba(0, 0, 0, 0.08) !important;
+}
+
+/* Animación del icono de cabecera */
+.perfil-icon-wrapper {
+  transition: transform 0.3s ease, background-color 0.3s ease;
+}
+
+.perfil-card:hover .perfil-icon-wrapper {
+  transform: scale(1.08) rotate(4deg);
+}
+
+/* Transiciones suaves en campos de formulario e inputs */
+.form-control, .input-group-text, .form-select {
+  transition: all 0.3s ease;
+}
+
+.form-control:focus, .form-select:focus {
+  border-color: var(--bs-primary);
+  box-shadow: 0 0 0 0.25rem rgba(var(--bs-primary-rgb), 0.15);
+}
+
+/* Efecto al hacer foco en un grupo de input (ilumina el icono izquierdo) */
+.input-group:focus-within .input-group-text {
+  border-color: var(--bs-primary);
+  color: var(--bs-primary);
+  background-color: rgba(var(--bs-primary-rgb), 0.05) !important;
+}
+
+/* --- ESTILOS PROFESIONALES PARA TARJETAS DE TIPO DE VIVIENDA --- */
+.custom-radio-card {
+  position: relative;
+  background-color: #f8f9fa;
+  border: 2px solid #e9ecef;
+  border-radius: 0.75rem;
+  padding: 0.75rem 1.25rem 0.75rem 2.5rem;
+  cursor: pointer;
+  transition: all 0.25s ease-in-out;
+}
+
+.custom-radio-card:hover {
+  background-color: #f1f3f5;
+  border-color: #ced4da;
+  transform: translateY(-1px);
+}
+
+.custom-radio-card .form-check-input {
+  position: absolute;
+  left: 0.85rem;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+}
+
+/* Estilo cuando el radio button está seleccionado */
+.custom-radio-card:has(input:checked) {
+  background-color: rgba(var(--bs-primary-rgb), 0.04);
+  border-color: var(--bs-primary);
+  box-shadow: 0 0.25rem 0.75rem rgba(var(--bs-primary-rgb), 0.1);
+}
+
+.custom-radio-card input:checked ~ .form-check-label {
+  color: var(--bs-primary);
+  font-weight: 600;
+}
+
+/* Animación de aparición suave para los campos dinámicos (Piso, Urb, Casa) */
+ng-container {
+  animation: fadeInUp 0.3s ease-out forwards;
+}
+
+/* Botón con animación de elevación al pasar el ratón */
+.btn-animated {
+  transition: all 0.3s ease;
+}
+
+.btn-animated:not(:disabled):hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0.5rem 1rem rgba(var(--bs-primary-rgb), 0.35) !important;
+}
+
+.btn-animated:not(:disabled):active {
+  transform: translateY(0);
+}
+
+/* Animación de entrada para las alertas de éxito/error */
+.custom-alert {
+  animation: fadeInUp 0.4s ease-out forwards;
+}
+
+/* --- TARJETAS MODERNAS PARA TIPO DE INMUEBLE --- */
+.tipo-vivienda-card {
+  display: block;
+  cursor: pointer;
+  background-color: #f8f9fa;
+  border: 2px solid #e9ecef;
+  border-radius: 1rem;
+  padding: 1.25rem 1rem;
+  text-align: center;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  height: 100%;
+}
+
+.tipo-vivienda-card .card-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: #495057;
+}
+
+.tipo-vivienda-card .icon-box {
+  font-size: 1.75rem;
+  color: #6c757d;
+  margin-bottom: 0.5rem;
+  transition: transform 0.3s ease, color 0.3s ease;
+}
+
+.tipo-vivienda-card small {
+  font-size: 0.75rem;
+  margin-top: 0.2rem;
+  transition: color 0.3s ease;
+}
+
+/* Efecto Hover */
+.tipo-vivienda-card:hover {
+  background-color: #f1f3f5;
+  border-color: #ced4da;
+  transform: translateY(-3px);
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.05);
+}
+
+.tipo-vivienda-card:hover .icon-box {
+  transform: scale(1.1);
+}
+
+/* Estado Activo / Seleccionado */
+.tipo-vivienda-card.active {
+  background-color: rgba(var(--bs-primary-rgb), 0.04);
+  border-color: var(--bs-primary);
+  box-shadow: 0 0.5rem 1.25rem rgba(var(--bs-primary-rgb), 0.12);
+  transform: translateY(-2px);
+}
+
+.tipo-vivienda-card.active .card-content {
+  color: var(--bs-primary);
+}
+
+.tipo-vivienda-card.active .icon-box {
+  color: var(--bs-primary);
+  transform: scale(1.15);
+}
+
+.tipo-vivienda-card.active small {
+  color: rgba(var(--bs-primary-rgb), 0.75) !important;
+}
+
+/* --- ESTILOS DE AVATAR INTERACTIVO Y MODAL DRAG & DROP --- */
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.avatar-wrapper {
+  width: 75px;
+  height: 75px;
+}
+
+.avatar-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(15, 23, 42, 0.5);
+  opacity: 0;
+  transition: opacity 0.2s ease-in-out;
+}
+
+.avatar-wrapper:hover .avatar-overlay {
+  opacity: 1;
+}
+
+/* Modal Backdrop */
+.modal-backdrop-custom {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(4px);
+  z-index: 1040;
+}
+
+/* Drop Zone Estilos */
+.drop-zone {
+  border: 2px dashed #cbd5e1;
+  background-color: #f8fafc;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.drop-zone:hover, .drop-zone.drag-over {
+  border-color: #4f46e5;
+  background-color: #f1f5f9;
+}
+
+body.dark-theme .drop-zone {
+  background-color: #0f172a;
+  border-color: #334155;
+}
+
+body.dark-theme .drop-zone:hover {
+  border-color: #818cf8;
+  background-color: #1e293b;
+}

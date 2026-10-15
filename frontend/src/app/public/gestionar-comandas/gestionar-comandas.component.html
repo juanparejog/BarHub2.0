@@ -52,11 +52,12 @@
     <p class="text-muted small mb-0">Todas las comandas han sido procesadas o no hay nuevos pedidos pendientes.</p>
   </div>
 
-  <!-- PARRILLA DE COMANDAS (GRID KDS) -->
+  <!-- PARRILLA DE COMANDAS (GRID KDS) CON ANIMACIÓN EN CASCADA -->
   <div class="row g-3 g-md-4" *ngIf="getPedidosFiltrados().length > 0">
     <div 
-      *ngFor="let pedido of getPedidosFiltrados()" 
-      class="col-12 col-md-6 col-xl-4">
+      *ngFor="let pedido of getPedidosFiltrados(); let i = index" 
+      class="col-12 col-md-6 col-xl-4 comanda-col"
+      [style.animation-delay]="(i * 0.04) + 's'">
       
       <div 
         class="card comanda-kds-card h-100 border-0"

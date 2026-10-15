@@ -5,12 +5,12 @@ INSERT INTO roles (name) VALUES ('ROLE_CLIENTE');
 INSERT INTO roles (name) VALUES ('ROLE_EMPLEADO');
 
 -- Hash BCrypt real para contraseña: "juan1234*%"
-INSERT INTO users (username, password, email) VALUES ('Juan', '$2a$10$tTrV.eBQnV8zcZ7Ig1Ws2eUp8H4kNr5DxUViGS03ruQ0OWAezG4Km', 'juan@barhub.com');
+INSERT INTO users (username, password, email, nombre, apellido1, apellido2) VALUES ('Juan', '$2a$10$tTrV.eBQnV8zcZ7Ig1Ws2eUp8H4kNr5DxUViGS03ruQ0OWAezG4Km', 'juan@barhub.com', 'Juan', 'Parejo', 'García');
 
 -- Hashes con contraseña "123456" para pruebas
-INSERT INTO users (username, password, email) VALUES ('admin', '$2a$10$Q3FfQzrIQ.gpPlsGroPuHOMheerTKabMbVWbKZpleqorUaT3L2GDC', 'admin@gmail.com');
-INSERT INTO users (username, password, email) VALUES ('cliente', '$2a$10$Q3FfQzrIQ.gpPlsGroPuHOMheerTKabMbVWbKZpleqorUaT3L2GDC', 'cliente@gmail.com');
-INSERT INTO users (username, password, email) VALUES ('emple', '$2a$10$Q3FfQzrIQ.gpPlsGroPuHOMheerTKabMbVWbKZpleqorUaT3L2GDC', 'emple@gmail.com');
+INSERT INTO users (username, password, email, nombre, apellido1, apellido2) VALUES ('admin', '$2a$10$Q3FfQzrIQ.gpPlsGroPuHOMheerTKabMbVWbKZpleqorUaT3L2GDC', 'admin@gmail.com', 'David', 'Guetta', '');
+INSERT INTO users (username, password, email, nombre, apellido1, apellido2) VALUES ('cliente', '$2a$10$Q3FfQzrIQ.gpPlsGroPuHOMheerTKabMbVWbKZpleqorUaT3L2GDC', 'cliente@gmail.com', 'Pancho', 'Panchet', '');
+INSERT INTO users (username, password, email, nombre, apellido1, apellido2) VALUES ('emple', '$2a$10$Q3FfQzrIQ.gpPlsGroPuHOMheerTKabMbVWbKZpleqorUaT3L2GDC', 'emple@gmail.com', 'Minguito', 'Minguez', '');
 
 INSERT INTO user_roles (user_id, role_id) VALUES (1, 1);
 INSERT INTO user_roles (user_id, role_id) VALUES (2, 1);

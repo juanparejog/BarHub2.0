@@ -25,6 +25,7 @@ import { HomeComponent } from './public/home/home.component';
 import { FooterComponent } from './shared/footer/footer.component';
 import { SocketIoModule, SocketIoConfig } from 'ngx-socket-io';
 import { environment } from "src/environments/environment";
+import { PerfilComponent } from './public/perfil/perfil.component';
 
 const config: SocketIoConfig = { 
   url: 'http://localhost:8080', 
@@ -45,7 +46,8 @@ const config: SocketIoConfig = {
     HomeComponent,
     FooterComponent,
     PoliticaPrivacidadComponent,
-    TerminosCondicionesComponent
+    TerminosCondicionesComponent,
+    PerfilComponent
   ],
   imports: [
     BrowserModule,
