@@ -6,6 +6,7 @@ import { RoleGuard } from './auth/role.guard';
 import { CartaComponent } from './public/carta/carta.component';
 import { ContactoComponent } from './public/contacto/contacto.component';
 import { ConfirmarPedidoComponent } from './public/confirmar-pedido/confirmar-pedido.component';
+import { GestionarCajaComponent } from './public/gestionar-caja/gestionar-caja.component';
 import { GestionarComandasComponent } from './public/gestionar-comandas/gestionar-comandas.component';
 import { GestionarMesasEmpleadoComponent } from './public/gestionar-mesas-empleado/gestionar-mesas-empleado.component';
 import { GestionarPagosEfectivoComponent } from './public/gestionar-pagos-efectivo/gestionar-pagos-efectivo.component';
@@ -54,6 +55,12 @@ const routes: Routes = [
   { 
     path: 'empleado/gestionar-pagos', 
     component: GestionarPagosEfectivoComponent, 
+    canActivate: [RoleGuard], 
+    data: { roles: ['ROLE_EMPLEADO', 'ROLE_ADMIN'] } 
+  },
+  { 
+    path: 'empleado/gestionar-caja', 
+    component: GestionarCajaComponent, 
     canActivate: [RoleGuard], 
     data: { roles: ['ROLE_EMPLEADO', 'ROLE_ADMIN'] } 
   },

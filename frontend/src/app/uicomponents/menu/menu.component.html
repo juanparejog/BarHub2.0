@@ -35,6 +35,9 @@
         <li class="nav-item" *ngIf="isEmple || isAdmin">
           <a class="nav-link" routerLink="/empleado/gestionar-comandas" routerLinkActive="active">Comandas</a>
         </li>
+        <li class="nav-item" *ngIf="isEmple || isAdmin">
+          <a class="nav-link" routerLink="/empleado/gestionar-caja" routerLinkActive="active">Caja</a>
+        </li>
         <li class="nav-item dropdown" *ngIf="isAdmin">
           <a class="nav-link dropdown-toggle admin-badge-link d-flex align-items-center gap-1" 
              href="#" 

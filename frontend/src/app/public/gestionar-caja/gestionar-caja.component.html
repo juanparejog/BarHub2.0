@@ -1,0 +1,249 @@
+<div class="crud-container">
+  
+    <!-- Header Principal -->
+    <div class="crud-header mb-4 d-flex justify-content-between align-items-center">
+      <div>
+        <h1 class="crud-title">Control y Arqueo de Caja</h1>
+        <p class="text-muted small mb-0">Apertura, seguimiento de ventas del turno y cierre diario de caja</p>
+      </div>
+      <div>
+        <button (click)="cargarDatos()" class="btn-crud-secondary d-inline-flex align-items-center gap-2">
+          <i class="bi bi-arrow-clockwise"></i>
+          <span>Actualizar Datos</span>
+        </button>
+      </div>
+    </div>
+  
+    <!-- SPINNER DE CARGA -->
+    <div *ngIf="cargando" class="text-center py-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Cargando...</span>
+      </div>
+    </div>
+  
+    <ng-container *ngIf="!cargando">
+      
+      <!-- ESTADO 1: NO HAY CAJA ABIERTA -> FORMULARIO DE APERTURA -->
+      <div *ngIf="!cajaActual" class="crud-card mb-4 p-4 border-start border-4 border-warning">
+        <div class="d-flex align-items-center gap-3 mb-3">
+          <div class="rounded-circle bg-warning bg-opacity-10 p-3 text-warning">
+            <i class="bi bi-door-closed fs-2"></i>
+          </div>
+          <div>
+            <h3 class="h5 fw-bold text-dark mb-1">La caja se encuentra actualmente CERRADA</h3>
+            <p class="text-muted small mb-0">Introduce el fondo inicial para abrir la caja y empezar a registrar comandas.</p>
+          </div>
+        </div>
+  
+        <form [formGroup]="formApertura" (ngSubmit)="abrirCaja()" class="row g-3 mt-2">
+          <div class="col-md-4">
+            <label class="form-label fw-medium">Fondo Inicial (€) <span class="text-danger">*</span></label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="bi bi-currency-euro"></i></span>
+              <input type="number" step="0.01" formControlName="montoInicial" class="form-control" placeholder="150.00">
+            </div>
+            <div *ngIf="formApertura.get('montoInicial')?.touched && formApertura.get('montoInicial')?.invalid" class="text-danger small mt-1">
+              Indica un fondo inicial válido (mínimo 0).
+            </div>
+          </div>
+  
+          <div class="col-md-8">
+            <label class="form-label fw-medium">Observaciones de Apertura</label>
+            <input type="text" formControlName="observaciones" class="form-control" placeholder="Ej. Cambio dejado en billetes de 5€ y monedas">
+          </div>
+  
+          <div class="col-12 d-flex justify-content-end mt-3">
+            <button type="submit" class="btn-crud-primary d-inline-flex align-items-center gap-2" [disabled]="formApertura.invalid">
+              <i class="bi bi-door-open"></i>
+              <span>Abrir Caja Diaria</span>
+            </button>
+          </div>
+        </form>
+      </div>
+  
+  
+      <!-- ESTADO 2: CAJA ABIERTA -> PANEL DE ARQUEO Y CIERRE -->
+      <div *ngIf="cajaActual" class="crud-card mb-4 p-4 border-start border-4 border-success">
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4 pb-3 border-bottom">
+          <div class="d-flex align-items-center gap-3">
+            <div class="rounded-circle bg-success bg-opacity-10 p-3 text-success">
+              <i class="bi bi-door-open fs-2"></i>
+            </div>
+            <div>
+              <div class="d-flex align-items-center gap-2">
+                <h3 class="h5 fw-bold text-dark mb-0">Caja Actual #{{ cajaActual.id }}</h3>
+                <span class="badge bg-success">ABIERTA</span>
+              </div>
+              <p class="text-muted small mb-0">Abierta por <strong>{{ cajaActual.nombreUsuarioApertura }}</strong> el {{ cajaActual.fechaApertura | date:'dd/MM/yyyy HH:mm' }}</p>
+            </div>
+          </div>
+        </div>
+  
+        <!-- MÉTRICAS EN TIEMPO REAL -->
+        <div class="row g-3 mb-4">
+          <div class="col-md-3 col-6">
+            <div class="p-3 bg-light rounded border">
+              <span class="text-muted small d-block">Fondo Inicial</span>
+              <span class="fs-4 fw-bold text-dark">{{ cajaActual.montoInicial | currency:'EUR' }}</span>
+            </div>
+          </div>
+          <div class="col-md-3 col-6">
+            <div class="p-3 bg-light rounded border">
+              <span class="text-muted small d-block">Ventas Efectivo</span>
+              <span class="fs-4 fw-bold text-success">+{{ (cajaActual.ventasEfectivo || 0) | currency:'EUR' }}</span>
+            </div>
+          </div>
+          <div class="col-md-3 col-6">
+            <div class="p-3 bg-light rounded border">
+              <span class="text-muted small d-block">Ventas Tarjeta</span>
+              <span class="fs-4 fw-bold text-info">+{{ (cajaActual.ventasTarjeta || 0) | currency:'EUR' }}</span>
+            </div>
+          </div>
+          <div class="col-md-3 col-6">
+            <div class="p-3 bg-primary bg-opacity-10 border border-primary rounded">
+              <span class="text-primary small d-block fw-semibold">Efectivo Esperado en Cajón</span>
+              <span class="fs-4 fw-bold text-primary">{{ (cajaActual.efectivoEsperado || (cajaActual.montoInicial + (cajaActual.ventasEfectivo || 0))) | currency:'EUR' }}</span>
+            </div>
+          </div>
+        </div>
+  
+        <!-- FORMULARIO DE CIERRE Y CONTEO REAL -->
+        <form [formGroup]="formCierre" (ngSubmit)="cerrarCaja()" class="bg-light p-3 rounded border">
+          <h5 class="fw-bold text-dark mb-3"><i class="bi bi-calculator me-2 text-primary"></i>Realizar Arqueo y Cierre</h5>
+  
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label class="form-label fw-medium">Efectivo Físico Contado (€) <span class="text-danger">*</span></label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="bi bi-cash-stack"></i></span>
+                <input type="number" step="0.01" formControlName="efectivoReal" class="form-control" placeholder="Introduce el total contado">
+              </div>
+              <div *ngIf="formCierre.get('efectivoReal')?.touched && formCierre.get('efectivoReal')?.invalid" class="text-danger small mt-1">
+                Debes introducir el dinero contado en el cajón.
+              </div>
+            </div>
+  
+            <div class="col-md-4">
+              <label class="form-label fw-medium">Descuadre / Diferencia Estimada</label>
+              <div class="form-control fw-bold" 
+                   [ngClass]="{
+                     'text-success bg-success-subtle': diferenciaCalculada === 0 && formCierre.get('efectivoReal')?.value !== null,
+                     'text-danger bg-danger-subtle': diferenciaCalculada < 0,
+                     'text-warning bg-warning-subtle': diferenciaCalculada > 0
+                   }">
+                <span *ngIf="formCierre.get('efectivoReal')?.value === null" class="text-muted fw-normal">Introduce el conteo...</span>
+                <span *ngIf="formCierre.get('efectivoReal')?.value !== null">
+                  {{ diferenciaCalculada | currency:'EUR' }}
+                  <small *ngIf="diferenciaCalculada === 0">(Caja Perfecta)</small>
+                  <small *ngIf="diferenciaCalculada < 0">(Falta dinero)</small>
+                  <small *ngIf="diferenciaCalculada > 0">(Sobra dinero)</small>
+                </span>
+              </div>
+            </div>
+  
+            <div class="col-md-4">
+              <label class="form-label fw-medium">Observaciones de Cierre</label>
+              <input type="text" formControlName="observaciones" class="form-control" placeholder="Motivo de descuadre o notas del turno">
+            </div>
+  
+            <div class="col-12 d-flex justify-content-end mt-3">
+              <button type="submit" class="btn btn-danger d-inline-flex align-items-center gap-2" [disabled]="formCierre.invalid">
+                <i class="bi bi-lock-fill"></i>
+                <span>Cerrar Caja y Finalizar Turno</span>
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+  
+      <!-- TABLA: HISTORIAL DE ARQUEOS DE CAJA -->
+      <div class="crud-card">
+        <div class="p-3 border-bottom bg-light">
+          <h5 class="fw-bold text-dark mb-0"><i class="bi bi-clock-history me-2 text-secondary"></i>Historial de Cajas y Arqueos</h5>
+        </div>
+  
+        <div class="table-responsive">
+          <table class="crud-table mb-0">
+            <thead>
+              <tr>
+                <th class="ps-4">Apertura</th>
+                <th>Cierre</th>
+                <th>Fondo Inicial</th>
+                <th>Ventas (Ef. / Tarj.)</th>
+                <th>Efectivo Real</th>
+                <th>Diferencia</th>
+                <th>Estado</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let caja of historialCajas">
+                <!-- Fecha e Usuario Apertura -->
+                <td class="ps-4">
+                  <div class="fw-semibold text-dark">{{ caja.fechaApertura | date:'dd/MM/yyyy HH:mm' }}</div>
+                  <div class="text-muted small"><i class="bi bi-person me-1"></i>{{ caja.nombreUsuarioApertura }}</div>
+                </td>
+  
+                <!-- Fecha e Usuario Cierre -->
+                <td>
+                  <div *ngIf="caja.fechaCierre; else enCurso">
+                    <div class="fw-semibold text-dark">{{ caja.fechaCierre | date:'dd/MM/yyyy HH:mm' }}</div>
+                    <div class="text-muted small"><i class="bi bi-person me-1"></i>{{ caja.nombreUsuarioCierre || '-' }}</div>
+                  </div>
+                  <ng-template #enCurso>
+                    <span class="text-muted italic">En curso...</span>
+                  </ng-template>
+                </td>
+  
+                <!-- Fondo Inicial -->
+                <td class="fw-medium text-dark">
+                  {{ caja.montoInicial | currency:'EUR' }}
+                </td>
+  
+                <!-- Ventas -->
+                <td>
+                  <div class="small">
+                    <span class="text-success"><i class="bi bi-cash me-1"></i>{{ (caja.ventasEfectivo || 0) | currency:'EUR' }}</span><br>
+                    <span class="text-info"><i class="bi bi-credit-card me-1"></i>{{ (caja.ventasTarjeta || 0) | currency:'EUR' }}</span>
+                  </div>
+                </td>
+  
+                <!-- Efectivo Real Contado -->
+                <td class="fw-bold text-dark">
+                  {{ (caja.efectivoReal !== null && caja.efectivoReal !== undefined) ? (caja.efectivoReal | currency:'EUR') : '-' }}
+                </td>
+  
+                <!-- Diferencia -->
+                <td>
+                  <span *ngIf="caja.diferencia !== null && caja.diferencia !== undefined" 
+                        class="fw-bold" 
+                        [ngClass]="{
+                          'text-success': caja.diferencia === 0,
+                          'text-danger': caja.diferencia < 0,
+                          'text-warning': caja.diferencia > 0
+                        }">
+                    {{ caja.diferencia | currency:'EUR' }}
+                  </span>
+                  <span *ngIf="caja.diferencia === null || caja.diferencia === undefined" class="text-muted">-</span>
+                </td>
+  
+                <!-- Estado -->
+                <td>
+                  <span class="badge" [ngClass]="caja.estado === 'ABIERTA' ? 'bg-success' : 'bg-secondary'">
+                    {{ caja.estado }}
+                  </span>
+                </td>
+              </tr>
+  
+              <tr *ngIf="historialCajas.length === 0">
+                <td colspan="7" class="text-center py-4 text-muted">
+                  No hay registros históricos de caja registrados.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+  
+    </ng-container>
+  
+  </div>

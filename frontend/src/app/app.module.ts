@@ -10,6 +10,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { CartaComponent } from './public/carta/carta.component';
 import { ContactoComponent } from './public/contacto/contacto.component';
 import { ConfirmarPedidoComponent } from './public/confirmar-pedido/confirmar-pedido.component';
+import { GestionarCajaComponent } from './public/gestionar-caja/gestionar-caja.component';
 import { GestionarComandasComponent } from './public/gestionar-comandas/gestionar-comandas.component';
 import { GestionarMesasEmpleadoComponent } from './public/gestionar-mesas-empleado/gestionar-mesas-empleado.component';
 import { GestionarPagosEfectivoComponent } from './public/gestionar-pagos-efectivo/gestionar-pagos-efectivo.component';
@@ -39,6 +40,7 @@ const config: SocketIoConfig = {
     CartaComponent,
     ContactoComponent,
     ConfirmarPedidoComponent,
+    GestionarCajaComponent,
     GestionarComandasComponent,
     GestionarMesasEmpleadoComponent,
     GestionarPagosEfectivoComponent,
