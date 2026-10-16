@@ -13,7 +13,7 @@
     </div>
 
     <!-- FILTROS Y CONTADORES -->
-    <div class="kds-filter-tabs d-flex align-items-center gap-1 bg-white p-1 rounded-4 shadow-sm border">
+    <div class="kds-filter-tabs d-flex align-items-center gap-1 bg-white p-1 rounded-4 shadow-sm border flex-wrap">
       <button 
         type="button" 
         class="tab-btn" 
@@ -22,23 +22,45 @@
         <span>Todos</span>
         <span class="badge bg-secondary ms-1">{{ pedidosNoServidos.length }}</span>
       </button>
+
       <button 
         type="button" 
         class="tab-btn tab-pendiente" 
-        [class.active]="filtroEstado === 'PENDIENTE'"
-        (click)="filtroEstado = 'PENDIENTE'">
+        [class.active]="filtroEstado === 'pendiente'"
+        (click)="filtroEstado = 'pendiente'">
         <span class="material-icons fs-6 me-1">local_fire_department</span>
         <span>En Cocina</span>
-        <span class="badge bg-warning text-dark ms-1">{{ getCountPorEstado('PENDIENTE') }}</span>
+        <span class="badge bg-warning text-dark ms-1">{{ getCountPorEstado('pendiente') }}</span>
       </button>
+
       <button 
         type="button" 
         class="tab-btn tab-preparado" 
-        [class.active]="filtroEstado === 'PREPARADO'"
-        (click)="filtroEstado = 'PREPARADO'">
+        [class.active]="filtroEstado === 'preparado'"
+        (click)="filtroEstado = 'preparado'">
         <span class="material-icons fs-6 me-1">done_all</span>
         <span>Listos</span>
-        <span class="badge bg-info text-dark ms-1">{{ getCountPorEstado('PREPARADO') }}</span>
+        <span class="badge bg-info text-dark ms-1">{{ getCountPorEstado('preparado') }}</span>
+      </button>
+
+      <button 
+        type="button" 
+        class="tab-btn tab-recoger" 
+        [class.active]="filtroEstado === 'listo_para_recoger'"
+        (click)="filtroEstado = 'listo_para_recoger'">
+        <span class="material-icons fs-6 me-1">shopping_bag</span>
+        <span>Para Recoger</span>
+        <span class="badge bg-success text-white ms-1">{{ getCountPorEstado('listo_para_recoger') }}</span>
+      </button>
+
+      <button 
+        type="button" 
+        class="tab-btn tab-camino" 
+        [class.active]="filtroEstado === 'de_camino'"
+        (click)="filtroEstado = 'de_camino'">
+        <span class="material-icons fs-6 me-1">delivery_dining</span>
+        <span>De Camino</span>
+        <span class="badge bg-purple text-white ms-1">{{ getCountPorEstado('de_camino') }}</span>
       </button>
     </div>
   </header>
@@ -49,10 +71,10 @@
       <span class="material-icons text-success fs-1">restaurant</span>
     </div>
     <h4 class="fw-bold text-dark">No hay comandas activas</h4>
-    <p class="text-muted small mb-0">Todas las comandas han sido procesadas o no hay nuevos pedidos pendientes.</p>
+    <p class="text-muted small mb-0">Todas las comandas han sido procesadas o no hay nuevos pedidos pendientes en esta sección.</p>
   </div>
 
-  <!-- PARRILLA DE COMANDAS (GRID KDS) CON ANIMACIÓN EN CASCADA -->
+  <!-- PARRILLA DE COMANDAS (GRID KDS) -->
   <div class="row g-3 g-md-4" *ngIf="getPedidosFiltrados().length > 0">
     <div 
       *ngFor="let pedido of getPedidosFiltrados(); let i = index" 
@@ -60,42 +82,39 @@
       [style.animation-delay]="(i * 0.04) + 's'">
       
       <div 
-        class="card comanda-kds-card h-100 border-0"
-        [ngClass]="'estado-border-' + (pedido.estado || 'PENDIENTE').toLowerCase()">
+        class="card comanda-kds-card h-100 border-0 shadow-sm"
+        [ngClass]="'estado-border-' + (pedido.estado || 'pendiente').toLowerCase()">
         
         <!-- HEADER TARJETA COMANDA -->
         <div class="comanda-card-header p-3 d-flex align-items-center justify-content-between">
           <div class="d-flex align-items-center gap-2">
             
-            <!-- BADGES DE TIPO DE PEDIDO: MESA / DOMICILIO / RECOGER -->
-            <div 
-              class="tipo-pedido-badge" 
-              [ngClass]="getTipoPedidoClass(pedido)">
-              <span class="material-icons">
-                {{ getTipoPedidoIcon(pedido) }}
-              </span>
-              <span>
-                {{ getTipoPedidoLabel(pedido) }}
-              </span>
+            <!-- BADGES DE TIPO DE PEDIDO -->
+            <div class="tipo-pedido-badge" [ngClass]="getTipoPedidoClass(pedido)">
+              <span class="material-icons">{{ getTipoPedidoIcon(pedido) }}</span>
+              <span>{{ getTipoPedidoLabel(pedido) }}</span>
             </div>
 
             <span class="pedido-num">#{{ pedido.id }}</span>
           </div>
 
           <!-- BADGE DE ESTADO ACTUAL -->
-          <span class="badge-status" [ngClass]="(pedido.estado || 'PENDIENTE').toLowerCase()">
+          <span class="badge-status" [ngClass]="(pedido.estado || 'pendiente').toLowerCase()">
             <span class="status-dot"></span>
             {{ getLabelEstado(pedido.estado) }}
           </span>
         </div>
 
-        <!-- SUBHEADER CON HORA Y TOTAL -->
+        <!-- SUBHEADER CON HORA, UBICACIÓN Y TOTAL -->
         <div class="comanda-card-sub-header px-3 py-2 d-flex align-items-center justify-content-between text-muted border-bottom">
-          <div class="time-elapsed d-flex align-items-center gap-1">
-            <span class="material-icons fs-6">schedule</span>
-            <small>{{ pedido.fecha | date:'HH:mm' }} hs</small>
+          <div class="time-elapsed d-flex align-items-center gap-1 overflow-hidden me-2">
+            <span class="material-icons fs-6 flex-shrink-0">schedule</span>
+            <small class="fw-medium me-1">{{ pedido.fecha | date:'HH:mm' }} hs</small>
+            <small class="text-truncate border-start ps-2 text-dark" [title]="obtenerUbicacionPedido(pedido)">
+              {{ obtenerUbicacionPedido(pedido) }}
+            </small>
           </div>
-          <div class="total-monto fw-bold text-dark">
+          <div class="total-monto fw-bold text-dark flex-shrink-0">
             {{ (pedido.precioTotal ?? pedido.precio_total ?? pedido.total ?? 0) | currency:'EUR':'symbol':'1.2-2' }}
           </div>
         </div>
@@ -128,22 +147,20 @@
           </ul>
         </div>
 
-        <!-- FOOTER / BOTONES DE CAMBIO DE ESTADO -->
+        <!-- FOOTER / BOTONES DINÁMICOS DE CAMBIO DE ESTADO -->
         <div class="comanda-card-footer p-3 border-top mt-auto bg-light rounded-bottom-4">
-          <div class="d-flex gap-2">
+          <div class="d-flex gap-1 flex-wrap">
             <button 
-              *ngFor="let estado of estados"
+              *ngFor="let estOpt of getEstadosParaPedido(pedido)"
               type="button"
               class="btn btn-status-action flex-fill"
-              [class.active-current]="(pedido.estado || '').toUpperCase() === estado.value"
-              [ngClass]="estado.value.toLowerCase()"
-              [disabled]="(pedido.estado || '').toUpperCase() === estado.value"
-              (click)="cambiarEstado(pedido, estado.value)">
+              [class.active-current]="(pedido.estado || '').toLowerCase() === estOpt.value"
+              [ngClass]="estOpt.value"
+              [disabled]="(pedido.estado || '').toLowerCase() === estOpt.value"
+              (click)="cambiarEstado(pedido, estOpt.value)">
               
-              <span class="material-icons fs-6 me-1" *ngIf="estado.value === 'PENDIENTE'">local_fire_department</span>
-              <span class="material-icons fs-6 me-1" *ngIf="estado.value === 'PREPARADO'">done</span>
-              <span class="material-icons fs-6 me-1" *ngIf="estado.value === 'SERVIDO'">check_circle</span>
-              <span>{{ estado.label }}</span>
+              <span class="material-icons fs-6 me-1">{{ estOpt.icon }}</span>
+              <span>{{ estOpt.label }}</span>
             </button>
           </div>
         </div>

@@ -13,7 +13,8 @@ export enum EstadoPago {
     PENDIENTE = 'PENDIENTE',
     EN_PROCESO = 'EN_PROCESO',
     SERVIDO = 'SERVIDO',
-    CANCELADO = 'CANCELADO'
+    CANCELADO = 'CANCELADO',
+    DE_CAMINO = 'DE_CAMINO'
   }
   
   export interface Pedido {

@@ -461,3 +461,64 @@
   box-shadow: 0 0 0 2px var(--primary);
   border-color: var(--card-bg);
 }
+
+/* Badges de Tipo de Pedido */
+.badge-tipo-pedido {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.785rem;
+  font-weight: 700;
+  padding: 0.3rem 0.75rem;
+  border-radius: 20px;
+  letter-spacing: 0.01em;
+  transition: all 0.2s ease;
+}
+
+.badge-tipo-mesa {
+  background-color: #eff6ff;
+  color: #1d4ed8;
+  border: 1px solid #bfdbfe;
+}
+
+.badge-tipo-recoger {
+  background-color: #f0fdf4;
+  color: #15803d;
+  border: 1px solid #bbf7d0;
+}
+
+.badge-tipo-domicilio {
+  background-color: #fefce8;
+  color: #a16207;
+  border: 1px solid #fef08a;
+}
+
+.badge-tipo-default {
+  background-color: #f1f5f9;
+  color: #475569;
+  border: 1px solid #cbd5e1;
+}
+
+/* Modo Oscuro para los Badges */
+:host-context(.dark-theme) .badge-tipo-mesa {
+  background-color: rgba(30, 58, 138, 0.4);
+  color: #93c5fd;
+  border-color: rgba(147, 197, 253, 0.3);
+}
+
+:host-context(.dark-theme) .badge-tipo-recoger {
+  background-color: rgba(20, 83, 45, 0.4);
+  color: #86efac;
+  border-color: rgba(134, 239, 172, 0.3);
+}
+
+:host-context(.dark-theme) .badge-tipo-domicilio {
+  background-color: rgba(113, 63, 18, 0.4);
+  color: #fde047;
+  border-color: rgba(253, 224, 71, 0.3);
+}
+
+:host-context(.dark-theme) .badge-tipo-default {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #cbd5e1;
+  border-color: rgba(255, 255, 255, 0.15);
+}

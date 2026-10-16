@@ -54,7 +54,7 @@ public class Pedido {
     private Date fecha;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(nullable = false, length = 50)
     private EstadoPedido estado;
 
     @Column(precision = 10, scale = 2)

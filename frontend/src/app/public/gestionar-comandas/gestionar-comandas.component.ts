@@ -4,6 +4,12 @@ import { switchMap, takeUntil } from 'rxjs/operators';
 import { DetallesService } from '../../admin/pages/detalles_pedidos/services/detalle';
 import { PedidoService } from '../../admin/pages/pedidos/services/pedido';
 
+export interface EstadoOpcion {
+  value: string;
+  label: string;
+  icon: string;
+}
+
 @Component({
   selector: 'app-gestionar-comandas',
   templateUrl: './gestionar-comandas.component.html',
@@ -11,13 +17,6 @@ import { PedidoService } from '../../admin/pages/pedidos/services/pedido';
 })
 export class GestionarComandasComponent implements OnInit, OnDestroy {
   pedidos: any[] = [];
-  
-  estados = [
-    { value: 'PENDIENTE', label: 'Pendiente' },
-    { value: 'PREPARADO', label: 'Preparado' },
-    { value: 'SERVIDO', label: 'Servido' }
-  ];
-
   filtroEstado: string = 'TODOS';
   
   private destroy$ = new Subject<void>();
@@ -27,35 +26,34 @@ export class GestionarComandasComponent implements OnInit, OnDestroy {
     private pedidoService: PedidoService
   ) {}
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.iniciarRefrescoAutomatico();
   }
 
-  iniciarRefrescoAutomatico() {
+  iniciarRefrescoAutomatico(): void {
     timer(0, 5000).pipe(
       switchMap(() => this.pedidoService.get()),
       takeUntil(this.destroy$)
     ).subscribe({
       next: (pedidos: any[]) => {
         const sinServir = pedidos.filter(p => {
-          const estadoUpper = String(p.estado || '').toUpperCase();
-          return estadoUpper !== 'SERVIDO';
+          const estadoLower = String(p.estado || '').toLowerCase();
+          return estadoLower !== 'servido' && estadoLower !== 'entregado';
         });
 
         sinServir.forEach(pedido => {
-          // Si no tiene detalles o los productos no tienen nombre válido
           const necesitaDetalles = !pedido.detalles || 
             pedido.detalles.length === 0 || 
             pedido.detalles.some((d: any) => !this.getNombreProducto(d) || this.getNombreProducto(d) === 'Producto');
 
-          if (necesitaDetalles) {
-            this.detalleService.getByPedidoId(pedido.id!).subscribe({
+          if (necesitaDetalles && pedido.id) {
+            this.detalleService.getByPedidoId(pedido.id).subscribe({
               next: (detalles: any[]) => {
                 if (detalles && detalles.length > 0) {
                   pedido.detalles = detalles;
                 }
               },
-              error: (err) => console.error('Error cargando detalles:', err)
+              error: (err) => console.error('Error cargando detalles de comanda:', err)
             });
           }
         });
@@ -66,10 +64,6 @@ export class GestionarComandasComponent implements OnInit, OnDestroy {
     });
   }
 
-  /**
-   * Extrae el nombre del producto buscando en todos los posibles nombres
-   * de propiedades que pueda devolver el Backend de Spring Boot.
-   */
   getNombreProducto(det: any): string {
     if (!det) return 'Sin nombre';
 
@@ -82,66 +76,157 @@ export class GestionarComandasComponent implements OnInit, OnDestroy {
       det.titulo ||
       det.description;
 
-    if (nombre && nombre.trim() !== '') {
-      return nombre;
+    return (nombre && nombre.trim() !== '') ? nombre : 'Producto';
+  }
+
+  /* ==========================================
+     LÓGICA DE CLASIFICACIÓN Y ESTADOS
+     ========================================== */
+  getTipoPedidoClass(pedido: any): string {
+    const tipo = String(pedido.tipoPedido || pedido.tipo_pedido || '').toUpperCase();
+    
+    if (tipo === 'DOMICILIO' || tipo === 'DELIVERY') {
+      return 'is-domicilio';
+    }
+    if (tipo === 'RECOGER' || tipo === 'TAKEAWAY' || tipo === 'PARA_LLEVAR' || tipo === 'LLEVAR') {
+      return 'is-recoger';
+    }
+    
+    const mesa = pedido.mesaId ?? pedido.id_mesa ?? pedido.idMesa ?? pedido.mesa?.numero;
+    if (!mesa || mesa === 0) {
+      return 'is-recoger';
     }
 
-    return 'Producto';
+    return 'is-mesa';
   }
 
-  esDomicilio(pedido: any): boolean {
-    const tipo = String(pedido.tipoPedido || pedido.tipo_pedido || '').toUpperCase();
-    const mesa = pedido.mesaId ?? pedido.id_mesa ?? pedido.idMesa;
-    return tipo === 'DOMICILIO' || !mesa || mesa === 0;
+  getTipoPedidoIcon(pedido: any): string {
+    const tipoClass = this.getTipoPedidoClass(pedido);
+    switch (tipoClass) {
+      case 'is-domicilio': return 'delivery_dining';
+      case 'is-recoger': return 'shopping_bag';
+      default: return 'table_restaurant';
+    }
   }
 
-  cambiarEstado(pedido: any, nuevoEstado: string) {
-    const estadoActual = String(pedido.estado || '').toUpperCase();
-    if (estadoActual === nuevoEstado) return;
-    
-    const totalCalc = pedido.precioTotal ?? pedido.precio_total ?? pedido.total ?? 0;
-    const mesaNum = pedido.mesaId ?? pedido.id_mesa ?? pedido.idMesa;
+  getTipoPedidoLabel(pedido: any): string {
+    const tipoClass = this.getTipoPedidoClass(pedido);
+    switch (tipoClass) {
+      case 'is-domicilio': return 'A Domicilio';
+      case 'is-recoger': return 'Recoger en Tienda';
+      default:
+        const mesa = pedido.mesaId ?? pedido.id_mesa ?? pedido.idMesa ?? pedido.mesa?.numero;
+        return `Mesa ${mesa || ''}`;
+    }
+  }
 
+  obtenerUbicacionPedido(pedido: any): string {
+    const tipoClass = this.getTipoPedidoClass(pedido);
+    if (tipoClass === 'is-domicilio') {
+      const u = pedido.user || pedido.usuario || {};
+      const calle = pedido.calle || u.calle;
+      const portal = pedido.portalNum || u.portalNum;
+      const piso = pedido.pisoNum || u.pisoNum;
+      const puerta = pedido.puerta || u.puerta;
+
+      if (calle) {
+        let dir = calle;
+        if (portal) dir += `, Nº ${portal}`;
+        if (piso) dir += `, ${piso}º${puerta ? ' ' + puerta : ''}`;
+        return dir;
+      }
+      return 'Entrega a domicilio';
+    }
+
+    if (tipoClass === 'is-recoger') {
+      return 'Para recoger en tienda';
+    }
+
+    const mesa = pedido.mesaId ?? pedido.id_mesa ?? pedido.idMesa ?? pedido.mesa?.numero;
+    return `Consumo en Mesa ${mesa || '-'}`;
+  }
+
+  /**
+   * Genera las opciones de estado dinámicas según el tipo de pedido
+   */
+  getEstadosParaPedido(pedido: any): EstadoOpcion[] {
+    const tipoClass = this.getTipoPedidoClass(pedido);
+
+    if (tipoClass === 'is-domicilio') {
+      return [
+        { value: 'pendiente', label: 'En Cocina', icon: 'local_fire_department' },
+        { value: 'preparado', label: 'Listo', icon: 'done' },
+        { value: 'de_camino', label: 'De Camino', icon: 'delivery_dining' },
+        { value: 'servido', label: 'Entregado', icon: 'check_circle' }
+      ];
+    }
+
+    if (tipoClass === 'is-recoger') {
+      return [
+        { value: 'pendiente', label: 'En Cocina', icon: 'local_fire_department' },
+        { value: 'listo_para_recoger', label: 'Listo p/ Recoger', icon: 'shopping_bag' },
+        { value: 'servido', label: 'Entregado', icon: 'check_circle' }
+      ];
+    }
+
+    // Por defecto: Pedido en Mesa
+    return [
+      { value: 'pendiente', label: 'En Cocina', icon: 'local_fire_department' },
+      { value: 'preparado', label: 'Listo', icon: 'done' },
+      { value: 'servido', label: 'Servido', icon: 'check_circle' }
+    ];
+  }
+
+  cambiarEstado(pedido: any, nuevoEstado: string): void {
+    const estadoActual = String(pedido.estado || '').toLowerCase();
+    const estadoEnviar = nuevoEstado.toLowerCase();
+
+    if (estadoActual === estadoEnviar) return;
+
+    // Se clona el objeto pedido manteniendo su estructura intacta para evitar errores 500 en Spring Boot
     const payloadActualizacion = {
-      id: pedido.id,
-      id_mesa: mesaNum,
+      ...pedido,
+      estado: estadoEnviar,
+      tipoPedido: pedido.tipoPedido || pedido.tipo_pedido || 'MESA',
       tipo_pedido: pedido.tipoPedido || pedido.tipo_pedido || 'MESA',
-      estado: nuevoEstado,
+      estadoPago: pedido.estadoPago || pedido.estado_pago || 'PENDIENTE',
       estado_pago: pedido.estadoPago || pedido.estado_pago || 'PENDIENTE',
-      metodo_pago: pedido.metodoPago || pedido.metodo_pago || 'EFECTIVO',
-      precio_total: Number(totalCalc),
-      detalles: (pedido.detalles || []).map((det: any) => ({
-        id_producto: det.id_producto || det.producto?.id || 0,
-        cantidad: det.cantidad,
-        precio_unitario: det.precio_unitario || det.precioUnitario || det.producto?.precio || 0
-      }))
+      metodoPago: pedido.metodoPago || pedido.metodo_pago || 'EFECTIVO',
+      metodo_pago: pedido.metodoPago || pedido.metodo_pago || 'EFECTIVO'
     };
 
     this.pedidoService.put(payloadActualizacion as any).subscribe({
       next: () => {
-        pedido.estado = nuevoEstado;
-        if (nuevoEstado === 'SERVIDO') {
+        pedido.estado = estadoEnviar;
+        if (estadoEnviar === 'servido' || estadoEnviar === 'entregado') {
           this.pedidos = this.pedidos.filter(p => p.id !== pedido.id);
         }
       },
       error: (err) => {
-        console.error('Error actualizando el estado:', err);
-        alert('Error actualizando el estado del pedido');
+        console.error('Error actualizando el estado de la comanda:', err);
+        alert('Error al actualizar el estado de la comanda en el servidor.');
       }
     });
   }
 
   getLabelEstado(estado: string): string {
     if (!estado) return 'Desconocido';
-    const estadoUpper = estado.toUpperCase();
-    const encontrado = this.estados.find(e => e.value === estadoUpper);
-    return encontrado ? encontrado.label : estado;
+    const est = estado.toLowerCase();
+    if (est === 'pendiente') return 'En Cocina';
+    if (est === 'preparado') return 'Listo';
+    if (est === 'listo_para_recoger') return 'Listo p/ Recoger';
+    if (est === 'de_camino' || est === 'en_camino') return 'De Camino';
+    if (est === 'servido' || est === 'entregado') return 'Servido';
+    return estado;
   }
 
+  /* ==========================================
+     FILTROS DE PESTAÑAS
+     ========================================== */
   get pedidosNoServidos(): any[] {
     return this.pedidos.filter(pedido => {
-      const estadoUpper = String(pedido.estado || '').toUpperCase();
-      return estadoUpper !== 'SERVIDO';
+      const estadoLower = String(pedido.estado || '').toLowerCase();
+      return estadoLower !== 'servido' && estadoLower !== 'entregado';
     });
   }
 
@@ -150,63 +235,31 @@ export class GestionarComandasComponent implements OnInit, OnDestroy {
     if (this.filtroEstado === 'TODOS') {
       return this.pedidosNoServidos;
     }
-    return this.pedidosNoServidos.filter(
-      (p) => (p.estado || '').toUpperCase() === this.filtroEstado
-    );
+    return this.pedidosNoServidos.filter(p => {
+      const est = (p.estado || '').toLowerCase();
+      const filtroLower = this.filtroEstado.toLowerCase();
+      
+      if (filtroLower === 'de_camino') {
+        return est === 'de_camino' || est === 'en_camino';
+      }
+      return est === filtroLower;
+    });
   }
 
   getCountPorEstado(estado: string): number {
     if (!this.pedidosNoServidos) return 0;
-    return this.pedidosNoServidos.filter(
-      (p) => (p.estado || '').toUpperCase() === estado
-    ).length;
+    const estadoFiltro = estado.toLowerCase();
+    
+    return this.pedidosNoServidos.filter(p => {
+      const est = (p.estado || '').toLowerCase();
+      if (estadoFiltro === 'de_camino') {
+        return est === 'de_camino' || est === 'en_camino';
+      }
+      return est === estadoFiltro;
+    }).length;
   }
 
-
-getTipoPedidoClass(pedido: any): string {
-  const tipo = String(pedido.tipoPedido || pedido.tipo_pedido || '').toUpperCase();
-  
-  if (tipo === 'DOMICILIO' || tipo === 'DELIVERY') {
-    return 'is-domicilio';
-  }
-  if (tipo === 'RECOGER' || tipo === 'TAKEAWAY' || tipo === 'PARA_LLEVAR' || tipo === 'LLEVAR') {
-    return 'is-recoger';
-  }
-  
-  const mesa = pedido.mesaId ?? pedido.id_mesa ?? pedido.idMesa;
-  if (!mesa || mesa === 0) {
-    return 'is-recoger';
-  }
-
-  return 'is-mesa';
-}
-
-getTipoPedidoIcon(pedido: any): string {
-  const tipoClass = this.getTipoPedidoClass(pedido);
-  switch (tipoClass) {
-    case 'is-domicilio':
-      return 'delivery_dining';
-    case 'is-recoger':
-      return 'shopping_bag';
-    default:
-      return 'table_restaurant';
-  }
-}
-
-getTipoPedidoLabel(pedido: any): string {
-  const tipoClass = this.getTipoPedidoClass(pedido);
-  switch (tipoClass) {
-    case 'is-domicilio':
-      return 'A Domicilio';
-    case 'is-recoger':
-      return 'Recoger en Tienda';
-    default:
-      const mesa = pedido.mesaId ?? pedido.id_mesa ?? pedido.idMesa;
-      return `Mesa ${mesa || ''}`;
-  }
-}
-
-  ngOnDestroy() {
+  ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
   }

@@ -6,6 +6,8 @@ import com.fasterxml.jackson.annotation.JsonValue;
 public enum EstadoPedido {
     pendiente,
     preparado,
+    de_camino,
+    listo_para_recoger,
     servido;
 
     @JsonCreator

@@ -5,7 +5,6 @@
     max-width: 1500px;
     margin: 0 auto;
     font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-
     opacity: 0;
     animation: pageEnter 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   }
@@ -69,6 +68,15 @@
     color: #ffffff;
   }
   
+  .kds-filter-tabs .tab-btn.tab-camino.active {
+    background: #7c3aed;
+    color: #ffffff;
+  }
+  
+  .bg-purple {
+    background-color: #7c3aed !important;
+  }
+  
   /* ==========================================================================
      TARJETAS DE COMANDA (KDS CARDS)
      ========================================================================== */
@@ -95,30 +103,19 @@
     border-left: 6px solid #0284c7 !important;
   }
   
-  .comanda-kds-card.estado-border-servido {
+  .comanda-kds-card.estado-border-de_camino,
+  .comanda-kds-card.estado-border-en_camino {
+    border-left: 6px solid #7c3aed !important;
+  }
+  
+  .comanda-kds-card.estado-border-servido,
+  .comanda-kds-card.estado-border-entregado {
     border-left: 6px solid #16a34a !important;
   }
   
   /* Header de la Tarjeta */
   .comanda-card-header {
     background: #ffffff;
-  }
-  
-  .mesa-badge {
-    background: #f1f5f9;
-    color: #0f172a;
-    font-weight: 800;
-    font-size: 0.95rem;
-    padding: 6px 12px;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-  
-  .mesa-badge.is-llevar {
-    background: #fef3c7;
-    color: #b45309;
   }
   
   .pedido-num {
@@ -165,13 +162,27 @@
     background: #0284c7;
   }
   
-  .badge-status.servido {
+  .badge-status.de_camino,
+  .badge-status.en_camino {
+    background: #f3e8ff;
+    color: #6b21a8;
+    border: 1px solid #e9d5ff;
+  }
+  
+  .badge-status.de_camino .status-dot,
+  .badge-status.en_camino .status-dot {
+    background: #7c3aed;
+  }
+  
+  .badge-status.servido,
+  .badge-status.entregado {
     background: #f0fdf4;
     color: #15803d;
     border: 1px solid #dcfce7;
   }
   
-  .badge-status.servido .status-dot {
+  .badge-status.servido .status-dot,
+  .badge-status.entregado .status-dot {
     background: #16a34a;
   }
   
@@ -213,8 +224,8 @@
     background: #ffffff;
     color: #64748b;
     font-weight: 700;
-    font-size: 0.8rem;
-    padding: 8px 6px;
+    font-size: 0.78rem;
+    padding: 8px 4px;
     border-radius: 12px;
     display: flex;
     align-items: center;
@@ -240,6 +251,13 @@
     background: #f0f9ff;
   }
   
+  .btn-status-action.de_camino:hover:not(:disabled),
+  .btn-status-action.en_camino:hover:not(:disabled) {
+    border-color: #7c3aed;
+    color: #6b21a8;
+    background: #f3e8ff;
+  }
+  
   .btn-status-action.servido:hover:not(:disabled) {
     border-color: #16a34a;
     color: #15803d;
@@ -247,7 +265,7 @@
   }
   
   .btn-status-action.active-current {
-    opacity: 0.85;
+    opacity: 0.9;
     cursor: default;
   }
   
@@ -261,6 +279,13 @@
     background: #0284c7;
     color: #ffffff;
     border-color: #0284c7;
+  }
+  
+  .btn-status-action.active-current.de_camino,
+  .btn-status-action.active-current.en_camino {
+    background: #7c3aed;
+    color: #ffffff;
+    border-color: #7c3aed;
   }
   
   .btn-status-action.active-current.servido {
@@ -285,56 +310,98 @@
     align-items: center;
     justify-content: center;
   }
-
-  .mesa-badge {
-    background: #f1f5f9;
-    color: #0f172a;
+  
+  /* Badges del Tipo de Pedido */
+  .tipo-pedido-badge {
     font-weight: 800;
-    font-size: 0.95rem;
+    font-size: 0.85rem;
     padding: 6px 12px;
     border-radius: 12px;
     display: flex;
     align-items: center;
     gap: 6px;
+    transition: all 0.2s ease;
   }
   
-  .mesa-badge.is-domicilio {
+  .tipo-pedido-badge .material-icons {
+    font-size: 1.1rem;
+  }
+  
+  .tipo-pedido-badge.is-mesa {
+    background: #f1f5f9;
+    color: #0f172a;
+  }
+  
+  .tipo-pedido-badge.is-domicilio {
     background: #f3e8ff;
     color: #6b21a8;
+    border: 1px solid #e9d5ff;
+  }
+  
+  .tipo-pedido-badge.is-recoger {
+    background: #fef3c7;
+    color: #b45309;
+    border: 1px solid #fde68a;
+  }
+  
+  /* ==========================================================================
+     MODO OSCURO - KDS
+     ========================================================================== */
+  :host-context(.dark-theme) .main-title {
+    color: #f8fafc;
+  }
+  
+  :host-context(.dark-theme) .comanda-kds-card,
+  :host-context(.dark-theme) .empty-kds-card {
+    background: #1e293b;
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+  
+  :host-context(.dark-theme) .comanda-card-header,
+  :host-context(.dark-theme) .comanda-card-sub-header,
+  :host-context(.dark-theme) .comanda-card-footer {
+    background: rgba(15, 23, 42, 0.4) !important;
+  }
+  
+  :host-context(.dark-theme) .product-name,
+  :host-context(.dark-theme) .total-monto {
+    color: #f8fafc !important;
+  }
+  
+  :host-context(.dark-theme) .btn-status-action {
+    background: #0f172a;
+    border-color: rgba(255, 255, 255, 0.15);
+    color: #94a3b8;
+  }
+  
+  :host-context(.dark-theme) .tipo-pedido-badge.is-mesa {
+    background: rgba(255, 255, 255, 0.1);
+    color: #f8fafc;
   }
 
-/* Base de la insignia del tipo de pedido */
-.tipo-pedido-badge {
-  font-weight: 800;
-  font-size: 0.88rem;
-  padding: 6px 12px;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  transition: all 0.2s ease;
+  /* Borde e insignia para LISTO_PARA_RECOGER */
+.comanda-kds-card.estado-border-listo_para_recoger {
+  border-left: 6px solid #16a34a !important;
 }
 
-.tipo-pedido-badge .material-icons {
-  font-size: 1.1rem;
+.badge-status.listo_para_recoger {
+  background: #f0fdf4;
+  color: #15803d;
+  border: 1px solid #dcfce7;
 }
 
-/* 1. MESA (Local) */
-.tipo-pedido-badge.is-mesa {
-  background: #f1f5f9;
-  color: #0f172a;
+.badge-status.listo_para_recoger .status-dot {
+  background: #16a34a;
 }
 
-/* 2. A DOMICILIO (Delivery) */
-.tipo-pedido-badge.is-domicilio {
-  background: #f3e8ff;
-  color: #6b21a8;
-  border: 1px solid #e9d5ff;
+.btn-status-action.listo_para_recoger:hover:not(:disabled) {
+  border-color: #16a34a;
+  color: #15803d;
+  background: #f0fdf4;
 }
 
-/* 3. RECOGER EN TIENDA (Take Away / Recogida) */
-.tipo-pedido-badge.is-recoger {
-  background: #fef3c7;
-  color: #b45309;
-  border: 1px solid #fde68a;
+.btn-status-action.active-current.listo_para_recoger {
+  background: #16a34a;
+  color: #ffffff;
+  border-color: #16a34a;
 }
