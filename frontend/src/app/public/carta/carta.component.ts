@@ -105,6 +105,9 @@ export class CartaComponent implements OnInit {
     this.tipoPedido = tipo;
   }
 
+  /**
+   * Carga dirección y teléfono completos para la modalidad A Domicilio
+   */
   cargarDatosPerfil() {
     const idGuardado = localStorage.getItem('usuarioId') || localStorage.getItem('id');
     if (!idGuardado) {
@@ -131,6 +134,32 @@ export class CartaComponent implements OnInit {
       error: (err) => {
         console.error('Error al cargar datos del perfil:', err);
         this.showToastMessage('No se pudieron cargar los datos del perfil', 'error');
+      }
+    });
+  }
+
+  /**
+   * Carga concretamente únicamente el teléfono guardado para la modalidad Para Recoger
+   */
+  cargarTelefonoPerfil() {
+    const idGuardado = localStorage.getItem('usuarioId') || localStorage.getItem('id');
+    if (!idGuardado) {
+      this.showToastMessage('No se encontró una sesión activa de usuario', 'error');
+      return;
+    }
+
+    this.usuarioService.getId(Number(idGuardado)).subscribe({
+      next: (usuario: Usuario) => {
+        if (usuario && usuario.telefono) {
+          this.telefonoContacto = usuario.telefono;
+          this.showToastMessage('¡Teléfono cargado con éxito!', 'success');
+        } else {
+          this.showToastMessage('No hay un teléfono guardado en tu perfil', 'info');
+        }
+      },
+      error: (err) => {
+        console.error('Error al cargar teléfono del perfil:', err);
+        this.showToastMessage('No se pudo cargar el teléfono del perfil', 'error');
       }
     });
   }
