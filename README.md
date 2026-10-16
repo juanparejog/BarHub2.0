@@ -1,23 +1,62 @@
-# BarHub 2.0 — Carta Digital y Management System
+<h1 align="center">BarHub 2.0 — Management System & Carta Digital</h1>
 
-> **BarHub 2.0** es la evolución de la plataforma web de gestión para el sector hostelero (bares, cafeterías y restaurantes). Esta versión actualiza el stack tecnológico, expande las capacidades del sistema (pedidos a domicilio, fidelización por puntos, ofertas y comandas en tiempo real), añade bastionado de seguridad Zero Trust con monitorización continua (SOC) y renueva la experiencia visual y de usuario.
+<p align="center">
+  <img src="docs/img/logo.png" alt="BarHub 2.0 Logo" width="420">
+</p>
+
+<p align="center">
+  <b>Plataforma integral de gestión hostelera, comandas en tiempo real y arquitectura bastionada Zero Trust.</b>
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Java-17-orange?style=for-the-badge&logo=java" alt="Java 17">
+  <img src="https://img.shields.io/badge/Spring_Boot-3.2+-brightgreen?style=for-the-badge&logo=springboot" alt="Spring Boot 3.2">
+  <img src="https://img.shields.io/badge/Angular-17%2F18-dd0031?style=for-the-badge&logo=angular" alt="Angular">
+  <img src="https://img.shields.io/badge/Docker-Multi--stage-blue?style=for-the-badge&logo=docker" alt="Docker">
+  <img src="https://img.shields.io/badge/Security-Zero_Trust-red?style=for-the-badge" alt="Zero Trust">
+</p>
+
+---
+
+## Descripción del Proyecto
+
+**BarHub 2.0** es una solución tecnológica avanzada diseñada para optimizar la operativa diaria en establecimientos hosteleros (bares, cafeterías y restaurantes). La plataforma combina una experiencia de cliente fluida mediante carta digital interactiva con un completo panel de administración y control operativo para el personal de sala, cocina y gerencia.
+
+Esta versión representa una modernización integral del sistema: actualiza la arquitectura base a versiones LTS recientes de **Spring Boot** y **Angular**, refuerza la ciberseguridad mediante un modelo **Zero Trust con monitorización SOC continua** e incorpora módulos clave para el control financiero y analítico del local.
 
 ---
 
 ## Licencia y Aviso Legal
 
 © **Juan Parejo García** — *Todos los derechos reservados (All Rights Reserved)*.  
-Este proyecto es de código propietario. Para más información sobre el uso y términos legales, consulta los archivos [`LICENSE`](./LICENSE) y [`NOTICE.md`](./NOTICE.md).
+Este software es de código propietario. Para conocer los términos de uso y condiciones legales, consulta los archivos oficiales del repositorio:
+* [`LICENSE`](./LICENSE) — Términos de Licencia Propietaria.
+* [`NOTICE`](./NOTICE) — Aviso Legal y Reserva de Derechos.
 
 ---
 
-## Novedades y Objetivos de la Versión 2.0
+## Novedades y Capacidades Principales
 
-* **Base Legal y Cumplimiento:** Incorporación de licencia propietaria oficial, avisos de copyright y footer legal en la interfaz web.
-* **Modernización del Stack:** Actualización a **Java 17 / Spring Boot 3.2+** en el backend y **Angular 17/18** en el frontend, optimizando el rendimiento y solucionando incompatibilidades previas.
-* **Ciberseguridad Zero Trust & SOC Automático:** Bastionado del servidor VPS (acceso SSH filtrado por IP, Fail2Ban), imágenes Docker ligeras y sin privilegios root (*distroless/alpine*), pipeline CI/CD seguro con análisis estático y alertas automáticas de eventos vía Telegram/Discord.
-* **Experiencia de Usuario (UX):** Menú interactivo con animaciones avanzadas, soporte para escaneo de códigos QR, servicio de pedidos a domicilio y módulo de promociones con sistema de puntos acumulables.
-* **Experiencia del Trabajador (EX):** Interfaz táctil optimizada para la gestión de mesas y comandas, incluyendo consulta del **saldo total pendiente por mesa en tiempo real**.
+### Experiencia de Cliente (UX)
+* **Carta Digital Interactiva (QR):** Acceso inmediato mediante escaneo de códigos QR sin necesidad de instalar aplicaciones.
+* **Modalidades de Pedido:** Elección entre consumo en **Mesa** o servicio a **Recoger** o a **Domicilio**.
+* **Seguimiento de Pedido a Tiempo Real:** Monitoreo y actualización del estado del pedido en tiempo real durante su preparación y entrega.
+* **Pasarela de Pago Integrada:** Soporte para pagos digitales seguros (Stripe) y pago directo en efectivo.
+* **Perfil de Usuario:** Consulta y gestión de datos personales, historial de pedidos realizados y saldo de puntos de fidelización.
+
+### Experiencia del Personal y Sala (EX)
+* **Comandas y Mesas en Tiempo Real:** Interfaz optimizada para la recepción de pedidos y estado de mesas.
+* **Comprobación de Pagos en Efectivo en Tiempo Real:** Validación y confirmación inmediata de los cobros realizados en efectivo tanto en barra/caja como en mesa por parte del personal.
+* **Apertura y Cierre de Caja:** Módulo para el control de flujo de efectivo al inicio de la jornada, registro de movimientos y arqueo diario al cierre.
+
+### Gestión Financiera y Analítica (Administración)
+* **Panel de Estadísticas Avanzadas:** Análisis visual de ingresos, productos más vendidos, horas pico de afluencia y métricas globales.
+* **Gestión Dinámica de Menú:** Actualización en tiempo real del catálogo de productos, precios y disponibilidad.
+
+### Ciberseguridad Zero Trust & SOC
+* **Bastionado VPS & Red:** Filtrado de accesos SSH por IP, cortafuegos UFW y prevención de intrusiones con Fail2Ban.
+* **Contenedores Ligeros y Seguros:** Despliegue en Docker con imágenes de bajo tamaño y sin privilegios superusuario (*rootless/distroless/alpine*).
+* **Auditoría Continuada:** Monitorización de eventos de seguridad con alertas automáticas en tiempo real (Telegram/Discord).
 
 ---
 
@@ -37,99 +76,12 @@ Este proyecto es de código propietario. Para más información sobre el uso y t
 ## Hoja de Ruta por Fases
 
 ```text
-  [Fase 1] Base Legal, Estructura del Repositorio & Upgrade de Frameworks
+  [X] Fase 1: Base Legal, Estructura del Repositorio & Upgrade de Frameworks (Completada)
      ↓
-  [Fase 2] Arquitectura de Backend, Base de Datos & Endpoints REST
+  [X] Fase 2: Arquitectura de Backend, Base de Datos & Endpoints REST (Completada)
      ↓
-  [Fase 3] Rediseño Gráfico (UI/UX), Vistas de Usuario y Trabajador
+  [X] Fase 3: Rediseño Gráfico (UI/UX), Vistas de Usuario y Trabajador (Completada)
      ↓
-  [Fase 4] Bastionado de Contenedores Docker & Spring Security
+  [ ] Fase 4: Bastionado de Contenedores Docker & Spring Security
      ↓
-  [Fase 5] Servidor VPS Zero Trust, Pipeline CI/CD & SOC Automático
-```
-
----
-
-## Estructura del Repositorio
-
-```text
-barhub/
-├── .github/
-│   └── workflows/          # Pipelines de CI/CD (ci.yml, cd.yml)
-├── backend/                # Proyecto Spring Boot (Java 17)
-│   ├── src/
-│   ├── Dockerfile
-│   └── build.gradle
-├── frontend/               # Proyecto Angular 17/18
-│   ├── src/
-│   ├── Dockerfile
-│   └── package.json
-├── infra/                  # Despliegue e infraestructura
-│   ├── docker-compose.yml
-│   ├── caddy/
-│   └── scripts/            # Scripts de bastionado y backups
-├── security/               # Configuración de SOC y auditoría
-│   ├── wazuh-agent/
-│   ├── fail2ban/
-│   └── audit_scripts/
-├── docs/                   # Documentación técnica del proyecto
-│   ├── ARCHITECTURE.md
-│   ├── SECURITY.md
-│   ├── DEPLOYMENT.md
-│   └── USER_MANUAL.md
-├── LICENSE                 # Licencia Propietaria
-├── NOTICE.md               # Aviso Legal
-└── README.md               # Presentación general de BarHub 2.0
-```
-
----
-
-## Roles del Sistema
-
-* **Cliente / Usuario:** Acceso a la carta digital interactiva mediante QR, selección del tipo de servicio (Mesa o Domicilio), catálogo de ofertas, canje de puntos, pago digital (Stripe) o en efectivo, y seguimiento del estado del pedido.
-* **Empleado / Camarero / Cocinero:** Control del estado de las mesas, recepción y actualización de comandas, confirmación de cobros y cálculo del saldo pendiente acumulado por mesa.
-* **Administrador:** Panel de gestión global para la carta, usuarios, promociones, parámetros del sistema y métricas generales del establecimiento.
-
----
-
-## Instalación y Entorno Local
-
-### Prerrequisitos
-
-* **JDK 17+**
-* **Node.js 18+** / **npm 9+**
-* **Docker & Docker Compose** (Recomendado para simular la infraestructura completa)
-
-### Pasos de ejecución
-
-1. **Clonar el repositorio:**
-   ```bash
-   git clone https://github.com/tu-usuario/barhub.git
-   cd barhub
-   ```
-
-2. **Despliegue con Docker Compose (Recomendado):**
-   ```bash
-   docker-compose -f infra/docker-compose.yml up --build
-   ```
-
-3. **Ejecución manual por componentes:**
-   * **Backend:**
-     ```bash
-     cd backend
-     ./gradlew bootRun
-     ```
-   * **Frontend:**
-     ```bash
-     cd frontend
-     npm install
-     ng serve --open
-     ```
-
-4. Abrir la aplicación en el navegador web accediendo a `http://localhost:4200` (o a través del proxy en `http://localhost`).
-
----
-
-## Autor
-
-* **Juan Parejo García** — *Desarrollador Principal*
+  [ ] Fase 5: Servidor VPS Zero Trust, Pipeline CI/CD & SOC Automático (Infraestructura Completada)
