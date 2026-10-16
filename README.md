@@ -30,8 +30,8 @@ Esta versión representa una modernización integral del sistema: actualiza la a
 
 © **Juan Parejo García** — *Todos los derechos reservados (All Rights Reserved)*.  
 Este software es de código propietario. Para conocer los términos de uso y condiciones legales, consulta los archivos oficiales del repositorio:
-* [`LICENSE`](./LICENSE) — Términos de Licencia Propietaria.
-* [`NOTICE`](./NOTICE) — Aviso Legal y Reserva de Derechos.
+* [`LICENSE`](./LICENSE.md) — Términos de Licencia Propietaria.
+* [`NOTICE`](./NOTICE.md) — Aviso Legal y Reserva de Derechos.
 
 ---
 
