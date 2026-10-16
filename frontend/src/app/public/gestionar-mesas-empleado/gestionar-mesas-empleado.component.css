@@ -93,8 +93,11 @@
   
   /* Temas KPI */
   .kpi-card.total .material-icons { background: #f1f5f9; color: #475569; }
+  .kpi-card.disponibles .material-icons,
   .kpi-card.disponible .material-icons { background: #dcfce7; color: #16a34a; }
+  .kpi-card.ocupadas .material-icons,
   .kpi-card.ocupada .material-icons { background: #fee2e2; color: #dc2626; }
+  .kpi-card.reservadas .material-icons,
   .kpi-card.reservada .material-icons { background: #e0f2fe; color: #0284c7; }
   
   /* ==========================================================================
@@ -440,7 +443,63 @@
     70% { box-shadow: 0 0 0 6px rgba(2, 132, 199, 0); }
     100% { box-shadow: 0 0 0 0 rgba(2, 132, 199, 0); }
   }
-
+  
   .comanda-col {
     animation: fadeInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+  
+  /* ==========================================================================
+     AJUSTES PARA MODO OSCURO (DARK THEME)
+     ========================================================================== */
+  
+  /* Solución a los números invisibles en el KPI superior */
+  :host-context(.dark-theme) .kpi-value {
+    color: #f8fafc !important;
+  }
+  
+  :host-context(.dark-theme) .kpi-label {
+    color: #cbd5e1 !important;
+  }
+  
+  :host-context(.dark-theme) .kpi-card {
+    background: #1e293b !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+  }
+  
+  :host-context(.dark-theme) .main-title {
+    color: #f8fafc !important;
+  }
+  
+  :host-context(.dark-theme) .btn-refresh {
+    background: #1e293b !important;
+    color: #f8fafc !important;
+    border-color: rgba(255, 255, 255, 0.15) !important;
+  }
+  
+  :host-context(.dark-theme) .mesa-card {
+    background: #1e293b !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+  }
+  
+  :host-context(.dark-theme) .mesa-numero {
+    color: #f8fafc !important;
+  }
+  
+  :host-context(.dark-theme) .state-selector-group {
+    background: #0f172a !important;
+  }
+  
+  :host-context(.dark-theme) .state-btn {
+    color: #94a3b8 !important;
+  }
+  
+  :host-context(.dark-theme) .state-btn:hover {
+    background: rgba(255, 255, 255, 0.08) !important;
+    color: #f8fafc !important;
+  }
+  
+  :host-context(.dark-theme) .btn-qr-action {
+    background: #0f172a !important;
+    border-color: rgba(255, 255, 255, 0.15) !important;
+    color: #f8fafc !important;
   }
