@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
-import java.security.Key;
+import javax.crypto.SecretKey;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -33,28 +33,27 @@ public class JwtUtils {
             .collect(Collectors.toList());
 
     return Jwts.builder()
-        .setSubject((userPrincipal.getUsername()))
-        .claim("id", userPrincipal.getId())
-        .claim("roles", roles)
-        .setIssuedAt(new Date())
-        .setExpiration(new Date((new Date()).getTime() + jwtExpirationMs))
-        .signWith(key(), SignatureAlgorithm.HS256)
-        .compact();
+            .subject(userPrincipal.getUsername())
+            .claim("id", userPrincipal.getId())
+            .claim("roles", roles)
+            .issuedAt(new Date())
+            .expiration(new Date((new Date()).getTime() + jwtExpirationMs))
+            .signWith(key())
+            .compact();
   }
-  
-  private Key key() {
-    //return Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtSecret));  // Si jwSecret está en Base64
-    return Keys.hmacShaKeyFor(jwtSecret.getBytes()); // Si jwSecret no está en Base64
+
+  private SecretKey key() {
+    return Keys.hmacShaKeyFor(jwtSecret.getBytes());
   }
 
   public String getUserNameFromJwtToken(String token) {
-    return Jwts.parserBuilder().setSigningKey(key()).build()
-               .parseClaimsJws(token).getBody().getSubject();
+    return Jwts.parser().verifyWith(key()).build()
+            .parseSignedClaims(token).getPayload().getSubject();
   }
 
   public boolean validateJwtToken(String authToken) {
     try {
-      Jwts.parserBuilder().setSigningKey(key()).build().parse(authToken);
+      Jwts.parser().verifyWith(key()).build().parseSignedClaims(authToken);
       return true;
     } catch (MalformedJwtException e) {
       logger.error("Token JWT no válido: {}", e.getMessage());

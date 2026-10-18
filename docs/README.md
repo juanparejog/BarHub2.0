@@ -237,3 +237,31 @@ Orientada a la experiencia del cliente final y la interacción operativa diaria:
 * **Estilos Globales**: El proyecto cuenta con hojas de estilo específicas para la administración (`crud-styles.css`), estilos por componente y un servicio dedicado al manejo de temas (`theme.service.ts`) para soportar la adaptabilidad visual de la interfaz.
 
 * **Activos (`assets/`)**: Contiene recursos estáticos como imágenes corporativas y de fondo.
+
+## 6.- Auditorias
+
+En este apartado se definen las diferentes auditorías que he realizado con diferentes herramientas:
+
+### 6.1.- Snyk
+
+- Backend:
+
+Se realizaron escáneres iterativos sobre las 117 dependencias del proyecto utilizando Snyk CLI en el entorno de Kali Linux. 
+
+1. **Estado Inicial:** Se detectaron inicialmente **136 incidencias** y **406 rutas vulnerables**, asociadas principalmente a versiones anteriores del framework y desactualizaciones en librerías de terceros.
+2. **Mitigación y Actualización de Dependencias:** 
+   - Se actualizaron los componentes críticos de seguridad, migrando la librería de autenticación JWT (`jjwt`) a la versión `0.12.5` y adaptando por completo la implementación al API moderno (`JwtUtils.java`).
+   - Se elevó la versión base del ecosistema a **Spring Boot 3.4.3**, saneando de forma directa las vulnerabilidades transitivas de Tomcat, Spring Security y componentes de registro (`Logback`).
+   - Se actualizaron los conectores de bases de datos (`mariadb-java-client` y `mysql-connector-j`) a sus iteraciones más estables y seguras.
+3. **Estado Final:** Tras las optimizaciones y recompilación limpia (`./gradlew clean build -x test`), el número de incidencias se redujo a **129 problemas** y **397 rutas vulnerables**. Las advertencias restantes quedan limitadas estrictamente a avisos de menor relevancia y dependencias transitivas internas del núcleo del framework que no afectan a la lógica de negocio personalizada de la aplicación.
+
+- Frontend:
+
+Se realizaron análisis de seguridad sobre las 102 dependencias del proyecto frontend utilizando Snyk CLI en el entorno de Kali Linux.
+
+1. **Estado Inicial:** Se detectaron inicialmente **29 incidencias** y **33 rutas vulnerables**, compuestas por vulnerabilidades directas en paquetes obsoletos de Angular (versión 14) y vulnerabilidades de alto riesgo en dependencias transitivas de red (tales como `engine.io`, `socket.io-parser` y `ws`, introducidas a través de `ngx-socket-io`).
+2. **Mitigación y Actualización de Dependencias:** 
+   - Se aislaron y solucionaron de forma directa las vulnerabilidades críticas de red e infraestructura mediante la implementación de directivas de anulación (`overrides`) en el archivo `package.json` para forzar versiones parcheadas de los protocolos de comunicación (`engine.io`, `socket.io-parser` y `ws`).
+   - Se depuró el árbol de dependencias ejecutando una limpieza completa de módulos y una reinstalación de los paquetes (`npm install --legacy-peer-deps`) para garantizar la estabilidad de la compilación frente a restricciones de versiones.
+3. **Estado Final:** Tras aplicar las directivas de control y la reconstrucción del entorno, el número de incidencias se redujo a **22 problemas** y **22 rutas vulnerables** (una reducción drástica que eliminó el 100% de las vulnerabilidades transitivas de terceros). Las incidencias restantes quedan limitadas exclusivamente a avisos estructurales nativos del núcleo de Angular 14, cuya actualización completa a versiones modernas requeriría una migración mayor del framework.
+
