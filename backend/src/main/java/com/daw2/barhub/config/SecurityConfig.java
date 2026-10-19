@@ -28,6 +28,9 @@ import java.util.List;
 public class SecurityConfig {
 
     private final AuthEntryPointJwt unauthorizedHandler;
+    public static final String ROL_ADMIN = "ADMIN";
+    public static final String ROL_EMPLEADO = "EMPLEADO";
+    public static final String ROL_CLIENTE = "CLIENTE";
 
     public SecurityConfig(AuthEntryPointJwt unauthorizedHandler) {
         this.unauthorizedHandler = unauthorizedHandler;
@@ -69,11 +72,11 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/pedidos", "/pedidos/**", "/api/pedidos", "/api/pedidos/**").permitAll()
 
                         // --- GESTIÓN DE PEDIDOS Y COMANDAS PARA EMPLEADOS / ADMINS ---
-                        .requestMatchers(HttpMethod.GET, "/pedidos/mis-pedidos").hasAnyRole("CLIENTE", "EMPLEADO", "ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/pedidos/**").hasAnyRole( "EMPLEADO", "ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/pedidos/mis-pedidos").hasAnyRole(ROL_CLIENTE, ROL_EMPLEADO, ROL_ADMIN)
+                        .requestMatchers(HttpMethod.GET, "/pedidos/**").hasAnyRole( ROL_EMPLEADO, ROL_ADMIN)
 
                         // --- GESTIÓN DE CAKA PARA EMPLEADOS / ADMINS ---
-                        .requestMatchers(HttpMethod.GET, "/caja/**").hasAnyRole( "EMPLEADO", "ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/caja/**").hasAnyRole( ROL_EMPLEADO, ROL_ADMIN)
 
 
                         .anyRequest().authenticated()

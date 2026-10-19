@@ -20,16 +20,12 @@ public class MesaServiceImpl implements MesaService {
 
     @Override
     public List<Mesa> findAll() {
-        List<Mesa> mesas = mesaRepository.findAll();
-
-        return mesas;
+        return mesaRepository.findAll();
     }
 
     @Override
     public Mesa findById(long id) {
-        Mesa mesa = mesaRepository.findById(id);
-
-        return mesa;
+        return mesaRepository.findById(id);
     }
 
     @Override

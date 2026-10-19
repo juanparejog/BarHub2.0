@@ -29,7 +29,7 @@ public class ProductoController {
     @Autowired
     private ProductoServiceImpl productoService;
 
-    private final String UPLOAD_DIR = "../frontend/src/assets/images/productos/";
+    private static final String UPLOADDIR = "../frontend/src/assets/images/productos/";
 
     @GetMapping("/")
     public List<ProductoDto> index() {
@@ -41,7 +41,6 @@ public class ProductoController {
             @RequestPart("producto") ProductoDto productoDto,
             @RequestPart(value = "file", required = false) MultipartFile file) {
         try {
-            // Guardar imagen si se adjuntó un archivo
             if (file != null && !file.isEmpty()) {
                 String nombreImagen = guardarImagenEnDisco(file, productoDto.getNombre());
                 productoDto.setImagen(nombreImagen);
@@ -95,7 +94,7 @@ public class ProductoController {
             Producto producto = productoService.findById(id);
 
             if (producto != null && producto.getImagen() != null && !producto.getImagen().isBlank()) {
-                Path rutaImagen = Paths.get(UPLOAD_DIR).resolve(producto.getImagen()).toAbsolutePath().normalize();
+                Path rutaImagen = Paths.get(UPLOADDIR).resolve(producto.getImagen()).toAbsolutePath().normalize();
 
                 boolean borrado = Files.deleteIfExists(rutaImagen);
                 if (borrado) {
@@ -129,7 +128,7 @@ public class ProductoController {
 
         String nombreFinal = nombreLimpio + "." + extension;
 
-        Path uploadPath = Paths.get(UPLOAD_DIR).toAbsolutePath().normalize();
+        Path uploadPath = Paths.get(UPLOADDIR).toAbsolutePath().normalize();
         if (!Files.exists(uploadPath)) {
             Files.createDirectories(uploadPath);
         }

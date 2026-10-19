@@ -1,6 +1,6 @@
 package com.daw2.barhub.model.repository;
 
-import com.daw2.barhub.model.Enum.EstadoPago;
+import com.daw2.barhub.model.enums.EstadoPago;
 import com.daw2.barhub.model.entity.Pedido;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -31,12 +31,12 @@ public interface PedidoRepository extends JpaRepository<Pedido, Long> {
     @Query("SELECT COALESCE(SUM(p.precioTotal), 0) FROM Pedido p " +
             "WHERE p.fecha BETWEEN :desde AND :hasta " +
             "AND LOWER(p.metodoPago) = 'efectivo' " +
-            "AND p.estadoPago = com.daw2.barhub.model.Enum.EstadoPago.COMPLETADO")
+            "AND p.estadoPago = com.daw2.barhub.model.enums.EstadoPago.COMPLETADO")
     BigDecimal sumVentasEfectivoEntreFechas(@Param("desde") LocalDateTime desde, @Param("hasta") LocalDateTime hasta);
 
     @Query("SELECT COALESCE(SUM(p.precioTotal), 0) FROM Pedido p " +
             "WHERE p.fecha BETWEEN :desde AND :hasta " +
             "AND LOWER(p.metodoPago) = 'tarjeta' " +
-            "AND p.estadoPago = com.daw2.barhub.model.Enum.EstadoPago.COMPLETADO")
+            "AND p.estadoPago = com.daw2.barhub.model.enums.EstadoPago.COMPLETADO")
     BigDecimal sumVentasTarjetaEntreFechas(@Param("desde") LocalDateTime desde, @Param("hasta") LocalDateTime hasta);
 }

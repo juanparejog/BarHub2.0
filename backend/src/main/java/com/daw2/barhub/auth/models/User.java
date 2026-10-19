@@ -116,32 +116,47 @@ public class User {
   private List<Pedido> pedidos = new ArrayList<>();
   
   public String getDireccionFormateada() {
-    if (calle == null) return "";
-
-    TipoVivienda tipo = tipoVivienda != null ? tipoVivienda : TipoVivienda.casa;
-
-    switch (tipo) {
-      case piso:
-        return String.format("%s, Portal %s, %sº %s (CP: %s)",
-                calle,
-                portalNum != null ? portalNum : "",
-                pisoNum != null ? pisoNum : "",
-                puerta != null ? puerta : "",
-                codigoPostal != null ? codigoPostal : "");
-
-      case urbanizacion:
-        return String.format("%s, Urb. %s, Nº %s (CP: %s)",
-                calle,
-                urbanizacionNombre != null ? urbanizacionNombre : "",
-                casaNum != null ? casaNum : "",
-                codigoPostal != null ? codigoPostal : "");
-
-      case casa:
-      default:
-        return String.format("%s, Nº %s (CP: %s)",
-                calle,
-                casaNum != null ? casaNum : "",
-                codigoPostal != null ? codigoPostal : "");
+    if (calle == null) {
+      return "";
     }
+
+    TipoVivienda tipoViviendaActual = (tipoVivienda != null) ? tipoVivienda : TipoVivienda.CASA;
+
+    switch (tipoViviendaActual) {
+      case PISO:
+        return getDireccionPiso();
+      case URBANIZACION:
+        return getDireccionUrbanizacion();
+      case CASA:
+      default:
+        return getDireccionCasa();    
+    }
+  }
+
+  private String getDireccionPiso() {
+    return String.format("%s, Portal %s, %sº, %s (CP: %s)",
+      calle,
+      portalNum != null ? portalNum : "",
+      pisoNum != null ? pisoNum : "",
+      puerta != null ? puerta: "",
+      codigoPostal != null ? codigoPostal : ""
+    );
+  }
+
+  private String getDireccionUrbanizacion() {
+    return String.format("%s, Urb. %s, Nº %s (CP: %s)",
+    calle,
+    urbanizacionNombre != null ? urbanizacionNombre : "",
+    casaNum != null ? casaNum : "",
+    codigoPostal != null ? codigoPostal : ""
+    );
+  }
+
+  private String getDireccionCasa() {
+    return String.format("&s, Nº %s (CP: %s)",
+      calle,
+      casaNum != null ? casaNum : "",
+      codigoPostal != null ? codigoPostal : ""
+    );
   }
 }

@@ -1,6 +1,6 @@
 package com.daw2.barhub.model.entity;
 
-import com.daw2.barhub.model.Enum.TipoProducto;
+import com.daw2.barhub.model.enums.TipoProducto;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;

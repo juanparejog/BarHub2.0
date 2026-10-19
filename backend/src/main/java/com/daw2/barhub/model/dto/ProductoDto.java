@@ -1,6 +1,6 @@
 package com.daw2.barhub.model.dto;
 
-import com.daw2.barhub.model.Enum.TipoProducto;
+import com.daw2.barhub.model.enums.TipoProducto;
 import com.daw2.barhub.model.entity.Producto;
 import lombok.AllArgsConstructor;
 import lombok.Data;

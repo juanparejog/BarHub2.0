@@ -4,7 +4,7 @@ import com.daw2.barhub.model.dto.AperturaCajaDto;
 import com.daw2.barhub.model.dto.CierreCajaDto;
 import com.daw2.barhub.model.dto.CajaDto;
 import com.daw2.barhub.model.entity.Caja;
-import com.daw2.barhub.model.Enum.EstadoCaja;
+import com.daw2.barhub.model.enums.EstadoCaja;
 import com.daw2.barhub.auth.models.User;
 import com.daw2.barhub.model.repository.CajaRepository;
 import com.daw2.barhub.model.repository.PedidoRepository;
@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 
 @Service
@@ -46,7 +47,7 @@ public class CajaServiceImpl implements CajaService {
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado: " + username));
 
         Caja caja = Caja.builder()
-                .fechaApertura(LocalDateTime.now())
+                .fechaApertura(LocalDateTime.now(ZoneId.of("Europe/Madrid")))
                 .montoInicial(dto.getMontoInicial())
                 .ventasEfectivo(BigDecimal.ZERO)
                 .ventasTarjeta(BigDecimal.ZERO)
@@ -68,7 +69,7 @@ public class CajaServiceImpl implements CajaService {
         User usuario = usuarioRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado: " + username));
 
-        LocalDateTime ahora = LocalDateTime.now();
+        LocalDateTime ahora = LocalDateTime.now(ZoneId.of("Europe/Madrid"));
 
         // 1. Calcular total acumulado de ventas desde fechaApertura hasta ahora
         BigDecimal ventasEfectivo = pedidoRepository.sumVentasEfectivoEntreFechas(caja.getFechaApertura(), ahora);

@@ -1,7 +1,7 @@
 package com.daw2.barhub.model.entity;
 
 import com.daw2.barhub.auth.models.User;
-import com.daw2.barhub.model.Enum.EstadoCaja;
+import com.daw2.barhub.model.enums.EstadoCaja;
 import jakarta.persistence.*;
 import lombok.*;
 

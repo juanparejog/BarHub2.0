@@ -1,6 +1,6 @@
 package com.daw2.barhub.model.dto;
 
-import com.daw2.barhub.model.Enum.EstadoMesa;
+import com.daw2.barhub.model.enums.EstadoMesa;
 import com.daw2.barhub.model.entity.Mesa;
 import lombok.AllArgsConstructor;
 import lombok.Data;

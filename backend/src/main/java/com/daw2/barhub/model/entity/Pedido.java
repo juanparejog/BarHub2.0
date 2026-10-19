@@ -1,9 +1,9 @@
 package com.daw2.barhub.model.entity;
 
 import com.daw2.barhub.auth.models.User;
-import com.daw2.barhub.model.Enum.EstadoPago;
-import com.daw2.barhub.model.Enum.EstadoPedido;
-import com.daw2.barhub.model.Enum.TipoPedido;
+import com.daw2.barhub.model.enums.EstadoPago;
+import com.daw2.barhub.model.enums.EstadoPedido;
+import com.daw2.barhub.model.enums.TipoPedido;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -16,7 +16,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @NoArgsConstructor
@@ -51,7 +51,7 @@ public class Pedido {
     private String telefonoContacto;
 
     @Column
-    private Date fecha;
+    private LocalDateTime fecha;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 50)

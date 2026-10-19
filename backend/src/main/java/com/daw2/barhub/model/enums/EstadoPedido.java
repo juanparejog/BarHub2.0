@@ -1,14 +1,14 @@
-package com.daw2.barhub.model.Enum;
+package com.daw2.barhub.model.enums;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum EstadoPedido {
-    pendiente,
-    preparado,
-    de_camino,
-    listo_para_recoger,
-    servido;
+    PENDIENTE,
+    PREPARADO,
+    DE_CAMINO,
+    LISTO_PARA_RECOGER,
+    SERVIDO;
 
     @JsonCreator
     public static EstadoPedido fromString(String value) {

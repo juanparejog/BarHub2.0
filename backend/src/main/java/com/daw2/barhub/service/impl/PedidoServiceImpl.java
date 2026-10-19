@@ -2,9 +2,9 @@ package com.daw2.barhub.service.impl;
 
 import com.daw2.barhub.auth.models.User;
 import com.daw2.barhub.auth.repository.UserRepository;
-import com.daw2.barhub.model.Enum.EstadoPago;
-import com.daw2.barhub.model.Enum.EstadoPedido;
-import com.daw2.barhub.model.Enum.TipoPedido;
+import com.daw2.barhub.model.enums.EstadoPago;
+import com.daw2.barhub.model.enums.EstadoPedido;
+import com.daw2.barhub.model.enums.TipoPedido;
 import com.daw2.barhub.model.dto.PedidoDto;
 import com.daw2.barhub.model.entity.DetallePedido;
 import com.daw2.barhub.model.entity.Mesa;
@@ -19,7 +19,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -67,7 +67,7 @@ public class PedidoServiceImpl implements PedidoService {
         if (pedidoExistente != null) {
             if (entity.getUser() != null && entity.getUser().getId() != null) {
                 User usuario = userRepository.findById(entity.getUser().getId())
-                        .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+                        .orElseThrow(() -> new jakarta.persistence.EntityNotFoundException("Usuario no encontrado"));
                 pedidoExistente.setUser(usuario);
             }
 
@@ -93,7 +93,7 @@ public class PedidoServiceImpl implements PedidoService {
     @Override
     public List<Pedido> findByUsername(String username) {
         User usuario = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado: " + username));
+                .orElseThrow(() -> new jakarta.persistence.EntityNotFoundException("Usuario no encontrado: " + username));
         return pedidoRepository.findByUsuarioIdWithDetalles(usuario.getId());
     }
 
@@ -114,8 +114,8 @@ public class PedidoServiceImpl implements PedidoService {
             pedido.setUser(null);
         }
 
-        pedido.setFecha(new Date());
-        pedido.setEstado(pedidoDto.getEstado() != null ? pedidoDto.getEstado() : EstadoPedido.pendiente);
+        pedido.setFecha(LocalDateTime.now());
+        pedido.setEstado(pedidoDto.getEstado() != null ? pedidoDto.getEstado() : EstadoPedido.PENDIENTE);
         pedido.setPrecioTotal(pedidoDto.getPrecioTotal());
         pedido.setMetodoPago(pedidoDto.getMetodoPago());
 
@@ -175,7 +175,7 @@ public class PedidoServiceImpl implements PedidoService {
                 if (prodId != null) {
                     Producto producto = productoRepository.findById(prodId).orElse(null);
                     if (producto == null) {
-                        throw new RuntimeException("Producto no encontrado id: " + prodId);
+                        throw new jakarta.persistence.EntityNotFoundException("Producto no encontrado id: " + prodId);
                     }
                     detalle.setProducto(producto);
                 }

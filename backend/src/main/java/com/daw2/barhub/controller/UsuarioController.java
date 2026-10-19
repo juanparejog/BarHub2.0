@@ -75,7 +75,7 @@ public class UsuarioController {
         try {
             User usuario = userService.findById(id);
             if (usuario == null) {
-                throw new RuntimeException("Usuario no encontrado");
+                throw new jakarta.persistence.EntityNotFoundException("Usuario no encontrado");
             }
             return ResponseEntity.ok(UsuarioDto.from(usuario));
         } catch (Exception e) {
@@ -93,7 +93,7 @@ public class UsuarioController {
         try {
             User usuarioExistente = userService.findById(id);
             if (usuarioExistente == null) {
-                throw new RuntimeException("Usuario no encontrado");
+                throw new jakarta.persistence.EntityNotFoundException("Usuario no encontrado");
             }
 
             if (file != null && !file.isEmpty()) {
@@ -109,12 +109,7 @@ public class UsuarioController {
             usuarioExistente.setTelefono(usuarioDto.getTelefono());
             usuarioExistente.setCalle(usuarioDto.getCalle());
 
-            if (usuarioDto.getTipoVivienda() != null) {
-                try {
-                    usuarioExistente.setTipoVivienda(TipoVivienda.valueOf(usuarioDto.getTipoVivienda().toLowerCase()));
-                } catch (Exception e) {
-                }
-            }
+            actualizarTipoVivienda(usuarioExistente, usuarioDto);
 
             usuarioExistente.setPortalNum(usuarioDto.getPortalNum());
             usuarioExistente.setPisoNum(usuarioDto.getPisoNum());
@@ -184,5 +179,15 @@ public class UsuarioController {
         Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
 
         return nombreFinal;
+    }
+
+    private void actualizarTipoVivienda(User usuarioExistente, UsuarioDto usuarioDto) {
+        if (usuarioDto.getTipoVivienda() != null) {
+            try {
+                usuarioExistente.setTipoVivienda(TipoVivienda.valueOf(usuarioDto.getTipoVivienda().toUpperCase()));
+            } catch (IllegalArgumentException e) {
+                log.warn("Tipo de vivienda no válido recibido: {}", usuarioDto.getTipoVivienda());
+            }
+        }
     }
 }

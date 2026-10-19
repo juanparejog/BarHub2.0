@@ -90,7 +90,7 @@ public class UsuarioDto {
             try {
                 user.setTipoVivienda(TipoVivienda.valueOf(this.tipoVivienda.trim().toUpperCase()));
             } catch (Exception e) {
-                user.setTipoVivienda(TipoVivienda.casa);
+                user.setTipoVivienda(TipoVivienda.CASA);
             }
         }
 

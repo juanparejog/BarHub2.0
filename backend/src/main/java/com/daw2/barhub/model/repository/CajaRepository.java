@@ -1,7 +1,7 @@
 package com.daw2.barhub.model.repository;
 
 import com.daw2.barhub.model.entity.Caja;
-import com.daw2.barhub.model.Enum.EstadoCaja;
+import com.daw2.barhub.model.enums.EstadoCaja;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

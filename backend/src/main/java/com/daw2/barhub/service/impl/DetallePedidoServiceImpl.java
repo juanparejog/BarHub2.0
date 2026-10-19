@@ -31,9 +31,7 @@ public class DetallePedidoServiceImpl implements DetallePedidoService {
 
     @Override
     public List<DetallePedido> findAll() {
-        List<DetallePedido> detallePedidos = detallePedidoRepository.findAll();
-
-        return detallePedidos;
+        return detallePedidoRepository.findAll();
     }
 
     @Override

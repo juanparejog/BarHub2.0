@@ -1,9 +1,9 @@
 package com.daw2.barhub.model.dto;
 
 import com.daw2.barhub.auth.models.User;
-import com.daw2.barhub.model.Enum.EstadoPago;
-import com.daw2.barhub.model.Enum.EstadoPedido;
-import com.daw2.barhub.model.Enum.TipoPedido;
+import com.daw2.barhub.model.enums.EstadoPago;
+import com.daw2.barhub.model.enums.EstadoPedido;
+import com.daw2.barhub.model.enums.TipoPedido;
 import com.daw2.barhub.model.entity.Mesa;
 import com.daw2.barhub.model.entity.Pedido;
 import com.fasterxml.jackson.annotation.JsonAlias;
@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @NoArgsConstructor
@@ -34,7 +34,7 @@ public class PedidoDto {
 
     @JsonProperty("tipo_pedido")
     @JsonAlias({"tipoPedido", "tipo", "tipoServicio"})
-    private TipoPedido tipoPedido; // Eliminado el valor por defecto rudo TipoPedido.MESA
+    private TipoPedido tipoPedido;
 
     @JsonProperty("direccion_envio")
     @JsonAlias({"direccionEnvio", "direccion"})
@@ -44,7 +44,7 @@ public class PedidoDto {
     @JsonAlias({"telefonoContacto", "telefono"})
     private String telefonoContacto;
 
-    private Date fecha;
+    private LocalDateTime fecha;
 
     private EstadoPedido estado;
 
@@ -62,9 +62,6 @@ public class PedidoDto {
 
     private List<DetallePedidoDto> detalles = new ArrayList<>();
 
-    /**
-     * Mapea una entidad Pedido a PedidoDto devolviendo la estructura completa requerida por la UI.
-     */
     public static PedidoDto from(Pedido pedido) {
         if (pedido == null) {
             return null;

@@ -10,6 +10,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
+import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -32,12 +33,15 @@ public class JwtUtils {
             .map(item -> item.getAuthority())
             .collect(Collectors.toList());
 
+    Instant now = Instant.now();
+    Instant expiration = now.plusMillis(jwtExpirationMs);
+
     return Jwts.builder()
             .subject(userPrincipal.getUsername())
             .claim("id", userPrincipal.getId())
             .claim("roles", roles)
-            .issuedAt(new Date())
-            .expiration(new Date((new Date()).getTime() + jwtExpirationMs))
+            .issuedAt(Date.from(now))
+            .expiration(Date.from(expiration))
             .signWith(key())
             .compact();
   }

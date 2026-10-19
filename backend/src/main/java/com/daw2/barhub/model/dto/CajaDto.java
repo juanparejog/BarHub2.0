@@ -1,5 +1,5 @@
 package com.daw2.barhub.model.dto;
-import com.daw2.barhub.model.Enum.EstadoCaja;
+import com.daw2.barhub.model.enums.EstadoCaja;
 import lombok.Builder;
 import lombok.Data;
 

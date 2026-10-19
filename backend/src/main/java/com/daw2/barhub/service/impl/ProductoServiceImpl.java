@@ -22,16 +22,12 @@ public class ProductoServiceImpl implements ProductoService {
 
     @Override
     public List<Producto> findAll() {
-        List<Producto> productos = productoRepository.findAll();
-
-        return productos;
+        return productoRepository.findAll();
     }
 
     @Override
     public Producto findById(long id) {
-        Producto producto = productoRepository.findById(id);
-
-        return producto;
+        return productoRepository.findById(id);
     }
 
     @Override

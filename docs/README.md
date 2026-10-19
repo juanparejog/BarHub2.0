@@ -265,3 +265,65 @@ Se realizaron análisis de seguridad sobre las 102 dependencias del proyecto fro
    - Se depuró el árbol de dependencias ejecutando una limpieza completa de módulos y una reinstalación de los paquetes (`npm install --legacy-peer-deps`) para garantizar la estabilidad de la compilación frente a restricciones de versiones.
 3. **Estado Final:** Tras aplicar las directivas de control y la reconstrucción del entorno, el número de incidencias se redujo a **22 problemas** y **22 rutas vulnerables** (una reducción drástica que eliminó el 100% de las vulnerabilidades transitivas de terceros). Las incidencias restantes quedan limitadas exclusivamente a avisos estructurales nativos del núcleo de Angular 14, cuya actualización completa a versiones modernas requeriría una migración mayor del framework.
 
+### 6.2.- SonarQube (Auditoría de Calidad y Mantenibilidad del Backend)
+
+- Backend:
+
+Se ha llevado a cabo una auditoría exhaustiva de la calidad del código fuente del backend utilizando **SonarQube**, estructurada en dos fases principales (análisis inicial con incidencias y estado final tras la refactorización).
+
+#### A) Estado Inicial de la Auditoría
+En el primer análisis del proyecto se detectaron **48 incidencias** globales distribuidas en seguridad, fiabilidad y mantenibilidad. A continuación se muestran las métricas e instantáneas del estado inicial:
+
+<p align="center">
+  <img src="img/sonarqube/backend/auditoria1-1.png" alt="Dashboard Inicial de SonarQube" width="720">
+</p>
+
+<p align="center">
+  <img src="img/sonarqube/backend/auditoria1-2.png" alt="Snapshot de Fiabilidad Inicial" width="720">
+</p>
+
+<p align="center">
+  <img src="img/sonarqube/backend/auditoria1-3.png" alt="Snapshot de Mantenibilidad Inicial" width="720">
+</p>
+
+<p align="center">
+  <img src="img/sonarqube/backend/auditoria1-4.png" alt="Resumen General de Issues Iniciales" width="720">
+</p>
+
+- **Seguridad (2 incidencias):** Uso de funciones de depuración activas en producción (`e.printStackTrace()` en controladores).
+- **Fiabilidad (3 incidencias):** Omisión del contrato `hashCode()` al sobrescribir `equals()` y llamadas a métodos de fecha sin zona horaria explícita.
+- **Mantenibilidad (45 incidencias):** Complejidad cognitiva elevada en métodos complejos (como `crearPedidoSeguro`), nombres de constantes y paquetes no alineados con las convenciones oficiales de Java.
+
+#### B) Proceso de Refactorización y Optimización
+Para solventar las advertencias y asegurar un código limpio, legible y robusto, se aplicaron las siguientes mejoras técnicas:
+1. **Depuración y Seguridad:** Se eliminaron las trazas de impresión por consola de errores (`e.printStackTrace()`), sustituyéndolas por respuestas HTTP estandarizadas.
+2. **Contrato de Objetos:** Se implementó correctamente el método `hashCode()` junto a `equals()` en `UserDetailsImpl`.
+3. **Reducción de Complejidad Cognitiva:** Se refactorizaron los servicios principales (`PedidoServiceImpl`) y controladores dividiendo los bloques extensos en métodos auxiliares privados más pequeños y cohesivos.
+4. **Convenciones de Estilo y Paquetes:** Se corrigió la estructura de paquetes de enumerados (`model/enums`), evitando conflictos con palabras reservadas de Java, y se estandarizaron las constantes de seguridad y campos estáticos.
+5. **Modernización de APIs:** Se actualizó el manejo de fechas obsoletas (`new Date()`) hacia la API moderna de Java 8 (`java.time` / `Instant`).
+
+#### C) Estado Final y Resultados
+Tras completar el plan de mitigación y recompilar el proyecto, se ejecutó una nueva auditoría en SonarQube reflejando un código limpio y optimizado:
+
+<p align="center">
+  <img src="img/sonarqube/backend/auditoria2-1.png" alt="Dashboard Final de SonarQube Passed" width="720">
+</p>
+
+<p align="center">
+  <img src="img/sonarqube/backend/auditoria2-2.png" alt="Snapshot de Seguridad Final" width="720">
+</p>
+
+<p align="center">
+  <img src="img/sonarqube/backend/auditoria2-3.png" alt="Snapshot de Mantenibilidad Final" width="720">
+</p>
+
+<p align="center">
+  <img src="img/sonarqube/backend/auditoria2-4.png" alt="Resumen de Nuevo Código y Quality Gate" width="720">
+</p>
+
+- **Quality Gate:** **PASSED (Verde)** con todas las condiciones superadas.
+- **Seguridad:** **0 incidencias** (Métrica de seguridad limpia).
+- **Fiabilidad:** **0 incidencias** (Estabilidad garantizada).
+- **Mantenibilidad:** Incidencias críticas y de alta severidad completamente erradicadas, optimizando la mantenibilidad y reduciendo drásticamente la deuda técnica del sistema.
+
+- Frontend
