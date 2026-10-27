@@ -29,10 +29,10 @@ export class GestionarPedidoComponent implements OnInit {
   private bsModal: any;
 
   constructor(
-    private usuarioService: UsuarioService,
-    private mesaService: MesaService,
-    private pedidoService: PedidoService,
-    private dialogService: DialogService
+    private readonly usuarioService: UsuarioService,
+    private readonly mesaService: MesaService,
+    private readonly pedidoService: PedidoService,
+    private readonly dialogService: DialogService
   ) {}
 
   ngOnInit(): void {

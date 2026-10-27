@@ -15,7 +15,7 @@ export class GestionarPagosEfectivoComponent implements OnInit {
   montoEntregado: number = 0;
   cambioDevolver: number = 0;
 
-  constructor(private pedidoService: PedidoService) {}
+  constructor(private readonly pedidoService: PedidoService) {}
 
   ngOnInit(): void {
     this.cargarPedidosPendientesDePago();
@@ -53,8 +53,8 @@ export class GestionarPagosEfectivoComponent implements OnInit {
   }
 
   sumarEfectivo(cantidad: number): void {
-    const actual = parseFloat(this.montoEntregado as any) || 0;
-    this.montoEntregado = parseFloat((actual + cantidad).toFixed(2));
+    const actual = Number.parseFloat(this.montoEntregado as any) || 0;
+    this.montoEntregado = Number.parseFloat((actual + cantidad).toFixed(2));
     this.calcularCambio();
   }
 

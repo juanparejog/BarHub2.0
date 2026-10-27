@@ -25,8 +25,8 @@
 
 /* Encabezado */
 .header-badge {
-  background-color: rgba(79, 70, 229, 0.1);
-  color: #4f46e5;
+  background-color: #eef2ff;
+  color: #312e81;           
   font-size: 0.825rem;
   font-weight: 600;
   letter-spacing: 0.5px;

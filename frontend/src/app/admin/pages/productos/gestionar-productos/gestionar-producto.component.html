@@ -29,13 +29,15 @@
           type="text" 
           class="form-control search-input" 
           placeholder="Buscar por nombre, descripción o tipo..."
-          [(ngModel)]="searchTerm">
+          [(ngModel)]="searchTerm"
+          aria-label="Buscar">
         <button 
           *ngIf="searchTerm" 
           class="btn-clear-search" 
           type="button" 
           (click)="searchTerm = ''"
-          title="Limpiar búsqueda">
+          title="Limpiar búsqueda"
+          >
           <i class="bi bi-x-lg"></i>
         </button>
       </div>
@@ -52,7 +54,7 @@
         <thead>
           <tr>
             <!-- Columna Nombre -->
-            <th class="ps-4 sortable-th" (click)="sortBy('nombre')">
+            <th class="ps-4 sortable-th" (click)="sortBy('nombre')" (keydown.enter)="sortBy('nombre')" tabindex="0">
               <div class="th-content">
                 <span>Nombre</span>
                 <span class="sort-icon" [ngClass]="{'active': sortColumn === 'nombre'}">
@@ -66,7 +68,7 @@
             </th>
 
             <!-- Columna Descripción -->
-            <th class="sortable-th" (click)="sortBy('descripcion')">
+            <th class="sortable-th" (click)="sortBy('descripcion')" (keydown.enter)="sortBy('descripcion')" tabindex="0">
               <div class="th-content">
                 <span>Descripción</span>
                 <span class="sort-icon" [ngClass]="{'active': sortColumn === 'descripcion'}">
@@ -80,7 +82,7 @@
             </th>
 
             <!-- Columna Precio -->
-            <th class="sortable-th" (click)="sortBy('precio')">
+            <th class="sortable-th" (click)="sortBy('precio')"(keydown.enter)="sortBy('precio')" tabindex="0">
               <div class="th-content">
                 <span>Precio</span>
                 <span class="sort-icon" [ngClass]="{'active': sortColumn === 'precio'}">
@@ -94,7 +96,7 @@
             </th>
 
             <!-- Columna Tipo -->
-            <th class="sortable-th" (click)="sortBy('tipoProducto')">
+            <th class="sortable-th" (click)="sortBy('tipoProducto')" (keydown.enter)="sortBy('tipoProducto')" tabindex="0">
               <div class="th-content">
                 <span>Tipo</span>
                 <span class="sort-icon" [ngClass]="{'active': sortColumn === 'tipoProducto'}">
@@ -159,9 +161,13 @@
                    class="bi bi-pencil-fill action-icon edit" 
                    title="Editar"></i>
 
-                <i (click)="borrarProducto(producto)" 
-                   class="bi bi-trash3-fill action-icon delete" 
-                   title="Eliminar"></i>
+                <i (click)="borrarProducto(producto)"
+                   (keydown.enter)="borrarProducto(producto)"
+                   tabindex="0"
+                   role="button"
+                   class="bi bi-trash3-fill action-icon delete"
+                   title="Eliminar"
+                   aria-label="Eliminar"></i>   
               </div>
             </td>
           </tr>

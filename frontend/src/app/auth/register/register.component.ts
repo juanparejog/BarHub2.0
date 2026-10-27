@@ -41,9 +41,9 @@ export class RegisterComponent {
   }
 
   constructor(
-    private http: HttpClient,
-    private authService: AuthService,
-    private router: Router
+    private readonly http: HttpClient,
+    private readonly authService: AuthService,
+    private readonly router: Router
   ) {}
 
   onSubmit(): void {
@@ -80,7 +80,7 @@ export class RegisterComponent {
               password: this.form.password
             }).subscribe({
               next: () => {
-                this.router.navigate(['/carta']);
+                void this.router.navigate(['/carta']);
               },
               error: () => {
                 this.showToastMessage('Error al iniciar sesión automáticamente');

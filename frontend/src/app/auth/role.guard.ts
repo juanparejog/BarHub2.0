@@ -6,7 +6,7 @@ import { AuthService } from './auth.service';
   providedIn: 'root'
 })
 export class RoleGuard implements CanActivate {
-  constructor(private authService: AuthService, private router: Router) {}
+  constructor(private readonly authService: AuthService, private readonly router: Router) {}
 
   canActivate(route: ActivatedRouteSnapshot): boolean {
     const requiredRoles = route.data['roles'] as string[];
@@ -21,7 +21,7 @@ export class RoleGuard implements CanActivate {
     if (hasAccess) {
       return true;
     } else {
-      this.router.navigate(['/']);
+      void this.router.navigate(['/']);
       alert('No tienes permisos para acceder a esta página');
       return false;
     }

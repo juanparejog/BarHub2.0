@@ -63,9 +63,9 @@ export class MetricasComponent implements OnInit, OnDestroy {
   ];
 
   constructor(
-    private pedidoService: PedidoService,
-    private detallesService: DetallesService,
-    private productoService: ProductoService
+    private readonly pedidoService: PedidoService,
+    private readonly detallesService: DetallesService,
+    private readonly productoService: ProductoService
   ) {}
 
   ngOnInit(): void {
@@ -174,7 +174,7 @@ export class MetricasComponent implements OnInit, OnDestroy {
     const fechaStr = typeof rawFecha === 'string' ? rawFecha.replace(' ', 'T') : rawFecha;
     const d = new Date(fechaStr);
     
-    return isNaN(d.getTime()) ? null : d;
+    return Number.isNaN(d.getTime()) ? null : d;
   }
 
   calcularMetricas(): void {

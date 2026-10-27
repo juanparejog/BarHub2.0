@@ -20,10 +20,10 @@ export class EditarMesaComponent implements OnInit {
   editar: boolean = false;
 
   constructor(
-    private activatedRoute: ActivatedRoute,
-    private fb: FormBuilder,
-    private router: Router,
-    private mesaService: MesaService,
+    private readonly activatedRoute: ActivatedRoute,
+    private readonly fb: FormBuilder,
+    private readonly router: Router,
+    private readonly mesaService: MesaService,
   ) { }
 
   ngOnInit(): void {

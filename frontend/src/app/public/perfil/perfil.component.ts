@@ -274,7 +274,7 @@ export class PerfilComponent implements OnInit {
           if (response.imagen) {
             localStorage.setItem('imagen', `assets/images/usuarios/${response.imagen}`);
           }
-          this.router.navigate(['/home']).then(() => {
+          void this.router.navigate(['/home']).then(() => {
             window.location.reload();
           });
         },

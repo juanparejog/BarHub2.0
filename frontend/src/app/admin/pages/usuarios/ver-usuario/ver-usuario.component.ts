@@ -13,8 +13,8 @@ export class VerUsuarioComponent implements OnInit {
   usuario!: Usuario;
 
   constructor(
-    private usuarioService: UsuarioService,
-    private activatedRoute: ActivatedRoute,
+    private readonly usuarioService: UsuarioService,
+    private readonly activatedRoute: ActivatedRoute,
   ) { }
 
   ngOnInit(): void {

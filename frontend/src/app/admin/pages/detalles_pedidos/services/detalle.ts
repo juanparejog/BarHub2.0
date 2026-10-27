@@ -6,9 +6,9 @@ import { DetallesPedido } from "../interface/detalle";
 
 @Injectable({ providedIn: 'root' })
 export class DetallesService {
-  private URL_DETALLES = `${environment.urlBackendSpring}/detalles_pedidos/`;
+  private readonly URL_DETALLES = `${environment.urlBackendSpring}/detalles_pedidos/`;
 
-  constructor(private httpClient: HttpClient) { }
+  constructor(private readonly httpClient: HttpClient) { }
 
   private getHeaders(): HttpHeaders {
     const token = localStorage.getItem('token');

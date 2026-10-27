@@ -13,8 +13,8 @@ export class VerMesaComponent implements OnInit {
   mesa!: Mesa;
 
   constructor(
-    private mesaService: MesaService,
-    private activatedRoute: ActivatedRoute,
+    private readonly mesaService: MesaService,
+    private readonly activatedRoute: ActivatedRoute,
   ) { }
 
   ngOnInit(): void {

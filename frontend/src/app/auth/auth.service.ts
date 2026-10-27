@@ -9,18 +9,18 @@ import { Router } from '@angular/router';
   providedIn: 'root'
 })
 export class AuthService {
-  private apiUrl = 'http://localhost:8080/api/auth';
+  private readonly apiUrl = 'http://localhost:8080/api/auth';
   private roles: string[] = [];
-  private rolesSubject = new BehaviorSubject<string[]>(this.getRoles());
-  private isAuthenticatedSubject = new BehaviorSubject<boolean>(this.isAuthenticated());
+  private readonly rolesSubject = new BehaviorSubject<string[]>(this.getRoles());
+  private readonly isAuthenticatedSubject = new BehaviorSubject<boolean>(this.isAuthenticated());
 
   roles$ = this.rolesSubject.asObservable();
   isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
 
-  private tokenKey = 'token';
-  private jwtHelper = new JwtHelperService();
+  private readonly tokenKey = 'token';
+  private readonly jwtHelper = new JwtHelperService();
 
-  constructor(private http: HttpClient, private router: Router) {}
+  constructor(private readonly http: HttpClient, private readonly router: Router) {}
 
   login(credentials: { username: string; password: string }): Observable<{ token: string }> {
     this.logout();
@@ -50,7 +50,7 @@ export class AuthService {
             this.rolesSubject.next(roles);
             this.isAuthenticatedSubject.next(true);
             
-            this.router.navigate(['/carta']);
+            void this.router.navigate(['/carta']);
             observer.next(res);
           } catch (error) {
             localStorage.removeItem(this.tokenKey);
@@ -71,7 +71,7 @@ export class AuthService {
     localStorage.clear();
     this.rolesSubject.next([]);
     this.isAuthenticatedSubject.next(false);
-    this.router.navigate(['/']);
+    void this.router.navigate(['/']);
   }
 
   isAuthenticated(): boolean {

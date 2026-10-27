@@ -8,8 +8,8 @@
       <div class="row">
         <!-- Usuario -->
         <div class="col-md-6 mb-3">
-          <label class="form-label">Usuario</label>
-          <select formControlName="id_user" class="form-select form-control">
+          <label for="id_user" class="form-label">Usuario</label>
+          <select id="id_user" formControlName="id_user" class="form-select form-control">
             <option [ngValue]="null" disabled>Seleccione un usuario...</option>
             <option *ngFor="let user of users" [ngValue]="user.id">
               {{ user.nombre }} (ID: {{ user.id }})
@@ -19,8 +19,8 @@
 
         <!-- Tipo de Pedido -->
         <div class="col-md-6 mb-3">
-          <label class="form-label">Tipo de Pedido</label>
-          <select formControlName="tipo_pedido" class="form-select form-control">
+          <label for="tipo_pedido" class="form-label">Tipo de Pedido</label>
+          <select id="tipo_pedido" formControlName="tipo_pedido" class="form-select form-control">
             <option value="recoger">Para Recoger</option>
             <option value="domicilio">A Domicilio</option>
             <option value="mesa">Mesa</option>
@@ -29,8 +29,8 @@
 
         <!-- Opción A: Mesa -->
         <div class="col-md-6 mb-3" *ngIf="formulario.get('tipo_pedido')?.value?.toLowerCase() === 'mesa'">
-          <label class="form-label">Seleccionar Mesa</label>
-          <select formControlName="id_mesa" class="form-select form-control">
+          <label for="id_mesa" class="form-label">Seleccionar Mesa</label>
+          <select id="id_mesa" formControlName="id_mesa" class="form-select form-control">
             <option [ngValue]="null" disabled>Seleccione una mesa...</option>
             <option *ngFor="let mesa of mesas" [ngValue]="mesa.id">
               Mesa #{{ mesa.id }} - {{ mesa.codigoqr }}
@@ -40,20 +40,20 @@
 
         <!-- Opción B: Domicilio -->
         <div class="col-md-6 mb-3" *ngIf="formulario.get('tipo_pedido')?.value?.toLowerCase() === 'domicilio'">
-          <label class="form-label">Dirección de Entrega</label>
-          <input type="text" formControlName="direccion_envio" class="form-control" placeholder="Calle, número, piso...">
+          <label for="direccion_envio" class="form-label">Dirección de Entrega</label>
+          <input id="direccion_envio" type="text" formControlName="direccion_envio" class="form-control" placeholder="Calle, número, piso...">
         </div>
 
         <!-- Opción C: Recoger -->
         <div class="col-md-6 mb-3" *ngIf="formulario.get('tipo_pedido')?.value?.toLowerCase() === 'recoger'">
-          <label class="form-label">Tienda / Local de Recogida</label>
-          <input type="text" formControlName="direccion_tienda" class="form-control" placeholder="Nombre o dirección del local">
+          <label for="direccion_tienda" class="form-label">Tienda / Local de Recogida</label>
+          <input id="direccion_tienda" type="text" formControlName="direccion_tienda" class="form-control" placeholder="Nombre o dirección del local">
         </div>
 
         <!-- Estado -->
         <div class="col-md-6 mb-3">
-          <label class="form-label">Estado</label>
-          <select formControlName="estado" class="form-select form-control">
+          <label for="estado" class="form-label">Estado</label>
+          <select id="estado" formControlName="estado" class="form-select form-control">
             <option value="pendiente">Pendiente</option>
             <option value="completado">Completado</option>
             <option value="cancelado">Cancelado</option>
@@ -62,14 +62,14 @@
 
         <!-- Fecha -->
         <div class="col-md-6 mb-3">
-          <label class="form-label">Fecha</label>
-          <input type="date" formControlName="fecha" class="form-control">
+          <label for="fecha" class="form-label">Fecha</label>
+          <input id="fecha" type="date" formControlName="fecha" class="form-control">
         </div>
 
         <!-- Total -->
         <div class="col-md-6 mb-3">
-          <label class="form-label">Total (€)</label>
-          <input type="number" step="0.01" formControlName="total" class="form-control" placeholder="0.00">
+          <label for="total" class="form-label">Total (€)</label>
+          <input id="total" type="number" step="0.01" formControlName="total" class="form-control" placeholder="0.00">
         </div>
       </div>
 

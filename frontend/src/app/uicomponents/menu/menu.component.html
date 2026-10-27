@@ -44,7 +44,9 @@
              id="adminDropdown" 
              role="button" 
              data-bs-toggle="dropdown" 
-             aria-expanded="false">
+             aria-expanded="false"
+             tabindex="0"
+             (keydown.enter)="$event.preventDefault()">
             <i class="bi bi-shield-lock-fill"></i> Admin
           </a>
           <ul class="dropdown-menu custom-dropdown" aria-labelledby="adminDropdown">
@@ -68,16 +70,20 @@
         <div 
         class="theme-switch-group me-3" 
         (click)="toggleTheme()"
+        tabindex="0"
+        role="button"
+        aria-label="Cambiar tema de la aplicación"
+        (keydown.enter)="toggleTheme()"
         [title]="(isDarkMode$ | async) ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'">
         
-        <div class="theme-switch-option" [class.active]="!(isDarkMode$ | async)">
-          <i class="bi bi-sun-fill"></i>
+          <div class="theme-switch-option" [class.active]="!(isDarkMode$ | async)">
+            <i class="bi bi-sun-fill"></i>
+          </div>
+          
+          <div class="theme-switch-option" [class.active]="isDarkMode$ | async">
+            <i class="bi bi-moon-stars-fill"></i>
+          </div>
         </div>
-        
-        <div class="theme-switch-option" [class.active]="isDarkMode$ | async">
-          <i class="bi bi-moon-stars-fill"></i>
-        </div>
-      </div>
 
         <!-- Sin iniciar sesión -->
         <div *ngIf="!sesionIniciada" class="auth-buttons d-flex align-items-center">
@@ -93,7 +99,9 @@
                  href="#" 
                  role="button" 
                  data-bs-toggle="dropdown" 
-                 aria-expanded="false">
+                 aria-expanded="false"
+                 tabindex="0"
+                 (keydown.enter)="$event.preventDefault()">
 
                 <!-- Avatar del usuario con imagen o respaldo por defecto -->
                 <div class="user-avatar-wrapper">

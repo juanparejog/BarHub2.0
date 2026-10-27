@@ -47,20 +47,24 @@ export class ConfirmarPedidoComponent implements OnInit {
   toastType: 'success' | 'error' | 'info' = 'info';
 
   constructor(
-    private pedidoService: PedidoService,
-    private authService: AuthService,
-    private router: Router
+    private readonly pedidoService: PedidoService,
+    private readonly authService: AuthService,
+    private readonly router: Router
   ) {}
 
-  async ngOnInit() {
+  ngOnInit() {
     const pedidoData = localStorage.getItem('pedidoTemporal');
     if (pedidoData) {
       this.pedidoTemporal = JSON.parse(pedidoData);
     } else {
-      this.router.navigate(['/carta']);
+      void this.router.navigate(['/carta']);
       return;
     }
 
+    void this.inicializarStripe();
+  }
+
+  private async inicializarStripe() {
     try {
       this.stripe = await loadStripe('pk_test_51RT97qBUQAvN9BbikjitAkEoXkIGMcEcHSVaaCQuceIjZcooPc28iPNKzjrkpw5WwWkm0MG98aezvb4cD6mj4jXq00exCzBE2s');
     } catch (error) {
@@ -83,7 +87,7 @@ export class ConfirmarPedidoComponent implements OnInit {
     );
   }
 
-  async onTarjetaSelected() {
+  onTarjetaSelected() {
     if (this.metodoPago === 'tarjeta' && this.stripe && !this.card) {
       setTimeout(() => {
         this.elements = this.stripe!.elements();
@@ -104,7 +108,7 @@ export class ConfirmarPedidoComponent implements OnInit {
     }
   }
 
-  async finalizarPedido() {
+  finalizarPedido() {
     if (!this.pedidoTemporal) return;
     this.procesarPedido();
   }
@@ -177,7 +181,7 @@ export class ConfirmarPedidoComponent implements OnInit {
         localStorage.removeItem('pedidoTemporal');
   
         setTimeout(() => {
-          this.router.navigate(['/carta']);
+          void this.router.navigate(['/carta']);
         }, 2500);
       },
       error: (err) => {
@@ -202,7 +206,7 @@ export class ConfirmarPedidoComponent implements OnInit {
   cancelarPedido() {
     if (confirm('¿Desea cancelar y regresar a la carta?')) {
       localStorage.removeItem('pedidoTemporal');
-      this.router.navigate(['/carta']);
+      void this.router.navigate(['/carta']);
     }
   }
 

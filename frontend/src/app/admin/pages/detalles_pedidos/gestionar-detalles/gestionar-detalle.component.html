@@ -26,10 +26,12 @@
       <div class="search-box position-relative">
         <i class="bi bi-search search-icon"></i>
         <input 
-          type="text" 
-          class="form-control search-input" 
-          placeholder="Buscar por ID pedido o producto..."
-          [(ngModel)]="searchTerm">
+          type="text"
+          class="form-control search-input"
+          placeholder="Buscar por ID, pedido o producto..."
+          [(ngModel)]="searchTerm"
+          aria-label="Buscar"
+        >
         <button 
           *ngIf="searchTerm" 
           class="btn-clear-search" 
@@ -52,7 +54,7 @@
         <thead>
           <tr>
             <!-- Columna ID Pedido -->
-            <th class="ps-4 sortable-th" (click)="sortBy('id_pedido')">
+            <th class="ps-4 sortable-th" (click)="sortBy('id_pedido')" (keydown.enter)="sortBy('id_pedido')" tabindex="0">
               <div class="th-content">
                 <span>ID Pedido</span>
                 <span class="sort-icon" [ngClass]="{'active': sortColumn === 'id_pedido'}">
@@ -66,7 +68,7 @@
             </th>
 
             <!-- Columna Producto -->
-            <th class="sortable-th" (click)="sortBy('producto')">
+            <th class="sortable-th" (click)="sortBy('producto')" (keydown.enter)="sortBy('producto')" tabindex="0">
               <div class="th-content">
                 <span>Producto</span>
                 <span class="sort-icon" [ngClass]="{'active': sortColumn === 'producto'}">
@@ -80,7 +82,7 @@
             </th>
 
             <!-- Columna Cantidad -->
-            <th class="text-center sortable-th" (click)="sortBy('cantidad')">
+            <th class="text-center sortable-th" (click)="sortBy('cantidad')" (keydown.enter)="sortBy('cantidad')" tabindex="0">
               <div class="th-content justify-content-center">
                 <span>Cantidad</span>
                 <span class="sort-icon" [ngClass]="{'active': sortColumn === 'cantidad'}">
@@ -94,7 +96,7 @@
             </th>
 
             <!-- Columna Precio Unitario -->
-            <th class="text-end sortable-th" (click)="sortBy('precio_unitario')">
+            <th class="text-end sortable-th" (click)="sortBy('precio_unitario')" (keydown.enter)="sortBy('precio_unitario')" tabindex="0">
               <div class="th-content justify-content-end">
                 <span>Precio / Ud.</span>
                 <span class="sort-icon" [ngClass]="{'active': sortColumn === 'precio_unitario'}">
@@ -151,9 +153,13 @@
                    class="bi bi-pencil-fill action-icon edit" 
                    title="Editar"></i>
 
-                <i (click)="borrarDetalle(detalle)" 
-                   class="bi bi-trash3-fill action-icon delete" 
-                   title="Eliminar"></i>
+                <i (click)="borrarDetalle(detalle)"
+                   (keydown.enter)="borrarDetalle(detalle)"
+                   tabindex="0"
+                   role="button"
+                   class="bi bi-trash3-fill action-icon delete"
+                   title="Eliminar"
+                   aria-label="Eliminar"></i>
               </div>
             </td>
           </tr>

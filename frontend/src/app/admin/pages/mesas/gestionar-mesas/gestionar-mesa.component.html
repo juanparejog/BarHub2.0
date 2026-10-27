@@ -29,7 +29,9 @@
           type="text" 
           class="form-control search-input" 
           placeholder="Buscar por código QR o estado..."
-          [(ngModel)]="searchTerm">
+          [(ngModel)]="searchTerm"
+          aria-label="Buscar"
+        >  
         <button 
           *ngIf="searchTerm" 
           class="btn-clear-search" 
@@ -52,7 +54,7 @@
         <thead>
           <tr>
             <!-- Columna Código QR -->
-            <th class="ps-4 sortable-th" (click)="sortBy('codigoqr')">
+            <th class="ps-4 sortable-th" (click)="sortBy('codigoqr')" (keydown.enter)="sortBy('codigoqr')" tabindex="0">
               <div class="th-content">
                 <span>Código QR</span>
                 <span class="sort-icon" [ngClass]="{'active': sortColumn === 'codigoqr'}">
@@ -66,7 +68,7 @@
             </th>
 
             <!-- Columna Estado -->
-            <th class="sortable-th" (click)="sortBy('estado')">
+            <th class="sortable-th" (click)="sortBy('estado')" (keydown.enter)="sortBy('estado')" tabindex="0">
               <div class="th-content">
                 <span>Estado</span>
                 <span class="sort-icon" [ngClass]="{'active': sortColumn === 'estado'}">
@@ -115,8 +117,12 @@
                    title="Editar"></i>
 
                 <i (click)="borrarMesa(mesa)" 
-                   class="bi bi-trash3-fill action-icon delete" 
-                   title="Eliminar"></i>
+                   (keydown.enter)="borrarMesa(mesa)"
+                   tabindex="0"
+                   role="button"
+                   class="bi bi-trash3-fill action-icon delete"
+                   title="Eliminar"
+                   aria-label="Eliminar"></i>
               </div>
             </td>
           </tr>

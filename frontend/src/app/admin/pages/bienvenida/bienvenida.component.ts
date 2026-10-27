@@ -19,10 +19,10 @@ export class BienvenidaComponent implements OnInit {
   cargandoMetrics: boolean = true;
 
   constructor(
-    private pedidoService: PedidoService,
-    private mesaService: MesaService,
-    private detalleService: DetallesService
-  ) { }
+    private readonly pedidoService: PedidoService,
+    private readonly mesaService: MesaService,
+    private readonly detalleService: DetallesService
+  ) {}
 
   ngOnInit(): void {
     this.cargarMetricasReales();

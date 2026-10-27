@@ -80,7 +80,7 @@
 
         <!-- CUERPO TARJETA: Selector de Estados Tipo Segmented Switch -->
         <div class="mesa-card-body">
-          <label class="state-selector-label">Cambiar Estado:</label>
+          <span class="state-selector-label">Cambiar Estado:</span>
           <div class="state-selector-group">
             <button 
               *ngFor="let estado of estados" 
@@ -111,8 +111,15 @@
 
 </div>
 
-<!-- MODAL REDISEÑADO DE CÓDIGO QR -->
-<div class="modal-backdrop-custom fade show" *ngIf="mesaSeleccionadaQr" (click)="cerrarModalQr()"></div>
+<div class="modal-backdrop-custom fade show"
+     *ngIf="mesaSeleccionadaQr"
+     (click)="cerrarModalQr()"
+     tabindex="0"
+     role="button"
+     aria-label="Cerrar modal"
+     (keydown.enter)="cerrarModalQr()"
+     (keydown.escape)="cerrarModalQr()">
+</div>
 
 <div class="modal fade show d-block" *ngIf="mesaSeleccionadaQr" tabindex="-1" role="dialog" aria-modal="true">
   <div class="modal-dialog modal-dialog-centered modal-sm">

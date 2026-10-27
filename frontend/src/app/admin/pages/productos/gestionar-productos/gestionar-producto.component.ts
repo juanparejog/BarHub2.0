@@ -19,8 +19,8 @@ export class GestionarProductoComponent implements OnInit {
   productoAEliminar: Producto | null = null;
 
   constructor(
-    private productoService: ProductoService,
-    private dialogService: DialogService
+    private readonly productoService: ProductoService,
+    private readonly dialogService: DialogService
   ) { }
 
   ngOnInit(): void {

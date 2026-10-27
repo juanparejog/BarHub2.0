@@ -5,7 +5,7 @@ import { Injectable } from '@angular/core';
 })
 export class DialogService {
 
-  private HTML_MODAL_ALERT = `
+  private readonly HTML_MODAL_ALERT = `
     <div class="modal fade" id="modalAlert" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered">
           <div class="modal-content">
@@ -24,7 +24,7 @@ export class DialogService {
     </div>
   `;
 
-  private HTML_MODAL_CONFIRMAR = `
+  private readonly HTML_MODAL_CONFIRMAR = `
     <div class="modal fade" id="modalConfirmar" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -45,7 +45,7 @@ export class DialogService {
   `;
 
 
-  private HTML_TOAST = `
+  private readonly HTML_TOAST = `
   <div aria-live="polite" aria-atomic="true" class="d-flex justify-content-center align-items-center w-100">
     <div id="__Toast" class="toast align-items-center" role="alert" aria-live="assertive" aria-atomic="true">
       <div class="d-flex">

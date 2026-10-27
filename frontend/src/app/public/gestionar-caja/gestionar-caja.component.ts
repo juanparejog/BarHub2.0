@@ -19,9 +19,9 @@ export class GestionarCajaComponent implements OnInit {
   formCierre: FormGroup;
 
   constructor(
-    private fb: FormBuilder,
-    private cajaService: CajaService,
-    private dialogService: DialogService
+    private readonly fb: FormBuilder,
+    private readonly cajaService: CajaService,
+    private readonly dialogService: DialogService
   ) {
     this.formApertura = this.fb.group({
       montoInicial: [150.00, [Validators.required, Validators.min(0)]],

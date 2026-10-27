@@ -27,10 +27,10 @@ export class EditarProductoComponent implements OnInit {
   nombreArchivoRenombrado: string = '';
 
   constructor(
-    private activatedRoute: ActivatedRoute,
-    private fb: FormBuilder,
-    private router: Router,
-    private productoService: ProductoService,
+    private readonly activatedRoute: ActivatedRoute,
+    private readonly fb: FormBuilder,
+    private readonly router: Router,
+    private readonly productoService: ProductoService,
   ) { }
 
   ngOnInit(): void {
@@ -136,7 +136,7 @@ export class EditarProductoComponent implements OnInit {
           }
         },
         error: () => {
-          this.router.navigate(['/admin/gestionar-producto']);
+          void this.router.navigate(['/admin/gestionar-producto']);
         }
       });
   }
@@ -154,7 +154,7 @@ export class EditarProductoComponent implements OnInit {
     this.productoService.post(nuevoProducto, archivoFinal).subscribe({
       next: (response) => {
         console.log('Producto creado con éxito:', response);
-        this.router.navigate(['/admin/gestionar-productos']);
+        void this.router.navigate(['/admin/gestionar-productos']);
       },
       error: (error) => console.error('Error al crear el producto:', error)
     });
@@ -171,7 +171,7 @@ export class EditarProductoComponent implements OnInit {
     this.productoService.put(datosProducto, archivoFinal).subscribe({
       next: (response) => {
         console.log('Producto editado con éxito:', response);
-        this.router.navigate(['/admin/gestionar-productos']);
+        void this.router.navigate(['/admin/gestionar-productos']);
       },
       error: (err) => console.error('Error en la petición PUT:', err)
     });

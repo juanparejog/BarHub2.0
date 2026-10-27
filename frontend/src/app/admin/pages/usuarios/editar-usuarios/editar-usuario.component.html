@@ -25,15 +25,18 @@
           
           <div class="d-flex flex-column flex-md-row gap-4 align-items-center">
             <!-- Zona Drag and Drop -->
-            <div class="dropzone-container flex-grow-1 w-100 p-4 border border-2 border-dashed rounded text-center cursor-pointer position-relative"
-                 [class.border-primary]="isDragging"
-                 [class.bg-white]="isDragging"
-                 (dragover)="onDragOver($event)"
-                 (dragleave)="onDragLeave($event)"
-                 (drop)="onDrop($event)"
-                 (click)="fileInput.click()">
+            <div class="drop-zone"
+            [class.drag-over]="isDragging"
+            (dragover)="onDragOver($event)"
+            (dragleave)="onDragLeave($event)"
+            (drop)="onDrop($event)"
+            (click)="fileInput.click()"
+            tabindex="0"
+            role="button"
+            aria-label="Seleccionar o arrastrar imagen del usuario"
+            (keydown.enter)="fileInput.click()">
               
-              <input #fileInput type="file" accept="image/*" class="d-none" (change)="onFileSelected($event)">
+              <input #fileInput id="fileInput" type="file" accept="image/*" class="d-none" (change)="onFileSelected($event)" aria-label="Subir foto de perfil">
               
               <i class="bi bi-cloud-arrow-up fs-1 text-primary d-block mb-2"></i>
               <p class="mb-1 fw-semibold text-dark">Arrastra y suelta aquí la imagen de usuario</p>
@@ -107,9 +110,9 @@
 
             <!-- Roles Asignados -->
             <div class="col-md-12 mb-2">
-              <label class="form-label d-block fw-medium">
+              <div class="form-label d-block fw-medium">
                 Roles Asignados <span class="text-danger">* (mínimo 1)</span>
-              </label>
+              </div>
               <div class="roles-selection-container p-3 rounded border bg-white"
                    [class.border-danger]="formulario.get('roles')?.invalid && formulario.get('roles')?.touched">
                 <div class="d-flex flex-wrap gap-3">
@@ -224,8 +227,8 @@
               <!-- Si es Casa -->
               <ng-container *ngSwitchCase="'casa'">
                 <div class="col-md-12 mb-3">
-                  <label for="casaNum" class="form-label fw-medium">Número de Casa / Parcela</label>
-                  <input formControlName="casaNum" type="text" class="form-control" id="casaNum" placeholder="ej. Nº 45">
+                  <label for="casaNumCasa" class="form-label fw-medium">Número de Casa / Parcela</label>
+                  <input formControlName="casaNum" type="text" class="form-control" id="casaNumCasa" placeholder="ej. Nº 45">
                 </div>
               </ng-container>
 
@@ -236,8 +239,8 @@
                   <input formControlName="urbanizacionNombre" type="text" class="form-control" id="urbanizacionNombre" placeholder="ej. Los Olivos">
                 </div>
                 <div class="col-md-6 mb-3">
-                  <label for="casaNum" class="form-label fw-medium">Número de Bloque / Chalet</label>
-                  <input formControlName="casaNum" type="text" class="form-control" id="casaNum" placeholder="ej. Chalet 12">
+                  <label for="casaNumChalet" class="form-label fw-medium">Número de Bloque / Chalet</label>
+                  <input formControlName="casaNum" type="text" class="form-control" id="casaNumChalet" placeholder="ej. Chalet 12">
                 </div>
               </ng-container>
 
@@ -264,4 +267,4 @@
 
     </form>
   </div>
-</div>  
+</div>

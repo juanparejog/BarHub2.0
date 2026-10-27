@@ -25,9 +25,9 @@ export class LoginComponent {
   }
 
   constructor(
-    private fb: FormBuilder,
-    private authService: AuthService,
-    private router: Router
+    private readonly fb: FormBuilder,
+    private readonly authService: AuthService,
+    private readonly router: Router
   ) {
     this.form = this.fb.group({
       username: ['', Validators.required],
@@ -60,7 +60,7 @@ export class LoginComponent {
         console.log('roles:', JSON.stringify(payload.roles));
         console.log('ID guardado:', localStorage.getItem('usuarioId'));
 
-        this.router.navigate(['/carta']);
+        void this.router.navigate(['/carta']);
       },
       error: (err) => {
         console.error('Error de login:', err);

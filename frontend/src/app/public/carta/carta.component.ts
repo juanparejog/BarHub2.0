@@ -58,13 +58,13 @@ export class CartaComponent implements OnInit {
   toastType: 'success' | 'error' | 'info' = 'info';
 
   constructor(
-    private authService: AuthService,
-    private mesaService: MesaService,
-    private productoService: ProductoService,
-    private usuarioService: UsuarioService,
-    private route: ActivatedRoute,
-    private router: Router,
-    private sanitizer: DomSanitizer
+    private readonly authService: AuthService,
+    private readonly mesaService: MesaService,
+    private readonly productoService: ProductoService,
+    private readonly usuarioService: UsuarioService,
+    private readonly route: ActivatedRoute,
+    private readonly router: Router,
+    private readonly sanitizer: DomSanitizer
   ) {}
 
   ngOnInit() {
@@ -335,7 +335,7 @@ export class CartaComponent implements OnInit {
     };
 
     localStorage.setItem('pedidoTemporal', JSON.stringify(pedidoPayload));
-    this.router.navigate(['/confirmar-pedido']);
+    void this.router.navigate(['/confirmar-pedido']);
   }
 
   getImagenUrl(nombreImagen: string | undefined): string {

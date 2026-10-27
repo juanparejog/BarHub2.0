@@ -9,10 +9,10 @@ import { Mesa } from "../interface/mesa";
 })
 export class MesaService {
 
-  private URL_MESAS = `${environment.urlBackendSpring}/mesas/`;
+  private readonly URL_MESAS = `${environment.urlBackendSpring}/mesas/`;
 
   constructor(
-    private httpClient: HttpClient
+    private readonly httpClient: HttpClient
   ) { }
 
   //----------------------------------------------------------

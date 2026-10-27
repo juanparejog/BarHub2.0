@@ -7,9 +7,9 @@ import { Socket } from 'ngx-socket-io';
 
 @Injectable({ providedIn: 'root' })
 export class PedidoService {
-  private URL_PEDIDOS = `${environment.urlBackendSpring}/pedidos`;
+  private readonly URL_PEDIDOS = `${environment.urlBackendSpring}/pedidos`;
 
-  constructor(private socket: Socket, private httpClient: HttpClient) { }
+  constructor(private readonly socket: Socket, private readonly httpClient: HttpClient) { }
 
   // Método auxiliar para obtener cabeceras con Token JWT
   private getHeaders(): HttpHeaders {

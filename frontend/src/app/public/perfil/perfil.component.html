@@ -8,8 +8,13 @@
         <div class="crud-header align-items-center">
           <div class="d-flex align-items-center gap-3">
             
-            <!-- Avatar Clickable para cambiar foto -->
-            <div class="avatar-wrapper position-relative cursor-pointer" (click)="abrirModalImagen()" title="Haz clic para cambiar tu foto de perfil">
+            <div class="avatar-wrapper position-relative cursor-pointer" 
+            (click)="abrirModalImagen()"
+            tabindex="0"
+            role="button"
+            aria-label="Haz clic para cambiar tu foto de perfil"
+            (keydown.enter)="abrirModalImagen()"
+            title="Haz clic para cambiar tu foto de perfil">
               <img [src]="imagenPreview || getImagenPerfilUrl()" 
                    (error)="onImageError($event)" 
                    class="rounded-circle shadow-sm border border-2 border-primary object-fit-cover"
@@ -120,7 +125,7 @@
 
             <!-- Selector de Tipo de Vivienda -->
             <div class="col-12 mt-3">
-              <label class="form-label font-size-14 fw-semibold text-slate-800 mb-2">Tipo de Inmueble</label>
+              <span class="form-label font-size-14 fw-semibold text-slate-800 mb-2">Tipo de Inmueble</span>
               <div class="row g-3">
                 <div class="col-md-4">
                   <label class="tipo-vivienda-card" [class.active]="perfilForm.get('tipoVivienda')?.value === 'piso'">
@@ -179,8 +184,8 @@
                 <input type="text" id="urbanizacionNombre" class="form-control search-input" formControlName="urbanizacionNombre" placeholder="Nombre">
               </div>
               <div class="col-md-6">
-                <label for="casaNum" class="form-label font-size-14 fw-semibold">Nº Puerta / Chalet <span class="text-rose">*</span></label>
-                <input type="text" id="casaNum" class="form-control search-input" formControlName="casaNum" placeholder="Puerta">
+                <label for="casaNumUrb" class="form-label font-size-14 fw-semibold">Nº Puerta / Chalet <span class="text-rose">*</span></label>
+                <input type="text" id="casaNumUrb" class="form-control search-input" formControlName="casaNum" placeholder="Puerta">
               </div>
             </ng-container>
 
@@ -223,11 +228,15 @@
 
     <!-- Zona Drag & Drop -->
     <div class="drop-zone text-center p-4 my-3"
-         [class.drag-over]="isDragging"
-         (dragover)="onDragOver($event)"
-         (dragleave)="onDragLeave($event)"
-         (drop)="onDrop($event)"
-         (click)="fileInput.click()">
+    [class.drag-over]="isDragging"
+    (dragover)="onDragOver($event)"
+    (dragleave)="onDragLeave($event)"
+    (drop)="onDrop($event)"
+    (click)="fileInput.click()"
+    tabindex="0"
+    role="button"
+    aria-label="Zona de arrastre para imagen de perfil"
+    (keydown.enter)="fileInput.click()">
       
       <div *ngIf="!imagenPreview">
         <i class="bi bi-cloud-arrow-up fs-1 text-indigo mb-2"></i>
@@ -242,7 +251,7 @@
         <small class="text-muted">Se guardará como: <strong>{{ perfilForm.get('username')?.value }}.jpg</strong></small>
       </div>
 
-      <input #fileInput type="file" class="d-none" accept="image/*" (change)="onFileSelected($event)">
+      <input #fileInput id="fileInput" type="file" class="d-none" accept="image/*" (change)="onFileSelected($event)" aria-label="Seleccionar archivo de imagen">
     </div>
 
     <div class="d-flex justify-content-end gap-2 mt-4">

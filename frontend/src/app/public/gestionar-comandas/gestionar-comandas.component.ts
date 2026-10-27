@@ -19,11 +19,11 @@ export class GestionarComandasComponent implements OnInit, OnDestroy {
   pedidos: any[] = [];
   filtroEstado: string = 'TODOS';
   
-  private destroy$ = new Subject<void>();
+  private readonly destroy$ = new Subject<void>();
 
   constructor(
-    private detalleService: DetallesService, 
-    private pedidoService: PedidoService
+    private readonly detalleService: DetallesService, 
+    private readonly pedidoService: PedidoService
   ) {}
 
   ngOnInit(): void {
@@ -114,9 +114,10 @@ export class GestionarComandasComponent implements OnInit, OnDestroy {
     switch (tipoClass) {
       case 'is-domicilio': return 'A Domicilio';
       case 'is-recoger': return 'Recoger en Tienda';
-      default:
+      default: {
         const mesa = pedido.mesaId ?? pedido.id_mesa ?? pedido.idMesa ?? pedido.mesa?.numero;
         return `Mesa ${mesa || ''}`;
+      }
     }
   }
 

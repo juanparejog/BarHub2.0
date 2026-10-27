@@ -19,8 +19,8 @@ export class GestionarMesaComponent implements OnInit {
   mesaAEliminar: Mesa | null = null;
 
   constructor(
-    private mesaService: MesaService,
-    private dialogService: DialogService
+    private readonly mesaService: MesaService,
+    private readonly dialogService: DialogService
   ) { }
 
   ngOnInit(): void {

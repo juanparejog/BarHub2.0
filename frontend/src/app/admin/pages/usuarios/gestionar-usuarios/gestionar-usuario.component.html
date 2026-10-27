@@ -29,13 +29,15 @@
           type="text" 
           class="form-control search-input" 
           placeholder="Buscar por nombre, apellidos, correo o rol..."
-          [(ngModel)]="searchTerm">
+          [(ngModel)]="searchTerm"
+          aria-label="Buscar">
         <button 
           *ngIf="searchTerm" 
           class="btn-clear-search" 
           type="button" 
           (click)="searchTerm = ''"
-          title="Limpiar búsqueda">
+          title="Limpiar búsqueda"
+          >
           <i class="bi bi-x-lg"></i>
         </button>
       </div>
@@ -52,7 +54,7 @@
         <thead>
           <tr>
             <!-- Columna Nombre y Usuario -->
-            <th class="ps-4 sortable-th" (click)="sortBy('username')">
+            <th class="ps-4 sortable-th" (click)="sortBy('username')" (keydown.enter)="sortBy('username')" tabindex="0">
               <div class="th-content">
                 <span>Usuario / Nombre</span>
                 <span class="sort-icon" [ngClass]="{'active': sortColumn === 'username'}">
@@ -66,7 +68,7 @@
             </th>
 
             <!-- Columna Email -->
-            <th class="sortable-th" (click)="sortBy('email')">
+            <th class="sortable-th" (click)="sortBy('email')" (keydown.enter)="sortBy('email')" tabindex="0">
               <div class="th-content">
                 <span>Email</span>
                 <span class="sort-icon" [ngClass]="{'active': sortColumn === 'email'}">
@@ -80,7 +82,7 @@
             </th>
 
             <!-- Columna Roles -->
-            <th class="sortable-th" (click)="sortBy('roles')">
+            <th class="sortable-th" (click)="sortBy('roles')" (keydown.enter)="sortBy('roles')" tabindex="0">
               <div class="th-content">
                 <span>Roles</span>
                 <span class="sort-icon" [ngClass]="{'active': sortColumn === 'roles'}">
@@ -161,8 +163,12 @@
                    title="Editar"></i>
 
                 <i (click)="borrarUsuario(usuario)" 
-                   class="bi bi-trash3-fill action-icon delete" 
-                   title="Eliminar"></i>
+                (keydown.enter)="borrarUsuario(usuario)"
+                tabindex="0"
+                role="button"
+                class="bi bi-trash3-fill action-icon delete"
+                title="Eliminar"
+                aria-label="Eliminar"></i>
               </div>
             </td>
           </tr>

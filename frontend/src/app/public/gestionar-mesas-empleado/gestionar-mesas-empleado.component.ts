@@ -17,7 +17,7 @@ export class GestionarMesasEmpleadoComponent implements OnInit {
     { value: 'reservada', label: 'Reservada', icon: 'event_note', classBadge: 'bg-warning text-dark' }
   ];
 
-  constructor(private mesaService: MesaService) {}
+  constructor(private readonly mesaService: MesaService) {}
 
   ngOnInit() {
     this.cargarMesas();

@@ -9,10 +9,10 @@ import { Producto } from "../interface/producto";
 })
 export class ProductoService {
 
-  private URL_PRODUCTOS = `${environment.urlBackendSpring}/productos/`;
+  private readonly URL_PRODUCTOS = `${environment.urlBackendSpring}/productos/`;
 
   constructor(
-    private httpClient: HttpClient
+    private readonly httpClient: HttpClient
   ) { }
 
   //----------------------------------------------------------

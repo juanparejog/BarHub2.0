@@ -533,7 +533,7 @@
   
   .cart-items-count {
     background: rgba(255, 255, 255, 0.2);
-    color: #ffffff;
+    color: #0f172a;
     font-weight: 800;
     font-size: 0.95rem;
     padding: 6px 14px;
@@ -845,6 +845,6 @@
 }
 
 :host-context(.dark-theme) .btn-switch:hover:not(.active) {
-  background: rgba(255, 255, 255, 0.1);
-  color: #f8fafc;
+  background-color: #334155;
+  color: #ffffff;
 }

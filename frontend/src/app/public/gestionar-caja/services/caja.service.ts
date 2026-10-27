@@ -9,9 +9,9 @@ import { Caja, AperturaCajaDTO, CierreCajaDTO } from '../interface/caja';
 })
 export class CajaService {
 
-  private URL_CAJA = `${environment.urlBackendSpring}/caja`;
+  private readonly URL_CAJA = `${environment.urlBackendSpring}/caja`;
 
-  constructor(private http: HttpClient) { }
+  constructor(private readonly http: HttpClient) { }
 
   obtenerCajaActual(): Observable<Caja> {
     return this.http.get<Caja>(`${this.URL_CAJA}/actual`);

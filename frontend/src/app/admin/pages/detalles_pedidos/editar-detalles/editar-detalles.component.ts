@@ -20,12 +20,12 @@ export class EditarDetalleComponent implements OnInit {
   detalleId: string | number | null = null;
 
   constructor(
-    private activatedRoute: ActivatedRoute,
-    private fb: FormBuilder,
-    private router: Router,
-    private pedidosService: PedidoService,
-    private productosService: ProductoService,
-    private detalleService: DetallesService,
+    private readonly activatedRoute: ActivatedRoute,
+    private readonly fb: FormBuilder,
+    private readonly router: Router,
+    private readonly pedidosService: PedidoService,
+    private readonly productosService: ProductoService,
+    private readonly detalleService: DetallesService,
   ) {
     this.formulario = this.fb.group({
       id: [null],
@@ -64,7 +64,7 @@ export class EditarDetalleComponent implements OnInit {
       },
       error: (err) => {
         console.error('Error al cargar detalle:', err);
-        this.router.navigate(['/admin/gestionar-detalles']);
+        void this.router.navigate(['/admin/gestionar-detalles']);
       }
     });
   }
@@ -84,7 +84,7 @@ export class EditarDetalleComponent implements OnInit {
     console.log("Detalle a crear:", nuevoDetalle);
     this.detalleService.post(nuevoDetalle).subscribe({
       next: () => {
-        this.router.navigate(['/admin/gestionar-detalles']);
+        void this.router.navigate(['/admin/gestionar-detalles']);
       },
       error: (error) => {
         console.error('Error al crear el detalle:', error);
@@ -103,7 +103,7 @@ export class EditarDetalleComponent implements OnInit {
 
     this.detalleService.put(datosDetalle).subscribe({
       next: () => {
-        this.router.navigate(['/admin/gestionar-detalles']);
+        void this.router.navigate(['/admin/gestionar-detalles']);
       },
       error: (err) => {
         console.error('Error al actualizar el detalle:', err);

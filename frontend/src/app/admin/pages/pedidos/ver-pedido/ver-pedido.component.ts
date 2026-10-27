@@ -16,10 +16,10 @@ export class VerPedidoComponent implements OnInit {
   pedido!: Pedido;
 
   constructor(
-    private pedidoService: PedidoService,
-    private usuarioService: UsuarioService,
-    private mesaService: MesaService,
-    private activatedRoute: ActivatedRoute,
+    private readonly pedidoService: PedidoService,
+    private readonly usuarioService: UsuarioService,
+    private readonly mesaService: MesaService,
+    private readonly activatedRoute: ActivatedRoute,
   ) { }
 
   ngOnInit(): void {

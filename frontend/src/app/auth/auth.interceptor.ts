@@ -7,7 +7,7 @@ import { Router } from '@angular/router';
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
 
-  constructor(private router: Router) {}
+  constructor(private readonly router: Router) {}
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     const token = localStorage.getItem('token');
@@ -25,7 +25,7 @@ export class AuthInterceptor implements HttpInterceptor {
       catchError((error: HttpErrorResponse) => {
         if (error.status === 401) {
           localStorage.removeItem('token');
-          this.router.navigate(['/login']);
+          void this.router.navigate(['/login']);
         }
         return throwError(() => error);
       })

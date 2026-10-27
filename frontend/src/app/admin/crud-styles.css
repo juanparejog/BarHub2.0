@@ -144,12 +144,12 @@
     flex-shrink: 0;
   }
   
-  .bg-caja { background-color: #dcfce7; color: #16a34a; }
-  .bg-pedidos { background-color: #e0e7ff; color: #4338ca; }
-  .bg-producto { background-color: #fef3c7; color: #d97706; }
-  .bg-clientes { background-color: #e0f2fe; color: #0284c7; }
-  .bg-alerta { background-color: #ffe4e6; color: #e11d48; }
-  .bg-purple { background-color: #f3e8ff; color: #7e22ce; }
+  .bg-caja { background-color: #dcfce7; color: #166534; }
+  .bg-pedidos { background-color: #e0e7ff; color: #3730a3; }
+  .bg-producto { background-color: #fef3c7; color: #92400e; }
+  .bg-clientes { background-color: #e0f2fe; color: #0369a1; }
+  .bg-alerta { background-color: #ffe4e6; color: #9f1239; }
+  .bg-purple { background-color: #f3e8ff; color: #6b21a8; }
   
   .kpi-label {
     font-size: 0.78rem;
@@ -220,12 +220,12 @@
   }
   
   .badge-panel-subtle {
-    background-color: rgba(79, 70, 229, 0.1);
-    color: #6366f1;
-    font-weight: 600;
+    background-color: #eef2ff;
+    color: #312e81;            
     padding: 4px 12px;
     border-radius: 20px;
     font-size: 0.8rem;
+    font-weight: 600;
   }
   
   /* ==========================================================================
@@ -281,10 +281,10 @@
   }
   
   .cat-bebida { background-color: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; }
-  .cat-tapa { background-color: #fef3c7; color: #b45309; border: 1px solid #fde68a; }
-  .cat-entrante { background-color: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
-  .cat-plato { background-color: #e0e7ff; color: #4338ca; border: 1px solid #c7d2fe; }
-  .cat-postre { background-color: #fce7f3; color: #be185d; border: 1px solid #fbcfe8; }
+  .cat-tapa { background-color: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+  .cat-entrante { background-color: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+  .cat-plato { background-color: #e0e7ff; color: #3730a3; border: 1px solid #c7d2fe; }
+  .cat-postre { background-color: #fce7f3; color: #9d174d; border: 1px solid #fbcfe8; }
   
   .crud-table img, 
   .product-thumbnail {

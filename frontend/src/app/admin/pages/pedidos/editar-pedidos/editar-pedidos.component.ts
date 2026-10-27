@@ -18,12 +18,12 @@ export class EditarPedidoComponent implements OnInit {
   editar: boolean = false;
 
   constructor(
-    private activatedRoute: ActivatedRoute,
-    private fb: FormBuilder,
-    private router: Router,
-    private usuarioService: UsuarioService,
-    private mesaService: MesaService,
-    private pedidoService: PedidoService,
+    private readonly activatedRoute: ActivatedRoute,
+    private readonly fb: FormBuilder,
+    private readonly router: Router,
+    private readonly usuarioService: UsuarioService,
+    private readonly mesaService: MesaService,
+    private readonly pedidoService: PedidoService,
   ) {
     this.crearFormulario();
   }
@@ -80,7 +80,7 @@ export class EditarPedidoComponent implements OnInit {
       },
       error: (err) => {
         console.error('Error al cargar el pedido:', err);
-        this.router.navigate(['/admin/gestionar-pedidos']);
+        void this.router.navigate(['/admin/gestionar-pedidos']);
       }
     });
   }
@@ -112,7 +112,7 @@ export class EditarPedidoComponent implements OnInit {
   crearPedido(pedido: Pedido) {
     this.pedidoService.post(pedido).subscribe({
       next: () => {
-        this.router.navigate(['/admin/gestionar-pedidos']);
+        void this.router.navigate(['/admin/gestionar-pedidos']);
       },
       error: (err) => {
         console.error('Error al crear el pedido:', err);
@@ -123,7 +123,7 @@ export class EditarPedidoComponent implements OnInit {
   editarPedido(pedido: Pedido) {
     this.pedidoService.put(pedido).subscribe({
       next: () => {
-        this.router.navigate(['/admin/gestionar-pedidos']);
+        void this.router.navigate(['/admin/gestionar-pedidos']);
       },
       error: (err) => {
         console.error('Error al actualizar el pedido:', err);

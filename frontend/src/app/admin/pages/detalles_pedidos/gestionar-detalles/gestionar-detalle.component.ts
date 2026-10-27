@@ -25,10 +25,10 @@ export class GestionarDetalleComponent implements OnInit {
   detalleAEliminar: DetallesPedido | null = null;
 
   constructor(
-    private productoService: ProductoService,
-    private pedidoService: PedidoService,
-    private detalleService: DetallesService,
-    private dialogService: DialogService
+    private readonly productoService: ProductoService,
+    private readonly pedidoService: PedidoService,
+    private readonly detalleService: DetallesService,
+    private readonly dialogService: DialogService
   ) { }
 
   ngOnInit(): void {

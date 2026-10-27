@@ -23,12 +23,10 @@ export class EditarUsuarioComponent implements OnInit {
     email: ['', [Validators.required, Validators.email]],
     password: [''],
     roles: [[], [minimoUnRolValidator]],
-    // Nuevos campos de información personal
     nombre: [''],
     apellido1: [''],
     apellido2: [''],
     telefono: [''],
-    // Campos de dirección y vivienda
     tipoVivienda: ['piso'],
     calle: [''],
     codigoPostal: [''],
@@ -44,16 +42,15 @@ export class EditarUsuarioComponent implements OnInit {
   editar: boolean = false;
   rolesDisponibles: Rol[] = [];
 
-  // Variables para Drag and Drop e Vista Previa de Imagen
   isDragging: boolean = false;
   imagenPreview: string | null = null;
 
   constructor(
-    private activatedRoute: ActivatedRoute,
-    private fb: FormBuilder,
-    private router: Router,
-    private usuarioService: UsuarioService,
-    private rolService: RolService
+    private readonly activatedRoute: ActivatedRoute,
+    private readonly fb: FormBuilder,
+    private readonly router: Router,
+    private readonly usuarioService: UsuarioService,
+    private readonly rolService: RolService
   ) { }
 
   ngOnInit(): void {

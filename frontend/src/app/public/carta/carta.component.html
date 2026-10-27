@@ -17,8 +17,8 @@
         </div>
 
         <!-- Switch Local vs Domicilio vs Recoger -->
-        <div class="modalidad-switch-group" role="group">
-          <button type="button" 
+        <fieldset class="modalidad-switch-group">
+          <button type="button"
                   class="btn-switch"
                   [class.active]="tipoPedido === 'MESA'"
                   (click)="seleccionarTipoPedido('MESA')">
@@ -38,7 +38,7 @@
                   (click)="seleccionarTipoPedido('DOMICILIO')">
             <i class="bi bi-truck"></i> A Domicilio
           </button>
-        </div>
+        </fieldset>
       </div>
 
       <hr class="divider">
@@ -46,10 +46,10 @@
       <!-- Opción 1: MESA (LOCAL) -->
       <div *ngIf="tipoPedido === 'MESA'" class="modalidad-body">
         <div class="form-group-mesa">
-          <label class="form-label">Mesa asignada <span class="required-asterisk">*</span>:</label>
+          <label for="idMesaSelect" class="form-label">Mesa asignada <span class="required-asterisk">*</span>:</label>
           <div class="input-select-wrapper">
             <span class="input-icon"><i class="bi bi-qr-code-scan"></i></span>
-            <select class="form-select-custom" [(ngModel)]="idMesa" [disabled]="mesaBloqueadaPorQr">
+            <select id="idMesaSelect" class="form-select-custom" [(ngModel)]="idMesa" [disabled]="mesaBloqueadaPorQr">
               <option [ngValue]="null" disabled>-- Selecciona número de mesa para comenzar --</option>
               <option *ngFor="let mesa of mesas" [value]="mesa.id">Mesa #{{ mesa.id }} ({{ mesa.estado }})</option>
             </select>
@@ -78,7 +78,7 @@
           
           <!-- Info de Tienda de Recogida -->
           <div class="form-field col-full">
-            <label class="form-label">Ubicación de Recogida (Tienda Única):</label>
+            <span class="form-label mb-2">Ubicación de Recogida (Tienda Única):</span>
             <div class="tienda-fixed-info border rounded p-3 bg-light d-flex align-items-center gap-3">
               <div class="tienda-icon text-success fs-3">
                 <i class="bi bi-geo-alt-fill"></i>
@@ -92,8 +92,8 @@
 
           <!-- Teléfono de contacto obligatorio para la recogida -->
           <div class="form-field col-full mt-2">
-            <label class="form-label">Teléfono de contacto para avisos <span class="required-asterisk">*</span>:</label>
-            <input type="tel" class="form-input" placeholder="Ej: 600 000 000" [(ngModel)]="telefonoContacto">
+            <label for="telefonoRecoger" class="form-label">Teléfono de contacto para avisos <span class="required-asterisk">*</span>:</label>
+            <input id="telefonoRecoger" type="tel" class="form-input" placeholder="Ej: 600 000 000" [(ngModel)]="telefonoContacto">
           </div>
 
           <div class="form-field col-full mt-2">
@@ -111,6 +111,7 @@
         <!-- Mapa Embebido centrado en la Tienda -->
         <div class="map-embed-wrapper mt-3">
           <iframe [src]="googleMapsEmbedUrl" 
+                  title="Ubicación de la tienda en el mapa"
                   width="100%" 
                   height="100%" 
                   style="border:0;" 
@@ -138,13 +139,13 @@
           
           <!-- Calle y Nombre -->
           <div class="form-field col-full">
-            <label class="form-label">Calle / Avenida / Vía <span class="required-asterisk">*</span>:</label>
-            <input type="text" class="form-input" placeholder="Ej: Av. Sinforiano Madroñero" [(ngModel)]="calle">
+            <label for="calleDomicilio" class="form-label">Calle / Avenida / Vía <span class="required-asterisk">*</span>:</label>
+            <input id="calleDomicilio" type="text" class="form-input" placeholder="Ej: Av. Sinforiano Madroñero" [(ngModel)]="calle">
           </div>
 
           <!-- Selector Tipo Vivienda -->
           <div class="form-field col-full">
-            <label class="form-label">Tipo de Inmueble:</label>
+            <span class="form-label mb-2">Tipo de Inmueble:</span>
             <div class="vivienda-selector-group">
               <label class="vivienda-radio-btn" [class.active]="tipoVivienda === 'piso'">
                 <input type="radio" name="tipoVivienda" value="piso" [(ngModel)]="tipoVivienda">
@@ -168,48 +169,48 @@
           <!-- CASO 1: PISO -->
           <ng-container *ngIf="tipoVivienda === 'piso'">
             <div class="form-field col-third">
-              <label class="form-label">Nº Portal <span class="required-asterisk">*</span>:</label>
-              <input type="text" class="form-input" placeholder="Ej: 12" [(ngModel)]="portalNum">
+              <label for="portalNumInput" class="form-label">Nº Portal <span class="required-asterisk">*</span>:</label>
+              <input id="portalNumInput" type="text" class="form-input" placeholder="Ej: 12" [(ngModel)]="portalNum">
             </div>
             <div class="form-field col-third">
-              <label class="form-label">Planta / Piso <span class="required-asterisk">*</span>:</label>
-              <input type="text" class="form-input" placeholder="Ej: 1" [(ngModel)]="pisoNum">
+              <label for="pisoNumInput" class="form-label">Planta / Piso <span class="required-asterisk">*</span>:</label>
+              <input id="pisoNumInput" type="text" class="form-input" placeholder="Ej: 1" [(ngModel)]="pisoNum">
             </div>
             <div class="form-field col-third">
-              <label class="form-label">Puerta <span class="required-asterisk">*</span>:</label>
-              <input type="text" class="form-input" placeholder="Ej: A" [(ngModel)]="puerta">
+              <label for="puertaInput" class="form-label">Puerta <span class="required-asterisk">*</span>:</label>
+              <input id="puertaInput" type="text" class="form-input" placeholder="Ej: A" [(ngModel)]="puerta">
             </div>
           </ng-container>
 
           <!-- CASO 2: CASA -->
           <ng-container *ngIf="tipoVivienda === 'casa'">
             <div class="form-field col-full">
-              <label class="form-label">Número / Puerta de la Casa <span class="required-asterisk">*</span>:</label>
-              <input type="text" class="form-input" placeholder="Ej: Nº 45 o Puerta Principal" [(ngModel)]="casaNum">
+              <label for="casaNumInput" class="form-label">Número / Puerta de la Casa <span class="required-asterisk">*</span>:</label>
+              <input id="casaNumInput" type="text" class="form-input" placeholder="Ej: Nº 45 o Puerta Principal" [(ngModel)]="casaNum">
             </div>
           </ng-container>
 
           <!-- CASO 3: URBANIZACIÓN -->
           <ng-container *ngIf="tipoVivienda === 'urbanizacion'">
             <div class="form-field col-half">
-              <label class="form-label">Nombre / Bloque Urbanización <span class="required-asterisk">*</span>:</label>
-              <input type="text" class="form-input" placeholder="Ej: Urb. Los Olivos, Bloque B" [(ngModel)]="urbanizacionNombre">
+              <label for="urbNombreInput" class="form-label">Nombre / Bloque Urbanización <span class="required-asterisk">*</span>:</label>
+              <input id="urbNombreInput" type="text" class="form-input" placeholder="Ej: Urb. Los Olivos, Bloque B" [(ngModel)]="urbanizacionNombre">
             </div>
             <div class="form-field col-half">
-              <label class="form-label">Nº Casa / Chalet <span class="required-asterisk">*</span>:</label>
-              <input type="text" class="form-input" placeholder="Ej: Chalet 14" [(ngModel)]="casaNum">
+              <label for="casaNumUrbInput" class="form-label">Nº Casa / Chalet <span class="required-asterisk">*</span>:</label>
+              <input id="casaNumUrbInput" type="text" class="form-input" placeholder="Ej: Chalet 14" [(ngModel)]="casaNum">
             </div>
           </ng-container>
 
           <!-- Código Postal y Teléfono -->
           <div class="form-field col-half">
-            <label class="form-label">Código Postal:</label>
-            <input type="text" class="form-input" placeholder="Ej: 06011" [(ngModel)]="codigoPostal">
+            <label for="cpInput" class="form-label">Código Postal:</label>
+            <input id="cpInput" type="text" class="form-input" placeholder="Ej: 06011" [(ngModel)]="codigoPostal">
           </div>
 
           <div class="form-field col-half">
-            <label class="form-label">Teléfono de contacto <span class="required-asterisk">*</span>:</label>
-            <input type="tel" class="form-input" placeholder="Ej: 600 000 000" [(ngModel)]="telefonoContacto">
+            <label for="telDomicilio" class="form-label">Teléfono de contacto <span class="required-asterisk">*</span>:</label>
+            <input id="telDomicilio" type="tel" class="form-input" placeholder="Ej: 600 000 000" [(ngModel)]="telefonoContacto">
           </div>
 
           <div class="form-field col-full">
@@ -227,6 +228,7 @@
         <!-- Mapa Embebido dinámico -->
         <div *ngIf="calle" class="map-embed-wrapper">
           <iframe [src]="googleMapsEmbedUrl" 
+                  title="Ubicación del domicilio en el mapa"
                   width="100%" 
                   height="100%" 
                   style="border:0;" 

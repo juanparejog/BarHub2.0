@@ -9,10 +9,10 @@ import { Usuario, Rol } from "../interface/usuario";
 })
 export class UsuarioService {
 
-  private URL_USUARIOS = `${environment.urlBackendSpring}/usuarios/`;
+  private readonly URL_USUARIOS = `${environment.urlBackendSpring}/usuarios/`;
 
   constructor(
-    private httpClient: HttpClient
+    private readonly httpClient: HttpClient
   ) { }
 
   get(): Observable<Usuario[]> {

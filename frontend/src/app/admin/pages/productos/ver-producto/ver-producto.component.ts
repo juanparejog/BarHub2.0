@@ -13,8 +13,8 @@ export class VerProductoComponent implements OnInit {
   producto!: Producto;
 
   constructor(
-    private productoService: ProductoService,
-    private activatedRoute: ActivatedRoute,
+    private readonly productoService: ProductoService,
+    private readonly activatedRoute: ActivatedRoute,
   ) { }
 
   ngOnInit(): void {

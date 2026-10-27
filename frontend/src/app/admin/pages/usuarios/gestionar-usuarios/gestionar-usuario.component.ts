@@ -20,8 +20,8 @@ export class GestionarUsuarioComponent implements OnInit {
   usuarioAEliminar: Usuario | null = null;
 
   constructor(
-    private usuarioService: UsuarioService,
-    private dialogService: DialogService
+    private readonly usuarioService: UsuarioService,
+    private readonly dialogService: DialogService
   ) { }
 
   ngOnInit(): void {
@@ -96,8 +96,8 @@ export class GestionarUsuarioComponent implements OnInit {
       let valB = '';
 
       if (this.sortColumn === 'roles') {
-        valA = (a.roles || []).map(r => this.formatearNombreRol(r.nombre)).sort().join(', ');
-        valB = (b.roles || []).map(r => this.formatearNombreRol(r.nombre)).sort().join(', ');
+        valA = (a.roles || []).map(r => this.formatearNombreRol(r.nombre)).sort((x, y) => x.localeCompare(y)).join(', ');
+        valB = (b.roles || []).map(r => this.formatearNombreRol(r.nombre)).sort((x, y) => x.localeCompare(y)).join(', ');
       } else {
         valA = (a[this.sortColumn] || '').toString().toLowerCase();
         valB = (b[this.sortColumn] || '').toString().toLowerCase();

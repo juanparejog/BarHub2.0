@@ -222,7 +222,7 @@ export class SeguimientoPedidosComponent implements OnInit, OnDestroy {
     if (!pedido) return 0;
 
     const totalDirecto = pedido.precioTotal ?? pedido.precio_total ?? pedido.total ?? pedido.importe;
-    if (totalDirecto !== undefined && totalDirecto !== null && !isNaN(totalDirecto)) {
+    if (totalDirecto !== undefined && totalDirecto !== null && !Number.isNaN(totalDirecto)) {
       return Number(totalDirecto);
     }
 

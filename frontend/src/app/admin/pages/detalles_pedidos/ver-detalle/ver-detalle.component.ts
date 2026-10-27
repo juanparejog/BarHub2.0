@@ -16,10 +16,10 @@ export class VerDetalleComponent implements OnInit {
   detalle!: DetallesPedido;
 
   constructor(
-    private detalleService: DetallesService,
-    private productoService: ProductoService,
-    private pedidoService: PedidoService,
-    private activatedRoute: ActivatedRoute,
+    private readonly detalleService: DetallesService,
+    private readonly productoService: ProductoService,
+    private readonly pedidoService: PedidoService,
+    private readonly activatedRoute: ActivatedRoute,
   ) { }
 
   ngOnInit(): void {
