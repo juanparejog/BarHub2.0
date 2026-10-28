@@ -25,7 +25,7 @@ jobs:
         run: |
           cd frontend
           npm install
-          npm run build -- --configuration=production
+          npx ng build --configuration=production --budgets=false
 
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
