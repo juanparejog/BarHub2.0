@@ -34,8 +34,8 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
           args: >
-            -Dsonar.organization=tu-organizacion-de-sonarcloud
-            -Dsonar.projectKey=tu-project-key-de-sonarcloud
+            -Dsonar.organization=tu-organizacion-real-en-sonarcloud
+            -Dsonar.projectKey=tu-project-key-real-en-sonarcloud
 
   docker-build:
     needs: build-and-analyze
