@@ -37,11 +37,17 @@ export class GestionarMesasEmpleadoComponent implements OnInit {
 
   setEstado(mesa: Mesa, estado: string) {
     if (mesa.estado === estado) return;
-    const mesaActualizada = { ...mesa, estado };
+    const mesaActualizada = { 
+      ...mesa, 
+      estado: estado.toUpperCase()
+    };
 
     this.mesaService.put(mesaActualizada).subscribe({
       next: () => (mesa.estado = estado),
-      error: () => alert('Error actualizando el estado de la mesa')
+      error: (err) => {
+        console.error('Detalle del error del backend:', err);
+        alert('Error actualizando el estado de la mesa');
+      }
     });
   }
 

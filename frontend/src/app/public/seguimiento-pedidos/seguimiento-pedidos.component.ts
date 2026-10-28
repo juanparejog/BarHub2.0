@@ -165,7 +165,7 @@ export class SeguimientoPedidosComponent implements OnInit, OnDestroy {
     const estado = (pedido.estado || '').toString().toLowerCase().trim();
 
     if (estado === 'servido' || estado === 'entregado' || estado === 'completado') {
-      const ahora = new Date().now();
+      const ahora = Date.now();
       const fechaReferencia = (pedido as any).updatedAt 
         ? new Date((pedido as any).updatedAt).getTime() 
         : new Date(pedido.fecha).getTime();
