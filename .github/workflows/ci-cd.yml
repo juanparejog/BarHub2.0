@@ -35,7 +35,7 @@ jobs:
         with:
           args: >
             -Dsonar.organization=juanparejog
-            -Dsonar.projectKey=juanparejog_BarHub-Frontend
+            -Dsonar.projectKey=juanparejog_BarHub2.0
 
   docker-build:
     needs: build-and-analyze
