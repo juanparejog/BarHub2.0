@@ -374,3 +374,20 @@ El análisis de las últimas adiciones al repositorio certifica el cumplimiento 
 * **New Issues:** 0 (Cero defectos introducidos).
 * **Accepted Issues:** 0 (Sin advertencias pospuestas o ignoradas).
 * **Security Hotspots:** 0 (Rating A en puntos críticos de seguridad).
+
+## 7.- Automatización de CI/CD
+
+Para garantizar la calidad continua, la integración y el despliegue automatizado de la aplicación frontend de BarHub 2.0, se ha configurado un pipeline completo utilizando GitHub Actions. El proceso técnico y de configuración implementado comprende los siguientes apartados:
+
+### 7.1.- Análisis Estático Continuo (SonarCloud)
+* **Migración a la nube**: Se completó la transición desde una instancia local de SonarQube hacia **SonarCloud** para centralizar la calidad del código y la seguridad en la nube de forma automatizada en cada ciclo.
+* **Integración del proyecto**: Se registró oficialmente el repositorio web en SonarCloud vinculándolo con la organización correspondiente para generar la clave de proyecto (*Project Key*) única.
+* **Resolución de conflictos de análisis**: Se desactivó la opción de **Análisis Automático** (*Automatic Analysis*) directamente en el panel de SonarCloud para evitar colisiones y bloqueos concurrentes con el escáner lanzado desde el flujo de integración continua (*CI/CD*).
+
+### 7.2.- Gestión de Dependencias y Compilación (Angular & npm)
+* **Sincronización de dependencias**: Se configuró la ejecución de la instalación de paquetes (`npm install`) dentro del entorno del servidor de integración para procesar de forma limpia las librerías del proyecto frontend.
+* **Optimización de compilación**: Se ajustaron las validaciones y restricciones de tamaño en los procesos de compilación de producción para garantizar que la generación de paquetes estáticos finalice de manera óptima.
+
+### 7.3.- Automatización de Contenedores y Registro (Docker Hub)
+* **Estructuración y contenerización**: Se configuró un proceso de empaquetado multi-etapa utilizando Node.js y un servidor web Caddy para servir la aplicación de manera eficiente en producción.
+* **Seguridad y credenciales de despliegue**: Se estableció una autenticación segura mediante secretos de repositorio en GitHub utilizando un **Personal Access Token (PAT)** de Docker Hub dotado de permisos explícitos de escritura (*Read & Write*), permitiendo la subida automatizada de la imagen compilada tras superar con éxito los controles de calidad.
