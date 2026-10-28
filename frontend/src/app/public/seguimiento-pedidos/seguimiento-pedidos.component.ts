@@ -13,10 +13,10 @@ export class SeguimientoPedidosComponent implements OnInit, OnDestroy {
   pedidos: Pedido[] = [];
   usuario: any;
 
-  private destroy$ = new Subject<void>();
+  private readonly destroy$ = new Subject<void>();
   private timers: any[] = [];
 
-  constructor(private pedidoService: PedidoService) {}
+  constructor(private readonly pedidoService: PedidoService) {}
 
   ngOnInit(): void {
     this.usuario = JSON.parse(localStorage.getItem('user') || 'null');
@@ -165,7 +165,7 @@ export class SeguimientoPedidosComponent implements OnInit, OnDestroy {
     const estado = (pedido.estado || '').toString().toLowerCase().trim();
 
     if (estado === 'servido' || estado === 'entregado' || estado === 'completado') {
-      const ahora = new Date().getTime();
+      const ahora = new Date().now();
       const fechaReferencia = (pedido as any).updatedAt 
         ? new Date((pedido as any).updatedAt).getTime() 
         : new Date(pedido.fecha).getTime();

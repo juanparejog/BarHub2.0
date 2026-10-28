@@ -186,7 +186,7 @@ export class ConfirmarPedidoComponent implements OnInit {
       },
       error: (err) => {
         console.error('Error al guardar el pedido:', err);
-        if (err.error && err.error.message) {
+        if (err?.error?.message) {
           this.showToastMessage(err.error.message, 'error');
         } else {
           this.showToastMessage('Error al procesar el pedido. Comprueba la mesa seleccionada.', 'error');

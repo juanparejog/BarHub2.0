@@ -8,13 +8,10 @@
         <div class="crud-header align-items-center">
           <div class="d-flex align-items-center gap-3">
             
-            <div class="avatar-wrapper position-relative cursor-pointer" 
-            (click)="abrirModalImagen()"
-            tabindex="0"
-            role="button"
-            aria-label="Haz clic para cambiar tu foto de perfil"
-            (keydown.enter)="abrirModalImagen()"
-            title="Haz clic para cambiar tu foto de perfil">
+          <div class="avatar-wrapper position-relative cursor-pointer" 
+               (click)="abrirModalImagen()"
+               (keydown.enter)="abrirModalImagen()"
+               title="Haz clic para cambiar tu foto de perfil">
               <img [src]="imagenPreview || getImagenPerfilUrl()" 
                    (error)="onImageError($event)" 
                    class="rounded-circle shadow-sm border border-2 border-primary object-fit-cover"
@@ -228,15 +225,12 @@
 
     <!-- Zona Drag & Drop -->
     <div class="drop-zone text-center p-4 my-3"
-    [class.drag-over]="isDragging"
-    (dragover)="onDragOver($event)"
-    (dragleave)="onDragLeave($event)"
-    (drop)="onDrop($event)"
-    (click)="fileInput.click()"
-    tabindex="0"
-    role="button"
-    aria-label="Zona de arrastre para imagen de perfil"
-    (keydown.enter)="fileInput.click()">
+          [class.drag-over]="isDragging"
+          (dragover)="onDragOver($event)"
+          (dragleave)="onDragLeave($event)"
+          (drop)="onDrop($event)"
+          (click)="fileInput.click()"
+          (keydown.enter)="fileInput.click()">
       
       <div *ngIf="!imagenPreview">
         <i class="bi bi-cloud-arrow-up fs-1 text-indigo mb-2"></i>

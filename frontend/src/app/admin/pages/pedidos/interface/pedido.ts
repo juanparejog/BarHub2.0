@@ -13,7 +13,7 @@ export interface Pedido {
   precio_total?: number;
   precioTotal?: number;
   
-  tipo_pedido?: 'Mesa' | 'Domicilio' | 'Recoger' | string;
+  tipo_pedido?: 'Mesa' | 'Domicilio' | 'Recoger';
   direccion_envio?: string;
   direccion_tienda?: string;
 

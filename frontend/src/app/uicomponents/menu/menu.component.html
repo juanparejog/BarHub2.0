@@ -39,13 +39,10 @@
           <a class="nav-link" routerLink="/empleado/gestionar-caja" routerLinkActive="active">Caja</a>
         </li>
         <li class="nav-item dropdown" *ngIf="isAdmin">
-          <a class="nav-link dropdown-toggle admin-badge-link d-flex align-items-center gap-1" 
+          <a class="nav-link dropdown-toggle user-dropdown-toggle d-flex align-items-center gap-2" 
              href="#" 
-             id="adminDropdown" 
-             role="button" 
              data-bs-toggle="dropdown" 
              aria-expanded="false"
-             tabindex="0"
              (keydown.enter)="$event.preventDefault()">
             <i class="bi bi-shield-lock-fill"></i> Admin
           </a>
@@ -67,14 +64,10 @@
       <!-- Zona de autenticación y Modo Oscuro -->
       <div class="auth-section d-flex align-items-center gap-2">
         
-        <div 
-        class="theme-switch-group me-3" 
-        (click)="toggleTheme()"
-        tabindex="0"
-        role="button"
-        aria-label="Cambiar tema de la aplicación"
-        (keydown.enter)="toggleTheme()"
-        [title]="(isDarkMode$ | async) ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'">
+        <div class="theme-switch-group me-3" 
+             (click)="toggleTheme()"
+             (keydown.enter)="toggleTheme()"
+             [title]="(isDarkMode$ | async) ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'">
         
           <div class="theme-switch-option" [class.active]="!(isDarkMode$ | async)">
             <i class="bi bi-sun-fill"></i>
@@ -97,10 +90,8 @@
             <li class="nav-item dropdown">
               <a class="nav-link dropdown-toggle user-dropdown-toggle d-flex align-items-center gap-2" 
                  href="#" 
-                 role="button" 
                  data-bs-toggle="dropdown" 
                  aria-expanded="false"
-                 tabindex="0"
                  (keydown.enter)="$event.preventDefault()">
 
                 <!-- Avatar del usuario con imagen o respaldo por defecto -->

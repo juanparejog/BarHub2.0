@@ -26,15 +26,12 @@
           <div class="d-flex flex-column flex-md-row gap-4 align-items-center">
             <!-- Zona Drag and Drop -->
             <div class="drop-zone"
-            [class.drag-over]="isDragging"
-            (dragover)="onDragOver($event)"
-            (dragleave)="onDragLeave($event)"
-            (drop)="onDrop($event)"
-            (click)="fileInput.click()"
-            tabindex="0"
-            role="button"
-            aria-label="Seleccionar o arrastrar imagen del usuario"
-            (keydown.enter)="fileInput.click()">
+                   [class.drag-over]="isDragging"
+                   (dragover)="onDragOver($event)"
+                   (dragleave)="onDragLeave($event)"
+                   (drop)="onDrop($event)"
+                   (click)="fileInput.click()"
+                   (keydown.enter)="fileInput.click()">
               
               <input #fileInput id="fileInput" type="file" accept="image/*" class="d-none" (change)="onFileSelected($event)" aria-label="Subir foto de perfil">
               

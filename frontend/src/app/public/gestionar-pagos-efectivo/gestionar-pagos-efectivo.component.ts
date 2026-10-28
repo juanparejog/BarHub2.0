@@ -48,7 +48,7 @@ export class GestionarPagosEfectivoComponent implements OnInit {
     if (this.pedidoSeleccionado) {
       const total = this.pedidoSeleccionado.precioTotal ?? (this.pedidoSeleccionado as any).precio_total ?? (this.pedidoSeleccionado as any).total ?? 0;
       const cambio = this.montoEntregado - total;
-      this.cambioDevolver = cambio > 0 ? cambio : 0;
+      this.cambioDevolver = Math.max(cambio, 0);
     }
   }
 
@@ -159,9 +159,10 @@ export class GestionarPagosEfectivoComponent implements OnInit {
       case 'is-recoger':
         return 'Recoger en Tienda';
       case 'is-mesa':
-      default:
-        const mesa = pedido.id_mesa ?? pedido.mesaId ?? pedido.idMesa;
+      default: {
+        const mesa = pedido.idMesa ?? pedido.mesaId ?? pedido.id_mesa;
         return (mesa && Number(mesa) > 0) ? `Mesa ${mesa}` : 'Mesa Local';
+      }
     }
   }
 
@@ -173,9 +174,10 @@ export class GestionarPagosEfectivoComponent implements OnInit {
       case 'is-recoger':
         return 'Pedido para Recoger en Tienda';
       case 'is-mesa':
-      default:
-        const mesa = pedido.id_mesa ?? pedido.mesaId ?? pedido.idMesa;
-        return (mesa && Number(mesa) > 0) ? `Servicio en Mesa ${mesa}` : 'Servicio en Local';
+      default: {
+        const mesa = pedido.idMesa ?? pedido.mesaId ?? pedido.id_mesa;
+        return (mesa && Number(mesa) > 0) ? `Mesa ${mesa}` : 'Mesa Local';
+      }
     }
   }
 

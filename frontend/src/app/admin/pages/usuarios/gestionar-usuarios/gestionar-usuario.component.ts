@@ -83,9 +83,9 @@ export class GestionarUsuarioComponent implements OnInit {
       const matchNombre = usuario.nombre?.toLowerCase().includes(term) ?? false;
       const matchApellido1 = usuario.apellido1?.toLowerCase().includes(term) ?? false;
       const matchApellido2 = usuario.apellido2?.toLowerCase().includes(term) ?? false;
-      const matchRoles = usuario.roles?.some(rol => 
+      const matchRoles = usuario.roles?.some(rol =>
         this.formatearNombreRol(rol.nombre).toLowerCase().includes(term) ||
-        (rol.nombre && rol.nombre.toLowerCase().includes(term))
+        rol.nombre?.toLowerCase().includes(term)
       ) ?? false;
 
       return matchUsername || matchEmail || matchNombre || matchApellido1 || matchApellido2 || matchRoles;
@@ -135,7 +135,7 @@ export class GestionarUsuarioComponent implements OnInit {
   }
 
   confirmarEliminacion(): void {
-    if (!this.usuarioAEliminar || !this.usuarioAEliminar.id) return;
+    if (!this.usuarioAEliminar?.id) return;
 
     this.usuarioService.del(this.usuarioAEliminar.id).subscribe({
       next: () => {

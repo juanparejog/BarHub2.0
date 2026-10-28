@@ -29,7 +29,7 @@
   }
   
   .title-icon {
-    color: #ea580c;
+    color: #c2410c;
     font-size: 2.2rem;
   }
   
@@ -43,7 +43,7 @@
     border-radius: 12px;
     font-size: 0.88rem;
     font-weight: 700;
-    color: #64748b;
+    color: #475569;
     display: flex;
     align-items: center;
     transition: all 0.2s ease;
@@ -52,7 +52,7 @@
   
   .kds-filter-tabs .tab-btn:hover {
     background: #f1f5f9;
-    color: #1e293b;
+    color: #0f172a;
   }
   
   .kds-filter-tabs .tab-btn.active {
@@ -61,27 +61,27 @@
   }
   
   .kds-filter-tabs .tab-btn.tab-pendiente.active {
-    background: #ea580c;
+    background: #c2410c;
     color: #ffffff;
   }
   
   .kds-filter-tabs .tab-btn.tab-preparado.active {
-    background: #0284c7;
+    background: #0369a1;
     color: #ffffff;
   }
   
   .kds-filter-tabs .tab-btn.tab-recoger.active {
-    background: #16a34a;
+    background: #15803d;
     color: #ffffff;
   }
   
   .kds-filter-tabs .tab-btn.tab-camino.active {
-    background: #7c3aed;
+    background: #6b21a8;
     color: #ffffff;
   }
   
   .bg-purple {
-    background-color: #7c3aed !important;
+    background-color: #6b21a8 !important;
   }
   
   /* ==========================================================================
@@ -103,25 +103,25 @@
   
   /* Bordes laterales por estado */
   .comanda-kds-card.estado-border-pendiente {
-    border-left: 6px solid #f97316 !important;
+    border-left: 6px solid #c2410c !important;
   }
   
   .comanda-kds-card.estado-border-preparado {
-    border-left: 6px solid #0284c7 !important;
+    border-left: 6px solid #0369a1 !important;
   }
   
   .comanda-kds-card.estado-border-listo_para_recoger {
-    border-left: 6px solid #16a34a !important;
+    border-left: 6px solid #15803d !important;
   }
   
   .comanda-kds-card.estado-border-de_camino,
   .comanda-kds-card.estado-border-en_camino {
-    border-left: 6px solid #7c3aed !important;
+    border-left: 6px solid #6b21a8 !important;
   }
   
   .comanda-kds-card.estado-border-servido,
   .comanda-kds-card.estado-border-entregado {
-    border-left: 6px solid #16a34a !important;
+    border-left: 6px solid #15803d !important;
   }
   
   /* Header de la Tarjeta */
@@ -132,7 +132,7 @@
   .pedido-num {
     font-size: 0.9rem;
     font-weight: 800;
-    color: #64748b;
+    color: #475569;
   }
   
   /* Insignias de Estado */
@@ -158,21 +158,21 @@
     color: #c2410c;
     border: 1px solid #ffedd5;
   }
-  .badge-status.pendiente .status-dot { background: #f97316; }
+  .badge-status.pendiente .status-dot { background: #c2410c; }
   
   .badge-status.preparado {
     background: #f0f9ff;
     color: #0369a1;
     border: 1px solid #e0f2fe;
   }
-  .badge-status.preparado .status-dot { background: #0284c7; }
+  .badge-status.preparado .status-dot { background: #0369a1; }
   
   .badge-status.listo_para_recoger {
     background: #f0fdf4;
     color: #15803d;
     border: 1px solid #dcfce7;
   }
-  .badge-status.listo_para_recoger .status-dot { background: #16a34a; }
+  .badge-status.listo_para_recoger .status-dot { background: #15803d; }
   
   .badge-status.de_camino,
   .badge-status.en_camino {
@@ -181,7 +181,7 @@
     border: 1px solid #e9d5ff;
   }
   .badge-status.de_camino .status-dot,
-  .badge-status.en_camino .status-dot { background: #7c3aed; }
+  .badge-status.en_camino .status-dot { background: #6b21a8; }
   
   .badge-status.servido,
   .badge-status.entregado {
@@ -190,11 +190,11 @@
     border: 1px solid #dcfce7;
   }
   .badge-status.servido .status-dot,
-  .badge-status.entregado .status-dot { background: #16a34a; }
+  .badge-status.entregado .status-dot { background: #15803d; }
   
   /* Sub-header */
   .comanda-card-sub-header {
-    background: #fafafa;
+    background: #f8fafc;
     font-size: 0.85rem;
   }
   
@@ -228,9 +228,9 @@
      BOTONES DE CAMBIO DE ESTADO (MODO CLARO)
      ========================================================================== */
   .btn-status-action {
-    border: 1.5px solid #cbd5e1;
+    border: 1.5px solid #94a3b8;
     background: #ffffff;
-    color: #64748b;
+    color: #334155;
     font-weight: 700;
     font-size: 0.78rem;
     padding: 8px 6px;
@@ -248,33 +248,33 @@
   }
   
   .btn-status-action.pendiente:hover:not(:disabled) {
-    border-color: #f97316;
+    border-color: #c2410c;
     color: #c2410c;
     background: #fff7ed;
   }
   
   .btn-status-action.preparado:hover:not(:disabled) {
-    border-color: #0284c7;
+    border-color: #0369a1;
     color: #0369a1;
     background: #f0f9ff;
   }
   
   .btn-status-action.listo_para_recoger:hover:not(:disabled) {
-    border-color: #16a34a;
+    border-color: #15803d;
     color: #15803d;
     background: #f0fdf4;
   }
   
   .btn-status-action.de_camino:hover:not(:disabled),
   .btn-status-action.en_camino:hover:not(:disabled) {
-    border-color: #7c3aed;
+    border-color: #6b21a8;
     color: #6b21a8;
     background: #f3e8ff;
   }
   
   .btn-status-action.servido:hover:not(:disabled),
   .btn-status-action.entregado:hover:not(:disabled) {
-    border-color: #16a34a;
+    border-color: #15803d;
     color: #15803d;
     background: #f0fdf4;
   }
@@ -291,41 +291,41 @@
   
   .btn-status-action.active-current.pendiente,
   :host-context(.dark-theme) .btn-status-action.active-current.pendiente {
-    background-color: #ea580c !important;
+    background-color: #c2410c !important;
     color: #ffffff !important;
-    border-color: #ea580c !important;
+    border-color: #c2410c !important;
   }
   
   .btn-status-action.active-current.preparado,
   :host-context(.dark-theme) .btn-status-action.active-current.preparado {
-    background-color: #0284c7 !important;
+    background-color: #0369a1 !important;
     color: #ffffff !important;
-    border-color: #0284c7 !important;
+    border-color: #0369a1 !important;
   }
   
   .btn-status-action.active-current.listo_para_recoger,
   :host-context(.dark-theme) .btn-status-action.active-current.listo_para_recoger {
-    background-color: #16a34a !important;
+    background-color: #15803d !important;
     color: #ffffff !important;
-    border-color: #16a34a !important;
+    border-color: #15803d !important;
   }
   
   .btn-status-action.active-current.de_camino,
   .btn-status-action.active-current.en_camino,
   :host-context(.dark-theme) .btn-status-action.active-current.de_camino,
   :host-context(.dark-theme) .btn-status-action.active-current.en_camino {
-    background-color: #7c3aed !important;
+    background-color: #6b21a8 !important;
     color: #ffffff !important;
-    border-color: #7c3aed !important;
+    border-color: #6b21a8 !important;
   }
   
   .btn-status-action.active-current.servido,
   .btn-status-action.active-current.entregado,
   :host-context(.dark-theme) .btn-status-action.active-current.servido,
   :host-context(.dark-theme) .btn-status-action.active-current.entregado {
-    background-color: #16a34a !important;
+    background-color: #15803d !important;
     color: #ffffff !important;
-    border-color: #16a34a !important;
+    border-color: #15803d !important;
   }
   
   /* Badges de tipo de pedido */
@@ -357,7 +357,7 @@
   
   .tipo-pedido-badge.is-recoger {
     background: #fef3c7;
-    color: #b45309;
+    color: #92400e;
     border: 1px solid #fde68a;
   }
   
@@ -365,7 +365,7 @@
   .empty-kds-card {
     background: #ffffff;
     border-radius: 24px;
-    border: 2px dashed #e2e8f0;
+    border: 2px dashed #cbd5e1;
   }
   
   .empty-icon-circle {
@@ -388,17 +388,17 @@
   :host-context(.dark-theme) .comanda-kds-card,
   :host-context(.dark-theme) .empty-kds-card {
     background: #1e293b;
-    border-color: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.15);
   }
   
   :host-context(.dark-theme) .comanda-card-header,
   :host-context(.dark-theme) .comanda-card-sub-header,
   :host-context(.dark-theme) .comanda-card-footer {
-    background: rgba(15, 23, 42, 0.5) !important;
+    background: rgba(15, 23, 42, 0.7) !important;
   }
   
   :host-context(.dark-theme) .comanda-card-sub-header small.text-dark {
-    color: #e2e8f0 !important;
+    color: #f1f5f9 !important;
   }
   
   :host-context(.dark-theme) .product-name,
@@ -406,26 +406,25 @@
     color: #f8fafc !important;
   }
   
-  /* Filtro superior en Modo Oscuro */
   :host-context(.dark-theme) .kds-filter-tabs {
     background-color: #1e293b !important;
-    border-color: rgba(255, 255, 255, 0.15) !important;
+    border-color: rgba(255, 255, 255, 0.2) !important;
   }
   
   :host-context(.dark-theme) .kds-filter-tabs .tab-btn {
-    color: #94a3b8;
+    color: #cbd5e1;
   }
   
   :host-context(.dark-theme) .kds-filter-tabs .tab-btn:hover {
-    background: rgba(255, 255, 255, 0.08);
-    color: #f8fafc;
+    background: #334155;
+    color: #ffffff;
   }
   
   /* Botones NO ACTIVOS en Modo Oscuro */
   :host-context(.dark-theme) .btn-status-action:not(.active-current) {
     background-color: #0f172a !important;
-    border-color: rgba(255, 255, 255, 0.2) !important;
-    color: #cbd5e1 !important;
+    border-color: rgba(255, 255, 255, 0.3) !important;
+    color: #e2e8f0 !important;
   }
   
   :host-context(.dark-theme) .btn-status-action:not(.active-current):hover {
@@ -434,11 +433,11 @@
   }
   
   :host-context(.dark-theme) .tipo-pedido-badge.is-mesa {
-    background: rgba(255, 255, 255, 0.1);
-    color: #f8fafc;
+    background: #334155;
+    color: #ffffff;
   }
   
   :host-context(.dark-theme) .product-qty-badge {
     background: #334155;
-    color: #f8fafc;
+    color: #ffffff;
   }

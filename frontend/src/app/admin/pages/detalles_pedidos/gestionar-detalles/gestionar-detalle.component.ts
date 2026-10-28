@@ -141,7 +141,7 @@ export class GestionarDetalleComponent implements OnInit {
   }
 
   confirmarEliminacion(): void {
-    if (!this.detalleAEliminar || !this.detalleAEliminar.id) return;
+    if (!this.detalleAEliminar?.id) return;
 
     this.detalleService.del(this.detalleAEliminar.id).subscribe({
       next: () => {

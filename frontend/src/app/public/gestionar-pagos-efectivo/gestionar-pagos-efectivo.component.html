@@ -33,7 +33,7 @@
 
   <!-- ESTADO DE CARGA -->
   <div *ngIf="cargando" class="loading-state card border-0 shadow-sm p-5 text-center my-4">
-    <div class="spinner-border text-success mx-auto mb-3" role="status"></div>
+    <div class="spinner-border text-success mx-auto mb-3"></div>
     <h5 class="fw-bold text-dark">Cargando pedidos pendientes...</h5>
   </div>
 
@@ -67,13 +67,10 @@
           <!-- LISTADO DE PEDIDOS -->
           <div *ngIf="pedidosPendientes.length > 0" class="pedidos-list d-flex flex-column gap-2">
             <div *ngFor="let pedido of pedidosPendientes"
-                  class="pedido-item-card"
-                  [class.selected]="pedidoSeleccionado?.id === pedido.id"
-                  (click)="seleccionarPedido(pedido)"
-                  tabindex="0"
-                  role="button"
-                  aria-label="Seleccionar pedido"
-                  (keydown.enter)="seleccionarPedido(pedido)">
+                 class="pedido-item-card"
+                 [class.selected]="pedidoSeleccionado?.id === pedido.id"
+                 (click)="seleccionarPedido(pedido)"
+                 (keydown.enter)="seleccionarPedido(pedido)">
               
               <div class="d-flex align-items-center justify-content-between">
                 <div class="d-flex align-items-center gap-3">

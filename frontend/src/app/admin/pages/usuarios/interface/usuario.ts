@@ -10,7 +10,7 @@ export interface Usuario {
     apellido2?:string
     telefono?: string;
     calle?: string;
-    tipoVivienda?: 'piso' | 'urbanizacion' | 'casa' | string;
+    tipoVivienda?: 'piso' | 'urbanizacion' | 'casa';
     portalNum?: string;
     pisoNum?: string;
     puerta?: string;

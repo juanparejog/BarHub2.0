@@ -114,14 +114,13 @@
 <div class="modal-backdrop-custom fade show"
      *ngIf="mesaSeleccionadaQr"
      (click)="cerrarModalQr()"
-     tabindex="0"
-     role="button"
-     aria-label="Cerrar modal"
-     (keydown.enter)="cerrarModalQr()"
      (keydown.escape)="cerrarModalQr()">
 </div>
 
-<div class="modal fade show d-block" *ngIf="mesaSeleccionadaQr" tabindex="-1" role="dialog" aria-modal="true">
+<div class="modal fade show d-block" 
+     *ngIf="mesaSeleccionadaQr" 
+     tabindex="-1" 
+     aria-modal="true">
   <div class="modal-dialog modal-dialog-centered modal-sm">
     <div class="modal-content qr-modal-content">
       

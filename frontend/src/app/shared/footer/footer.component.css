@@ -40,11 +40,8 @@
   }
   
   .footer-brand {
-    color: #ffffff;
-    font-weight: 700;
-    background: linear-gradient(135deg, #ffffff 0%, #7da7d9 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+      color: #ffffff;
+      font-weight: 700;
   }
   
   /* Enlaces del Footer */

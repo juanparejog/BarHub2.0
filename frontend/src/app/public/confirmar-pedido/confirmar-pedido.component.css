@@ -1,6 +1,25 @@
+/* ==========================================================================
+   ESTILOS Y MODO OSCURO - CONFIRMAR PEDIDO
+   ========================================================================== */
+
 :host {
+  --bg-card: #ffffff;
+  --text-title: #0A2342;
+  --text-muted: #4A6782;
+  --border-line: rgba(74, 103, 130, 0.25);
+  --bg-badge: rgba(10, 35, 66, 0.12);
+  --bg-box: #f8fafc;
   display: block;
   width: 100%;
+}
+
+:host-context(.dark-theme) {
+  --bg-card: #1e293b;
+  --text-title: #f8fafc;
+  --text-muted: #94a3b8;
+  --border-line: rgba(255, 255, 255, 0.1);
+  --bg-badge: rgba(255, 255, 255, 0.15);
+  --bg-box: #0f172a;
 }
 
 .confirmar-wrapper {
@@ -29,22 +48,22 @@
 
 .header-titles h2 {
   font-family: 'Merriweather', serif;
-  color: #0A2342;
+  color: var(--text-title);
   font-size: 2rem;
   font-weight: 700;
   margin: 0 0 4px 0;
 }
 
 .header-titles p {
-  color: #4A6782;
+  color: var(--text-muted);
   font-size: 0.95rem;
   margin: 0;
 }
 
 .btn-back {
-  background: #ffffff;
-  color: #0A2342;
-  border: 1px solid rgba(74, 103, 130, 0.25);
+  background: var(--bg-card);
+  color: var(--text-title);
+  border: 1px solid var(--border-line);
   border-radius: 50px;
   padding: 8px 18px;
   font-size: 0.88rem;
@@ -58,9 +77,9 @@
 }
 
 .btn-back:hover {
-  background: #0A2342;
+  background: #1d4ed8;
   color: #ffffff;
-  border-color: #0A2342;
+  border-color: #1d4ed8;
 }
 
 /* Layout Grid */
@@ -84,15 +103,15 @@
 
 /* Tarjetas Informativas */
 .info-card {
-  background: #ffffff;
+  background: var(--bg-card);
   border-radius: 20px;
-  border: 1px solid rgba(74, 103, 130, 0.12);
-  box-shadow: 0 8px 30px rgba(10, 35, 66, 0.06);
+  border: 1px solid var(--border-line);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
   padding: 24px;
 }
 
 .card-title {
-  color: #0A2342;
+  color: var(--text-title);
   font-size: 1.15rem;
   font-weight: 700;
   margin: 0 0 16px 0;
@@ -110,8 +129,8 @@
   width: 48px;
   height: 48px;
   border-radius: 14px;
-  background: rgba(10, 35, 66, 0.06);
-  color: #0A2342;
+  background: var(--bg-badge);
+  color: var(--text-title);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -122,17 +141,17 @@
   margin: 0;
   font-size: 1.2rem;
   font-weight: 700;
-  color: #0A2342;
+  color: var(--text-title);
 }
 
 .card-subtitle {
-  color: #4A6782;
+  color: var(--text-muted);
   font-size: 0.85rem;
 }
 
 .destino-details-box {
-  background: #f8fafc;
-  border: 1px solid rgba(74, 103, 130, 0.12);
+  background: var(--bg-box);
+  border: 1px solid var(--border-line);
   border-radius: 12px;
   padding: 16px;
 }
@@ -152,19 +171,19 @@
 .detail-label {
   font-size: 0.78rem;
   font-weight: 600;
-  color: #4A6782;
+  color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
 .detail-value {
-  color: #0A2342;
+  color: var(--text-title);
   font-size: 1rem;
 }
 
 .detail-value.text-accent {
   font-size: 1.2rem;
-  color: #0A2342;
+  color: var(--text-title);
 }
 
 /* Tabla de Productos */
@@ -183,17 +202,17 @@
   padding: 12px 14px;
   font-size: 0.8rem;
   font-weight: 700;
-  color: #4A6782;
+  color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  border-bottom: 2px solid rgba(74, 103, 130, 0.12);
+  border-bottom: 2px solid var(--border-line);
 }
 
 .productos-table td {
   padding: 14px;
-  border-bottom: 1px solid rgba(74, 103, 130, 0.08);
+  border-bottom: 1px solid var(--border-line);
   font-size: 0.95rem;
-  color: #0A2342;
+  color: var(--text-title);
 }
 
 .productos-table tr:last-child td {
@@ -206,9 +225,9 @@
 
 .qty-pill {
   display: inline-block;
-  background: #f1f5f9;
-  border: 1px solid rgba(74, 103, 130, 0.2);
-  color: #0A2342;
+  background: var(--bg-box);
+  border: 1px solid var(--border-line);
+  color: var(--text-title);
   font-weight: 700;
   font-size: 0.85rem;
   padding: 2px 10px;
@@ -217,19 +236,19 @@
 
 .product-subtotal {
   font-weight: 700;
-  color: #0A2342;
+  color: var(--text-title);
 }
 
 .text-center { text-align: center; }
 .text-end { text-align: right; }
-.text-muted { color: #4A6782; }
+.text-muted { color: var(--text-muted); }
 
 /* Tarjeta Resumen / Sidebar */
 .summary-card {
-  background: #ffffff;
+  background: var(--bg-card);
   border-radius: 20px;
-  border: 1px solid rgba(74, 103, 130, 0.12);
-  box-shadow: 0 8px 30px rgba(10, 35, 66, 0.08);
+  border: 1px solid var(--border-line);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
   padding: 24px;
   display: flex;
   flex-direction: column;
@@ -237,7 +256,7 @@
 
 .summary-card h3 {
   font-family: 'Merriweather', serif;
-  color: #0A2342;
+  color: var(--text-title);
   font-size: 1.25rem;
   font-weight: 700;
   margin: 0 0 20px 0;
@@ -251,19 +270,19 @@
 }
 
 .summary-label {
-  color: #4A6782;
+  color: var(--text-muted);
   font-size: 0.95rem;
 }
 
 .summary-value {
-  color: #0A2342;
+  color: var(--text-title);
   font-weight: 600;
   font-size: 1rem;
 }
 
 .summary-divider {
   border: none;
-  border-top: 1px solid rgba(74, 103, 130, 0.12);
+  border-top: 1px solid var(--border-line);
   margin: 16px 0;
 }
 
@@ -274,13 +293,13 @@
 .total-label {
   font-size: 1.1rem;
   font-weight: 700;
-  color: #0A2342;
+  color: var(--text-title);
 }
 
 .total-amount {
   font-size: 1.6rem;
   font-weight: 800;
-  color: #0A2342;
+  color: var(--text-title);
 }
 
 /* Pago selector */
@@ -292,7 +311,7 @@
   display: block;
   font-size: 0.8rem;
   font-weight: 700;
-  color: #4A6782;
+  color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.5px;
   margin-bottom: 10px;
@@ -310,20 +329,20 @@
   justify-content: space-between;
   padding: 14px 16px;
   border-radius: 12px;
-  border: 1px solid rgba(74, 103, 130, 0.2);
-  background: #ffffff;
+  border: 1px solid var(--border-line);
+  background: var(--bg-card);
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .payment-option-card:hover {
-  background: #f8fafc;
+  background: var(--bg-box);
 }
 
 .payment-option-card.active {
-  border-color: #0A2342;
-  background: rgba(10, 35, 66, 0.03);
-  box-shadow: 0 0 0 1px #0A2342;
+  border-color: var(--text-title);
+  background: var(--bg-badge);
+  box-shadow: 0 0 0 1px var(--text-title);
 }
 
 .option-left {
@@ -333,7 +352,7 @@
 }
 
 .radio-input {
-  accent-color: #0A2342;
+  accent-color: var(--text-title);
   width: 16px;
   height: 16px;
   margin: 0;
@@ -343,18 +362,18 @@
 .option-title {
   font-size: 0.92rem;
   font-weight: 600;
-  color: #0A2342;
+  color: var(--text-title);
 }
 
 .option-icon {
   font-size: 1.25rem;
-  color: #4A6782;
+  color: var(--text-muted);
 }
 
 /* Stripe Card Container */
 .stripe-container {
-  background: #f8fafc;
-  border: 1px solid rgba(74, 103, 130, 0.2);
+  background: var(--bg-box);
+  border: 1px solid var(--border-line);
   border-radius: 12px;
   padding: 14px;
   margin-bottom: 20px;
@@ -363,8 +382,8 @@
 #card-element {
   width: 100%;
   min-height: 40px;
-  background: #ffffff;
-  border: 1px solid rgba(74, 103, 130, 0.2);
+  background: var(--bg-card);
+  border: 1px solid var(--border-line);
   border-radius: 8px;
   padding: 10px;
   box-sizing: border-box;
@@ -387,8 +406,8 @@
 
 .btn-confirm-final {
   width: 100%;
-  background: #0A2342;
-  color: #ffffff;
+  background: var(--text-title);
+  color: var(--bg-card);
   border: none;
   border-radius: 50px;
   padding: 14px 20px;
@@ -399,30 +418,36 @@
   justify-content: center;
   gap: 10px;
   cursor: pointer;
-  box-shadow: 0 4px 14px rgba(10, 35, 66, 0.25);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
   transition: all 0.2s ease;
 }
 
 .btn-confirm-final:hover {
-  background: #4A6782;
+  background: var(--text-muted);
   transform: translateY(-2px);
-  box-shadow: 0 6px 18px rgba(74, 103, 130, 0.35);
 }
 
 .btn-cancel-link {
   background: transparent;
   border: none;
-  color: #4A6782;
+  color: var(--text-muted);
   font-size: 0.88rem;
   font-weight: 600;
   padding: 8px;
   cursor: pointer;
   transition: color 0.2s ease;
   text-decoration: none;
+  text-align: center;
 }
 
 .btn-cancel-link:hover {
   color: #ef4444;
+}
+
+:host-context(.dark-theme) .info-card,
+:host-context(.dark-theme) .destino-details-box,
+:host-context(.dark-theme) .summary-card {
+  color: var(--text-title);
 }
 
 /* Responsive */
@@ -448,197 +473,4 @@
     width: 100%;
     justify-content: center;
   }
-}
-
-/* ==========================================================================
-   VARIABLES Y MODO OSCURO - CONFIRMAR PEDIDO (Añadir al inicio del archivo)
-   ========================================================================== */
-   :host {
-    --bg-card: #ffffff;
-    --text-title: #0A2342;
-    --text-muted: #4A6782;
-    --border-line: rgba(74, 103, 130, 0.25);
-    --bg-badge: rgba(10, 35, 66, 0.06);
-    --bg-box: #f8fafc;
-    display: block;
-    width: 100%;
-  }
-  
-  :host-context(.dark-theme) {
-    --bg-card: #1e293b;
-    --text-title: #f8fafc;
-    --text-muted: #94a3b8;
-    --border-line: rgba(255, 255, 255, 0.1);
-    --bg-badge: rgba(255, 255, 255, 0.1);
-    --bg-box: #0f172a;
-  }
-  
-  /* Resto de tus estilos, pero usando las variables */
-  .confirmar-wrapper {
-    width: 100%;
-    min-height: 100vh;
-    padding: 32px 16px 60px 16px;
-    box-sizing: border-box;
-  }
-  
-  .confirmar-container {
-    max-width: 1100px;
-    margin: 0 auto;
-    display: flex;
-    flex-direction: column;
-    gap: 28px;
-  }
-  
-  .confirmar-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 20px;
-    flex-wrap: wrap;
-  }
-  
-  .header-titles h2 {
-    font-family: 'Merriweather', serif;
-    color: var(--text-title);
-    font-size: 2rem;
-    font-weight: 700;
-    margin: 0 0 4px 0;
-  }
-  
-  .header-titles p {
-    color: var(--text-muted);
-    font-size: 0.95rem;
-    margin: 0;
-  }
-  
-  .btn-back {
-    background: var(--bg-card);
-    color: var(--text-title);
-    border: 1px solid var(--border-line);
-    border-radius: 50px;
-    padding: 8px 18px;
-    font-size: 0.88rem;
-    font-weight: 600;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
-  }
-  
-  .btn-back:hover {
-    background: #3b82f6;
-    color: #ffffff;
-    border-color: #3b82f6;
-  }
-  
-  .confirmar-grid {
-    display: grid;
-    grid-template-columns: 1fr 400px;
-    gap: 24px;
-    align-items: start;
-  }
-  
-  .col-main {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-  }
-  
-  .col-sidebar {
-    position: sticky;
-    top: 24px;
-  }
-  
-  .info-card {
-    background: var(--bg-card);
-    border-radius: 20px;
-    border: 1px solid var(--border-line);
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
-    padding: 24px;
-  }
-  
-  .card-title {
-    color: var(--text-title);
-    font-size: 1.15rem;
-    font-weight: 700;
-    margin: 0 0 16px 0;
-    font-family: 'Merriweather', serif;
-  }
-  
-  .card-header-flex {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    margin-bottom: 20px;
-  }
-  
-  .modalidad-badge-icon {
-    width: 48px;
-    height: 48px;
-    border-radius: 14px;
-    background: var(--bg-badge);
-    color: var(--text-title);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.4rem;
-  }
-  
-  .card-header-flex h3 {
-    margin: 0;
-    font-size: 1.2rem;
-    font-weight: 700;
-    color: var(--text-title);
-  }
-  
-  .card-subtitle {
-    color: var(--text-muted);
-    font-size: 0.85rem;
-  }
-  
-  .destino-details-box {
-    background: var(--bg-box);
-    border: 1px solid var(--border-line);
-    border-radius: 12px;
-    padding: 16px;
-  }
-
-  /* Forzar texto claro general dentro de las tarjetas */
-:host-context(.dark-theme) .info-card,
-:host-context(.dark-theme) .destino-details-box {
-  color: #f8fafc !important;
-}
-
-/* Nombres de productos, etiquetas de métodos de pago y textos comunes */
-:host-context(.dark-theme) td,
-:host-context(.dark-theme) th,
-:host-context(.dark-theme) label,
-:host-context(.dark-theme) .form-check-label,
-:host-context(.dark-theme) input,
-:host-context(.dark-theme) p,
-:host-context(.dark-theme) span {
-  color: #e2e8f0 !important;
-}
-
-/* Precios y totales (les damos un tono azul claro para que resalten) */
-/* (Nota: si tus precios tienen una clase específica como .precio o .total, añádela aquí) */
-:host-context(.dark-theme) td:nth-child(n+3), /* Asumiendo que precios y subtotales son las últimas columnas */
-:host-context(.dark-theme) h2,
-:host-context(.dark-theme) h3,
-:host-context(.dark-theme) h4,
-:host-context(.dark-theme) strong {
-  color: #60a5fa !important;
-}
-
-/* Textos secundarios como "Cancelar Pedido" */
-:host-context(.dark-theme) .text-muted,
-:host-context(.dark-theme) a:not(.btn) {
-  color: #94a3b8 !important;
-  text-decoration: none;
-}
-
-:host-context(.dark-theme) a:not(.btn):hover {
-  color: #f8fafc !important;
 }

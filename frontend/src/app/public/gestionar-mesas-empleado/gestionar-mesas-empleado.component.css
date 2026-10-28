@@ -91,14 +91,16 @@
     letter-spacing: 0.5px;
   }
   
-  /* Temas KPI */
-  .kpi-card.total .material-icons { background: #f1f5f9; color: #475569; }
-  .kpi-card.disponibles .material-icons,
-  .kpi-card.disponible .material-icons { background: #dcfce7; color: #16a34a; }
-  .kpi-card.ocupadas .material-icons,
-  .kpi-card.ocupada .material-icons { background: #fee2e2; color: #dc2626; }
-  .kpi-card.reservadas .material-icons,
-  .kpi-card.reservada .material-icons { background: #e0f2fe; color: #0284c7; }
+/* Temas KPI */
+.kpi-card.total .material-icons { background: #f1f5f9; color: #334155; }
+.kpi-card.disponibles .material-icons,
+.kpi-card.disponible .material-icons { background: #dcfce7; color: #14532d; }
+
+.kpi-card.ocupadas .material-icons,
+.kpi-card.ocupada .material-icons { background: #fee2e2; color: #991b1b; }
+
+.kpi-card.reservadas .material-icons,
+.kpi-card.reservada .material-icons { background: #e0f2fe; color: #0369a1; }
   
   /* ==========================================================================
      GRID Y TARJETA DE MESA
@@ -158,10 +160,11 @@
     transition: all 0.3s ease;
   }
   
-  .estado-disponible .icon-avatar { background: #f0fdf4; color: #16a34a; }
-  .estado-ocupada .icon-avatar { background: #fef2f2; color: #dc2626; }
-  .estado-reservada .icon-avatar { background: #f0f9ff; color: #0284c7; }
-  
+.estado-disponible .icon-avatar { background: #f0fdf4; color: #14532d; }
+
+.estado-ocupada .icon-avatar { background: #fef2f2; color: #991b1b; }
+
+.estado-reservada .icon-avatar { background: #f0f9ff; color: #0369a1; }
   .mesa-numero {
     font-size: 1.15rem;
     font-weight: 700;
@@ -348,7 +351,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #64748b;
+    color: #334155;
     cursor: pointer;
     transition: background 0.2s ease;
   }
@@ -494,8 +497,8 @@
   }
   
   :host-context(.dark-theme) .state-btn:hover {
-    background: rgba(255, 255, 255, 0.08) !important;
-    color: #f8fafc !important;
+      background: #334155 !important;
+      color: #ffffff !important;
   }
   
   :host-context(.dark-theme) .btn-qr-action {

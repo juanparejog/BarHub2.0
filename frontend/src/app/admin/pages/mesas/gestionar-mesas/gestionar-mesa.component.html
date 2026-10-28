@@ -116,13 +116,13 @@
                    class="bi bi-pencil-fill action-icon edit" 
                    title="Editar"></i>
 
-                <i (click)="borrarMesa(mesa)" 
-                   (keydown.enter)="borrarMesa(mesa)"
-                   tabindex="0"
-                   role="button"
-                   class="bi bi-trash3-fill action-icon delete"
-                   title="Eliminar"
-                   aria-label="Eliminar"></i>
+                <button type="button" 
+                        class="btn btn-link p-0 border-0 bg-transparent text-decoration-none" 
+                        (click)="borrarMesa(mesa)" 
+                        title="Eliminar" 
+                        aria-label="Eliminar">
+                  <i class="bi bi-trash3-fill action-icon delete"></i>
+                </button>
               </div>
             </td>
           </tr>

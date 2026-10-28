@@ -23,9 +23,9 @@ export class PerfilComponent implements OnInit {
   nombreArchivoRenombrado: string = '';
 
   constructor(
-    private fb: FormBuilder,
-    private usuarioService: UsuarioService,
-    private router: Router
+    private readonly fb: FormBuilder,
+    private readonly usuarioService: UsuarioService,
+    private readonly router: Router
   ) {}
 
   ngOnInit(): void {
@@ -50,8 +50,7 @@ export class PerfilComponent implements OnInit {
       apellido1: ['', [Validators.required, Validators.maxLength(50)]],
       apellido2: [''],
       imagen: [''],
-
-      telefono: ['', [Validators.required, Validators.pattern(/^[0-9]{9,}$/)]],
+      telefono: ['', [Validators.required, Validators.pattern(/^\d{9}$/)]],
       calle: ['', [Validators.required, Validators.minLength(5)]],
       tipoVivienda: ['piso', Validators.required],
       portalNum: [''],
@@ -59,7 +58,7 @@ export class PerfilComponent implements OnInit {
       puerta: [''],
       urbanizacionNombre: [''],
       casaNum: [''],
-      codigoPostal: ['', [Validators.required, Validators.pattern(/^[0-9]{5}$/)]],
+      codigopostal: ['', [Validators.required, Validators.pattern(/^\d{5}$/)]],
       instruccionesEntrega: ['']
     });
 
@@ -247,7 +246,7 @@ export class PerfilComponent implements OnInit {
       const formValues = this.perfilForm.getRawValue();
 
       const usuarioActualizado: Usuario = {
-        ...(this.usuarioActual || {}),
+        ...this.usuarioActual,
         id: this.usuarioId,
         username: formValues.username,
         email: formValues.email,

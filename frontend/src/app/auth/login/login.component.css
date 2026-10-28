@@ -170,7 +170,7 @@ button:disabled {
 
 :host-context(.dark-theme) button {
   background: linear-gradient(90deg, #2563eb 0%, #3b82f6 100%);
-  color: #0f172a;
+  color: #ffffff;
 }
 
 :host-context(.dark-theme) button:hover:not(:disabled) {

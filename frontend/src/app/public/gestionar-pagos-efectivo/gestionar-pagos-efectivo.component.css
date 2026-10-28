@@ -110,8 +110,8 @@
   
   /* 1. MESA (Azul) */
   .channel-icon.is-mesa {
-    background: #dbeafe;
-    color: #2563eb;
+      background: #dbeafe;
+      color: #1e40af;
   }
   .badge-channel.is-mesa {
     background: #e0f2fe;
@@ -130,8 +130,8 @@
   
   /* 3. RECOGER EN TIENDA (Ámbar / Amarillo) */
   .channel-icon.is-recoger {
-    background: #fef3c7;
-    color: #d97706;
+      background: #fef3c7;
+      color: #92400e;
   }
   .badge-channel.is-recoger {
     background: #fef3c7;
@@ -164,22 +164,11 @@
     color: #0f172a;
   }
   
-  .btn-cobrar-sm {
-    background: #16a34a;
-    color: #ffffff;
-    border: none;
-    font-weight: 700;
-    border-radius: 8px;
-    padding: 4px 10px;
-    display: inline-flex;
-    align-items: center;
-    gap: 2px;
-    transition: background 0.2s ease;
-  }
-  
-  .btn-cobrar-sm:hover {
-    background: #15803d;
-    color: #ffffff;
+  .btn-cobrar-sm,
+  .btn-confirm-pay {
+      background: #14532d;
+      color: #ffffff;
+      font-weight: 700;
   }
   
   /* State Vacío */
@@ -368,15 +357,10 @@
   }
   
   .btn-fast-cash.btn-clear {
-    background: #fef2f2;
-    border-color: #fca5a5;
-    color: #dc2626;
+      background: #fef2f2;
+      border-color: #fca5a5;
+      color: #991b1b;
   }
-  
-  .btn-fast-cash.btn-clear:hover {
-    background: #fee2e2;
-  }
-  
   /* Mensaje Alerta Incompleto */
   .alert-insufficient {
     background: #fff7ed;
@@ -397,7 +381,7 @@
   }
   
   .btn-confirm-pay {
-    background: #16a34a;
+    background: #14532d;
     color: #ffffff;
     border: none;
     border-radius: 14px;
@@ -408,9 +392,6 @@
     align-items: center;
     justify-content: center;
     gap: 8px;
-    cursor: pointer;
-    transition: all 0.25s ease;
-    box-shadow: 0 4px 14px rgba(22, 163, 74, 0.25);
   }
   
   .btn-confirm-pay:hover:not(:disabled) {
@@ -420,10 +401,10 @@
   }
   
   .btn-confirm-pay:disabled {
-    background: #cbd5e1;
-    color: #94a3b8;
-    box-shadow: none;
-    cursor: not-allowed;
+      background: #cbd5e1;
+      color: #334155;
+      box-shadow: none;
+      cursor: not-allowed;
   }
   
   .btn-cancel-pay {

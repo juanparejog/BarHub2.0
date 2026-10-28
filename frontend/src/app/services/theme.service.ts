@@ -5,8 +5,8 @@ import { BehaviorSubject } from 'rxjs';
   providedIn: 'root'
 })
 export class ThemeService {
-  private renderer: Renderer2;
-  private darkModeSubject = new BehaviorSubject<boolean>(false);
+  private readonly renderer: Renderer2;
+  private readonly darkModeSubject = new BehaviorSubject<boolean>(false);
   public isDarkMode$ = this.darkModeSubject.asObservable();
 
   constructor(rendererFactory: RendererFactory2) {

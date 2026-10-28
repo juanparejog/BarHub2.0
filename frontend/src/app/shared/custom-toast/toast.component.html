@@ -2,10 +2,13 @@
      *ngIf="show" 
      [ngClass]="type" 
      (click)="onClose()"
-     tabindex="0"
-     role="button"
-     aria-label="Cerrar notificación"
      (keydown.enter)="onClose()">
-  <span class="toast-message">{{ message }}</span>
-  <span class="toast-close">&times;</span>
+     
+    <span class="toast-message">{{ message }}</span>
+    <button type="button" 
+            class="toast-close border-0 bg-transparent" 
+            aria-label="Cerrar notificación" 
+            (click)="onClose()">
+        &times;
+    </button>
 </div>

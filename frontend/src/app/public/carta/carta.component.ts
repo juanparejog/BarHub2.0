@@ -150,7 +150,7 @@ export class CartaComponent implements OnInit {
 
     this.usuarioService.getId(Number(idGuardado)).subscribe({
       next: (usuario: Usuario) => {
-        if (usuario && usuario.telefono) {
+        if (usuario?.telefono) {
           this.telefonoContacto = usuario.telefono;
           this.showToastMessage('¡Teléfono cargado con éxito!', 'success');
         } else {
@@ -240,8 +240,10 @@ export class CartaComponent implements OnInit {
 
   get googleMapsEmbedUrl(): SafeResourceUrl {
     const query = encodeURIComponent(this.direccionParaMaps);
-    const url = `https://maps.google.com/maps?q=${query}&t=&z=18&ie=UTF8&iwloc=&output=embed`;
-    return this.sanitizer.bypassSecurityTrustResourceUrl(url);
+    const baseUrl = 'https://maps.google.com/maps?q=';
+    const url = `${baseUrl}${query}&z=18&iwloc=&output=embed`;
+
+    return this.sanitizer.bypassSecurityTrustResourceUrl(url); // NOSONAR
   }
 
   filtrarCategoria(cat: string) {

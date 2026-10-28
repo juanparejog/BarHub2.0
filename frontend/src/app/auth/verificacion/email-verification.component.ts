@@ -12,8 +12,8 @@ export class EmailVerificationComponent implements OnInit {
   message: string = '';
 
   constructor(
-    private route: ActivatedRoute,  // Para obtener el token desde la URL
-    private authService: AuthService  // Para llamar al servicio de verificación
+    private readonly route: ActivatedRoute,
+    private readonly authService: AuthService
   ) { }
 
   ngOnInit(): void {

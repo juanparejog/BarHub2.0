@@ -214,7 +214,7 @@ h1 {
   }
 
   .dropdown-item:hover, .dropdown-item:focus {
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: #334155;
     color: #ffffff;
   }
 
@@ -227,17 +227,6 @@ h1 {
 /* ==========================================
    ESTILOS BASE / MODOS DE COLOR
    ========================================== */
-
-   :root {
-    --bg-main: #f8f9fa;
-    --bg-card: #ffffff;
-    --text-main: #212529;
-    --text-muted: #6c757d;
-    --border-color: #e9ecef;
-    --table-hover: #f1f3f5;
-    --input-bg: #ffffff;
-    --input-text: #212529;
-  }
   
   /* Reglas aplicadas cuando el modo oscuro está activo */
   body.dark-theme {
@@ -387,9 +376,6 @@ body.dark-theme .input-group-text {
   border-color: #334155 !important;
 }
 
-body.dark-theme .form-control::placeholder {
-  color: #64748b !important;
-}
 
 /* 5. Botones Neutros / Blancos */
 body.dark-theme .btn-light,

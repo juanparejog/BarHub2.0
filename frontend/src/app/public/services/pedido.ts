@@ -41,16 +41,16 @@ interface DetallePedidoDto {
 
 @Injectable({ providedIn: 'root' })
 export class PedidoService {
-  private baseUrl = (() => {
+  private readonly baseUrl = (() => {
     let url = environment.urlBackendSpring;
     while (url.endsWith('/')) {
       url = url.slice(0, -1);
     }
     return url;
   })();
-  private URL_PEDIDOS = `${this.baseUrl}/pedidos`;
+  private readonly URL_PEDIDOS = `${this.baseUrl}/pedidos`;
 
-  constructor(private httpClient: HttpClient) { }
+  constructor(private readonly httpClient: HttpClient) { }
 
   private getAuthHeaders(): HttpHeaders {
     const token = localStorage.getItem('token');
