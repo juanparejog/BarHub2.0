@@ -1,5 +1,4 @@
-# Frontend/Dockerfile
-FROM node:18-alpine as builder
+FROM node:18-alpine AS builder
 WORKDIR /app
 COPY package*.json ./
 RUN npm install
@@ -7,5 +6,5 @@ COPY . .
 RUN npm run build -- --configuration=production
 
 FROM caddy:2-alpine
-COPY --from=builder /app/dist/BarHub /usr/share/caddy
+COPY --from=builder /app/dist/*/ /usr/share/caddy/
 EXPOSE 80
