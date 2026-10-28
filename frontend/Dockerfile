@@ -7,5 +7,5 @@ COPY . .
 RUN npm run build -- --configuration=production
 
 FROM caddy:2-alpine
-COPY --from=builder /app/dist/BarHub /srv
-COPY Caddyfile /etc/caddy/Caddyfile
+COPY --from=builder /app/dist/BarHub /usr/share/caddy
+EXPOSE 80
