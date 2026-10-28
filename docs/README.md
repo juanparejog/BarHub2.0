@@ -168,8 +168,8 @@ El directorio raíz del frontend contiene los archivos de configuración esencia
 
 * **`angular.json`**: Archivo de configuración principal de Angular CLI que define las rutas de construcción, optimizaciones, configuraciones de entorno y esquemas para los diferentes proyectos y librerías del workspace.
 * **`package.json` y `package-lock.json`**: Gestionan las dependencias del proyecto, scripts de ejecución (`npm start`, `npm build`, `npm test`) y librerías externas necesarias para la interfaz y la lógica de negocio.
-* **`Dockerfile`**: Configuración para la contenerización de la aplicación frontend, permitiendo su despliegue en entornos basados en contenedores.
-* **`karma.conf.js`**: Configuración del entorno de pruebas unitarias utilizando Karma y Jasmine.
+* **`Dockerfile`**: Configuración optimizada multi-etapa (Node.js + Caddy) para la contenerización de la aplicación frontend en entornos de producción.
+* **`karma.conf.js`**: Configuración del entorno de pruebas unitarias utilizando Karma, Jasmine y el prefijo de protocolo moderno `node:path`.
 * **`.browserslistrc`**: Define los navegadores objetivo soportados por la aplicación para garantizar la compatibilidad de estilos y características de JavaScript.
 * **`.editorconfig`**: Mantiene un estilo de código consistente entre diferentes editores y entornos de desarrollo.
 
@@ -234,7 +234,7 @@ Orientada a la experiencia del cliente final y la interacción operativa diaria:
 
 ## 5. Estilos, Diseño y Activos (`styles` y `assets/`)
 
-* **Estilos Globales**: El proyecto cuenta con hojas de estilo específicas para la administración (`crud-styles.css`), estilos por componente y un servicio dedicado al manejo de temas (`theme.service.ts`) para soportar la adaptabilidad visual de la interfaz.
+* **Estilos Globales y Accesibilidad**: El proyecto cuenta con hojas de estilo específicas para la administración (`crud-styles.css`), estilos por componente y un servicio dedicado al manejo de temas (`theme.service.ts`) para soportar la adaptabilidad visual. Todas las interfaces de usuario han sido refactorizadas y validadas para cumplir estrictamente con los ratios de contraste mínimo exigidos por las normativas de accesibilidad **WCAG** (colores sólidos optimizados, eliminación de opacidades conflictivas en textos y contraste certificado en botones y elementos interactivos).
 
 * **Activos (`assets/`)**: Contiene recursos estáticos como imágenes corporativas y de fondo.
 
@@ -265,65 +265,112 @@ Se realizaron análisis de seguridad sobre las 102 dependencias del proyecto fro
    - Se depuró el árbol de dependencias ejecutando una limpieza completa de módulos y una reinstalación de los paquetes (`npm install --legacy-peer-deps`) para garantizar la estabilidad de la compilación frente a restricciones de versiones.
 3. **Estado Final:** Tras aplicar las directivas de control y la reconstrucción del entorno, el número de incidencias se redujo a **22 problemas** y **22 rutas vulnerables** (una reducción drástica que eliminó el 100% de las vulnerabilidades transitivas de terceros). Las incidencias restantes quedan limitadas exclusivamente a avisos estructurales nativos del núcleo de Angular 14, cuya actualización completa a versiones modernas requeriría una migración mayor del framework.
 
-### 6.2.- SonarQube (Auditoría de Calidad y Mantenibilidad del Backend)
+### 6.2.- SonarQube (Auditoría de Calidad y Mantenibilidad)
 
-- Backend:
+Se ha llevado a cabo una auditoría exhaustiva de la calidad del código fuente tanto en el Backend (Java/Spring Boot) como en el Frontend (Angular/TypeScript), empleando SonarQube para garantizar los más altos estándares de mantenibilidad, seguridad y robustez.
 
-Se ha llevado a cabo una auditoría exhaustiva de la calidad del código fuente del backend utilizando **SonarQube**, estructurada en dos fases principales (análisis inicial con incidencias y estado final tras la refactorización).
+---
 
-#### A) Estado Inicial de la Auditoría
-En el primer análisis del proyecto se detectaron **48 incidencias** globales distribuidas en seguridad, fiabilidad y mantenibilidad. A continuación se muestran las métricas e instantáneas del estado inicial:
+### Backend: Auditoría y Refactorización
 
-<p align="center">
-  <img src="img/sonarqube/backend/auditoria1-1.png" alt="Dashboard Inicial de SonarQube" width="720">
-</p>
+El análisis del backend se estructuró en dos fases: un diagnóstico inicial (que identificó áreas de mejora) y un estado final tras aplicar un plan de refactorización integral.
 
-<p align="center">
-  <img src="img/sonarqube/backend/auditoria1-2.png" alt="Snapshot de Fiabilidad Inicial" width="720">
-</p>
+#### 1. Estado Inicial y Detección de Incidencias
+En el primer escaneo se detectaron **48 incidencias** globales distribuidas en seguridad, fiabilidad y mantenibilidad:
 
 <p align="center">
-  <img src="img/sonarqube/backend/auditoria1-3.png" alt="Snapshot de Mantenibilidad Inicial" width="720">
+  <img src="img/sonarqube/backend/auditoria1-1.png" alt="Dashboard Inicial de SonarQube Backend" width="720">
 </p>
+<p align="center">
+  <img src="img/sonarqube/backend/auditoria1-2.png" alt="Snapshot de Fiabilidad Inicial Backend" width="720">
+</p>
+<p align="center">
+  <img src="img/sonarqube/backend/auditoria1-3.png" alt="Snapshot de Mantenibilidad Inicial Backend" width="720">
+</p>
+<p align="center">
+  <img src="img/sonarqube/backend/auditoria1-4.png" alt="Resumen General de Issues Iniciales Backend" width="720">
+</p>
+
+* **Seguridad (2 incidencias):** Uso de funciones de depuración activas en producción (`e.printStackTrace()` en controladores).
+* **Fiabilidad (3 incidencias):** Omisión del contrato `hashCode()` al sobrescribir `equals()` y llamadas a métodos de fecha sin zona horaria explícita.
+* **Mantenibilidad (45 incidencias):** Complejidad cognitiva elevada en métodos extensos (como `crearPedidoSeguro`), además de convenciones de nombres no alineadas con los estándares de Java.
+
+---
+
+#### 2. Plan de Optimización y Refactorización
+Para erradicar la deuda técnica detectada, se implementaron las siguientes mejoras técnicas:
+
+1. **Seguridad y Trazabilidad:** Supresión de impresiones por consola (`e.printStackTrace()`) y centralización del manejo de excepciones mediante respuestas HTTP estandarizadas.
+2. **Contrato de Objetos:** Implementación correcta y simultánea de `equals()` y `hashCode()` en `UserDetailsImpl`.
+3. **Reducción de Complejidad:** Refactorización de servicios complejos (`PedidoServiceImpl`) desglosando bloques extensos en métodos auxiliares privados y cohesivos.
+4. **Estandarización de Estilo:** Corrección de la estructura de paquetes de enumerados (`model/enums`) para prevenir conflictos con palabras reservadas y estandarización de constantes de seguridad.
+5. **Modernización de APIs:** Migración de la clase obsoleta `new Date()` hacia la API moderna de Java 8 (`java.time` / `Instant`).
+
+---
+
+#### 3. Resultados y Estado Final (`Quality Gate: PASSED`)
+Tras el despliegue de las correcciones, la re-auditoría confirmó un código limpio y completamente optimizado:
 
 <p align="center">
-  <img src="img/sonarqube/backend/auditoria1-4.png" alt="Resumen General de Issues Iniciales" width="720">
+  <img src="img/sonarqube/backend/auditoria2-1.png" alt="Dashboard Final de SonarQube Backend Passed" width="720">
+</p>
+<p align="center">
+  <img src="img/sonarqube/backend/auditoria2-2.png" alt="Snapshot de Seguridad Final Backend" width="720">
+</p>
+<p align="center">
+  <img src="img/sonarqube/backend/auditoria2-3.png" alt="Snapshot de Mantenibilidad Final Backend" width="720">
+</p>
+<p align="center">
+  <img src="img/sonarqube/backend/auditoria2-4.png" alt="Resumen de Nuevo Código y Quality Gate Backend" width="720">
 </p>
 
-- **Seguridad (2 incidencias):** Uso de funciones de depuración activas en producción (`e.printStackTrace()` en controladores).
-- **Fiabilidad (3 incidencias):** Omisión del contrato `hashCode()` al sobrescribir `equals()` y llamadas a métodos de fecha sin zona horaria explícita.
-- **Mantenibilidad (45 incidencias):** Complejidad cognitiva elevada en métodos complejos (como `crearPedidoSeguro`), nombres de constantes y paquetes no alineados con las convenciones oficiales de Java.
+| Métrica | Estado Inicial | Estado Final |
+| :--- | :---: | :---: |
+| **Quality Gate** | Fallido | PASSED |
+| **Seguridad** | 2 incidencias | 0 incidencias |
+| **Fiabilidad** | 3 incidencias | 0 incidencias |
+| **Mantenibilidad** | 45 incidencias | 0 críticas / Deuda minimizada |
 
-#### B) Proceso de Refactorización y Optimización
-Para solventar las advertencias y asegurar un código limpio, legible y robusto, se aplicaron las siguientes mejoras técnicas:
-1. **Depuración y Seguridad:** Se eliminaron las trazas de impresión por consola de errores (`e.printStackTrace()`), sustituyéndolas por respuestas HTTP estandarizadas.
-2. **Contrato de Objetos:** Se implementó correctamente el método `hashCode()` junto a `equals()` en `UserDetailsImpl`.
-3. **Reducción de Complejidad Cognitiva:** Se refactorizaron los servicios principales (`PedidoServiceImpl`) y controladores dividiendo los bloques extensos en métodos auxiliares privados más pequeños y cohesivos.
-4. **Convenciones de Estilo y Paquetes:** Se corrigió la estructura de paquetes de enumerados (`model/enums`), evitando conflictos con palabras reservadas de Java, y se estandarizaron las constantes de seguridad y campos estáticos.
-5. **Modernización de APIs:** Se actualizó el manejo de fechas obsoletas (`new Date()`) hacia la API moderna de Java 8 (`java.time` / `Instant`).
+---
 
-#### C) Estado Final y Resultados
-Tras completar el plan de mitigación y recompilar el proyecto, se ejecutó una nueva auditoría en SonarQube reflejando un código limpio y optimizado:
+### Frontend: Auditoría de Calidad y Accesibilidad
+
+Mediante SonarQube CLI, se auditó el código fuente en Angular, TypeScript y hojas de estilo, logrando resolver todas las incidencias de estilo, contrastes, redundancias de tipos e importaciones no utilizadas.
+
+#### 1. Métricas Globales y Quality Gate
+El análisis final refleja un estado completamente saneado del entorno visual y de lógica de cliente:
 
 <p align="center">
-  <img src="img/sonarqube/backend/auditoria2-1.png" alt="Dashboard Final de SonarQube Passed" width="720">
+  <img src="img/sonarqube/frontend/auditoria2-1.png" alt="Quality Gate Passed Frontend" width="720">
 </p>
+
+* **Quality Gate:** PASSED (100% de condiciones superadas).
+* **Duplicaciones Globales:** Controladas en un mínimo del **1.5%**.
+* **Duplicaciones en Código Nuevo:** Reducidas al **0.5%**.
+
+---
+
+#### 2. Validación de Seguridad, Fiabilidad y Mantenibilidad
+Las capturas del panel de control validan la ausencia total de incidencias abiertas en el código actual:
 
 <p align="center">
-  <img src="img/sonarqube/backend/auditoria2-2.png" alt="Snapshot de Seguridad Final" width="720">
+  <img src="img/sonarqube/frontend/auditoria2-2.png" alt="Instantáneas Generales de Seguridad y Fiabilidad" width="720">
 </p>
+
+* **Security Issues:** 0 incidencias (Código protegido).
+* **Reliability Issues:** 0 incidencias (Estabilidad robustecida).
+* **Maintainability Issues:** 0 incidencias (Deuda técnica erradicada).
+* **Historial de Correcciones:** Se resolvieron con éxito 2 ficheros de seguridad, 189 incidencias de fiabilidad y 220 incidencias de mantenibilidad durante el ciclo de vida del desarrollo.
+
+---
+
+#### 3. Análisis de Código Nuevo
+El análisis de las últimas adiciones al repositorio certifica el cumplimiento estricto de los estándares de calidad:
 
 <p align="center">
-  <img src="img/sonarqube/backend/auditoria2-3.png" alt="Snapshot de Mantenibilidad Final" width="720">
+  <img src="img/sonarqube/frontend/auditoria2-3.png" alt="Resumen de Código Nuevo y Security Hotspots" width="720">
 </p>
 
-<p align="center">
-  <img src="img/sonarqube/backend/auditoria2-4.png" alt="Resumen de Nuevo Código y Quality Gate" width="720">
-</p>
-
-- **Quality Gate:** **PASSED (Verde)** con todas las condiciones superadas.
-- **Seguridad:** **0 incidencias** (Métrica de seguridad limpia).
-- **Fiabilidad:** **0 incidencias** (Estabilidad garantizada).
-- **Mantenibilidad:** Incidencias críticas y de alta severidad completamente erradicadas, optimizando la mantenibilidad y reduciendo drásticamente la deuda técnica del sistema.
-
-- Frontend
+* **New Issues:** 0 (Cero defectos introducidos).
+* **Accepted Issues:** 0 (Sin advertencias pospuestas o ignoradas).
+* **Security Hotspots:** 0 (Rating A en puntos críticos de seguridad).
