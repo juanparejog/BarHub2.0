@@ -1,4 +1,4 @@
-# Documentación Técnica y Funcional de BarHub 2.0 (README Profesional)
+# Documentación Técnica y Funcional de BarHub 2.0
 
 ## 1.- Introducción y Propósito del Proyecto
 
@@ -335,45 +335,67 @@ Tras el despliegue de las correcciones, la re-auditoría confirmó un código li
 
 ### Frontend: Auditoría de Calidad y Accesibilidad
 
-Mediante SonarQube CLI, se auditó el código fuente en Angular, TypeScript y hojas de estilo, logrando resolver todas las incidencias de estilo, contrastes, redundancias de tipos e importaciones no utilizadas.
+El análisis del frontend se estructuró en dos fases: un diagnóstico inicial (que identificó áreas de mejora en accesibilidad, fiabilidad y mantenibilidad) y un estado final tras aplicar un plan de refactorización integral en el código TypeScript, HTML y hojas de estilo.
 
-#### 1. Métricas Globales y Quality Gate
-El análisis final refleja un estado completamente saneado del entorno visual y de lógica de cliente:
+#### 1. Estado Inicial y Detección de Incidencias
+En el primer escaneo se detectaron numerosas incidencias globales distribuidas en seguridad, fiabilidad y mantenibilidad:
 
+<!-- IMAGEN 1: Dashboard Inicial Frontend -->
 <p align="center">
-  <img src="img/sonarqube/frontend/auditoria2-1.png" alt="Quality Gate Passed Frontend" width="720">
+  <img src="img/sonarqube/frontend/auditoria1-1.png" alt="Dashboard Inicial de SonarQube Frontend" width="720">
 </p>
 
-* **Quality Gate:** PASSED (100% de condiciones superadas).
-* **Duplicaciones Globales:** Controladas en un mínimo del **1.5%**.
-* **Duplicaciones en Código Nuevo:** Reducidas al **0.5%**.
+<!-- IMAGEN 2: Snapshot de Fiabilidad y Mantenibilidad Inicial Frontend -->
+<p align="center">
+  <img src="img/sonarqube/frontend/auditoria1-2.png" alt="Snapshot de Fiabilidad y Mantenibilidad Inicial Frontend" width="720">
+</p>
+
+<!-- IMAGEN 3: Resumen General de Issues Iniciales Frontend -->
+<p align="center">
+  <img src="img/sonarqube/frontend/auditoria1-3.png" alt="Resumen General de Issues Iniciales Frontend" width="720">
+</p>
+
+* **Seguridad (1 incidencia):** Puntos críticos detectados en configuraciones o manejo de elementos de la interfaz.
+* **Fiabilidad (145 incidencias):** Defectos vinculados a elementos interactivos sin etiquetas asociadas, inputs sin atributos de control y manejo inadecuado de estados en componentes de Angular.
+* **Mantenibilidad (173 incidencias):** Presencia de código duplicado, variables no utilizadas, importaciones huérfanas y componentes con exceso de acoplamiento.
 
 ---
 
-#### 2. Validación de Seguridad, Fiabilidad y Mantenibilidad
-Las capturas del panel de control validan la ausencia total de incidencias abiertas en el código actual:
+#### 2. Plan de Optimización y Refactorización
+Para erradicar la deuda técnica y los problemas de accesibilidad detectados, se implementaron las siguientes mejoras:
 
-<p align="center">
-  <img src="img/sonarqube/frontend/auditoria2-2.png" alt="Instantáneas Generales de Seguridad y Fiabilidad" width="720">
-</p>
-
-* **Security Issues:** 0 incidencias (Código protegido).
-* **Reliability Issues:** 0 incidencias (Estabilidad robustecida).
-* **Maintainability Issues:** 0 incidencias (Deuda técnica erradicada).
-* **Historial de Correcciones:** Se resolvieron con éxito 2 ficheros de seguridad, 189 incidencias de fiabilidad y 220 incidencias de mantenibilidad durante el ciclo de vida del desarrollo.
+1. **Accesibilidad (WCAG) y Formularios:** Asociación correcta de etiquetas (`<label>`) con sus respectivos campos de entrada (`<input>`, `<select>`), asegurando que todos los elementos interactivos dispongan de nombres accesibles.
+2. **Limpieza de Código y Tipado:** Eliminación de importaciones no utilizadas, resolución de redundancias de tipos en TypeScript y estandarización del estilo de código.
+3. **Optimización de Componentes:** Reducción de la complejidad en los componentes de las vistas de administración y cliente, separando lógicas extensas en servicios y directivas reutilizables.
+4. **Control de Duplicaciones:** Refactorización de bloques de código repetidos en plantillas HTML y hojas de estilo para mantener las duplicaciones por debajo de los límites recomendados.
 
 ---
 
-#### 3. Análisis de Código Nuevo
-El análisis de las últimas adiciones al repositorio certifica el cumplimiento estricto de los estándares de calidad:
+#### 3. Resultados y Estado Final (`Quality Gate: PASSED`)
+Tras el despliegue de las correcciones, la re-auditoría confirmó un entorno de cliente completamente limpio y optimizado:
 
+<!-- IMAGEN 4: Dashboard Final Frontend Passed -->
 <p align="center">
-  <img src="img/sonarqube/frontend/auditoria2-3.png" alt="Resumen de Código Nuevo y Security Hotspots" width="720">
+  <img src="img/sonarqube/frontend/auditoria2-1.png" alt="Dashboard Final de SonarQube Frontend Passed" width="720">
 </p>
 
-* **New Issues:** 0 (Cero defectos introducidos).
-* **Accepted Issues:** 0 (Sin advertencias pospuestas o ignoradas).
-* **Security Hotspots:** 0 (Rating A en puntos críticos de seguridad).
+<!-- IMAGEN 5: Snapshot de Seguridad, Fiabilidad y Mantenibilidad Final Frontend -->
+<p align="center">
+  <img src="img/sonarqube/frontend/auditoria2-2.png" alt="Snapshot de Seguridad, Fiabilidad y Mantenibilidad Final Frontend" width="720">
+</p>
+
+<!-- IMAGEN 6: Resumen de Nuevo Código y Quality Gate Frontend -->
+<p align="center">
+  <img src="img/sonarqube/frontend/auditoria2-3.png" alt="Resumen de Nuevo Código y Quality Gate Frontend" width="720">
+</p>
+
+| Métrica | Estado Inicial | Estado Final |
+| :--- | :---: | :---: |
+| **Quality Gate** | Pasado con advertencias | PASSED |
+| **Seguridad** | 1 incidencia | 0 incidencias |
+| **Fiabilidad** | 145 incidencias | 0 incidencias (189 resueltas) |
+| **Mantenibilidad** | 173 incidencias | 0 incidencias (220 resueltas) |
+
 
 ## 7.- Automatización de CI/CD
 
