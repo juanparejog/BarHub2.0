@@ -1,4 +1,4 @@
-# Guía de Conexión SSH Segura y Bastionada - BarHub 2.0
+# Guía de Conexión SSH Segura y Bastionada
 
 Este documento resume el procedimiento técnico seguido para establecer una conexión SSH segura mediante el uso exclusivo de pares de claves pública/privada hacia la máquina virtual con Kali Linux, respetando las políticas de bastionado aplicadas previamente.
 
