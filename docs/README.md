@@ -396,6 +396,41 @@ Tras el despliegue de las correcciones, la re-auditoría confirmó un entorno de
 | **Fiabilidad** | 145 incidencias | 0 incidencias (189 resueltas) |
 | **Mantenibilidad** | 173 incidencias | 0 incidencias (220 resueltas) |
 
+### 6.3.- Auditoría de Dockerfile con trivy
+
+Se ha empleado **Trivy** para realizar el escaneo de configuraciones (*misconfigurations*) y seguridad en los ficheros de contenerización (`Dockerfile`) tanto del backend como del frontend, asegurando el cumplimiento de las buenas prácticas de despliegue en contenedores.
+
+#### 1. Análisis Inicial del Backend (`backend/Dockerfile`)
+Al escanear el `Dockerfile` del backend mediante Trivy, se detectó una advertencia de nivel bajo vinculada a la ausencia de la instrucción de control de salud:
+
+<p align="center">
+  <img src="img/trivy/auditoria1.png" alt="Auditoría inicial Trivy Backend" width="720">
+</p>
+
+* **DS-0026 (LOW):** Añadir la instrucción `HEALTHCHECK` en el `Dockerfile` para permitir la comprobación automática del estado de salud del contenedor en ejecución.
+
+---
+
+#### 2. Análisis Inicial del Frontend (`frontend/Dockerfile`)
+En el análisis preliminar del `Dockerfile` del frontend, Trivy identificó dos incidencias relacionadas con la ejecución con privilegios de root y la falta de comprobación de salud:
+
+<p align="center">
+  <img src="img/trivy/auditoria2.png" alt="Auditoría inicial Trivy Frontend" width="720">
+</p>
+
+* **DS-0002 (HIGH):** Especificar al menos un comando `USER` en el `Dockerfile` utilizando un usuario no root (`non-root user`) como argumento, previniendo riesgos de escalada de privilegios o *container escape*.
+* **DS-0026 (LOW):** Añadir la instrucción `HEALTHCHECK` obligatoria para el monitoreo de disponibilidad del contenedor.
+
+---
+
+#### 3. Estado Final tras la Corrección y Bastionado (`Quality Gate: PASSED`)
+Una vez aplicadas las directrices de seguridad (incorporación de usuarios sin privilegios en las imágenes multi-etapa y configuración de las directivas `HEALTHCHECK`), se reejecutó Trivy sobre ambos ficheros de configuración obteniendo un estado completamente limpio (**0 incidencias**):
+
+<p align="center">
+  <img src="img/trivy/auditoria3.png" alt="Auditoría final Trivy Backend y Frontend sin incidencias" width="720">
+</p>
+
+---
 
 ## 7.- Automatización de CI/CD
 
