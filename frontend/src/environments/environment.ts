@@ -4,7 +4,7 @@
 
 export const environment = {
   production: true,
-  urlBackendSpring: 'http://localhost:8080',
+  urlBackendSpring: '/api',
 };
 
 /*

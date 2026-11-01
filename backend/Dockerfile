@@ -1,14 +1,10 @@
-FROM openjdk:17-jdk-alpine
-
-RUN addgroup -S spring && adduser -S spring -G spring
+FROM eclipse-temurin:17-jdk-alpine
 WORKDIR /app
-USER spring:spring
 
-ARG JAR_FILE=target/*.jar
-COPY --chown=spring:spring ${JAR_FILE} app.jar
+COPY BarHub-0.0.1-SNAPSHOT.jar app.jar
 
-HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
+HEALTHCHECK --interval=30s --timeout=3s --retries=3 \
   CMD wget --no-verbose --tries=1 --spider http://localhost:8080/actuator/health || exit 1
 
 EXPOSE 8080
-ENTRYPOINT ["java","-jar","/app.jar"]
+ENTRYPOINT ["java","-jar","app.jar"]

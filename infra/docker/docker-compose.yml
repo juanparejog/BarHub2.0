@@ -1,12 +1,9 @@
-version: '3.8'
-
 services:
   mysql:
     image: mariadb:latest
     container_name: barhub-mysql
     restart: always
-    networks:
-      - mi_red
+    network_mode: "host"
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_DATABASE: ${DB_DATABASE}
@@ -16,48 +13,36 @@ services:
       - mysql_data:/var/lib/mysql
 
   backend:
-    build: ./backend
+    build: ../../backend
     container_name: barhub-backend
     restart: unless-stopped
-    networks:
-      - mi_red
+    network_mode: "host"
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/${DB_DATABASE}?useSSL=false&serverTimezone=UTC
+      - SPRING_DATASOURCE_URL=jdbc:mysql://localhost:3306/${DB_DATABASE}?useSSL=false&serverTimezone=UTC
       - SPRING_DATASOURCE_USERNAME=${DB_USERNAME}
       - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
-    depends_on:
-      - mysql
 
   frontend:
-    build: ./frontend
+    build: ../../frontend
     container_name: barhub-frontend
     restart: unless-stopped
-    networks:
-      - mi_red
-    depends_on:
-      - backend
+    network_mode: "host"
 
   caddy:
     image: caddy:2-alpine
     container_name: barhub-caddy
     restart: unless-stopped
-    networks:
-      - mi_red
-    ports:
-      - "80:80"
-      - "443:443"
+    network_mode: "host"
     volumes:
-      - ./infra/caddy/Caddyfile:/etc/caddy/Caddyfile
+      - ./Caddyfile:/etc/caddy/Caddyfile
       - caddy_data:/data
       - caddy_config:/config
-    depends_on:
-      - frontend
-      - backend
 
   duckdns:
     image: lscr.io/linuxserver/duckdns:latest
     container_name: barhub-duckdns
     restart: unless-stopped
+    network_mode: "host"
     environment:
       - PUID=1000
       - PGID=1000
@@ -67,25 +52,18 @@ services:
       - UPDATE_IP=ipv4
       - LOG_FILE=false
     volumes:
-      - ./infra/duckdns:/config
+      - ../duckdns:/config
 
   uptime-kuma:
     image: louislam/uptime-kuma:latest
     container_name: barhub-uptime-kuma
     restart: unless-stopped
-    networks:
-      - mi_red
-    ports:
-      - "3001:3001"
+    network_mode: "host"
     volumes:
       - uptime_data:/app/data
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
       - TZ=Europe/Madrid
-
-networks:
-  mi_red:
-    driver: bridge
 
 volumes:
   mysql_data:
