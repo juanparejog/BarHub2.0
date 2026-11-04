@@ -27,7 +27,7 @@ def run_cmd(cmd, shell=False, env=None, input_data=None):
 
 def check_root():
     if os.geteuid() != 0:
-        print("[!] Este script debe ejecutarse como ROOT (sudo python3 script-hardening.py)")
+        print("[!] Este script debe ejecutarse como ROOT (sudo python3 hardening-linux.py)")
         sys.exit(1)
 
 def paso_0_preparacion():
@@ -52,7 +52,6 @@ def paso_1_usuarios_y_permisos():
     print("\n=== [1] Gestión de Usuarios y Directivas PAM ===")
     run_cmd(["apt", "install", "libpam-tmpdir", "libpam-pwquality", "-y"])
     
-    # Forzar directivas de caducidad y seguridad en login.defs
     login_defs_path = "/etc/login.defs"
     if os.path.exists(login_defs_path):
         with open(login_defs_path, "r") as f:
@@ -106,7 +105,6 @@ net.core.bpf_jit_harden = 2
 fs.protected_hardlinks = 1
 fs.protected_symlinks = 1
 kernel.randomize_va_space = 2
-kernel.modules_disabled = 1
 net.ipv4.conf.all.log_martians = 1
 net.ipv4.conf.all.rp_filter = 1
 net.ipv4.conf.all.send_redirects = 0
@@ -166,7 +164,7 @@ def paso_7_cifrado():
         run_cmd(["mv", "/var/lib/aide/aide.db.new", "/var/lib/aide/aide.db"])
 
 def paso_8_ssh_hardening():
-    print("\n=== [8] Hardening Avanzado de OpenSSH (Clave Pública Exclusiva) ===")
+    print("\n=== [8] Hardening Avanzado de OpenSSH ===")
     if os.path.exists("/etc/ssh/sshd_config") and not os.path.exists("/etc/ssh/sshd_config.bak"):
         run_cmd(["cp", "/etc/ssh/sshd_config", "/etc/ssh/sshd_config.bak"])
     
@@ -177,7 +175,7 @@ def paso_8_ssh_hardening():
         if os.path.exists(auth_keys):
             run_cmd(["chmod", "600", auth_keys])
 
-    ssh_conf = "\nProtocol 2\nPort 22022\nPermitRootLogin prohibit-password\nPubkeyAuthentication yes\nPasswordAuthentication no\nPermitEmptyPasswords no\nMaxAuthTries 3\nMaxSessions 2\nClientAliveInterval 300\nClientAliveCountMax 2\nX11Forwarding no\nAllowTcpForwarding no\nLogLevel VERBOSE\nBanner /etc/issue.net\n"
+    ssh_conf = "\nProtocol 2\nPort 22022\nPermitRootLogin prohibit-password\nPubkeyAuthentication yes\nPasswordAuthentication yes\nPermitEmptyPasswords no\nMaxAuthTries 3\nMaxSessions 2\nClientAliveInterval 300\nClientAliveCountMax 2\nX11Forwarding no\nAllowTcpForwarding no\nLogLevel VERBOSE\nBanner /etc/issue.net\n"
     
     with open("/etc/ssh/sshd_config", "a") as f:
         f.write(ssh_conf)
@@ -186,19 +184,13 @@ def paso_8_ssh_hardening():
     run_cmd(["systemctl", "restart", "ssh"])
 
 def paso_9_red():
-    print("\n=== [9] Control de Acceso por Red (TCP Wrappers) ===")
-    with open("/etc/hosts.deny", "w") as f:
-        f.write("ALL : ALL\n")
-    
-    with open("/etc/hosts.allow", "w") as f:
-        f.write("sshd : ALL\n")
-        
+    print("\n=== [9] Control de Acceso por Red (Fail2ban) ===")
     if os.path.exists("/etc/fail2ban/jail.conf"):
         run_cmd(["cp", "/etc/fail2ban/jail.conf", "/etc/fail2ban/jail.local"])
         run_cmd(["systemctl", "restart", "fail2ban"])
 
 def paso_10_firewall():
-    print("\n=== [10] Firewall Local (iptables y Netfilter) ===")
+    print("\n=== [10] Firewall Local (iptables y Netfilter - Compatible con Docker) ===")
     run_cmd(["debconf-set-selections"], input_data="iptables-persistent iptables-persistent/v4save boolean true\n")
     run_cmd(["debconf-set-selections"], input_data="iptables-persistent iptables-persistent/v6save boolean true\n")
         
@@ -211,24 +203,20 @@ def paso_10_firewall():
         env=apt_env
     )
         
-    print("[*] Aplicando reglas firewall estrictas compatibles con Docker...")
-    run_cmd(["iptables", "-F"])
-    run_cmd(["iptables", "-A", "INPUT", "-i", "lo", "-j", "ACCEPT"])
-    run_cmd(["iptables", "-A", "INPUT", "-m", "conntrack", "--ctstate", "ESTABLISHED,RELATED", "-j", "ACCEPT"])
-    run_cmd(["iptables", "-A", "INPUT", "-p", "tcp", "--dport", "22022", "-m", "conntrack", "--ctstate", "NEW", "-j", "ACCEPT"])
-    run_cmd(["iptables", "-A", "INPUT", "-p", "tcp", "--dport", "80", "-m", "conntrack", "--ctstate", "NEW", "-j", "ACCEPT"])
-    run_cmd(["iptables", "-A", "INPUT", "-p", "tcp", "--dport", "443", "-m", "conntrack", "--ctstate", "NEW", "-j", "ACCEPT"])
-    
-    run_cmd(["iptables", "-P", "INPUT", "DROP"])
-    run_cmd(["iptables", "-P", "FORWARD", "ACCEPT"])
-    run_cmd(["iptables", "-P", "OUTPUT", "ACCEPT"])
+    print("[*] Permitiendo tráfico entrante esencial sin romper reglas de Docker...")
+    run_cmd(["iptables", "-I", "INPUT", "1", "-i", "lo", "-j", "ACCEPT"])
+    run_cmd(["iptables", "-I", "INPUT", "2", "-m", "conntrack", "--ctstate", "ESTABLISHED,RELATED", "-j", "ACCEPT"])
+    run_cmd(["iptables", "-I", "INPUT", "3", "-p", "tcp", "--dport", "22022", "-m", "conntrack", "--ctstate", "NEW", "-j", "ACCEPT"])
+    run_cmd(["iptables", "-I", "INPUT", "4", "-p", "tcp", "--dport", "80", "-m", "conntrack", "--ctstate", "NEW", "-j", "ACCEPT"])
+    run_cmd(["iptables", "-I", "INPUT", "5", "-p", "tcp", "--dport", "443", "-m", "conntrack", "--ctstate", "NEW", "-j", "ACCEPT"])
+    run_cmd(["iptables", "-I", "INPUT", "6", "-p", "tcp", "--dport", "3001", "-m", "conntrack", "--ctstate", "NEW", "-j", "ACCEPT"])
     
     run_cmd(["netfilter-persistent", "save"])
 
 def main():
     check_root()
     print("==================================================")
-    print("[*] Iniciando Script de Hardening")
+    print("[*] Iniciando Script de Hardening (Docker Compatible)")
     print("==================================================")
     paso_0_preparacion()
     paso_1_usuarios_y_permisos()

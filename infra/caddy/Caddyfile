@@ -1,0 +1,13 @@
+{
+    local_certs
+}
+
+http://barhub2.duckdns.org, http://localhost {
+    route /api/* {
+        uri strip_prefix /api
+        reverse_proxy backend:8080
+    }
+    route {
+        reverse_proxy frontend:80
+    }
+}
