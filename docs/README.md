@@ -9,8 +9,6 @@
   carta digital, pedidos en mesa / a recoger / a domicilio, comandas en tiempo real y control de caja.
 </p>
 
-> Los puntos marcados con `⚠️ Verificar` son datos que no constan en la documentación original y deben contrastarse con el código antes de la entrega.
-
 ---
 
 ## Mapa de la documentación
