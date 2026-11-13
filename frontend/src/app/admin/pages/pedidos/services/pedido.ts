@@ -3,13 +3,12 @@ import { HttpHeaders, HttpClient } from '@angular/common/http';
 import { Observable } from "rxjs";
 import { environment } from "src/environments/environment";
 import { Pedido } from "../interface/pedido";
-import { Socket } from 'ngx-socket-io';
 
 @Injectable({ providedIn: 'root' })
 export class PedidoService {
   private readonly URL_PEDIDOS = `${environment.urlBackendSpring}/pedidos`;
 
-  constructor(private readonly socket: Socket, private readonly httpClient: HttpClient) { }
+  constructor(private readonly httpClient: HttpClient) { }
 
   // Método auxiliar para obtener cabeceras con Token JWT
   private getHeaders(): HttpHeaders {
@@ -20,19 +19,9 @@ export class PedidoService {
     });
   }
 
-  actualizarEstadoSocket(pedido: Pedido) {
-    if (this.socket) {
-      this.socket.emit('cambioEstadoPedido', pedido);
-    }
-  }
-
-  onEstadoCambiado() {
-    return this.socket.fromEvent<Pedido>('pedidoActualizado');
-  }
-
   get(): Observable<Pedido[]> {
     return this.httpClient.get<Pedido[]>(`${this.URL_PEDIDOS}`, { headers: this.getHeaders() });
-  }   
+  }
 
   post(pedido: Pedido): Observable<Pedido> {
     return this.httpClient.post<Pedido>(`${this.URL_PEDIDOS}`, pedido, { headers: this.getHeaders() });
@@ -47,21 +36,21 @@ export class PedidoService {
   }
 
   del(pedido: Pedido): Observable<string> {
-    return this.httpClient.delete(`${this.URL_PEDIDOS}/${pedido.id}`, { 
-      headers: this.getHeaders(), 
-      responseType: 'text' 
+    return this.httpClient.delete(`${this.URL_PEDIDOS}/${pedido.id}`, {
+      headers: this.getHeaders(),
+      responseType: 'text'
     });
   }
 
   getDetallesPedidos(): Observable<Pedido[]> {
-    return this.httpClient.get<Pedido[]>(`${this.URL_PEDIDOS}/getAllDetalles`, { 
-      headers: this.getHeaders() 
+    return this.httpClient.get<Pedido[]>(`${this.URL_PEDIDOS}/getAllDetalles`, {
+      headers: this.getHeaders()
     });
   }
 
   postCrearSeguro(dto: any): Observable<any> {
-    return this.httpClient.post<any>(`${this.URL_PEDIDOS}`, dto, { 
-      headers: this.getHeaders() 
+    return this.httpClient.post<any>(`${this.URL_PEDIDOS}`, dto, {
+      headers: this.getHeaders()
     });
   }
 }
