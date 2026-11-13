@@ -20,14 +20,7 @@ import { AppComponent } from './app.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HomeComponent } from './public/home/home.component';
 import { FooterComponent } from './shared/footer/footer.component';
-import { SocketIoModule, SocketIoConfig } from 'ngx-socket-io';
 import { PerfilComponent } from './public/perfil/perfil.component';
-import { environment } from '../environments/environment';
-
-const config: SocketIoConfig = {
-  url: environment.urlBackendSpring,
-  options: { transports: ['websocket'] }
-};
 
 @NgModule({
   declarations: [
@@ -54,9 +47,8 @@ const config: SocketIoConfig = {
     FormsModule,
     ReactiveFormsModule,
     BrowserAnimationsModule,
-    SharedModule,
-    SocketIoModule.forRoot(config)
-  ],  
+    SharedModule
+  ],
   exports: [
     CartaComponent
   ],
