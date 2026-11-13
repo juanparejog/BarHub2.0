@@ -1,87 +1,217 @@
-<h1 align="center">BarHub 2.0 — Management System & Carta Digital</h1>
+<div align="center">
 
-<p align="center">
-  <img src="docs/img/logo.png" alt="BarHub 2.0 Logo" width="420">
-</p>
+<img src="docs/img/logo.png" alt="BarHub 2.0" width="320">
 
-<p align="center">
-  <b>Plataforma integral de gestión hostelera, comandas en tiempo real y arquitectura bastionada Zero Trust.</b>
-</p>
+# BarHub 2.0
 
-<p align="center">
-  <img src="https://img.shields.io/badge/Java-17-orange?style=for-the-badge&logo=java" alt="Java 17">
-  <img src="https://img.shields.io/badge/Spring_Boot-3.2+-brightgreen?style=for-the-badge&logo=springboot" alt="Spring Boot 3.2">
-  <img src="https://img.shields.io/badge/Angular-17%2F18-dd0031?style=for-the-badge&logo=angular" alt="Angular">
-  <img src="https://img.shields.io/badge/Docker-Multi--stage-blue?style=for-the-badge&logo=docker" alt="Docker">
-  <img src="https://img.shields.io/badge/Security-Zero_Trust-red?style=for-the-badge" alt="Zero Trust">
-</p>
+### Carta digital por QR y gestión operativa para bares y restaurantes
 
----
+Pedidos desde el móvil, comandas en tiempo real, control de caja y un ciclo de desarrollo pensado con la seguridad en mente.
 
-## Descripción del Proyecto
+<br>
 
-**BarHub 2.0** es una solución tecnológica avanzada diseñada para optimizar la operativa diaria en establecimientos hosteleros (bares, cafeterías y restaurantes). La plataforma combina una experiencia de cliente fluida mediante carta digital interactiva con un completo panel de administración y control operativo para el personal de sala, cocina y gerencia.
+![Java](https://img.shields.io/badge/Java-17-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)
+![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.4-6DB33F?style=for-the-badge&logo=springboot&logoColor=white)
+![Angular](https://img.shields.io/badge/Angular-DD0031?style=for-the-badge&logo=angular&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
+![MariaDB](https://img.shields.io/badge/MariaDB-003545?style=for-the-badge&logo=mariadb&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
 
-Esta versión representa una modernización integral del sistema: actualiza la arquitectura base a versiones LTS recientes de **Spring Boot** y **Angular**, refuerza la ciberseguridad mediante un modelo **Zero Trust con monitorización SOC continua** e incorpora módulos clave para el control financiero y analítico del local.
+![GitHub Actions](https://img.shields.io/badge/CI-GitHub_Actions-2088FF?style=flat-square&logo=githubactions&logoColor=white)
+![SonarQube](https://img.shields.io/badge/Calidad-SonarQube_·_SonarCloud-4E9BCD?style=flat-square&logo=sonarqubeserver&logoColor=white)
+![Snyk](https://img.shields.io/badge/Dependencias-Snyk-4C4A73?style=flat-square&logo=snyk&logoColor=white)
+![Trivy](https://img.shields.io/badge/Contenedores-Trivy-1904DA?style=flat-square&logo=aqua&logoColor=white)
+![Licencia](https://img.shields.io/badge/Licencia-Propietaria-lightgrey?style=flat-square)
 
----
+[Funcionalidades](#funcionalidades) ·
+[Arquitectura](#arquitectura) ·
+[Seguridad y calidad](#seguridad-y-calidad) ·
+[Estado](#estado-del-proyecto) ·
+[Estructura](#estructura-del-repositorio) ·
+[Documentación](#documentación)
 
-## Licencia y Aviso Legal
-
-© **Juan Parejo García** — *Todos los derechos reservados (All Rights Reserved)*.  
-Este software es de código propietario. Para conocer los términos de uso y condiciones legales, consulta los archivos oficiales del repositorio:
-* [`LICENSE`](./LICENSE.md) — Términos de Licencia Propietaria.
-* [`NOTICE`](./NOTICE.md) — Aviso Legal y Reserva de Derechos.
-
----
-
-## Novedades y Capacidades Principales
-
-### Experiencia de Cliente (UX)
-* **Carta Digital Interactiva (QR):** Acceso inmediato mediante escaneo de códigos QR sin necesidad de instalar aplicaciones.
-* **Modalidades de Pedido:** Elección entre consumo en **Mesa** o servicio a **Recoger** o a **Domicilio**.
-* **Seguimiento de Pedido a Tiempo Real:** Monitoreo y actualización del estado del pedido en tiempo real durante su preparación y entrega.
-* **Pasarela de Pago Integrada:** Soporte para pagos digitales seguros (Stripe) y pago directo en efectivo.
-* **Perfil de Usuario:** Consulta y gestión de datos personales, historial de pedidos realizados y saldo de puntos de fidelización.
-
-### Experiencia del Personal y Sala (EX)
-* **Comandas y Mesas en Tiempo Real:** Interfaz optimizada para la recepción de pedidos y estado de mesas.
-* **Comprobación de Pagos en Efectivo en Tiempo Real:** Validación y confirmación inmediata de los cobros realizados en efectivo tanto en barra/caja como en mesa por parte del personal.
-* **Apertura y Cierre de Caja:** Módulo para el control de flujo de efectivo al inicio de la jornada, registro de movimientos y arqueo diario al cierre.
-
-### Gestión Financiera y Analítica (Administración)
-* **Panel de Estadísticas Avanzadas:** Análisis visual de ingresos, productos más vendidos, horas pico de afluencia y métricas globales.
-* **Gestión Dinámica de Menú:** Actualización en tiempo real del catálogo de productos, precios y disponibilidad.
-
-### Ciberseguridad Zero Trust & SOC
-* **Bastionado VPS & Red:** Filtrado de accesos SSH por IP, cortafuegos UFW y prevención de intrusiones con Fail2Ban.
-* **Contenedores Ligeros y Seguros:** Despliegue en Docker con imágenes de bajo tamaño y sin privilegios superusuario (*rootless/distroless/alpine*).
-* **Auditoría Continuada:** Monitorización de eventos de seguridad con alertas automáticas en tiempo real (Telegram/Discord).
+</div>
 
 ---
 
-## Stack Tecnológico
+## Sobre el proyecto
 
-| Capa | Tecnología / Herramienta |
+BarHub 2.0 es una aplicación full-stack para establecimientos de hostelería. El cliente escanea un QR, mira la carta y pide desde su móvil sin instalar nada. El personal gestiona mesas, comandas y cobros en efectivo en tiempo real, y la gerencia lleva el control de la caja y consulta estadísticas del negocio.
+
+Es la segunda versión de mi TFC. Esta vez me he centrado en tres cosas: rediseñar la interfaz, añadir los módulos de caja y analítica, y trabajar el ciclo de vida seguro del software, con auditorías de dependencias, calidad de código y contenedores, integración continua y bastionado del servidor.
+
+> [!NOTE]
+> **Estado actual:** la aplicación funciona y está auditada en local. El despliegue en VPS y el SOC automático siguen en curso. Más abajo está el [estado detallado](#estado-del-proyecto).
+
+---
+
+## Funcionalidades
+
+<table>
+<tr>
+<td width="33%" valign="top">
+
+#### Cliente
+
+- Carta digital interactiva por QR
+- Pedido en mesa, a recoger o a domicilio
+- Seguimiento del pedido en tiempo real
+- Pago con Stripe o en efectivo
+- Registro con verificación por correo
+- Perfil, historial y puntos de fidelización
+
+</td>
+<td width="33%" valign="top">
+
+#### Personal y sala
+
+- Comandas y estado de mesas en tiempo real
+- Confirmación de pagos en efectivo en barra y en mesa
+- Apertura y cierre de caja con arqueo
+- Control de descuadres por turno
+
+</td>
+<td width="33%" valign="top">
+
+#### Administración
+
+- Gestión de productos, precios y disponibilidad
+- Gestión de mesas, pedidos y usuarios
+- Roles: `admin`, `empleado` y `cliente`
+- Métricas: ingresos, productos más vendidos y horas pico
+
+</td>
+</tr>
+</table>
+
+---
+
+## Arquitectura
+
+```mermaid
+flowchart LR
+    C["Cliente<br/>(escanea QR)"] -->|HTTPS| P["Caddy<br/>proxy inverso + TLS"]
+    S["Personal / Admin"] -->|HTTPS| P
+    P --> F["Angular<br/>frontend"]
+    P --> B["Spring Boot<br/>API REST + JWT"]
+    F <-.->|Socket.IO| B
+    B --> D[("MariaDB")]
+    B -->|pagos| T["Stripe"]
+```
+
+### Stack
+
+| Capa | Tecnologías |
 | :--- | :--- |
-| **Backend** | Java 17+, Spring Boot 3.2+, Spring Security, JWT, Resilience4j |
-| **Frontend** | Angular 17/18, TypeScript, Tailwind CSS, PrimeNG |
-| **Base de Datos** | MariaDB |
-| **Infraestructura** | Docker (Multi-stage), Docker Compose, Caddy / Nginx (SSL/TLS) |
-| **Seguridad & SOC** | UFW, Fail2Ban, Wazuh Agent, Uptime Kuma, Promtail / Loki |
-| **CI/CD & Calidad** | GitHub Actions, SonarQube, Trivy |
+| **Backend** | Java 17, Spring Boot 3.4.3, Spring Security, JWT (jjwt 0.12.5), Gradle |
+| **Frontend** | Angular, TypeScript, Tailwind CSS, PrimeNG, Socket.IO |
+| **Base de datos** | MariaDB |
+| **Infraestructura** | Docker (multi-stage), Docker Compose, Caddy |
+| **Calidad y seguridad** | SonarQube / SonarCloud, Snyk, Trivy, GitHub Actions |
 
 ---
 
-## Hoja de Ruta por Fases
+## Seguridad y calidad
+
+He intentado tratar la seguridad como parte del desarrollo y no como algo que se pega al final. Estos son los resultados de las auditorías (el detalle y las capturas están en [`docs/`](./docs)):
+
+| Herramienta | Alcance | Antes | Después |
+| :--- | :--- | :---: | :---: |
+| **SonarQube** (local) | Backend | 48 incidencias | 0 abiertas, Quality Gate superado |
+| **SonarQube** (local) | Frontend | 1 de seguridad, 145 de fiabilidad, 173 de mantenibilidad | 0 abiertas, Quality Gate superado |
+| **Snyk** | Dependencias del backend | 136 incidencias | 129, transitivas del framework |
+| **Snyk** | Dependencias del frontend | 29 incidencias | 22, ligadas a la versión de Angular |
+| **Trivy** | Dockerfiles | 1 HIGH y 2 LOW | 0 (usuario no root y `HEALTHCHECK`) |
+
+> [!IMPORTANT]
+> Lo que queda en Snyk son dependencias transitivas del framework y la migración mayor de Angular. Lo tengo documentado como deuda técnica y está en la [hoja de ruta](#estado-del-proyecto).
+
+### Pipeline CI/CD
+
+```mermaid
+flowchart LR
+    A["Push"] --> B["GitHub Actions"]
+    B --> C["SonarCloud<br/>análisis estático"]
+    B --> D["Instalación<br/>y build"]
+    D --> E["Imagen Docker<br/>multi-stage"]
+    C -.->|Quality Gate| E
+    E --> F["Docker Hub"]
+```
+
+Ahora mismo el pipeline cubre el frontend. El primer análisis en SonarCloud y el pipeline del backend están pendientes.
+
+<details>
+<summary><b>Prácticas de seguridad aplicadas</b></summary>
+
+<br>
+
+- **Secretos fuera del repositorio:** las credenciales van en un `.env` ignorado por git y el `docker-compose.yml` solo las referencia.
+- **Autenticación y autorización:** JWT con control de acceso por roles en el backend y guardas de ruta en el frontend.
+- **Contenedores:** imágenes multi-stage, usuario no root y `HEALTHCHECK`.
+- **Dependencias:** auditoría con Snyk y versiones de seguridad forzadas donde hace falta (`overrides`).
+- **Servidor:** script de bastionado del sistema Linux en [`seguridad/`](./seguridad).
+- **Accesibilidad:** contrastes revisados para cumplir los mínimos de WCAG.
+
+</details>
+
+---
+
+## Estado del proyecto
+
+| Bloque | Estado |
+| :--- | :--- |
+| Base legal y estructura del repositorio | Hecho |
+| Backend, base de datos y API REST | Hecho |
+| Rediseño de la interfaz (cliente, personal y administración) | Hecho |
+| Auditorías locales (Snyk, SonarQube, Trivy) | Hecho |
+| Pipeline CI/CD del frontend | Hecho |
+| Primer análisis en SonarCloud | En curso |
+| Despliegue en VPS con HTTPS | En curso |
+| Pipeline CI/CD del backend | Pendiente |
+| SOC automático (monitorización y alertas) | Pendiente |
+| Migración de Angular a una versión con soporte | Pendiente |
+| Más cobertura de tests | Pendiente |
+
+---
+
+## Estructura del repositorio
 
 ```text
-  [X] Fase 1: Base Legal, Estructura del Repositorio & Upgrade de Frameworks (Completada)
-     ↓
-  [X] Fase 2: Arquitectura de Backend, Base de Datos & Endpoints REST (Completada)
-     ↓
-  [X] Fase 3: Rediseño Gráfico (UI/UX), Vistas de Usuario y Trabajador (Completada)
-     ↓
-  [ ] Fase 4: Bastionado de Contenedores Docker & Spring Security
-     ↓
-  [ ] Fase 5: Servidor VPS Zero Trust, Pipeline CI/CD & SOC Automático (Infraestructura Completada)
+BarHub2.0/
+├── .github/workflows/   Pipeline CI/CD
+├── backend/             API REST (Spring Boot)
+├── frontend/            Aplicación web (Angular)
+├── infra/
+│   ├── caddy/           Caddyfile (proxy inverso y HTTPS)
+│   ├── docker/          docker-compose.yml
+│   └── mysql/           Configuración de la base de datos
+├── seguridad/           Script de bastionado del sistema Linux
+├── docs/                Documentación técnica y auditorías
+├── LICENSE.md
+├── NOTICE.md
+└── README.md
+```
+
+---
+
+## Documentación
+
+| Documento | Contenido |
+| :--- | :--- |
+| [`docs/`](./docs) | Arquitectura, endpoints, modelo entidad-relación, frontend y auditorías |
+| [`infra/`](./infra) | Despliegue con Docker Compose y configuración de Caddy |
+| [`LICENSE`](./LICENSE.md) | Términos de la licencia propietaria |
+| [`NOTICE`](./NOTICE.md) | Aviso legal y reserva de derechos |
+
+---
+
+<div align="center">
+
+**Juan Parejo García**
+Desarrollo web full-stack y ciberseguridad
+
+[![GitHub](https://img.shields.io/badge/GitHub-juanparejog-181717?style=flat-square&logo=github)](https://github.com/juanparejog)
+
+<sub>© Juan Parejo García. Todos los derechos reservados.</sub>
+
+</div>
