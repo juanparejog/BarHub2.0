@@ -65,19 +65,19 @@ public class SecurityConfig {
                         .requestMatchers("/socket.io", "/socket.io/**", "/socket.io/*").permitAll()
 
                         .requestMatchers("/api/auth/**", "/auth/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/productos/**", "/productos/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/mesas/**", "/mesas/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/productos/**", "/mesas/**").permitAll()
 
                         // --- PERMITIR CREACIÓN DE PEDIDOS (Tanto a usuarios logueados como anónimos) ---
-                        .requestMatchers(HttpMethod.POST, "/pedidos", "/pedidos/**", "/api/pedidos", "/api/pedidos/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/pedidos").permitAll()
 
                         // --- GESTIÓN DE PEDIDOS Y COMANDAS PARA EMPLEADOS / ADMINS ---
                         .requestMatchers(HttpMethod.GET, "/pedidos/mis-pedidos").hasAnyRole(ROL_CLIENTE, ROL_EMPLEADO, ROL_ADMIN)
-                        .requestMatchers(HttpMethod.GET, "/pedidos/**").hasAnyRole( ROL_EMPLEADO, ROL_ADMIN)
+                        .requestMatchers("/seguimientos/**").hasAnyRole(ROL_EMPLEADO, ROL_ADMIN)
+                        .requestMatchers("/pedidos/**", "/detalles_pedidos/**", "/caja/**").hasAnyRole(ROL_EMPLEADO, ROL_ADMIN)
 
-                        // --- GESTIÓN DE CAKA PARA EMPLEADOS / ADMINS ---
-                        .requestMatchers(HttpMethod.GET, "/caja/**").hasAnyRole( ROL_EMPLEADO, ROL_ADMIN)
-
+                        // --- ADMINS ---
+                        .requestMatchers("/productos/**", "/mesas/**").hasRole(ROL_ADMIN) 
+                        .requestMatchers("/usuarios/**", "/roles/**").hasRole(ROL_ADMIN)
 
                         .anyRequest().authenticated()
                 );

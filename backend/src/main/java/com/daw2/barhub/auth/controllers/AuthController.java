@@ -66,65 +66,31 @@ public class AuthController {
 
   @PostMapping("/signup")
   public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
-
+  
     if (userRepository.existsByUsername(signUpRequest.getUsername())) {
       return ResponseEntity
               .badRequest()
               .body(new MessageResponse("Error: ¡El nombre de usuario ya está en uso!"));
     }
-
+  
     if (userRepository.existsByEmail(signUpRequest.getEmail())) {
       return ResponseEntity
               .badRequest()
               .body(new MessageResponse("Error: ¡El email de usuario ya está en uso!"));
     }
-
-    // Crear nuevo usuario
+  
     User user = new User(
             signUpRequest.getUsername(),
             signUpRequest.getEmail(),
             encoder.encode(signUpRequest.getPassword())
     );
-
-    Set<String> strRoles = signUpRequest.getRole();
-    Set<Role> roles = new HashSet<>();
-
-    if (strRoles == null || strRoles.isEmpty()) {
-      Role userRole = roleRepository.findByName(RoleEnum.ROLE_CLIENTE)
-              .orElseThrow(() -> new RuntimeException("Error: Rol ROLE_CLIENTE no encontrado en la BD."));
-      roles.add(userRole);
-    } else {
-      strRoles.forEach(role -> {
-        switch (role.toUpperCase()) {
-          case "ADMIN":
-          case "ROLE_ADMIN":
-            Role adminRole = roleRepository.findByName(RoleEnum.ROLE_ADMIN)
-                    .orElseThrow(() -> new RuntimeException("Error: Rol ROLE_ADMIN no encontrado en la BD."));
-            roles.add(adminRole);
-            break;
-
-          case "EMPLE":
-          case "EMPLEADO":
-          case "ROLE_EMPLEADO":
-            Role modRole = roleRepository.findByName(RoleEnum.ROLE_EMPLEADO)
-                    .orElseThrow(() -> new RuntimeException("Error: Rol ROLE_EMPLEADO no encontrado en la BD."));
-            roles.add(modRole);
-            break;
-
-          case "CLIENTE":
-          case "ROLE_CLIENTE":
-          default:
-            Role userRole = roleRepository.findByName(RoleEnum.ROLE_CLIENTE)
-                    .orElseThrow(() -> new RuntimeException("Error: Rol ROLE_CLIENTE no encontrado en la BD."));
-            roles.add(userRole);
-            break;
-        }
-      });
-    }
-
-    user.setRoles(roles);
+  
+    // El registro público siempre crea clientes. Empleados y admins los crea un admin.
+    Role clienteRole = roleRepository.findByName(RoleEnum.ROLE_CLIENTE)
+            .orElseThrow(() -> new RuntimeException("Error: Rol ROLE_CLIENTE no encontrado en la BD."));
+    user.setRoles(new HashSet<>(List.of(clienteRole)));
     userRepository.save(user);
-
+  
     return ResponseEntity.ok(new MessageResponse("Usuario registrado correctamente."));
   }
 }
