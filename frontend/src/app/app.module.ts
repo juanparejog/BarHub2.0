@@ -22,13 +22,13 @@ import { HomeComponent } from './public/home/home.component';
 import { FooterComponent } from './shared/footer/footer.component';
 import { SocketIoModule, SocketIoConfig } from 'ngx-socket-io';
 import { PerfilComponent } from './public/perfil/perfil.component';
+import { environment } from '../environments/environment';
 
-const config: SocketIoConfig = { 
-  url: 'http://localhost:8080', 
-  options: {
-    transports: ['websocket']
-  } 
+const config: SocketIoConfig = {
+  url: environment.urlBackendSpring,
+  options: { transports: ['websocket'] }
 };
+
 @NgModule({
   declarations: [
     AppComponent,
