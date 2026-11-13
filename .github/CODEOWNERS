@@ -1,0 +1,5 @@
+# Los cambios en el pipeline, la infraestructura y el bastionado
+# requieren la revisión del propietario del repositorio.
+/.github/    @juanparejog
+/infra/      @juanparejog
+/seguridad/  @juanparejog
