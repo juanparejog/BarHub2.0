@@ -28,7 +28,7 @@
     "bootstrap-icons": "^1.11.3",
     "chart.js": "^4.5.1",
     "jquery": "^3.6.1",
-    "pdfmake": "^0.2.20",
+    "pdfmake": "^0.3.14",
     "rxjs": "~7.5.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.11.4"
