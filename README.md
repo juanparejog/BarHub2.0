@@ -27,6 +27,7 @@ Pedidos desde el móvil, comandas en tiempo real, control de caja y un ciclo de 
 [Arquitectura](#arquitectura) ·
 [Seguridad y calidad](#seguridad-y-calidad) ·
 [Estado](#estado-del-proyecto) ·
+[Arranque](#arranque-en-local) ·
 [Estructura](#estructura-del-repositorio) ·
 [Documentación](#documentación)
 
@@ -106,8 +107,8 @@ flowchart LR
 | **Backend** | Java 17, Spring Boot 3.4.3, Spring Security, JWT (jjwt 0.12.5), Gradle |
 | **Frontend** | Angular, TypeScript, Tailwind CSS, PrimeNG, Socket.IO |
 | **Base de datos** | MariaDB |
-| **Infraestructura** | Docker (multi-stage), Docker Compose, Caddy |
-| **Calidad y seguridad** | SonarQube / SonarCloud, Snyk, Trivy, GitHub Actions |
+| **Infraestructura** | Docker (multi-stage), Docker Compose, Caddy, DuckDNS, Uptime Kuma |
+| **Calidad y seguridad** | SonarQube / SonarCloud, Snyk, Trivy, GitHub Actions, Dependabot |
 
 ---
 
@@ -145,12 +146,14 @@ Ahora mismo el pipeline cubre el frontend. El primer análisis en SonarCloud y e
 
 <br>
 
-- **Secretos fuera del repositorio:** las credenciales van en un `.env` ignorado por git y el `docker-compose.yml` solo las referencia.
+- **Secretos fuera del repositorio:** las credenciales van en un `.env` ignorado por git, el `docker-compose.yml` solo las referencia y el repo incluye un [`.env.example`](./infra/docker/.env.example) sin valores reales.
 - **Autenticación y autorización:** JWT con control de acceso por roles en el backend y guardas de ruta en el frontend.
-- **Contenedores:** imágenes multi-stage, usuario no root y `HEALTHCHECK`.
-- **Dependencias:** auditoría con Snyk y versiones de seguridad forzadas donde hace falta (`overrides`).
+- **Contenedores:** imágenes multi-stage, usuario no root, `HEALTHCHECK` y `.dockerignore` para no meter secretos en las imágenes.
+- **Red:** solo Caddy publica puertos hacia fuera; base de datos, backend y frontend viven en una red interna de Docker.
+- **Dependencias:** auditoría con Snyk, versiones de seguridad forzadas donde hace falta (`overrides`) y Dependabot para las actualizaciones.
 - **Servidor:** script de bastionado del sistema Linux en [`seguridad/`](./seguridad).
 - **Accesibilidad:** contrastes revisados para cumplir los mínimos de WCAG.
+- **Divulgación responsable:** política de reporte de vulnerabilidades en [`SECURITY.md`](./SECURITY.md).
 
 </details>
 
@@ -167,6 +170,7 @@ Ahora mismo el pipeline cubre el frontend. El primer análisis en SonarCloud y e
 | Pipeline CI/CD del frontend | Hecho |
 | Primer análisis en SonarCloud | En curso |
 | Despliegue en VPS con HTTPS | En curso |
+| Dependabot y escaneo de secretos en GitHub | En curso |
 | Pipeline CI/CD del backend | Pendiente |
 | SOC automático (monitorización y alertas) | Pendiente |
 | Migración de Angular a una versión con soporte | Pendiente |
@@ -174,21 +178,41 @@ Ahora mismo el pipeline cubre el frontend. El primer análisis en SonarCloud y e
 
 ---
 
+## Arranque en local
+
+Requisitos: Docker y Docker Compose.
+
+```bash
+git clone https://github.com/juanparejog/BarHub2.0.git
+cd BarHub2.0/infra/docker
+cp .env.example .env
+docker compose up -d --build
+```
+
+Los secretos nunca se versionan: el `docker-compose.yml` los lee del `.env`. Todas las variables necesarias están descritas en [`.env.example`](./infra/docker/.env.example) y el despliegue se explica con más detalle en [`infra/README.md`](./infra/README.md).
+
+---
+
 ## Estructura del repositorio
 
 ```text
 BarHub2.0/
-├── .github/workflows/   Pipeline CI/CD
+├── .github/
+│   ├── workflows/       Pipeline CI/CD
+│   ├── dependabot.yml   Actualización automática de dependencias
+│   └── CODEOWNERS       Revisión de pipeline, infra y bastionado
 ├── backend/             API REST (Spring Boot)
 ├── frontend/            Aplicación web (Angular)
 ├── infra/
 │   ├── caddy/           Caddyfile (proxy inverso y HTTPS)
-│   ├── docker/          docker-compose.yml
+│   ├── docker/          docker-compose.yml y .env.example
 │   └── mysql/           Configuración de la base de datos
 ├── seguridad/           Script de bastionado del sistema Linux
 ├── docs/                Documentación técnica y auditorías
+├── CHANGELOG.md
 ├── LICENSE.md
 ├── NOTICE.md
+├── SECURITY.md
 └── README.md
 ```
 
@@ -200,6 +224,9 @@ BarHub2.0/
 | :--- | :--- |
 | [`docs/`](./docs) | Arquitectura, endpoints, modelo entidad-relación, frontend y auditorías |
 | [`infra/`](./infra) | Despliegue con Docker Compose y configuración de Caddy |
+| [`.env.example`](./infra/docker/.env.example) | Variables de entorno necesarias, sin secretos |
+| [`SECURITY.md`](./SECURITY.md) | Cómo reportar una vulnerabilidad |
+| [`CHANGELOG.md`](./CHANGELOG.md) | Historial de cambios por versión |
 | [`LICENSE`](./LICENSE.md) | Términos de la licencia propietaria |
 | [`NOTICE`](./NOTICE.md) | Aviso legal y reserva de derechos |
 
