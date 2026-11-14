@@ -1,5 +1,8 @@
 package com.daw2.barhub.service.impl;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import com.daw2.barhub.model.dto.DetallePedidoDto;
 import com.daw2.barhub.auth.models.User;
 import com.daw2.barhub.auth.repository.UserRepository;
 import com.daw2.barhub.model.enums.EstadoPago;
@@ -115,19 +118,19 @@ public class PedidoServiceImpl implements PedidoService {
         }
 
         pedido.setFecha(LocalDateTime.now());
-        pedido.setEstado(pedidoDto.getEstado() != null ? pedidoDto.getEstado() : EstadoPedido.PENDIENTE);
-        pedido.setPrecioTotal(pedidoDto.getPrecioTotal());
+        // El estado nunca lo decide el cliente
+        pedido.setEstado(EstadoPedido.PENDIENTE);
         pedido.setMetodoPago(pedidoDto.getMetodoPago());
 
+        // PASO 2 PENDIENTE: la tarjeta solo debe pasar a COMPLETADO tras verificar
+        // el pago con Stripe en el servidor (importe y estado del PaymentIntent)
         if (pedidoDto.getMetodoPago() != null && pedidoDto.getMetodoPago().equalsIgnoreCase("tarjeta")) {
             pedido.setEstadoPago(EstadoPago.COMPLETADO);
-        } else if (pedidoDto.getEstadoPago() != null) {
-            pedido.setEstadoPago(pedidoDto.getEstadoPago());
         } else {
             pedido.setEstadoPago(EstadoPago.PENDIENTE);
         }
 
-        // --- GESTIÓN CORRECTA DE LOS TRES TIPOS DE PEDIDO ---
+        // --- GESTION DE LOS TRES TIPOS DE PEDIDO ---
         TipoPedido tipo = pedidoDto.getTipoPedido();
 
         if (tipo == TipoPedido.DOMICILIO) {
@@ -146,7 +149,6 @@ public class PedidoServiceImpl implements PedidoService {
             pedido.setTipoPedido(TipoPedido.MESA);
             pedido.setDireccionEnvio(null);
 
-            // Obtener idMesa soporta tanto getMesaId() como getIdMesa()
             Long mesaId = (pedidoDto.getMesaId() != null) ? pedidoDto.getMesaId() : pedidoDto.getIdMesa();
 
             if (mesaId != null) {
@@ -160,28 +162,39 @@ public class PedidoServiceImpl implements PedidoService {
             }
 
         } else {
-            throw new IllegalArgumentException("Debes seleccionar un tipo de pedido válido (MESA, DOMICILIO o RECOGER).");
+            throw new IllegalArgumentException("Debes seleccionar un tipo de pedido valido (MESA, DOMICILIO o RECOGER).");
         }
 
-        if (pedidoDto.getDetalles() != null && !pedidoDto.getDetalles().isEmpty()) {
-            pedidoDto.getDetalles().forEach(detalleDto -> {
-                DetallePedido detalle = new DetallePedido();
-                detalle.setCantidad(detalleDto.getCantidad());
-                detalle.setPrecioUnitario(detalleDto.getPrecioUnitario());
-                detalle.setPedido(pedido);
-
-                Long prodId = (detalleDto.getProductoId() != null) ? detalleDto.getProductoId() : detalleDto.getIdProducto();
-
-                if (prodId != null) {
-                    Producto producto = productoRepository.findById(prodId).orElse(null);
-                    if (producto == null) {
-                        throw new jakarta.persistence.EntityNotFoundException("Producto no encontrado id: " + prodId);
-                    }
-                    detalle.setProducto(producto);
-                }
-                pedido.getDetalles().add(detalle);
-            });
+        // --- LINEAS: el precio sale SIEMPRE de la base de datos ---
+        if (pedidoDto.getDetalles() == null || pedidoDto.getDetalles().isEmpty()) {
+            throw new IllegalArgumentException("El pedido debe incluir al menos un producto.");
         }
+
+        BigDecimal total = BigDecimal.ZERO;
+        for (DetallePedidoDto detalleDto : pedidoDto.getDetalles()) {
+            Long prodId = detalleDto.getIdProducto();
+            Integer cantidad = detalleDto.getCantidad();
+
+            if (prodId == null || cantidad == null || cantidad < 1 || cantidad > 50) {
+                throw new IllegalArgumentException("Linea de pedido no valida.");
+            }
+
+            Producto producto = productoRepository.findById(prodId)
+                    .orElseThrow(() -> new IllegalArgumentException("Producto no valido."));
+
+            BigDecimal precio = new BigDecimal(String.valueOf(producto.getPrecio()))
+                    .setScale(2, RoundingMode.HALF_UP);
+
+            DetallePedido detalle = new DetallePedido();
+            detalle.setPedido(pedido);
+            detalle.setProducto(producto);
+            detalle.setCantidad(cantidad);
+            detalle.setPrecioUnitario(precio);
+            pedido.getDetalles().add(detalle);
+
+            total = total.add(precio.multiply(BigDecimal.valueOf(cantidad)));
+        }
+        pedido.setPrecioTotal(total.setScale(2, RoundingMode.HALF_UP));
 
         return pedidoRepository.save(pedido);
     }

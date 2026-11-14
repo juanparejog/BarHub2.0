@@ -1,6 +1,7 @@
 services:
   mysql:
     image: mariadb:13.0
+    container_name: barhub-mysql
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?Falta_MYSQL_ROOT_PASSWORD}
