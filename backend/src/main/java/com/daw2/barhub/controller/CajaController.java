@@ -15,7 +15,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/caja")
-@CrossOrigin(origins = "http://localhost:4200")
 @RequiredArgsConstructor
 public class CajaController {
 

@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@CrossOrigin("*")
 @Slf4j
 @RestController
 @RequestMapping("/detalles_pedidos")
@@ -36,7 +35,8 @@ public class DetallePedidoController {
             detallePedidoService.save(detallePedido);
             return ResponseEntity.ok(DetallePedidoDto.from(detallePedido));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ErrorDto.from("El detalle del pedido no ha sido guardado " + e.getMessage()));
+            log.error("Error al procesar la peticion", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ErrorDto.from("El detalle del pedido no ha sido guardado."));
         }
     }
 
@@ -45,7 +45,8 @@ public class DetallePedidoController {
         try {
             return ResponseEntity.ok(DetallePedidoDto.from(detallePedidoService.findById(id)));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ErrorDto.from("El detalle del pedido no ha sido encontrado " + e.getMessage()));
+            log.error("Error al procesar la peticion", e);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ErrorDto.from("El detalle del pedido no ha sido encontrado."));
         }
     }
 
@@ -59,7 +60,8 @@ public class DetallePedidoController {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ErrorDto.from("El detalle del pedido no ha sido encontrado."));
             }
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error: " + e.getMessage());
+            log.error("Error al procesar la peticion", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ErrorDto.from("Error al procesar la solicitud"));
         }
     }
 
@@ -69,7 +71,8 @@ public class DetallePedidoController {
             detallePedidoService.delete(id);
             return ResponseEntity.status(HttpStatus.OK).body("El detalle del pedido con id " + id + " ha sido eliminado");
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ErrorDto.from("El detalle del pedido no ha sido encontrado " + e.getMessage()));
+            log.error("Error al procesar la peticion", e);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ErrorDto.from("El detalle del pedido no ha sido encontrado."));
         }
     }
 

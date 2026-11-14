@@ -71,12 +71,17 @@ public class ProductoController {
 
     @GetMapping("/{id}")
     public ResponseEntity<?> show(@PathVariable Long id) {
+        Producto producto = null;
         try {
-            return ResponseEntity.status(HttpStatus.OK).body(productoService.findById(id));
+            producto = productoService.findById(id);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            log.warn("Producto {} no encontrado", id);
+        }
+        if (producto == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(ErrorDto.from("Producto no encontrado"));
         }
+        return ResponseEntity.ok(producto);
     }
 
     @PreAuthorize("hasRole('ADMIN')")

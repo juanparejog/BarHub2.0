@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@CrossOrigin(origins = "http://localhost:4200")
 @Slf4j
 @RestController
 @RequestMapping("/mesas")
@@ -32,17 +31,23 @@ public class MesaController {
             mesaService.save(mesa);
             return ResponseEntity.status(HttpStatus.OK).body(MesaDto.from(mesa));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ErrorDto.from("Mesa no guardada: " + e.getMessage()));
+            log.error("Error al procesar la peticion", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ErrorDto.from("Mesa no guardada."));
         }
     }
 
     @GetMapping("{id}")
     public ResponseEntity<?> show(@PathVariable Long id) {
+        Mesa mesa = null;
         try {
-            return ResponseEntity.status(HttpStatus.OK).body(mesaService.findById(id));
+            mesa = mesaService.findById(id);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ErrorDto.from("Mesa no encontrada: " + e.getMessage()));
+            log.warn("Mesa {} no encontrada", id);
         }
+        if (mesa == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ErrorDto.from("Mesa no encontrada."));
+        }
+        return ResponseEntity.ok(mesa);
     }
 
     @PutMapping("{id}")
@@ -51,7 +56,8 @@ public class MesaController {
             Mesa mesaActualizada =  mesaService.update(id, mesa);
             return ResponseEntity.status(HttpStatus.OK).body(MesaDto.from(mesaActualizada));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ErrorDto.from("Mesa no encontrada: " + e.getMessage()));
+            log.error("Error al procesar la peticion", e);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ErrorDto.from("Mesa no encontrada."));
         }
     }
 

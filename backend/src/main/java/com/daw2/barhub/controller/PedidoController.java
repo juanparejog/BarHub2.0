@@ -16,7 +16,6 @@ import java.util.List;
 @Slf4j
 @RestController
 @RequestMapping("/pedidos")
-@CrossOrigin(origins = "http://localhost:4200")
 public class PedidoController {
 
     private final PedidoService pedidoService;
@@ -45,7 +44,7 @@ public class PedidoController {
         } catch (Exception e) {
             log.error("Error al obtener los pedidos del usuario", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(ErrorDto.from("No se pudieron cargar tus pedidos: " + e.getMessage()));
+                    .body(ErrorDto.from("No se pudieron cargar tus pedidos."));
         }
     }
 
@@ -67,33 +66,31 @@ public class PedidoController {
             // 1. Si es pedido en MESA (Local), obligatoriamente debe incluir idMesa
             if ("MESA".equals(tipoPedidoStr) || "LOCAL".equals(tipoPedidoStr)) {
                 if (pedidoDto.getIdMesa() == null) {
-                    log.warn("Petición inválida: Para pedidos en local/mesa es obligatorio seleccionar una mesa.");
+                    log.warn("Peticion invalida: Para pedidos en local/mesa es obligatorio seleccionar una mesa.");
                     return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                             .body(ErrorDto.from("Para pedidos en local es obligatorio seleccionar una mesa."));
                 }
             }
-            // 2. Si es a DOMICILIO, validar dirección de envío
+            // 2. Si es a DOMICILIO, validar direccion de envio
             else if ("DOMICILIO".equals(tipoPedidoStr)) {
                 if (pedidoDto.getDireccionEnvio() == null || pedidoDto.getDireccionEnvio().trim().isEmpty()) {
                     return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                            .body(ErrorDto.from("Para pedidos a domicilio la dirección de envío es obligatoria."));
+                            .body(ErrorDto.from("Para pedidos a domicilio la direccion de envio es obligatoria."));
                 }
             }
-            // 3. Si es RECOGER, la mesa debe ser nula o ignorada
-            else if ("RECOGER".equals(tipoPedidoStr)) {
-                // No requiere mesa ni dirección de envío
-            }
+            // 3. Si es RECOGER, no requiere mesa ni direccion de envio
 
             Pedido pedidoCreado = pedidoService.crearPedidoSeguro(pedidoDto, username);
             return ResponseEntity.status(HttpStatus.CREATED).body(PedidoDto.from(pedidoCreado));
 
         } catch (IllegalArgumentException e) {
-            log.warn("Petición inválida al crear pedido: {}", e.getMessage());
+            // Mensajes escritos a proposito en el servicio para el cliente
+            log.warn("Peticion invalida al crear pedido: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ErrorDto.from(e.getMessage()));
         } catch (Exception e) {
             log.error("Error al procesar el pedido", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(ErrorDto.from("Error interno al procesar el pedido: " + e.getMessage()));
+                    .body(ErrorDto.from("Error interno al procesar el pedido."));
         }
     }
 
@@ -106,8 +103,9 @@ public class PedidoController {
             }
             return ResponseEntity.ok(PedidoDto.from(pedido));
         } catch (Exception e) {
+            log.error("Error al buscar el pedido id: {}", id, e);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(ErrorDto.from("Error al buscar el pedido: " + e.getMessage()));
+                    .body(ErrorDto.from("No se pudo obtener el pedido."));
         }
     }
 
@@ -121,9 +119,9 @@ public class PedidoController {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ErrorDto.from("Pedido no encontrado."));
             }
         } catch (Exception e) {
-            log.error("Error al actualizar el pedido id: " + id, e);
+            log.error("Error al actualizar el pedido id: {}", id, e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(ErrorDto.from("Error al actualizar: " + e.getMessage()));
+                    .body(ErrorDto.from("No se pudo actualizar el pedido."));
         }
     }
 
@@ -131,11 +129,11 @@ public class PedidoController {
     public ResponseEntity<?> delete(@PathVariable Long id) {
         try {
             pedidoService.delete(id);
-            return ResponseEntity.ok().body("El pedido con ID " + id + " ha sido eliminado con éxito.");
+            return ResponseEntity.ok().body("El pedido con ID " + id + " ha sido eliminado con exito.");
         } catch (Exception e) {
-            log.error("Error al eliminar pedido ID: " + id, e);
+            log.error("Error al eliminar pedido ID: {}", id, e);
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(ErrorDto.from("No se pudo eliminar el pedido: " + e.getMessage()));
+                    .body(ErrorDto.from("No se pudo eliminar el pedido."));
         }
     }
 }

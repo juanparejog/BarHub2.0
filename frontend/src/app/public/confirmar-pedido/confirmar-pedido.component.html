@@ -141,6 +141,10 @@
 
           <!-- Contenedor Stripe Card Element -->
           <div *ngIf="metodoPago === 'tarjeta'" class="stripe-container">
+            <div class="alert alert-warning py-2 small mb-2" role="note">
+              <i class="bi bi-info-circle me-1"></i>
+              Modo de pruebas: no se realiza ningun cargo. No introduzcas los datos de una tarjeta real.
+            </div>
             <div id="card-element"></div>
             <div class="card-errors" role="alert" *ngIf="cardErrors">{{ cardErrors }}</div>
           </div>

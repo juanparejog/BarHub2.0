@@ -122,8 +122,9 @@ public class PedidoServiceImpl implements PedidoService {
         pedido.setEstado(EstadoPedido.PENDIENTE);
         pedido.setMetodoPago(pedidoDto.getMetodoPago());
 
-        // PASO 2 PENDIENTE: la tarjeta solo debe pasar a COMPLETADO tras verificar
-        // el pago con Stripe en el servidor (importe y estado del PaymentIntent)
+        // NOTA: el pago con tarjeta es SIMULADO (modo demo): Stripe todavia no cobra.
+        // Antes de usarlo con dinero real hay que verificar en el servidor el
+        // PaymentIntent (estado succeeded e importe igual al total calculado aqui).
         if (pedidoDto.getMetodoPago() != null && pedidoDto.getMetodoPago().equalsIgnoreCase("tarjeta")) {
             pedido.setEstadoPago(EstadoPago.COMPLETADO);
         } else {
