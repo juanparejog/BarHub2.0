@@ -6,7 +6,7 @@
 
 <p align="center">
   Plataforma digital para la gestión integral de bares y restaurantes:<br>
-  carta digital, pedidos en mesa / a recoger / a domicilio, comandas en tiempo real y control de caja.
+  carta digital, pedidos en mesa / a recoger / a domicilio, comandas con actualización automática y control de caja.
 </p>
 
 ---
@@ -18,10 +18,10 @@
 | [producto/cliente.md](producto/cliente.md) | Clientes y evaluadores | Escanear QR, hacer pedido, seguimiento y perfil |
 | [producto/empleado.md](producto/empleado.md) | Personal de sala y cocina | Comandas, mesas, pagos en efectivo y caja |
 | [producto/admin.md](producto/admin.md) | Gerencia | Productos, usuarios y métricas |
-| [backend.md](backend.md) | Desarrollo | Arquitectura, endpoints, roles y tiempo real |
+| [backend.md](backend.md) | Desarrollo | Arquitectura, endpoints, roles y actualización de datos |
 | [frontend.md](frontend.md) | Desarrollo | Módulos, rutas, guardas y estilos |
 | [base-de-datos.md](base-de-datos.md) | Desarrollo / BBDD | Modelo ER, tablas y relaciones |
-| [seguridad.md](seguridad.md) | Seguridad | Prácticas aplicadas y modelo de amenazas |
+| [seguridad.md](seguridad.md) | Seguridad | Prácticas aplicadas, modelo de amenazas y pruebas dinámicas |
 | [auditorias.md](auditorias.md) | Calidad / seguridad | Snyk, SonarQube y Trivy con capturas |
 | [infraestructura.md](infraestructura.md) | DevOps | Docker, Caddy, CI/CD, despliegue y SOC |
 
@@ -30,9 +30,9 @@
 ```mermaid
 flowchart LR
     subgraph Usuarios
-        C[ Cliente]
-        E[ Empleado]
-        A[ Admin]
+        C[Cliente]
+        E[Empleado]
+        A[Admin]
     end
 
     subgraph Frontend
@@ -41,38 +41,35 @@ flowchart LR
 
     subgraph Backend
         API[Spring Boot 3.4.3<br/>API REST + JWT]
-        WS{{Tiempo real<br/>Socket.IO}}
     end
 
     DB[(MariaDB)]
 
     C & E & A --> F
-    F -- HTTP/REST --> API
-    F <-. eventos .-> WS
+    F -- "HTTP/REST (sondeo cada 5 s)" --> API
     API --> DB
-    API --> WS
 ```
 
 ## Roles y qué puede hacer cada uno
 
 | Capacidad | Cliente | Empleado | Admin |
 | :--- | :---: | :---: | :---: |
-| Ver carta y hacer pedidos | ✅ | ✅ | ✅ |
-| Seguimiento de sus pedidos | ✅ | — | — |
-| Gestionar comandas y mesas | — | ✅ | ✅ |
-| Registrar pagos en efectivo | — | ✅ | ✅ |
-| Abrir y cerrar caja | — | ✅ | ✅ |
-| CRUD de productos, usuarios, pedidos y mesas | — | — | ✅ |
-| Métricas del negocio | — | — | ✅ |
+| Ver carta y hacer pedidos | Sí | Sí | Sí |
+| Seguimiento de sus pedidos | Sí | — | — |
+| Gestionar comandas y mesas | — | Sí | Sí |
+| Registrar pagos en efectivo | — | Sí | Sí |
+| Abrir y cerrar caja | — | Sí | Sí |
+| CRUD de productos, usuarios, pedidos y mesas | — | — | Sí |
+| Métricas del negocio | — | — | Sí |
 
 ## Stack en una línea
 
 | Capa | Tecnología |
 | :--- | :--- |
-| Frontend | Angular 14 · `ngx-socket-io` · Karma/Jasmine |
+| Frontend | Angular 14 · Karma/Jasmine |
 | Backend | Java · Spring Boot 3.4.3 · Gradle · JWT (`jjwt 0.12.5`) |
 | Base de datos | MariaDB |
-| Tiempo real | Socket.IO |
+| Actualización de datos | Sondeo REST cada 5 s |
 | Contenedores | Docker multi-etapa (Node.js + Caddy) |
 | CI/CD | GitHub Actions · SonarCloud · Docker Hub |
 | Auditoría | Snyk · SonarQube · Trivy |
@@ -89,5 +86,6 @@ docs/
 ├── seguridad.md
 ├── auditorias.md
 ├── infraestructura.md
+├── evidencias/        resultados de las pruebas de seguridad dinámicas
 └── img/               logo, modelo ER y capturas de auditoría
 ```

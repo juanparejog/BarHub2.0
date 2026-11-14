@@ -26,6 +26,8 @@ El menú **Admin** aparece en la barra de navegación únicamente para los usuar
 | **Panel de Gestión** | Consulta y mantenimiento de los datos de la base de datos mediante tablas |
 | **Métricas** | Estadísticas de negocio por periodo |
 
+> En una instalación nueva con datos de demostración (`APP_SEED_DEMO=true`), el usuario `admin` se crea con la contraseña definida en `APP_SEED_ADMIN_PASSWORD`. Esa contraseña no está en el repositorio.
+
 ## 2. Panel de gestión
 
 El **Panel de Administración** es el punto de entrada a la gestión de datos. Muestra cuatro indicadores y cinco accesos a las tablas de gestión.
@@ -92,7 +94,7 @@ Se pulsa **Nuevo** y se completa el formulario **Gestión de Producto**:
 | Descripción | Texto descriptivo |
 | Precio | Importe unitario |
 | Tipo | Categoría: bebida, entrante, tapa o postre |
-| Imagen | Archivo JPG o PNG, arrastrándolo al recuadro o seleccionándolo manualmente |
+| Imagen | Archivo JPG, PNG o WebP de hasta 5 MB, arrastrándolo al recuadro o seleccionándolo manualmente. El servidor comprueba que realmente es una imagen |
 
 <p align="center">
   <img src="../img/productos/admin4.png" alt="Formulario de alta de producto" width="620">
@@ -134,7 +136,7 @@ Las tablas de **pedidos**, **usuarios**, **mesas** y **detalles de pedido** sigu
 
 ## 5. Métricas
 
-El panel **Métricas y Analítica** presenta el rendimiento del negocio en tiempo real. La información se filtra por periodo y se organiza en cuatro pestañas.
+El panel **Métricas y Analítica** presenta el rendimiento del negocio. La información se filtra por periodo y se organiza en cuatro pestañas.
 
 ### 5.1. Periodo de análisis
 

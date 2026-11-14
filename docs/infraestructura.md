@@ -36,7 +36,7 @@ flowchart LR
         UK["barhub-uptime-kuma<br/>monitorización :3001"]
 
         CADDY --> FE
-        CADDY -- "/api · /socket.io" --> BE
+        CADDY -- "/api" --> BE
         BE --> DB
     end
 
@@ -48,9 +48,9 @@ flowchart LR
 | :--- | :--- | :---: |
 | `barhub-caddy` | Proxy inverso, HTTPS automático y servidor de entrada | 80 / 443 |
 | `barhub-frontend` | Aplicación Angular | Vía Caddy |
-| `barhub-backend` | API REST (Spring Boot) y tiempo real | Vía Caddy |
+| `barhub-backend` | API REST (Spring Boot) | Vía Caddy |
 | `barhub-mysql` | Base de datos MariaDB | Solo red interna |
-| `barhub-duckdns` | Mantiene actualizado el registro DNS dinámico | No |
+| `barhub-duckdns` | Mantiene actualizado el registro DNS dinámico (solo con el perfil `prod`) | No |
 | `barhub-uptime-kuma` | Panel de monitorización de disponibilidad | 3001 |
 
 Puertos abiertos en el cortafuegos tras el bastionado: **`22022`** (SSH), **`80`**, **`443`** y **`3001`** (Uptime Kuma). Restringir el acceso al puerto 3001 figura entre las [mejoras recomendadas](#13-mejoras-recomendadas).
@@ -61,7 +61,7 @@ Puertos abiertos en el cortafuegos tras el bastionado: **`22022`** (SSH), **`80`
 BarHub2.0/
 ├── infra/
 │   ├── docker/
-│   │   ├── docker-compose.yml   Orquestación de los 6 servicios
+│   │   ├── docker-compose.yml   Orquestación (6 servicios; 5 sin el perfil `prod`)
 │   │   ├── .env.example         Plantilla de variables (sin secretos)
 │   │   └── .env                 Credenciales reales (NO se versiona)
 │   ├── caddy/
@@ -179,13 +179,20 @@ DB_USERNAME=barhub_user
 DB_PASSWORD=contrasena_usuario_segura
 MYSQL_ROOT_PASSWORD=contrasena_root_muy_segura
 
-# DuckDNS
+# Backend
+JWT_SECRET=secreto-aleatorio-de-al-menos-32-bytes
+
+# Opcional: pago con tarjeta real (sin ella funciona el modo demostración)
+STRIPE_SECRET_KEY=
+
+# Solo producción (perfil prod)
 DUCKDNS_DOMAINS=barhub2
 DUCKDNS_TOKEN=tu-token-de-duckdns-aqui
 
-# Backend
-STRIPE_SECRET_KEY=tu-clave-secreta-de-stripe
-JWT_SECRET=secreto-aleatorio-de-al-menos-32-bytes
+# Opcional: datos de demostración y administrador inicial
+APP_SEED_DEMO=false
+APP_SEED_ADMIN_USERNAME=admin
+APP_SEED_ADMIN_PASSWORD=
 ```
 
 | Variable | Descripción |
@@ -193,10 +200,12 @@ JWT_SECRET=secreto-aleatorio-de-al-menos-32-bytes
 | `DB_DATABASE` | Nombre de la base de datos |
 | `DB_USERNAME` / `DB_PASSWORD` | Usuario y contraseña que usa el backend |
 | `MYSQL_ROOT_PASSWORD` | Contraseña del usuario `root` de la base de datos |
-| `DUCKDNS_DOMAINS` | Subdominio registrado (sin `.duckdns.org`) |
-| `DUCKDNS_TOKEN` | Token de tu cuenta de DuckDNS |
-| `STRIPE_SECRET_KEY` | Clave secreta de Stripe (la de pruebas durante el desarrollo) |
+| `DUCKDNS_DOMAINS` | Solo producción. Subdominio registrado (sin `.duckdns.org`) |
+| `DUCKDNS_TOKEN` | Solo producción. Token de tu cuenta de DuckDNS |
+| `STRIPE_SECRET_KEY` | Opcional. Clave secreta de Stripe; sin ella, el pago con tarjeta funciona en modo demostración |
 | `JWT_SECRET` | Secreto de firma de los tokens JWT |
+| `APP_SEED_DEMO` | `true` carga 19 productos y 10 mesas de ejemplo si la base de datos está vacía |
+| `APP_SEED_ADMIN_USERNAME` / `APP_SEED_ADMIN_PASSWORD` | Administrador inicial (solo con `APP_SEED_DEMO=true` y si no existe ninguno). La contraseña debe tener al menos 8 caracteres |
 
 > `.env` **nunca** se sube a Git: está en `.gitignore`. Usa contraseñas largas y únicas, genera los secretos con `openssl rand -base64 32` y trata el token de DuckDNS y la clave de Stripe como credenciales.
 
@@ -212,9 +221,18 @@ JWT_SECRET=secreto-aleatorio-de-al-menos-32-bytes
 
 **1. Levantar la infraestructura**
 
+En local (sin DuckDNS, la aplicación responde en `http://localhost`):
+
 ```bash
 cd infra/docker
 docker compose up -d --build
+```
+
+En producción (incluye DuckDNS y HTTPS para el dominio):
+
+```bash
+cd infra/docker
+docker compose --profile prod up -d --build
 ```
 
 **2. Auditar el estado**
@@ -223,15 +241,19 @@ docker compose up -d --build
 docker compose ps
 ```
 
-Deben aparecer en ejecución los seis servicios: `barhub-mysql`, `barhub-backend`, `barhub-frontend`, `barhub-caddy`, `barhub-duckdns` y `barhub-uptime-kuma`.
+Deben aparecer en ejecución `barhub-mysql`, `barhub-backend`, `barhub-frontend`, `barhub-caddy` y `barhub-uptime-kuma` (cinco en local) y, con el perfil `prod`, también `barhub-duckdns` (seis).
 
-**3. Verificar los certificados TLS**
+**3. Verificar los certificados TLS (solo producción)**
 
 ```bash
 docker logs -f barhub-caddy
 ```
 
 Debe verse la emisión automática del certificado para el dominio.
+
+**Modo demostración (opcional)**
+
+Con `APP_SEED_DEMO=true` y una `APP_SEED_ADMIN_PASSWORD` en el `.env`, el primer arranque con la base de datos vacía carga el catálogo de ejemplo y crea el usuario administrador. En arranques posteriores no duplica nada. Es lo que usa un revisor para ver la aplicación con datos sin preparar nada más.
 
 **Operaciones habituales**
 
@@ -253,99 +275,65 @@ Debe verse la emisión automática del certificado para el dominio.
 | Backend | Multi-etapa con Gradle |
 | Bastionado de ambas | Usuario **no root** (DS-0002) y `HEALTHCHECK` (DS-0026). Trivy: **0 incidencias** ([auditorias.md](auditorias.md#3-trivy)) |
 
-### 8.2. Docker Compose (estado actual, simplificado)
+### 8.2. Docker Compose (extracto)
 
-Todos los servicios están en la red interna `barhub-net`. Solo Caddy y Uptime Kuma publican puertos.
+Todos los servicios están en la red interna `barhub-net`. Solo Caddy y Uptime Kuma publican puertos. Las versiones de las imágenes están fijadas. El fichero completo está en [`infra/docker/docker-compose.yml`](../infra/docker/docker-compose.yml); este extracto es orientativo.
 
 ```yaml
 services:
   mysql:
-    image: mariadb:latest
+    image: mariadb:13.0
     container_name: barhub-mysql
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      MYSQL_DATABASE: ${DB_DATABASE}
-      MYSQL_USER: ${DB_USERNAME}
-      MYSQL_PASSWORD: ${DB_PASSWORD}
-    volumes:
-      - mysql_data:/var/lib/mysql
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?}
+      MYSQL_DATABASE: ${DB_DATABASE:?}
+      MYSQL_USER: ${DB_USERNAME:?}
+      MYSQL_PASSWORD: ${DB_PASSWORD:?}
 
   backend:
     build: ../../backend
     container_name: barhub-backend
-    environment:
-      - SPRING_DATASOURCE_URL=jdbc:mysql://barhub-mysql:3306/${DB_DATABASE}?useSSL=false&serverTimezone=UTC
-      - SPRING_DATASOURCE_USERNAME=${DB_USERNAME}
-      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
+    # Además de la conexión a la base de datos recibe JWT_SECRET,
+    # STRIPE_SECRET_KEY (opcional) y las variables APP_SEED_*.
 
   frontend:
     build: ../../frontend
     container_name: barhub-frontend
 
   caddy:
-    image: caddy:2-alpine
+    image: caddy:2.11-alpine
     container_name: barhub-caddy
     ports:
       - "80:80"
       - "443:443"
-    volumes:
-      - ../caddy/Caddyfile:/etc/caddy/Caddyfile
-      - caddy_data:/data
-      - caddy_config:/config
 
   duckdns:
-    image: lscr.io/linuxserver/duckdns:latest
+    image: lscr.io/linuxserver/duckdns:8aabc87c-ls95
     container_name: barhub-duckdns
-    environment:
-      - SUBDOMAINS=${DUCKDNS_DOMAINS}
-      - TOKEN=${DUCKDNS_TOKEN}
-      - UPDATE_IP=ipv4
+    profiles: ["prod"]
 
   uptime-kuma:
-    image: louislam/uptime-kuma:latest
+    image: louislam/uptime-kuma:1.23.17
     container_name: barhub-uptime-kuma
     ports:
       - "3001:3001"
-    volumes:
-      - uptime_data:/app/data
-      - /var/run/docker.sock:/var/run/docker.sock
-
-networks:
-  barhub-net:
-    driver: bridge
-
-volumes:
-  mysql_data:
-  caddy_data:
-  caddy_config:
-  uptime_data:
 ```
 
-> Los puntos que se endurecerán de este fichero (versiones fijas de las imágenes, Uptime Kuma y `docker.sock`, variables del backend) están en la [sección 13](#13-mejoras-recomendadas).
+> Los puntos que aún se endurecerán (Uptime Kuma y `docker.sock`, `healthcheck` de MariaDB, `no-new-privileges`) están en la [sección 13](#13-mejoras-recomendadas).
 
 ### 8.3. Caddy
 
-Caddy es el único punto de entrada web: sirve la SPA, reenvía API y sockets al backend y gestiona **HTTPS automático** (emisión y renovación de certificados).
+Caddy es el único punto de entrada web: reenvía la API al backend, entrega la SPA a través del contenedor del frontend y gestiona el **HTTPS automático** (emisión y renovación de certificados) del dominio de producción. En local la aplicación responde en `http://localhost`, sin certificado.
 
-```caddyfile
-barhub2.duckdns.org {
-    encode gzip
+El fichero real es [`infra/caddy/Caddyfile`](../infra/caddy/Caddyfile) y es la referencia; no se copia aquí para que no quede desactualizado. Resumen de las rutas:
 
-    handle /api/* {
-        reverse_proxy backend:8080
-    }
+| Ruta | Destino |
+| :--- | :--- |
+| `/api/*` | `backend:8080`, quitando el prefijo `/api` antes de reenviar |
+| Imágenes subidas | Ruta propia definida en el mismo fichero |
+| Resto | `frontend:80` (SPA) |
 
-    handle /socket.io/* {
-        reverse_proxy backend:9092
-    }
-
-    handle {
-        reverse_proxy frontend:80
-    }
-}
-```
-
-> La ruta `/socket.io/*` debe ir **antes** de la ruta genérica de la SPA, o el handshake del tiempo real recibirá `index.html` y fallará. `reverse_proxy` gestiona el *upgrade* a WebSocket sin configuración extra.
+El contenedor del frontend lleva su propio `Caddyfile` (caché de los bundles con hash y reescritura de rutas de la SPA).
 
 ## 9. Endurecimiento del sistema (hardening)
 
@@ -404,8 +392,8 @@ docker compose ps                          # los contenedores siguen sanos
 | 4 | SSH con contraseña | Rechazado |
 | 5 | SSH como `root` | Rechazado |
 | 6 | Puerto no autorizado (p. ej. `3306`) desde fuera | Cerrado / filtrado |
-| 7 | `docker compose ps` | Los 6 contenedores en ejecución |
-| 8 | Crear un pedido y verlo en comandas | Tiempo real funcionando a través de Caddy |
+| 7 | `docker compose ps` | Los 6 contenedores en ejecución (5 en local, sin DuckDNS) |
+| 8 | Crear un pedido y verlo en comandas | El pedido aparece en unos segundos (sondeo cada 5 s) a través de Caddy |
 
 ## 11. CI/CD con GitHub Actions
 
@@ -515,9 +503,7 @@ Propuestas **aún no implementadas**, ordenadas por prioridad. Se irán marcando
 | :---: | :--- | :--- |
 | Alta | No exponer Uptime Kuma (`:3001`) a Internet: ponerlo detrás de Caddy con autenticación o accederlo solo por VPN | Un panel administrativo expuesto es superficie de ataque |
 | Alta | Quitar el montaje de `/var/run/docker.sock` en Uptime Kuma y monitorizar por HTTP/TCP | Quien comprometa el contenedor controlaría Docker, es decir, el servidor |
-| Alta | Pasar `JWT_SECRET` y `STRIPE_SECRET_KEY` al backend desde el compose (hoy solo se pasan las variables de base de datos) | Que los secretos vengan del entorno y no del código |
 | Alta | Copias de seguridad de MariaDB (`mysqldump` programado), almacenadas fuera del servidor y con **restauración probada** | La caja y los pedidos son datos de negocio |
-| Media | Fijar versiones de `mariadb`, `duckdns` y `uptime-kuma` en lugar de `latest` | Despliegues reproducibles y sin sorpresas al actualizar |
 | Media | `healthcheck` en MariaDB y `depends_on` con `condition: service_healthy` | Evitar que el backend arranque antes que la base de datos |
 | Media | Fail2Ban (SSH y logs de Caddy) con aviso por Telegram | Pasar de análisis manual a detección y respuesta automáticas |
 | Media | Límite de peticiones en el login y en la creación de pedidos | Fuerza bruta y abuso de la API |
@@ -526,6 +512,8 @@ Propuestas **aún no implementadas**, ordenadas por prioridad. Se irán marcando
 | Media | Pipeline del backend y `trivy image` sobre las imágenes finales, más `gitleaks` | Cobertura completa de CI y detección de secretos |
 | Baja | Quitar DuckDNS cuando el servidor tenga IP fija | Un servicio y una credencial menos |
 | Baja | Definir el endpoint de salud del backend para Uptime Kuma | Monitorización más fiable que la comprobación de puerto |
+
+**Ya aplicadas:** `JWT_SECRET` y `STRIPE_SECRET_KEY` llegan al backend desde el entorno, las imágenes tienen la versión fijada y DuckDNS solo arranca con el perfil `prod`.
 
 **Ejemplo de cabeceras de seguridad en Caddy** (la política CSP depende de la aplicación y requiere pruebas):
 

@@ -6,13 +6,13 @@
 
 ### Carta digital por QR y gestión operativa para bares y restaurantes
 
-Pedidos desde el móvil, comandas en tiempo real, control de caja y un ciclo de desarrollo pensado con la seguridad en mente.
+Pedidos desde el móvil, comandas con actualización automática, control de caja y un ciclo de desarrollo pensado con la seguridad en mente.
 
 <br>
 
 ![Java](https://img.shields.io/badge/Java-17-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)
 ![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.4-6DB33F?style=for-the-badge&logo=springboot&logoColor=white)
-![Angular](https://img.shields.io/badge/Angular-DD0031?style=for-the-badge&logo=angular&logoColor=white)
+![Angular](https://img.shields.io/badge/Angular_14-DD0031?style=for-the-badge&logo=angular&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
 ![MariaDB](https://img.shields.io/badge/MariaDB-003545?style=for-the-badge&logo=mariadb&logoColor=white)
 ![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
@@ -37,7 +37,7 @@ Pedidos desde el móvil, comandas en tiempo real, control de caja y un ciclo de 
 
 ## Sobre el proyecto
 
-BarHub 2.0 es una aplicación full-stack para establecimientos de hostelería. El cliente escanea un QR, mira la carta y pide desde su móvil sin instalar nada. El personal gestiona mesas, comandas y cobros en efectivo en tiempo real, y la gerencia lleva el control de la caja y consulta estadísticas del negocio.
+BarHub 2.0 es una aplicación full-stack para establecimientos de hostelería. El cliente escanea un QR, mira la carta y pide desde su móvil sin instalar nada. El personal gestiona mesas, comandas y cobros en efectivo con actualización automática, y la gerencia lleva el control de la caja y consulta estadísticas del negocio.
 
 Es la segunda versión de mi TFC. Esta vez me he centrado en tres cosas: rediseñar la interfaz, añadir los módulos de caja y analítica, y trabajar el ciclo de vida seguro del software, con auditorías de dependencias, calidad de código y contenedores, integración continua y bastionado del servidor.
 
@@ -56,17 +56,17 @@ Es la segunda versión de mi TFC. Esta vez me he centrado en tres cosas: redise�
 
 - Carta digital interactiva por QR
 - Pedido en mesa, a recoger o a domicilio
-- Seguimiento del pedido en tiempo real
-- Pago con Stripe o en efectivo
-- Registro con verificación por correo
-- Perfil, historial y puntos de fidelización
+- Seguimiento del pedido con actualización automática cada 5 s
+- Pago en efectivo y con tarjeta (Stripe en modo demostración, sin cargos reales)
+- Registro de usuarios y perfil con foto
+- Historial de pedidos
 
 </td>
 <td width="33%" valign="top">
 
 #### Personal y sala
 
-- Comandas y estado de mesas en tiempo real
+- Comandas y estado de mesas con actualización automática
 - Confirmación de pagos en efectivo en barra y en mesa
 - Apertura y cierre de caja con arqueo
 - Control de descuadres por turno
@@ -95,7 +95,7 @@ flowchart LR
     S["Personal / Admin"] -->|HTTPS| P
     P --> F["Angular<br/>frontend"]
     P --> B["Spring Boot<br/>API REST + JWT"]
-    F <-.->|Socket.IO| B
+    F -->|REST + sondeo cada 5 s| B
     B --> D[("MariaDB")]
     B -->|pagos| T["Stripe"]
 ```
@@ -105,7 +105,7 @@ flowchart LR
 | Capa | Tecnologías |
 | :--- | :--- |
 | **Backend** | Java 17, Spring Boot 3.4.3, Spring Security, JWT (jjwt 0.12.5), Gradle |
-| **Frontend** | Angular, TypeScript, Tailwind CSS, PrimeNG, Socket.IO |
+| **Frontend** | Angular 14, TypeScript, Tailwind CSS, PrimeNG |
 | **Base de datos** | MariaDB |
 | **Infraestructura** | Docker (multi-stage), Docker Compose, Caddy, DuckDNS, Uptime Kuma |
 | **Calidad y seguridad** | SonarQube / SonarCloud, Snyk, Trivy, GitHub Actions, Dependabot |
@@ -127,6 +127,21 @@ He intentado tratar la seguridad como parte del desarrollo y no como algo que se
 > [!IMPORTANT]
 > Lo que queda en Snyk son dependencias transitivas del framework y la migración mayor de Angular. Lo tengo documentado como deuda técnica y está en la [hoja de ruta](#estado-del-proyecto).
 
+### Pruebas de seguridad dinámicas
+
+Además de las auditorías estáticas, he probado el backend en ejecución (instancia local con Docker Compose). Los resultados están en [`docs/evidencias/`](./docs/evidencias).
+
+| Área | Qué se comprueba | Resultado |
+| :--- | :--- | :---: |
+| Registro | No se puede obtener el rol de admin o de empleado al registrarse | Verificado |
+| Control de acceso | 25 rutas protegidas frente a anónimos y clientes (401 / 403) | 0 fallos |
+| Propiedad de los datos | Un cliente no lee ni modifica el perfil de otro ni se asigna roles | Verificado |
+| Pedidos | El servidor ignora los precios, el estado y el usuario enviados por el cliente | Verificado |
+| JWT | Firma alterada y `alg=none` rechazados | Verificado |
+| Subidas | Extensión, tipo, firma del fichero, tamaño y ruta | Verificado |
+| Errores | Respuestas genéricas y `404` en recursos inexistentes | Verificado |
+| Fuerza bruta en el login | Todavía sin bloqueo | Pendiente |
+
 ### Pipeline CI/CD
 
 ```mermaid
@@ -147,7 +162,10 @@ Ahora mismo el pipeline cubre el frontend. El primer análisis en SonarCloud y e
 <br>
 
 - **Secretos fuera del repositorio:** las credenciales van en un `.env` ignorado por git, el `docker-compose.yml` solo las referencia y el repo incluye un [`.env.example`](./infra/docker/.env.example) sin valores reales.
-- **Autenticación y autorización:** JWT con control de acceso por roles en el backend y guardas de ruta en el frontend.
+- **Autenticación y autorización:** JWT, control de acceso por roles en el backend con regla por defecto de denegar, comprobación de propiedad en los datos de usuario (mismo `404` exista o no el recurso) y guardas de ruta en el frontend.
+- **Datos del cliente no fiables:** el precio, el estado y el usuario de un pedido los calcula el servidor; el cliente no puede fijarlos.
+- **Subidas de archivos:** extensión, Content-Type y firma del fichero comprobados, tamaño limitado, nombre generado en el servidor y borrado restringido a la carpeta de subidas.
+- **Errores:** respuestas genéricas al cliente y detalle solo en el log del servidor.
 - **Contenedores:** imágenes multi-stage, usuario no root, `HEALTHCHECK` y `.dockerignore` para no meter secretos en las imágenes.
 - **Red:** solo Caddy publica puertos hacia fuera; base de datos, backend y frontend viven en una red interna de Docker.
 - **Dependencias:** auditoría con Snyk, versiones de seguridad forzadas donde hace falta (`overrides`) y Dependabot para las actualizaciones.
@@ -167,6 +185,8 @@ Ahora mismo el pipeline cubre el frontend. El primer análisis en SonarCloud y e
 | Backend, base de datos y API REST | Hecho |
 | Rediseño de la interfaz (cliente, personal y administración) | Hecho |
 | Auditorías locales (Snyk, SonarQube, Trivy) | Hecho |
+| Endurecimiento del backend y pruebas de seguridad dinámicas | Hecho |
+| Pago con tarjeta real (Stripe) | Pendiente, hoy en modo demostración |
 | Pipeline CI/CD del frontend | Hecho |
 | Primer análisis en SonarCloud | En curso |
 | Despliegue en VPS con HTTPS | En curso |
@@ -208,7 +228,7 @@ BarHub2.0/
 │   ├── docker/          docker-compose.yml y .env.example
 │   └── mysql/           Configuración de la base de datos
 ├── seguridad/           Script de bastionado del sistema Linux
-├── docs/                Documentación técnica y auditorías
+├── docs/                Documentación técnica, auditorías y evidencias de pruebas
 ├── CHANGELOG.md
 ├── LICENSE.md
 ├── NOTICE.md

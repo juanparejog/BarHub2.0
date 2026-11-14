@@ -14,7 +14,7 @@ Las condiciones de uso están recogidas en [`LICENSE.md`](./LICENSE.md). Fuera d
 
 ## 3. Protección de datos y privacidad
 
-BarHub se ha diseñado teniendo en cuenta la protección de datos desde el diseño y por defecto, por ejemplo con control de acceso por roles, contraseñas almacenadas cifradas y separación de secretos del código.
+BarHub se ha diseñado teniendo en cuenta la protección de datos desde el diseño y por defecto, por ejemplo con control de acceso por roles, contraseñas almacenadas como hash y separación de secretos del código.
 
 El responsable del tratamiento de los datos personales de clientes y trabajadores es el establecimiento que opera la plataforma. Cada establecimiento debe cumplir con el Reglamento General de Protección de Datos (RGPD), la Ley Orgánica 3/2018 (LOPDGDD) y la normativa aplicable, y publicar su propia política de privacidad.
 

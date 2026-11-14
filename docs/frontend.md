@@ -1,6 +1,6 @@
 # Frontend
 
-Aplicación **Angular 14** organizada en módulos por área funcional, con rutas protegidas por guardas, interceptor de autenticación y cliente de tiempo real.
+Aplicación **Angular 14** organizada en módulos por área funcional, con rutas protegidas por guardas, interceptor de autenticación y actualización periódica de datos.
 
 ## Índice
 
@@ -10,7 +10,7 @@ Aplicación **Angular 14** organizada en módulos por área funcional, con rutas
 4. [Área pública](#4-área-pública)
 5. [Área de administración](#5-área-de-administración)
 6. [Componentes compartidos](#6-componentes-compartidos)
-7. [Tiempo real en el cliente](#7-tiempo-real-en-el-cliente)
+7. [Actualización de datos en el cliente](#7-actualización-de-datos-en-el-cliente)
 8. [Estilos, temas y accesibilidad](#8-estilos-temas-y-accesibilidad)
 
 ---
@@ -23,6 +23,7 @@ Archivos de la raíz `frontend/`:
 | :--- | :--- |
 | `angular.json` | Configuración de Angular CLI: build, optimizaciones, entornos |
 | `package.json` / `package-lock.json` | Dependencias y scripts (`npm start`, `npm build`, `npm test`) |
+| `Caddyfile` | Servidor estático del contenedor: caché (`immutable` para los bundles con hash, `no-cache` para el resto) y reescritura de rutas de la SPA |
 | `Dockerfile` | Multi-etapa (Node.js + Caddy) para producción, usuario no root y `HEALTHCHECK` |
 | `karma.conf.js` | Pruebas unitarias con Karma + Jasmine (usa el prefijo `node:path`) |
 | `.browserslistrc` | Navegadores objetivo |
@@ -42,7 +43,7 @@ npm test
 flowchart TB
     R[AppRoutingModule]
     R --> P["Área pública<br/>(cliente y visitantes)"]
-    R --> A["Área de autenticación<br/>login · registro · verificación"]
+    R --> A["Área de autenticación<br/>login · registro"]
     R --> AD["Área de administración<br/>protegida con guards"]
     P -.-> G1[auth.guard / role.guard]
     AD -.-> G2[auth.guard + role.guard]
@@ -51,7 +52,7 @@ flowchart TB
 | Área | Acceso | Contenido |
 | :--- | :--- | :--- |
 | Pública | Visitantes y clientes; vistas de personal con guarda | Carta, pedidos, mesas, contacto, políticas |
-| Autenticación | Abierta | Login, registro, verificación de email |
+| Autenticación | Abierta | Login y registro |
 | Administración | Rol admin | CRUD del negocio y métricas |
 
 ## 3. Módulo de autenticación
@@ -62,7 +63,6 @@ flowchart TB
 | :--- | :--- |
 | `login` | Formulario de inicio de sesión |
 | `register` | Registro de usuarios nuevos |
-| `verificacion` | Verificación por correo (`email-verification`) |
 | `auth.service.ts` | Lógica de autenticación, almacenamiento del token y estado de sesión |
 | `auth.guard.ts` | Exige sesión iniciada |
 | `role.guard.ts` | Exige el rol adecuado para la ruta |
@@ -98,7 +98,7 @@ sequenceDiagram
 | `perfil` | Datos del perfil | Cliente |
 | `contacto` | Formulario e información de contacto | Todos |
 | `politica-privacidad`, `terminos-condiciones` | Páginas legales | Todos |
-| `gestionar-comandas` | Comandas en tiempo real | Empleado |
+| `gestionar-comandas` | Comandas con actualización automática | Empleado |
 | `gestionar-mesas-empleado` | Estado de las mesas | Empleado |
 | `gestionar-pagos-efectivo` | Registro de pagos en efectivo | Empleado |
 | `gestionar-caja` | Apertura, cierre y transacciones | Empleado |
@@ -126,48 +126,17 @@ sequenceDiagram
 | `shared/modals` | Diálogos reutilizables, p. ej. `modal-confirmar-eliminar` |
 | `uicomponents/menu` | Navegación principal |
 
-## 7. Tiempo real en el cliente
+## 7. Actualización de datos en el cliente
 
-Se usa `ngx-socket-io` (protocolo **Socket.IO**). Las dependencias transitivas `engine.io`, `socket.io-parser` y `ws` están parcheadas con `overrides` en `package.json` (ver [auditorias.md](auditorias.md)).
+No se usa Socket.IO ni WebSocket. Las pantallas con estado cambiante (seguimiento del pedido del cliente y vistas del personal) consultan la API cada 5 segundos. Las escrituras se hacen siempre por REST.
 
-```ts
-const config: SocketIoConfig = {
-  url: environment.socketUrl,
-  options: {
-    transports: ['websocket'],
-    autoConnect: false,                       // se conecta tras el login
-    auth: (cb) => cb({ token: localStorage.getItem('token') })
-  }
-};
-```
-
-```ts
-// core/realtime.service.ts: un único servicio que encapsula el socket
-@Injectable({ providedIn: 'root' })
-export class RealtimeService {
-  constructor(private socket: Socket) {}
-  conectar()    { if (!this.socket.ioSocket.connected) this.socket.connect(); }
-  desconectar() { this.socket.disconnect(); }
-  pedidoNuevo$():  Observable<any> { return this.socket.fromEvent('pedido:nuevo'); }
-  pedidoEstado$(): Observable<any> { return this.socket.fromEvent('pedido:estado'); }
-  mesaEstado$():   Observable<any> { return this.socket.fromEvent('mesa:estado'); }
-  cajaActualizada$(): Observable<any> { return this.socket.fromEvent('caja:actualizada'); }
-}
-```
-
-**Patrón recomendado:** carga inicial por REST + actualizaciones por socket, con `takeUntil(destroy$)` en `ngOnDestroy` para evitar fugas y eventos duplicados.
-
-| Pantalla | Eventos |
+| Aspecto | Detalle |
 | :--- | :--- |
-| `gestionar-comandas` | `pedido:nuevo`, `pedido:estado` |
-| `gestionar-mesas-empleado` | `mesa:estado` |
-| `gestionar-pagos-efectivo` | `pedido:pago`, `caja:actualizada` |
-| `gestionar-caja` | `caja:actualizada` |
-| `seguimiento-pedidos` | `pedido:estado` |
-
-**Ciclo de vida:** login → `conectar()` → suscripciones → logout → `desconectar()`. Si se pierde la red, `ngx-socket-io` reconecta solo; al reconectar conviene recargar el estado por REST.
-
-Catálogo completo de eventos en [backend.md](backend.md#6-tiempo-real).
+| Frecuencia | Cada 5 s |
+| Patrón | Carga inicial y refresco periódico |
+| Buenas prácticas | Cancelar la suscripción al destruir el componente (`ngOnDestroy`) para no acumular peticiones |
+| Seguimiento del cliente | Solo con sesión iniciada |
+| Alternativa futura | SSE o WebSocket, ver [backend.md](backend.md#6-actualización-de-datos) |
 
 ## 8. Estilos, temas y accesibilidad
 

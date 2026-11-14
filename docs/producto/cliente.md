@@ -24,7 +24,7 @@ La plataforma puede utilizarse **con o sin cuenta de usuario**. La diferencia re
 | Consultar la página de inicio y la carta | Sí | Sí |
 | Realizar un pedido en mesa, para recoger o a domicilio | Sí | Sí |
 | Pagar con tarjeta o en efectivo | Sí | Sí |
-| Seguir el estado del pedido en tiempo real | No | Sí |
+| Seguir el estado del pedido (se actualiza solo) | No | Sí |
 | Guardar datos y dirección de entrega predeterminada | No | Sí |
 | Personalizar el perfil y la foto | No | Sí |
 
@@ -143,7 +143,7 @@ La pantalla **Resumen del Pedido** reúne los datos de entrega, la tabla de prod
 | Método | Descripción |
 | :--- | :--- |
 | **Efectivo / TPV en mesa** | El pago se realiza al personal. El pedido queda pendiente de cobro hasta que un empleado lo registra |
-| **Tarjeta de crédito** | Pago con tarjeta |
+| **Tarjeta de crédito** | Pago con tarjeta en **modo demostración**: el pago se simula y no se realiza ningún cargo. La pantalla de pago muestra un aviso |
 
 ### 5.2. Finalización
 
@@ -162,7 +162,7 @@ Al finalizar se genera un **ticket simplificado** con el número de pedido, la f
 
 ## 6. Seguimiento del pedido
 
-Los usuarios con sesión iniciada disponen de la opción **Sigue tu pedido**, que muestra el estado de sus comandas en tiempo real. Los cambios de estado los realizan los empleados y se reflejan sin necesidad de recargar la página.
+Los usuarios con sesión iniciada disponen de la opción **Sigue tu pedido**, que muestra el estado de sus comandas. Los cambios de estado los realizan los empleados y se reflejan sin recargar la página, con una actualización automática cada pocos segundos.
 
 | Fase | Significado |
 | :--- | :--- |
@@ -193,7 +193,7 @@ La sección **Mi Perfil** permite gestionar los datos personales y la ubicación
 | :--- | :--- |
 | **Datos de cuenta y personales** | Usuario, correo, nombre y apellidos |
 | **Dirección de entrega predeterminada** | Teléfono, código postal, calle, tipo de vivienda, portal, planta, puerta y notas de entrega |
-| **Foto de perfil** | Se modifica con **Seleccionar archivo** y **Aplicar Imagen** |
+| **Foto de perfil** | Se modifica con **Seleccionar archivo** y **Aplicar Imagen**. Formatos JPG, PNG o WebP, máximo 5 MB; si el archivo no es una imagen real, se rechaza |
 
 Los cambios se confirman con **Guardar Cambios**. Estos datos se reutilizan en los pedidos para recoger y a domicilio mediante los botones **Usar mi teléfono** y **Usar mis datos**.
 

@@ -26,7 +26,7 @@ La barra superior muestra las secciones habituales del cliente (**Inicio**, **Ca
 
 ## 2. Estado de las mesas
 
-La vista **Gestión de Mesas y Sala** permite supervisar en tiempo real la ocupación del local.
+La vista **Gestión de Mesas y Sala** permite supervisar la ocupación del local; la información se actualiza automáticamente cada pocos segundos.
 
 <p align="center">
   <img src="../img/productos/mesas.png" alt="Gestión de mesas" width="760">
@@ -78,7 +78,7 @@ Los cobros registrados quedan incorporados a las ventas en efectivo del turno de
 
 ## 4. Comandas
 
-La **Pantalla de Comandas (KDS)** permite controlar en tiempo real la cocina, la sala, las recogidas y el reparto. Los nuevos pedidos aparecen sin necesidad de recargar la página.
+La **Pantalla de Comandas (KDS)** permite controlar la cocina, la sala, las recogidas y el reparto. Los nuevos pedidos aparecen sin recargar la página, con una actualización automática cada pocos segundos.
 
 <p align="center">
   <img src="../img/productos/comandas.png" alt="Pantalla de comandas" width="760">
@@ -101,7 +101,7 @@ Cada comanda indica la modalidad y el número de pedido (por ejemplo, «Mesa 1 �
 
 ### 4.3. Cambio de estado
 
-Los botones situados en la parte inferior de la tarjeta permiten avanzar el pedido. Cada cambio se refleja de inmediato en la vista de seguimiento del cliente.
+Los botones situados en la parte inferior de la tarjeta permiten avanzar el pedido. Cada cambio se refleja en la vista de seguimiento del cliente en pocos segundos.
 
 | Modalidad | Estados disponibles |
 | :--- | :--- |

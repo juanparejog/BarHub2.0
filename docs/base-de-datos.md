@@ -39,10 +39,10 @@ Clientes, empleados y administradores.
 | `id` | `bigint` PK | Identificador |
 | `username` | `varchar(20)` | Nombre de usuario |
 | `email` | `varchar(50)` | Correo electrónico |
-| `password` | `varchar(120)` | Contraseña cifrada |
+| `password` | `varchar(120)` | Contraseña almacenada como hash |
 | `nombre`, `apellido1`, `apellido2` | `varchar(20)` | Datos personales |
 | `telefono` | `varchar(20)` | Contacto |
-| `imagen` | `text` | URL o ruta de la imagen de perfil |
+| `imagen` | `text` | Nombre del archivo de la imagen de perfil (`usuario-{id}-{sufijo}.ext`) |
 | `calle` | `varchar(150)` | Dirección |
 | `casa_num`, `piso_num`, `portal_num` | `varchar(20)` | Dirección |
 | `puerta` | `varchar(10)` | Dirección |
@@ -87,7 +87,7 @@ Relación **N:M** entre `users` y `roles`.
 | `descripcion` | `varchar(255)` | Descripción |
 | `precio` | `double` | Precio unitario |
 | `tipo_producto` | `enum` | `bebida`, `entrante`, `postre`, `tapa` |
-| `imagen` | `varchar(255)` | Imagen del producto |
+| `imagen` | `varchar(255)` | Nombre del archivo de la imagen del producto |
 | `created_at`, `updated_at` | `datetime(6)` | Auditoría |
 
 ### `pedidos` · Pedidos y comandas
@@ -152,3 +152,14 @@ Relación **N:M** entre `users` y `roles`.
 | `pedidos.estado` | `pendiente`, `preparado`, `servido` |
 | `pedidos.estado_pago` | `completado`, `pendiente`, `rechazado` |
 | `caja.estado` | `abierta`, `cerrada` |
+
+## 5. Decisiones de diseño y puntos a revisar
+
+| Tema | Situación | Posible mejora |
+| :--- | :--- | :--- |
+| Esquema | Lo genera Hibernate al arrancar con una base vacía; no hay migraciones versionadas | Flyway o Liquibase |
+| Importes | `productos.precio` es `double`, mientras que `pedidos` y `detalles_pedidos` usan `decimal(12,2)` | Pasar `precio` a `decimal(12,2)` para evitar errores de redondeo |
+| Borrado | Los registros se eliminan de forma definitiva | Borrado lógico en pedidos, por trazabilidad contable |
+| Imágenes | Se guardan en disco (volúmenes `uploads`); la tabla solo guarda el nombre | Almacenamiento de objetos si se escala a varias instancias |
+| Datos iniciales | Con `APP_SEED_DEMO=true`, si no hay productos ni mesas, se cargan 19 productos y 10 mesas desde `backend/src/main/resources/demo/demo-data.sql`. El administrador solo se crea si no existe ninguno y con la contraseña de `APP_SEED_ADMIN_PASSWORD` | Sin cambios |
+| Longitudes | `users.username` admite 20 caracteres y `users.email` 50 | Revisar si limitan correos largos |

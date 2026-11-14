@@ -1,4 +1,4 @@
-#  Auditorías
+# Auditorías
 
 Resultados de las auditorías de seguridad y calidad realizadas sobre BarHub 2.0, con su estado inicial, las acciones aplicadas y el estado final.
 
@@ -9,18 +9,22 @@ Resultados de las auditorías de seguridad y calidad realizadas sobre BarHub 2.0
 | **Snyk** | Vulnerabilidades en dependencias | 136 → 129 incidencias | 29 → 22 incidencias |
 | **SonarQube** | Calidad, fiabilidad y mantenibilidad | PASSED |  PASSED |
 | **Trivy** | Configuración de Dockerfiles | 1 LOW → 0 | 1 HIGH + 1 LOW → 0 |
+| **Pruebas dinámicas** | Control de acceso, subidas y errores | 0 fallos (fuerza bruta pendiente) | Comprobado en navegador |
 
 ## Índice
 
 1. [Snyk](#1-snyk)
 2. [SonarQube](#2-sonarqube)
 3. [Trivy](#3-trivy)
+4. [Pruebas dinámicas](#4-pruebas-dinámicas)
 
 ---
 
 ## 1. Snyk
 
 Ejecutado con Snyk CLI en **Kali Linux**.
+
+> Las cifras corresponden al análisis original. Desde entonces se han retirado dependencias sin uso (por ejemplo `spring-boot-starter-mail` en el backend y el cliente de Socket.IO en el frontend), así que los números actuales serán distintos. El análisis se repetirá antes de la release.
 
 ### Backend · 117 dependencias
 
@@ -159,6 +163,24 @@ Escaneo de *misconfigurations* en los `Dockerfile` de backend y frontend.
 Tras añadir usuarios sin privilegios en las imágenes multi-etapa y directivas `HEALTHCHECK`:
 
 <p align="center"><img src="img/trivy/auditoria3.png" alt="Trivy final sin incidencias" width="720"></p>
+
+---
+
+## 4. Pruebas dinámicas
+
+Además de las herramientas estáticas, se probó la API en ejecución con un script propio contra una instancia local, repetido tras cada cambio del backend. El script no se versiona; los resultados sí, en [`evidencias/`](evidencias/seguridad-2026-11-14.md).
+
+| Ámbito | Qué se comprueba |
+| :--- | :--- |
+| Control de acceso | Sin token y con rol insuficiente; las rutas no declaradas se deniegan por defecto |
+| Acceso a datos ajenos (IDOR) | Un usuario no puede leer ni modificar pedidos o perfiles de otro; respuesta `404` uniforme |
+| Mass assignment | Los campos que el cliente no debe controlar no se aplican |
+| Manipulación de precios | El total se recalcula en el servidor |
+| Subida de archivos | Extensión, tipo declarado, firma real, tamaño máximo y nombre aleatorio |
+| Errores | Respuestas genéricas; el detalle queda en el log |
+| Fuerza bruta en el login | Pendiente: 30 intentos fallidos seguidos no provocan bloqueo |
+
+Resultado de la última ejecución: **0 fallos**. Informes: [seguridad-2026-11-14](evidencias/seguridad-2026-11-14.md) y [subidas-y-errores](evidencias/subidas-y-errores.md).
 
 ---
 
