@@ -2,6 +2,10 @@ package com.daw2.barhub.model.dto;
 
 import com.daw2.barhub.model.enums.TipoProducto;
 import com.daw2.barhub.model.entity.Producto;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -13,11 +17,23 @@ import java.util.List;
 @AllArgsConstructor
 @Data
 public class ProductoDto {
+
     private Long id;
+
+    @NotBlank
+    @Size(max = 100)
     private String nombre;
+
+    @Size(max = 500)
     private String descripcion;
+
+    @NotNull
+    @Positive
     private Double precio;
+
     private String imagen;
+
+    @NotNull
     private TipoProducto tipoProducto;
 
     public static ProductoDto from(Producto producto) {
@@ -40,7 +56,6 @@ public class ProductoDto {
         List<ProductoDto> dtos = new ArrayList<>();
 
         if (productos != null) {
-            dtos = new ArrayList<ProductoDto>();
             for (Producto producto : productos) {
                 dtos.add(from(producto));
             }
