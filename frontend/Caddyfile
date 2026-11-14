@@ -1,0 +1,17 @@
+:80 {
+    root * /usr/share/caddy
+
+    # Ficheros con hash en el nombre: nunca cambian, se cachean un año
+    @hashed path_regexp \.[0-9a-f]{16}\.(js|css)$
+    header @hashed Cache-Control "public, max-age=31536000, immutable"
+
+    # Todo lo demas (index.html incluido): el navegador debe revalidar
+    @revalidar not path_regexp \.[0-9a-f]{16}\.(js|css)$
+    header @revalidar Cache-Control "no-cache"
+
+    # Rutas de Angular (sin extension) -> index.html
+    @spa not path_regexp \.[a-zA-Z0-9]+$
+    rewrite @spa /index.html
+
+    file_server
+}

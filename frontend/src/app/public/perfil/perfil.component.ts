@@ -58,7 +58,7 @@ export class PerfilComponent implements OnInit {
       puerta: [''],
       urbanizacionNombre: [''],
       casaNum: [''],
-      codigopostal: ['', [Validators.required, Validators.pattern(/^\d{5}$/)]],
+      codigoPostal: ['', [Validators.required, Validators.pattern(/^\d{5}$/)]],
       instruccionesEntrega: ['']
     });
 
@@ -285,6 +285,17 @@ export class PerfilComponent implements OnInit {
 
     } else {
       this.perfilForm.markAllAsTouched();
+      const etiquetas: Record<string, string> = {
+        email: 'correo', nombre: 'nombre', apellido1: 'primer apellido',
+        telefono: 'teléfono (9 dígitos)', codigoPostal: 'código postal (5 dígitos)',
+        calle: 'calle (mínimo 5 caracteres)', portalNum: 'portal', pisoNum: 'piso',
+        puerta: 'puerta', urbanizacionNombre: 'urbanización', casaNum: 'número de casa'
+      };
+      const faltan = Object.keys(this.perfilForm.controls)
+        .filter(k => this.perfilForm.get(k)?.invalid)
+        .map(k => etiquetas[k] || k);
+      this.mensajeError = 'Revisa los campos obligatorios: ' + faltan.join(', ') + '.';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }
 }   
