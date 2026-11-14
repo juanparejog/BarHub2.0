@@ -63,7 +63,7 @@ public class SecurityConfig {
 
                         .requestMatchers("/error").permitAll()
 
-                        .requestMatchers("/api/auth/**", "/auth/**").permitAll()
+                        .requestMatchers("/auth/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/productos/**", "/mesas/**").permitAll()
 
                         .requestMatchers(HttpMethod.GET, "/actuator/health").permitAll()
@@ -83,7 +83,7 @@ public class SecurityConfig {
                         .requestMatchers("/productos/**", "/mesas/**").hasRole(ROL_ADMIN) 
                         .requestMatchers("/usuarios/**", "/roles/**").hasRole(ROL_ADMIN)
 
-                        .anyRequest().authenticated()
+                        .anyRequest().denyAll()
                 );
 
         http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
@@ -96,8 +96,7 @@ public class SecurityConfig {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowedOriginPatterns(List.of(
             "http://localhost:4200", 
-            "https://barhub2.duckdns.org", 
-            "http://barhub2.duckdns.org"
+            "https://barhub2.duckdns.org"
         ));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         config.setAllowedHeaders(List.of("Authorization", "Content-Type", "Accept"));

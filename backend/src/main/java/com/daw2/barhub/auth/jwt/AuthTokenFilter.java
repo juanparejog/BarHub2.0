@@ -24,12 +24,6 @@ public class AuthTokenFilter extends OncePerRequestFilter {
   private UserDetailsService userDetailsService;
 
   @Override
-  protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
-    String path = request.getRequestURI();
-    return path.startsWith("/socket.io");
-  }
-
-  @Override
   protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
           throws ServletException, IOException {
     try {
