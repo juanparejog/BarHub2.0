@@ -1,20 +1,46 @@
-# Configuración común a producción y local
+# Configuracion comun a produccion y local
 (app) {
     encode zstd gzip
 
+    # Logs de acceso en JSON (los usara el SOC y Fail2Ban)
+    log {
+        output file /var/log/caddy/access.log {
+            roll_size 10mb
+            roll_keep 5
+        }
+        format json
+    }
+
+    # El actuator solo es accesible desde dentro de la red de Docker
+    handle /api/actuator/* {
+        respond "Not found" 404
+    }
 
     # API: se quita el prefijo /api antes de llegar al backend
     handle_path /api/* {
         reverse_proxy backend:8080
     }
 
-    # Todo lo demás es el frontend
+    # Imagenes subidas desde la app (volumenes). Si no existe el fichero,
+    # se pide al frontend (imagenes de demo incluidas en el build)
+    @subidas path /assets/images/usuarios/* /assets/images/productos/*
+    handle @subidas {
+        route {
+            root * /srv/uploads
+            file_server {
+                pass_thru
+            }
+            reverse_proxy frontend:80
+        }
+    }
+
+    # Todo lo demas es el frontend
     handle {
         reverse_proxy frontend:80
     }
 }
 
-# Producción: Caddy obtiene y renueva el certificado solo
+# Produccion: Caddy obtiene y renueva el certificado solo
 barhub2.duckdns.org {
     import app
     header {

@@ -1,5 +1,6 @@
 package com.daw2.barhub.controller;
 
+import org.springframework.beans.factory.annotation.Value;
 import com.daw2.barhub.model.dto.ErrorDto;
 import com.daw2.barhub.model.dto.ProductoDto;
 import com.daw2.barhub.model.entity.Producto;
@@ -29,7 +30,8 @@ public class ProductoController {
     @Autowired
     private ProductoServiceImpl productoService;
 
-    private static final String UPLOADDIR = "../frontend/src/assets/images/productos/";
+    @Value("${app.upload.productos:../frontend/src/assets/images/productos/}")
+    private String uploadDir;
 
     @GetMapping("/")
     public List<ProductoDto> index() {
@@ -94,7 +96,7 @@ public class ProductoController {
             Producto producto = productoService.findById(id);
 
             if (producto != null && producto.getImagen() != null && !producto.getImagen().isBlank()) {
-                Path rutaImagen = Paths.get(UPLOADDIR).resolve(producto.getImagen()).toAbsolutePath().normalize();
+                Path rutaImagen = Paths.get(uploadDir).resolve(producto.getImagen()).toAbsolutePath().normalize();
 
                 boolean borrado = Files.deleteIfExists(rutaImagen);
                 if (borrado) {
@@ -128,7 +130,7 @@ public class ProductoController {
 
         String nombreFinal = nombreLimpio + "." + extension;
 
-        Path uploadPath = Paths.get(UPLOADDIR).toAbsolutePath().normalize();
+        Path uploadPath = Paths.get(uploadDir).toAbsolutePath().normalize();
         if (!Files.exists(uploadPath)) {
             Files.createDirectories(uploadPath);
         }

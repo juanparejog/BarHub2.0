@@ -1,15 +1,20 @@
 services:
   mysql:
-    image: mariadb:latest
-    container_name: barhub-mysql
+    image: mariadb:13.0
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      MYSQL_DATABASE: ${DB_DATABASE}
-      MYSQL_USER: ${DB_USERNAME}
-      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?Falta_MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DB_DATABASE:?Falta_DB_DATABASE}
+      MYSQL_USER: ${DB_USERNAME:?Falta_DB_USERNAME}
+      MYSQL_PASSWORD: ${DB_PASSWORD:?Falta_DB_PASSWORD}
     volumes:
       - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "MYSQL_PWD=$$MYSQL_ROOT_PASSWORD mariadb-admin ping -h 127.0.0.1 -uroot --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
     networks:
       - barhub-net
 
@@ -17,12 +22,20 @@ services:
     build: ../../backend
     container_name: barhub-backend
     restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
     environment:
       - SPRING_DATASOURCE_URL=jdbc:mysql://barhub-mysql:3306/${DB_DATABASE:?Falta_DB_DATABASE}?useSSL=false&serverTimezone=UTC
-      - SPRING_DATASOURCE_USERNAME=${DB_USERNAME}
-      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
-      - JWT_SECRET=${JWT_SECRET}
-      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
+      - SPRING_DATASOURCE_USERNAME=${DB_USERNAME:?Falta_DB_USERNAME}
+      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD:?Falta_DB_PASSWORD}
+      - JWT_SECRET=${JWT_SECRET:?Falta_JWT_SECRET}
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY:?Falta_STRIPE_SECRET_KEY}
+      - APP_UPLOAD_USUARIOS=/data/uploads/usuarios/
+      - APP_UPLOAD_PRODUCTOS=/data/uploads/productos/
+    volumes:
+      - uploads_usuarios:/data/uploads/usuarios
+      - uploads_productos:/data/uploads/productos
     networks:
       - barhub-net
 
@@ -41,9 +54,12 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      - ../caddy/Caddyfile:/etc/caddy/Caddyfile
+      - ../caddy/Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data
       - caddy_config:/config
+      - caddy_logs:/var/log/caddy
+      - uploads_usuarios:/srv/uploads/assets/images/usuarios:ro
+      - uploads_productos:/srv/uploads/assets/images/productos:ro
     networks:
       - barhub-net
 
@@ -55,8 +71,8 @@ services:
       - PUID=1000
       - PGID=1000
       - TZ=Europe/Madrid
-      - SUBDOMAINS=${DUCKDNS_DOMAINS}
-      - TOKEN=${DUCKDNS_TOKEN}
+      - SUBDOMAINS=${DUCKDNS_DOMAINS:?Falta_DUCKDNS_DOMAINS}
+      - TOKEN=${DUCKDNS_TOKEN:?Falta_DUCKDNS_TOKEN}
       - UPDATE_IP=ipv4
       - LOG_FILE=false
     volumes:
@@ -69,10 +85,9 @@ services:
     container_name: barhub-uptime-kuma
     restart: unless-stopped
     ports:
-      - "3001:3001"
+      - "127.0.0.1:3001:3001"
     volumes:
       - uptime_data:/app/data
-      - /var/run/docker.sock:/var/run/docker.sock
     environment:
       - TZ=Europe/Madrid
     networks:
@@ -86,4 +101,7 @@ volumes:
   mysql_data:
   caddy_data:
   caddy_config:
+  caddy_logs:
   uptime_data:
+  uploads_usuarios:
+  uploads_productos:
