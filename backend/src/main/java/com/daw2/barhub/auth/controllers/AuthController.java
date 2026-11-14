@@ -64,33 +64,30 @@ public class AuthController {
             roles));
   }
 
-  @PostMapping("/signup")
-  public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
-  
-    if (userRepository.existsByUsername(signUpRequest.getUsername())) {
-      return ResponseEntity
-              .badRequest()
-              .body(new MessageResponse("Error: ¡El nombre de usuario ya está en uso!"));
-    }
-  
-    if (userRepository.existsByEmail(signUpRequest.getEmail())) {
-      return ResponseEntity
-              .badRequest()
-              .body(new MessageResponse("Error: ¡El email de usuario ya está en uso!"));
-    }
-  
-    User user = new User(
-            signUpRequest.getUsername(),
-            signUpRequest.getEmail(),
-            encoder.encode(signUpRequest.getPassword())
-    );
-  
-    // El registro público siempre crea clientes. Empleados y admins los crea un admin.
-    Role clienteRole = roleRepository.findByName(RoleEnum.ROLE_CLIENTE)
-            .orElseThrow(() -> new RuntimeException("Error: Rol ROLE_CLIENTE no encontrado en la BD."));
-    user.setRoles(new HashSet<>(List.of(clienteRole)));
-    userRepository.save(user);
-  
-    return ResponseEntity.ok(new MessageResponse("Usuario registrado correctamente."));
-  }
+        @PostMapping("/signup")
+        public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
+          if (userRepository.existsByUsername(signUpRequest.getUsername())) {
+            return ResponseEntity.badRequest()
+                .body(new MessageResponse("Error: ¡El nombre de usuario ya está en uso!"));
+          }
+          if (userRepository.existsByEmail(signUpRequest.getEmail())) {
+            return ResponseEntity.badRequest()
+                .body(new MessageResponse("Error: ¡El email de usuario ya está en uso!"));
+          }
+
+          User user = new User();
+          user.setUsername(signUpRequest.getUsername());
+          user.setEmail(signUpRequest.getEmail());
+          user.setPassword(encoder.encode(signUpRequest.getPassword()));
+          user.setNombre(signUpRequest.getNombre());
+          user.setApellido1(signUpRequest.getApellido1());
+          user.setApellido2(signUpRequest.getApellido2());
+
+          Role clienteRole = roleRepository.findByName(RoleEnum.ROLE_CLIENTE)
+              .orElseThrow(() -> new IllegalStateException("Rol ROLE_CLIENTE no encontrado en la BD."));
+          user.setRoles(new HashSet<>(List.of(clienteRole)));
+
+          userRepository.save(user);
+          return ResponseEntity.ok(new MessageResponse("Usuario registrado correctamente."));
+        }
 }

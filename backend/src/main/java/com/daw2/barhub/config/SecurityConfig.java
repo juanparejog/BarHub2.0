@@ -62,12 +62,16 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
                         .requestMatchers("/error").permitAll()
-                        .requestMatchers("/socket.io", "/socket.io/**", "/socket.io/*").permitAll()
 
                         .requestMatchers("/api/auth/**", "/auth/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/productos/**", "/mesas/**").permitAll()
 
-                        // --- PERMITIR CREACIÓN DE PEDIDOS (Tanto a usuarios logueados como anónimos) ---
+                        .requestMatchers(HttpMethod.GET, "/actuator/health").permitAll()
+
+                        .requestMatchers(HttpMethod.GET, "/usuarios/{id:\\d+}").authenticated()
+                        .requestMatchers(HttpMethod.PUT, "/usuarios/{id:\\d+}").authenticated()
+
+                        // --- PERMITIR CREACIÓN DE PEDIDOS ---
                         .requestMatchers(HttpMethod.POST, "/pedidos").permitAll()
 
                         // --- GESTIÓN DE PEDIDOS Y COMANDAS PARA EMPLEADOS / ADMINS ---

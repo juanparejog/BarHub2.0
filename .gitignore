@@ -82,3 +82,6 @@ infra/.env
 # ------------------------------------------
 security/audit_scripts/logs/
 security/wazuh-agent/logs/
+docker-compose.test.yml
+gitleaks-report.json
+resultados-seguridad-*.md
