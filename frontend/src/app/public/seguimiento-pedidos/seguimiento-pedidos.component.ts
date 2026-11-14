@@ -201,7 +201,7 @@ export class SeguimientoPedidosComponent implements OnInit, OnDestroy {
 
       if (tiempoRestante > 0) {
         const t = setTimeout(() => {
-          this.eliminarPedidoAutomatico(pedido);
+          this.pedidos = this.pedidos.filter(p => p.id !== pedido.id);
         }, tiempoRestante);
 
         this.timers.push(t);
