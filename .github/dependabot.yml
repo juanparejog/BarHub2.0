@@ -1,24 +1,38 @@
 version: 2
-
 updates:
   - package-ecosystem: gradle
     directory: /backend
     schedule: { interval: weekly }
+    open-pull-requests-limit: 3
+    ignore:
+      - dependency-name: "gradle-wrapper"
+        update-types: ["version-update:semver-major"]
   - package-ecosystem: npm
     directory: /frontend
     schedule: { interval: weekly }
+    open-pull-requests-limit: 3
     ignore:
       - dependency-name: "@angular/*"
         update-types: ["version-update:semver-major"]
+    groups:
+      npm-minor-patch:
+        patterns: ["*"]
+        update-types: ["minor", "patch"]
   - package-ecosystem: docker
     directory: /backend
     schedule: { interval: weekly }
+    ignore:
+      - dependency-name: "eclipse-temurin"
+        update-types: ["version-update:semver-major"]
   - package-ecosystem: docker
     directory: /frontend
     schedule: { interval: weekly }
   - package-ecosystem: docker-compose
     directory: /infra/docker
     schedule: { interval: weekly }
+    ignore:
+      - dependency-name: "louislam/uptime-kuma"
+        update-types: ["version-update:semver-major"]
   - package-ecosystem: github-actions
     directory: /
     schedule: { interval: weekly }
