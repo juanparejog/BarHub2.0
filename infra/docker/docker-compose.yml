@@ -31,9 +31,12 @@ services:
       - SPRING_DATASOURCE_USERNAME=${DB_USERNAME:?Falta_DB_USERNAME}
       - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD:?Falta_DB_PASSWORD}
       - JWT_SECRET=${JWT_SECRET:?Falta_JWT_SECRET}
-      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY:?Falta_STRIPE_SECRET_KEY}
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY:-}
       - APP_UPLOAD_USUARIOS=/data/uploads/usuarios/
       - APP_UPLOAD_PRODUCTOS=/data/uploads/productos/
+      - APP_SEED_DEMO=${APP_SEED_DEMO:-false}
+      - APP_SEED_ADMIN_USERNAME=${APP_SEED_ADMIN_USERNAME:-admin}
+      - APP_SEED_ADMIN_PASSWORD=${APP_SEED_ADMIN_PASSWORD:-}
     volumes:
       - uploads_usuarios:/data/uploads/usuarios
       - uploads_productos:/data/uploads/productos
@@ -65,6 +68,7 @@ services:
       - barhub-net
 
   duckdns:
+    profiles: ["prod"]
     image: lscr.io/linuxserver/duckdns:8aabc87c-ls95
     container_name: barhub-duckdns
     restart: unless-stopped
@@ -72,8 +76,8 @@ services:
       - PUID=1000
       - PGID=1000
       - TZ=Europe/Madrid
-      - SUBDOMAINS=${DUCKDNS_DOMAINS:?Falta_DUCKDNS_DOMAINS}
-      - TOKEN=${DUCKDNS_TOKEN:?Falta_DUCKDNS_TOKEN}
+      - SUBDOMAINS=${DUCKDNS_DOMAINS:-}
+      - TOKEN=${DUCKDNS_TOKEN:-}
       - UPDATE_IP=ipv4
       - LOG_FILE=false
     volumes:

@@ -4,9 +4,11 @@ import com.daw2.barhub.auth.models.Role;
 import com.daw2.barhub.auth.models.RoleEnum;
 import com.daw2.barhub.auth.repository.RoleRepository;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 @Component
+@Order(1)
 public class RoleSeeder implements CommandLineRunner {
 
   private final RoleRepository roleRepository;
