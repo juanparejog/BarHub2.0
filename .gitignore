@@ -85,3 +85,4 @@ security/wazuh-agent/logs/
 docker-compose.test.yml
 gitleaks-report.json
 resultados-seguridad-*.md
+**/uploads/
