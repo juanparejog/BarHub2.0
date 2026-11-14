@@ -1,37 +1,24 @@
 version: 2
 
 updates:
-  # Backend (Gradle)
-  - package-ecosystem: "gradle"
-    directory: "/backend"
-    schedule:
-      interval: "weekly"
-    open-pull-requests-limit: 5
-
-  # Frontend (npm)
-  - package-ecosystem: "npm"
-    directory: "/frontend"
-    schedule:
-      interval: "weekly"
-    open-pull-requests-limit: 5
+  - package-ecosystem: gradle
+    directory: /backend
+    schedule: { interval: weekly }
+  - package-ecosystem: npm
+    directory: /frontend
+    schedule: { interval: weekly }
     ignore:
-      # La migración mayor de Angular se hace a mano y de forma planificada
       - dependency-name: "@angular/*"
         update-types: ["version-update:semver-major"]
-
-  # Imágenes base de Docker
-  - package-ecosystem: "docker"
-    directory: "/backend"
-    schedule:
-      interval: "weekly"
-
-  - package-ecosystem: "docker"
-    directory: "/frontend"
-    schedule:
-      interval: "weekly"
-
-  # Acciones de GitHub Actions
-  - package-ecosystem: "github-actions"
-    directory: "/"
-    schedule:
-      interval: "weekly"
+  - package-ecosystem: docker
+    directory: /backend
+    schedule: { interval: weekly }
+  - package-ecosystem: docker
+    directory: /frontend
+    schedule: { interval: weekly }
+  - package-ecosystem: docker-compose
+    directory: /infra/docker
+    schedule: { interval: weekly }
+  - package-ecosystem: github-actions
+    directory: /
+    schedule: { interval: weekly }
