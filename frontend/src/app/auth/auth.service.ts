@@ -3,12 +3,13 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, BehaviorSubject } from 'rxjs';
 import { JwtHelperService } from '@auth0/angular-jwt'; 
 import { Router } from '@angular/router';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  private readonly apiUrl = 'http://localhost:8080/api/auth';
+  private readonly apiUrl = `${environment.urlBackendSpring}/auth`;
   private roles: string[] = [];
   private readonly rolesSubject = new BehaviorSubject<string[]>(this.getRoles());
   private readonly isAuthenticatedSubject = new BehaviorSubject<boolean>(this.isAuthenticated());

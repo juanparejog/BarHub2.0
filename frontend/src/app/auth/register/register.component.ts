@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { Component } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { catchError, of } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-register',
@@ -20,8 +21,7 @@ export class RegisterComponent {
     telefono: '',
     calle: '',
     tipoVivienda: 'casa',
-    codigoPostal: '',
-    role: ['ROLE_CLIENTE']
+    codigoPostal: ''
   };
   aceptaPoliticas = false;
   confirmPassword = '';
@@ -62,10 +62,10 @@ export class RegisterComponent {
       return;
     }
   
-    this.http.post('http://localhost:8080/api/auth/signup', this.form)
+    this.http.post(`${environment.urlBackendSpring}/auth/signup`, this.form)
       .pipe(
         catchError((error) => {
-          if (error.status === 400 && error.error?.message === 'Username is already taken!') {
+          if (error.status === 400 && String(error.error?.message ?? '').includes('nombre de usuario')) {
             this.usernameTaken = true;
           }
           return of(null);

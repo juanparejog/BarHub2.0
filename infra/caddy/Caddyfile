@@ -2,10 +2,6 @@
 (app) {
     encode zstd gzip
 
-    # Comandas en tiempo real (Socket.IO)
-    handle /socket.io/* {
-        reverse_proxy backend:9092
-    }
 
     # API: se quita el prefijo /api antes de llegar al backend
     handle_path /api/* {
