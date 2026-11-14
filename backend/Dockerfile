@@ -1,5 +1,5 @@
 # Etapa 1: compilar el jar dentro de Docker
-FROM eclipse-temurin:17-jdk-alpine AS build
+FROM eclipse-temurin:25-jdk-alpine AS build
 WORKDIR /src
 COPY gradlew settings.gradle build.gradle ./
 COPY gradle ./gradle
@@ -9,7 +9,7 @@ COPY src ./src
 RUN ./gradlew --no-daemon bootJar -x test
 
 # Etapa 2: imagen final, solo con JRE y sin privilegios
-FROM eclipse-temurin:17-jre-alpine
+FROM eclipse-temurin:25-jre-alpine
 WORKDIR /app
 
 RUN addgroup -S barhub && adduser -S barhub -G barhub \
