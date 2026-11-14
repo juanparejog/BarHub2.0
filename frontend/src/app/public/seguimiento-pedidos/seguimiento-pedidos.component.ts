@@ -209,15 +209,6 @@ export class SeguimientoPedidosComponent implements OnInit, OnDestroy {
     });
   }
 
-  private eliminarPedidoAutomatico(pedido: Pedido) {
-    this.pedidoService.del(pedido).subscribe({
-      next: () => {
-        this.pedidos = this.pedidos.filter(p => p.id !== pedido.id);
-      },
-      error: () => console.error('Error eliminando pedido automáticamente')
-    });
-  }
-
   calcularTotalPedido(pedido: any): number {
     if (!pedido) return 0;
 
