@@ -6,8 +6,6 @@ El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y e
 
 ## [2.0.0] - 2026-11-15
 
-Primera versión 2.0 en preparación. Al publicarla, cambia este título por `[2.0.0] - AAAA-MM-DD` y crea la release con la etiqueta `v2.0.0`.
-
 ### Añadido
 - Módulo de caja: apertura y cierre de turno con arqueo y control de descuadres.
 - Confirmación de pagos en efectivo en barra y mesa.
