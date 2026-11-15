@@ -40,7 +40,7 @@ flowchart LR
     end
 
     subgraph Backend
-        API[Spring Boot 3.4.3<br/>API REST + JWT]
+        API[Spring Boot 3.5.16<br/>API REST + JWT]
     end
 
     DB[(MariaDB)]
@@ -67,7 +67,7 @@ flowchart LR
 | Capa | Tecnología |
 | :--- | :--- |
 | Frontend | Angular 14 · Karma/Jasmine |
-| Backend | Java · Spring Boot 3.4.3 · Gradle · JWT (`jjwt 0.12.5`) |
+| Backend | Java · Spring Boot 3.5.16 · Gradle · JWT (`jjwt 0.12.5`) |
 | Base de datos | MariaDB |
 | Actualización de datos | Sondeo REST cada 5 s |
 | Contenedores | Docker multi-etapa (Node.js + Caddy) |

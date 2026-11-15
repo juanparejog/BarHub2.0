@@ -163,3 +163,4 @@ Relación **N:M** entre `users` y `roles`.
 | Imágenes | Se guardan en disco (volúmenes `uploads`); la tabla solo guarda el nombre | Almacenamiento de objetos si se escala a varias instancias |
 | Datos iniciales | Con `APP_SEED_DEMO=true`, si no hay productos ni mesas, se cargan 19 productos y 10 mesas desde `backend/src/main/resources/demo/demo-data.sql`. El administrador solo se crea si no existe ninguno y con la contraseña de `APP_SEED_ADMIN_PASSWORD` | Sin cambios |
 | Longitudes | `users.username` admite 20 caracteres y `users.email` 50 | Revisar si limitan correos largos |
+| Conector y dialecto | El backend usa el conector y el dialecto de MySQL contra un servidor MariaDB; al arrancar aparece un aviso inofensivo (`Unknown column 'RESERVED'`) | Usar el conector de MariaDB (`jdbc:mariadb://`) y quitar el dialecto explícito |

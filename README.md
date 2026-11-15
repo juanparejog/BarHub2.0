@@ -11,7 +11,7 @@ Pedidos desde el móvil, comandas con actualización automática, control de caj
 <br>
 
 ![Java](https://img.shields.io/badge/Java-17-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)
-![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.4-6DB33F?style=for-the-badge&logo=springboot&logoColor=white)
+![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.5-6DB33F?style=for-the-badge&logo=springboot&logoColor=white)
 ![Angular](https://img.shields.io/badge/Angular_14-DD0031?style=for-the-badge&logo=angular&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
 ![MariaDB](https://img.shields.io/badge/MariaDB-003545?style=for-the-badge&logo=mariadb&logoColor=white)
@@ -104,7 +104,7 @@ flowchart LR
 
 | Capa | Tecnologías |
 | :--- | :--- |
-| **Backend** | Java 17, Spring Boot 3.4.3, Spring Security, JWT (jjwt 0.12.5), Gradle |
+| **Backend** | Java 17, Spring Boot 3.5.16, Spring Security, JWT (jjwt 0.12.5), Gradle |
 | **Frontend** | Angular 14, TypeScript, Tailwind CSS, PrimeNG |
 | **Base de datos** | MariaDB |
 | **Infraestructura** | Docker (multi-stage), Docker Compose, Caddy, DuckDNS, Uptime Kuma |
@@ -120,12 +120,12 @@ He intentado tratar la seguridad como parte del desarrollo y no como algo que se
 | :--- | :--- | :---: | :---: |
 | **SonarQube** (local) | Backend | 48 incidencias | 0 abiertas, Quality Gate superado |
 | **SonarQube** (local) | Frontend | 1 de seguridad, 145 de fiabilidad, 173 de mantenibilidad | 0 abiertas, Quality Gate superado |
-| **Snyk** | Dependencias del backend | 136 incidencias | 129, transitivas del framework |
-| **Snyk** | Dependencias del frontend | 29 incidencias | 22, ligadas a la versión de Angular |
+| **Snyk** | Dependencias del backend | 136 incidencias | 29 (reanálisis del 15-nov-2026), de Spring Framework 6.2 y Spring Security 6.5 |
+| **Snyk** | Dependencias del frontend | 29 incidencias | 25 (reanálisis del 15-nov-2026), 24 de Angular 14 sin soporte |
 | **Trivy** | Dockerfiles | 1 HIGH y 2 LOW | 0 (usuario no root y `HEALTHCHECK`) |
 
 > [!IMPORTANT]
-> Lo que queda en Snyk son dependencias transitivas del framework y la migración mayor de Angular. Lo tengo documentado como deuda técnica y está en la [hoja de ruta](#estado-del-proyecto).
+> Lo que queda en Snyk son avisos de Spring Framework 6.2 y Spring Security 6.5 (sus correcciones solo existen en la serie 7, Spring Boot 4) y de Angular 14, sin soporte. Ambas migraciones están documentadas como deuda técnica y en la [hoja de ruta](#estado-del-proyecto).
 
 ### Pruebas de seguridad dinámicas
 
@@ -193,7 +193,7 @@ Ahora mismo el pipeline cubre el frontend. El primer análisis en SonarCloud y e
 | Dependabot y escaneo de secretos en GitHub | En curso |
 | Pipeline CI/CD del backend | Pendiente |
 | SOC automático (monitorización y alertas) | Pendiente |
-| Migración de Angular a una versión con soporte | Pendiente |
+| Migración a Spring Boot 4 y a una versión de Angular con soporte | Pendiente |
 | Más cobertura de tests | Pendiente |
 
 ---

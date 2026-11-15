@@ -1,6 +1,6 @@
 # Seguridad
 
-Resumen de las prácticas de seguridad aplicadas en BarHub 2.0 y un modelo de amenazas básico. Las evidencias estáticas están en [auditorias.md](auditorias.md) y las pruebas dinámicas en [evidencias/](evidencias/seguridad-2026-11-14.md).
+Resumen de las prácticas de seguridad aplicadas en BarHub 2.0 y un modelo de amenazas básico. Las evidencias estáticas están en [auditorias.md](auditorias.md) y las pruebas dinámicas en [evidencias/](evidencias/seguridad-2026-11-15.md).
 
 ## Índice
 
@@ -23,7 +23,7 @@ Resumen de las prácticas de seguridad aplicadas en BarHub 2.0 y un modelo de am
 | **Errores** | Respuestas genéricas al cliente; el detalle queda solo en el log | Pruebas dinámicas |
 | **Validación** | Bean Validation (`@Valid`) en los DTO de entrada | Pruebas dinámicas |
 | **CORS** | Orígenes limitados a los del frontend (local y dominio de producción) | Revisión de código |
-| **Dependencias** | Spring Boot 3.4.3 y `jjwt 0.12.5`; conectores actualizados; dependencias sin uso retiradas | Snyk |
+| **Dependencias** | Spring Boot 3.5.16 y `jjwt 0.12.5`; Tomcat, Jackson, Logback y el conector de MariaDB fijados por encima del BOM; dependencias sin uso retiradas | Snyk |
 | **Código** | Eliminado `e.printStackTrace()`; `equals()` y `hashCode()` en `UserDetailsImpl` | SonarQube |
 | **Contenedores** | Usuario no root (DS-0002) y `HEALTHCHECK` (DS-0026); versiones de imagen fijadas | Trivy |
 | **Contraseñas** | Almacenadas como hash mediante el `PasswordEncoder` de Spring Security, nunca en claro | Modelo ER |
@@ -79,7 +79,7 @@ flowchart LR
 | 6 | Subida de archivos maliciosos | Ejecución / DoS | Lista blanca, firma real, límites, nombre aleatorio | Verificado |
 | 7 | Fuga de información en errores | Divulgación | Respuestas genéricas; detalle solo en el log | Verificado |
 | 8 | Reutilizar el QR de otra mesa | Manipulación | `token_qr` por mesa | Pendiente de verificar, sin rotación |
-| 9 | Dependencias vulnerables | Varias | Snyk y SonarCloud | Parcial |
+| 9 | Dependencias vulnerables | Varias | Snyk y SonarCloud; versiones de seguridad fijadas | Parcial: 29 avisos en el backend y 25 en el frontend sin parche compatible (ver [auditorias.md](auditorias.md)) |
 | 10 | Escape de contenedor o escalada | Elevación | Usuario no root, imágenes multi-etapa | Aplicada |
 | 11 | Fuerza bruta en el login | Suplantación | Límite de intentos | Pendiente: 30 intentos fallidos seguidos no provocan bloqueo |
 | 12 | Cambio de contraseña con una sesión robada | Suplantación | Exigir la contraseña actual | Pendiente |
@@ -94,10 +94,11 @@ Ataques físicos al local, ingeniería social contra el personal y seguridad del
 
 La API en ejecución se probó con un script propio contra una instancia local y se repitió tras cada cambio del backend. El script no se versiona; los resultados sí:
 
+- [Pruebas de seguridad (15 de noviembre de 2026, con Spring Boot 3.5.16)](evidencias/seguridad-2026-11-15.md)
 - [Pruebas de seguridad (14 de noviembre de 2026)](evidencias/seguridad-2026-11-14.md)
 - [Subidas de archivos y errores](evidencias/subidas-y-errores.md)
 
-Resultado de la última ejecución: 0 fallos. La fuerza bruta en el login figura como pendiente.
+Resultado de la última ejecución (15 de noviembre de 2026): 0 fallos. La fuerza bruta en el login figura como pendiente.
 
 ## 5. Pendientes y limitaciones conocidas
 
@@ -109,3 +110,4 @@ Resultado de la última ejecución: 0 fallos. La fuerza bruta en el login figura
 | Caducidad del JWT | 24 horas; valorar token de corta duración con renovación |
 | Contraseña actual | No se exige al cambiar la contraseña |
 | Uptime Kuma | Publicado en el puerto 3001; ver mejoras en [infraestructura.md](infraestructura.md#13-mejoras-recomendadas) |
+| Dependencias sin parche compatible | Spring Framework 6.2, Spring Security 6.5 y Spring Data (backend) y Angular 14 (frontend): requieren migrar a Spring Boot 4 y a una versión de Angular con soporte (hito v2.1) |

@@ -24,7 +24,7 @@ Primera versión 2.0 en preparación. Al publicarla, cambia este título por `[2
 ### Cambiado
 - Rediseño completo de la interfaz de cliente, personal y administración.
 - Contrastes de color revisados para cumplir los mínimos de WCAG.
-- Backend actualizado a Spring Boot 3.4.3.
+- Backend actualizado a Spring Boot 3.5.16, con Tomcat, Jackson, Logback, Hibernate Validator y el conector de MariaDB fijados por encima del BOM por avisos de seguridad.
 - Librería JWT actualizada a jjwt 0.12.5 y adaptada a su API actual.
 - Conectores de base de datos actualizados.
 - Refactorización de servicios con alta complejidad (por ejemplo `PedidoServiceImpl`).
@@ -49,6 +49,7 @@ Primera versión 2.0 en preparación. Al publicarla, cambia este título por `[2
 - Controlador de pruebas `TestController` y la ruta `/api/auth/**` redundante en la configuración de seguridad.
 - Método sin uso de borrado automático de pedidos en el seguimiento del cliente.
 - Referencias a puntos de fidelización en la política de privacidad.
+- Componente de verificación de correo del frontend, sin backend que lo respalde.
 
 ### Pendiente
 - Verificación de correo electrónico en el registro (hoy no se envía ni se exige).
@@ -56,4 +57,4 @@ Primera versión 2.0 en preparación. Al publicarla, cambia este título por `[2
 - Límite de intentos en el login, caducidad más corta del JWT y contraseña actual al cambiarla.
 - Primer análisis en SonarCloud y pipeline del backend.
 - Despliegue en VPS con HTTPS y SOC automático.
-- Migración de Angular a una versión con soporte.
+- Migración a Spring Boot 4 y a una versión de Angular con soporte, para corregir los avisos de dependencias que no tienen parche compatible.

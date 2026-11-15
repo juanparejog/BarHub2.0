@@ -18,11 +18,12 @@ El backend de BarHub 2.0 expone una **API REST** securizada con JWT. El frontend
 
 | Componente | Tecnología | Notas |
 | :--- | :--- | :--- |
-| Lenguaje / framework | Java + **Spring Boot 3.4.3** | Elevado desde versiones anteriores tras la auditoría Snyk |
+| Lenguaje / framework | Java 17 + **Spring Boot 3.5.16** | Elevado desde 3.4.3 tras el reanálisis de Snyk ([auditorias.md](auditorias.md)) |
 | Build | Gradle | `./gradlew clean build -x test` |
 | Base de datos | **MariaDB** | Modelo ER en [base-de-datos.md](base-de-datos.md) |
 | Autenticación | **JWT** (`jjwt 0.12.5`) | Implementado en `JwtUtils.java` con el API moderno |
-| Conectores BBDD | `mariadb-java-client`, `mysql-connector-j` | Versiones estables y seguras |
+| Conectores BBDD | `mariadb-java-client` 3.5.11, `mysql-connector-j` | Versiones estables y seguras |
+| Versiones fijadas | Tomcat 10.1.61, Jackson 2.22.4, Logback 1.5.36, Hibernate Validator 8.0.6 | Por encima del BOM de Spring Boot, por avisos de seguridad |
 | Actualización de datos | Sondeo REST desde el frontend | Ver [sección 6](#6-actualización-de-datos) |
 | Fechas | `java.time` / `Instant` | Sustituye al obsoleto `new Date()` |
 
@@ -65,10 +66,12 @@ Las rutas se muestran como las ve el backend. Desde fuera, Caddy las publica baj
 
 ### 3.3. Productos · `/productos`
 
+El listado y la creación se sirven en `/productos/` (con barra final).
+
 | Método | Endpoint | Descripción |
 | :--- | :--- | :--- |
-| `GET` | `/productos` | Menú completo, filtrable por categoría (`bebida`, `entrante`, `postre`, `tapa`) |
-| `POST` | `/productos` | Crea un producto (datos y, opcionalmente, imagen). **Solo administradores** |
+| `GET` | `/productos/` | Menú completo, filtrable por categoría (`bebida`, `entrante`, `postre`, `tapa`) |
+| `POST` | `/productos/` | Crea un producto (datos y, opcionalmente, imagen). **Solo administradores** |
 | `PUT` | `/productos/{id}` | Actualiza un producto y, si se envía, su imagen. **Solo administradores** |
 | `DELETE` | `/productos/{id}` | Elimina un producto y su imagen. **Solo administradores** |
 
