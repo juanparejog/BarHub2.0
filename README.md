@@ -182,6 +182,8 @@ Ahora mismo el pipeline compila el frontend, lo analiza en SonarCloud y publica 
 
 ## Estado del proyecto
 
+Versión publicada: **2.0.0** (15 de noviembre de 2026).
+
 | Bloque | Estado |
 | :--- | :--- |
 | Base legal y estructura del repositorio | Hecho |
@@ -189,15 +191,26 @@ Ahora mismo el pipeline compila el frontend, lo analiza en SonarCloud y publica 
 | Rediseño de la interfaz (cliente, personal y administración) | Hecho |
 | Auditorías locales (Snyk, SonarQube, Trivy) | Hecho |
 | Endurecimiento del backend y pruebas de seguridad dinámicas | Hecho |
-| Pago con tarjeta real (Stripe) | Pendiente, hoy en modo demostración |
-| Pipeline CI/CD del frontend | Hecho |
-| Primer análisis en SonarCloud | Hecho |
-| Despliegue en VPS con HTTPS | En curso |
-| Dependabot y escaneo de secretos en GitHub | En curso |
-| Pipeline CI/CD del backend | Pendiente |
-| SOC automático (monitorización y alertas) | Pendiente |
-| Migración a Spring Boot 4 y a una versión de Angular con soporte | Pendiente |
+| Pipeline CI/CD del frontend y análisis en SonarCloud (Quality Gate superado) | Hecho |
+| Dependabot, acciones de GitHub fijadas por SHA y revisión de secretos con gitleaks | Hecho |
+
+**Siguiente (v2.0.1)**
+
+| Bloque | Estado |
+| :--- | :--- |
+| Pipeline CI/CD del backend (compilación, tests y cobertura enviada a SonarCloud) | Pendiente |
 | Más cobertura de tests | Pendiente |
+| Avisos de accesibilidad de SonarCloud (imágenes sin texto alternativo) | Pendiente |
+| Bloqueo de intentos repetidos en el login | Pendiente |
+| Despliegue en VPS con HTTPS y copias de seguridad de la base de datos | Pendiente |
+
+**Después (v2.1)**
+
+| Bloque | Estado |
+| :--- | :--- |
+| Migración a Spring Boot 4 y a una versión de Angular con soporte | Pendiente |
+| Pago con tarjeta real (Stripe), hoy en modo demostración | Pendiente |
+| SOC automático (monitorización y alertas) | Pendiente |
 
 ---
 
