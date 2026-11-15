@@ -40,7 +40,7 @@ public class UsuarioController {
     private static final Set<String> EXTENSIONES_PERMITIDAS = Set.of("jpg", "jpeg", "png", "webp");
     private static final Pattern NOMBRE_IMAGEN_VALIDO =
             Pattern.compile("^[a-z0-9](?:[a-z0-9_-]|\\.(?!(?:jpg|jpeg|png|webp)$)){0,100}\\.(?:jpg|jpeg|png|webp)$", Pattern.CASE_INSENSITIVE);
-    private static final Pattern EMAIL_VALIDO = Pattern.compile("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$");
+    private static final Pattern EMAIL_VALIDO = Pattern.compile("^[^@\\s]+@[^@\\s.]+(?:\\.[^@\\s.]+)+$");
 
     private final UserService userService;
 
