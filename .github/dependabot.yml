@@ -8,6 +8,8 @@ updates:
       - dependency-name: "gradle-wrapper"
         update-types: ["version-update:semver-major"]
       - dependency-name: "org.springframework.boot"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "org.springframework.boot"
         update-types: ["version-update:semver-major"] 
   - package-ecosystem: npm
     directory: /frontend
@@ -31,6 +33,9 @@ updates:
   - package-ecosystem: docker
     directory: /frontend
     schedule: { interval: weekly }
+    ignore:
+      - dependency-name: "node"
+        update-types: ["version-update:semver-major"]
   - package-ecosystem: docker-compose
     directory: /infra/docker
     schedule: { interval: weekly }
