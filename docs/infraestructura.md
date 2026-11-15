@@ -409,13 +409,15 @@ flowchart LR
     F --> G[Push imagen]
 ```
 
-> **Estado:** el pipeline cubre el frontend. El primer análisis completo en SonarCloud y el pipeline del backend están pendientes.
+> **Estado:** el pipeline cubre el frontend y SonarCloud analiza el repositorio en cada push (primer análisis completo el 15 de noviembre de 2026). El pipeline del backend está pendiente.
 
 ### 11.1. Análisis estático continuo (SonarCloud)
 
 - **Migración a la nube** desde una instancia local de SonarQube, centralizando calidad y seguridad en cada ciclo.
 - **Integración del proyecto:** repositorio vinculado a la organización, con su *Project Key* único.
 - **Resolución de conflictos:** se desactivó el **Análisis Automático** en SonarCloud para evitar colisiones con el escáner del CI.
+- **Base del código nuevo:** el análisis declara `sonar.projectVersion=2.0.0` y SonarCloud usa «Previous version», de modo que el Quality Gate evalúa el código posterior a esa versión. La cobertura global (0 %) y la duplicación global (1,7 %) siguen visibles en Overall Code.
+- **Endurecimiento del workflow:** acciones fijadas por SHA, permisos mínimos (`contents: read`), `npm ci --ignore-scripts` y análisis omitido en los PR de Dependabot, que no reciben los secretos del repositorio.
 
 ### 11.2. Dependencias y compilación
 

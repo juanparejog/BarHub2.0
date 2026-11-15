@@ -8,6 +8,7 @@ Resultados de las auditorías de seguridad y calidad realizadas sobre BarHub 2.0
 | :--- | :--- | :---: | :---: |
 | **Snyk** (reanálisis 15-nov-2026) | Vulnerabilidades en dependencias | 136 → 29 incidencias | 29 → 25 incidencias |
 | **SonarQube** | Calidad, fiabilidad y mantenibilidad | PASSED |  PASSED |
+| **SonarCloud** (CI, 15-nov-2026) | Calidad en el repositorio completo | Seguridad C, fiabilidad C | Seguridad A, fiabilidad A, mantenibilidad A; Quality Gate superado sobre el código nuevo |
 | **Trivy** | Configuración de Dockerfiles | 1 LOW → 0 | 1 HIGH + 1 LOW → 0 |
 | **Pruebas dinámicas** | Control de acceso, subidas y errores | 0 fallos (fuerza bruta pendiente) | Comprobado en navegador |
 
@@ -179,6 +180,35 @@ Auditoría de calidad y mantenibilidad del código Java/Spring Boot y Angular/Ty
 | **Mantenibilidad** | 173 | 0 (220 resueltas) |
 
 ---
+
+### SonarCloud (análisis en el pipeline)
+
+El 15 de noviembre de 2026 se ejecutó el primer análisis completo del repositorio en SonarCloud desde GitHub Actions.
+
+| Área | Primer análisis | Tras las correcciones |
+| :--- | :---: | :---: |
+| Seguridad | 10 incidencias (C) | **0 (A)** |
+| Fiabilidad | 49 incidencias (C) | **45 (A)** |
+| Mantenibilidad | 363 incidencias (A) | 363 (A) |
+| Cobertura | 0 % | 0 % |
+| Duplicación | 1,7 % | 1,7 % |
+
+**Correcciones aplicadas**
+
+- Acciones del workflow fijadas por SHA de commit (4 avisos).
+- `npm ci --ignore-scripts` en el workflow y en el `Dockerfile` del frontend, que además bloquea las versiones con el `package-lock.json` (4 avisos).
+- `gradle.lockfile` para bloquear las versiones del backend.
+- Dos expresiones regulares de validación (nombre de imagen y correo) reescritas sin retrocesos excesivos.
+- Tres navegaciones del editor de mesas marcadas como no esperadas (`void`).
+- Contenedor del frontend ejecutado con un usuario sin privilegios.
+
+**Lo que queda**
+
+- 45 avisos de fiabilidad de gravedad baja, casi todos imágenes sin texto alternativo en las plantillas del frontend.
+- 363 avisos de mantenibilidad (nota A), sin plan de limpieza completa.
+- Cobertura global del 0 %: todavía no se envían informes de tests a SonarCloud. Es la deuda principal de esta auditoría.
+
+**Quality Gate.** En el primer análisis el gate falló sobre el código nuevo (seguridad B, cobertura 0 % y duplicación del 10,9 %), porque todo el código reciente contaba como nuevo. Tras las correcciones se declaró `sonar.projectVersion=2.0.0` y se usa «Previous version» como definición de código nuevo, así que el gate evalúa el código posterior a la versión 2.0.0. Esta decisión no oculta nada: los valores globales de la tabla anterior siguen visibles en Overall Code.
 
 ## 3. Trivy
 

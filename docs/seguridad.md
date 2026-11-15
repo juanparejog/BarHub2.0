@@ -30,6 +30,7 @@ Resumen de las prácticas de seguridad aplicadas en BarHub 2.0 y un modelo de am
 | **Secretos** | Fuera del repositorio: variables de entorno y `.env` ignorado por git | `.env.example` |
 | **Accesibilidad** | Contrastes WCAG y etiquetas asociadas a los campos | SonarQube |
 | **CI/CD** | Análisis estático con SonarCloud; credenciales en secretos de GitHub | Pipeline |
+| **Endurecimiento del pipeline** | Acciones fijadas por SHA, permisos mínimos, `npm ci --ignore-scripts`, `gradle.lockfile` y contenedor del frontend sin root | SonarCloud |
 
 ## 2. Autenticación y autorización
 

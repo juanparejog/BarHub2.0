@@ -18,6 +18,7 @@ Primera versión 2.0 en preparación. Al publicarla, cambia este título por `[2
 - Pruebas de seguridad dinámicas de la API, con sus resultados en `docs/evidencias/`.
 - `Caddyfile` propio del frontend con política de caché para los bundles y reescritura de rutas de la SPA.
 - Pipeline de CI/CD del frontend con GitHub Actions, SonarCloud y publicación de la imagen en Docker Hub.
+- Primer análisis en SonarCloud: seguridad A, fiabilidad A y mantenibilidad A, con el Quality Gate superado sobre el código posterior a la versión 2.0.0 (`sonar.projectVersion`).
 - Script de bastionado del sistema Linux (`seguridad/`).
 - Documentación técnica con el modelo de datos, las auditorías y las guías de uso.
 
@@ -25,6 +26,8 @@ Primera versión 2.0 en preparación. Al publicarla, cambia este título por `[2
 - Rediseño completo de la interfaz de cliente, personal y administración.
 - Contrastes de color revisados para cumplir los mínimos de WCAG.
 - Backend actualizado a Spring Boot 3.5.16, con Tomcat, Jackson, Logback, Hibernate Validator y el conector de MariaDB fijados por encima del BOM por avisos de seguridad.
+- Endurecimiento del pipeline y de los contenedores: acciones de GitHub fijadas por SHA, permisos mínimos del workflow, `npm ci --ignore-scripts`, `gradle.lockfile` para bloquear versiones y contenedor del frontend sin usuario root.
+- Expresiones regulares de validación de correo y de nombre de imagen reescritas sin retrocesos excesivos, y navegaciones del editor de mesas marcadas como no esperadas.
 - Librería JWT actualizada a jjwt 0.12.5 y adaptada a su API actual.
 - Conectores de base de datos actualizados.
 - Refactorización de servicios con alta complejidad (por ejemplo `PedidoServiceImpl`).
@@ -55,6 +58,7 @@ Primera versión 2.0 en preparación. Al publicarla, cambia este título por `[2
 - Verificación de correo electrónico en el registro (hoy no se envía ni se exige).
 - Verificación en servidor del pago con Stripe (hoy simulado en modo demostración).
 - Límite de intentos en el login, caducidad más corta del JWT y contraseña actual al cambiarla.
-- Primer análisis en SonarCloud y pipeline del backend.
+- Pipeline del backend (compilación, tests y cobertura) y envío de informes de cobertura a SonarCloud.
+- Avisos de accesibilidad de SonarCloud (imágenes sin texto alternativo) y revisión de la duplicación.
 - Despliegue en VPS con HTTPS y SOC automático.
 - Migración a Spring Boot 4 y a una versión de Angular con soporte, para corregir los avisos de dependencias que no tienen parche compatible.

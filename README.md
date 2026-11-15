@@ -120,9 +120,12 @@ He intentado tratar la seguridad como parte del desarrollo y no como algo que se
 | :--- | :--- | :---: | :---: |
 | **SonarQube** (local) | Backend | 48 incidencias | 0 abiertas, Quality Gate superado |
 | **SonarQube** (local) | Frontend | 1 de seguridad, 145 de fiabilidad, 173 de mantenibilidad | 0 abiertas, Quality Gate superado |
+| **SonarCloud** (CI, 15-nov-2026) | Repositorio completo | 10 de seguridad (C), 49 de fiabilidad (C), 363 de mantenibilidad (A) | 0 de seguridad (A), 45 de fiabilidad (A), 363 de mantenibilidad (A) |
 | **Snyk** | Dependencias del backend | 136 incidencias | 29 (reanálisis del 15-nov-2026), de Spring Framework 6.2 y Spring Security 6.5 |
 | **Snyk** | Dependencias del frontend | 29 incidencias | 25 (reanálisis del 15-nov-2026), 24 de Angular 14 sin soporte |
 | **Trivy** | Dockerfiles | 1 HIGH y 2 LOW | 0 (usuario no root y `HEALTHCHECK`) |
+
+> El Quality Gate de SonarCloud se evalúa sobre el código posterior a la versión 2.0.0 (`sonar.projectVersion`). La cobertura global es del 0 % porque todavía no se envían informes de tests, y la duplicación global es del 1,7 %. Los 45 avisos de fiabilidad restantes son de gravedad baja, casi todos imágenes sin texto alternativo, y están en la hoja de ruta.
 
 > [!IMPORTANT]
 > Lo que queda en Snyk son avisos de Spring Framework 6.2 y Spring Security 6.5 (sus correcciones solo existen en la serie 7, Spring Boot 4) y de Angular 14, sin soporte. Ambas migraciones están documentadas como deuda técnica y en la [hoja de ruta](#estado-del-proyecto).
@@ -154,7 +157,7 @@ flowchart LR
     E --> F["Docker Hub"]
 ```
 
-Ahora mismo el pipeline cubre el frontend. El primer análisis en SonarCloud y el pipeline del backend están pendientes.
+Ahora mismo el pipeline compila el frontend, lo analiza en SonarCloud y publica la imagen en Docker Hub. El pipeline del backend (compilación, tests y cobertura) está pendiente.
 
 <details>
 <summary><b>Prácticas de seguridad aplicadas</b></summary>
@@ -188,7 +191,7 @@ Ahora mismo el pipeline cubre el frontend. El primer análisis en SonarCloud y e
 | Endurecimiento del backend y pruebas de seguridad dinámicas | Hecho |
 | Pago con tarjeta real (Stripe) | Pendiente, hoy en modo demostración |
 | Pipeline CI/CD del frontend | Hecho |
-| Primer análisis en SonarCloud | En curso |
+| Primer análisis en SonarCloud | Hecho |
 | Despliegue en VPS con HTTPS | En curso |
 | Dependabot y escaneo de secretos en GitHub | En curso |
 | Pipeline CI/CD del backend | Pendiente |

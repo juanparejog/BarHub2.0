@@ -1,0 +1,65 @@
+[1mdiff --git a/.github/workflows/ci-cd.yml b/.github/workflows/ci-cd.yml[m
+[1mindex 6e2dba3..998e017 100644[m
+[1m--- a/.github/workflows/ci-cd.yml[m
+[1m+++ b/.github/workflows/ci-cd.yml[m
+[36m@@ -6,16 +6,22 @@[m [mon:[m
+   pull_request:[m
+     branches: [ "main", "master", "dev" ][m
+ [m
+[32m+[m[32mpermissions:[m
+[32m+[m[32m  contents: read[m
+[32m+[m
+[32m+[m[32mpermissions:[m
+[32m+[m[32m  contents: read[m
+[32m+[m
+ jobs:[m
+   build-and-analyze:[m
+     runs-on: ubuntu-latest[m
+ [m
+     steps:[m
+[31m-      - uses: actions/checkout@v4[m
+[32m+[m[32m      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4[m
+         with:[m
+           fetch-depth: 0[m
+ [m
+[31m-      - uses: actions/setup-node@v4[m
+[32m+[m[32m      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4[m
+         with:[m
+           node-version: '18'[m
+           cache: 'npm'[m
+[36m@@ -24,11 +30,12 @@[m [mjobs:[m
+       - name: Install & Build[m
+         run: |[m
+           cd frontend[m
+[31m-          npm install[m
+[32m+[m[32m          npm ci --legacy-peer-deps --ignore-scripts[m
+           npm run build -- --configuration=production[m
+ [m
+       - name: SonarCloud Scan[m
+[31m-        uses: SonarSource/sonarcloud-github-action@master[m
+[32m+[m[32m        if: ${{ github.actor != 'dependabot[bot]' }}[m
+[32m+[m[32m        uses: SonarSource/sonarqube-scan-action@59202af334b4ba7b5db01b701b8e79f8b3bef0f4 # v8.5.0[m
+         env:[m
+           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}[m
+           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}[m
+[36m@@ -43,16 +50,14 @@[m [mjobs:[m
+     if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'[m
+ [m
+     steps:[m
+[31m-      - uses: actions/checkout@v4[m
+[31m-[m
+[31m-      - uses: docker/setup-buildx-action@v3[m
+[31m-[m
+[31m-      - uses: docker/login-action@v3[m
+[32m+[m[32m      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4[m
+[32m+[m[32m      - uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3[m
+[32m+[m[32m      - uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3[m
+         with:[m
+           username: ${{ secrets.DOCKER_HUB_USERNAME }}[m
+           password: ${{ secrets.DOCKER_HUB_TOKEN }}[m
+ [m
+[31m-      - uses: docker/build-push-action@v5[m
+[32m+[m[32m      - uses: docker/build-push-action@ca052bb54ab0790a636c9b5f226502c73d547a25 # v5[m
+         with:[m
+           context: ./frontend[m
+           file: ./frontend/Dockerfile[m
