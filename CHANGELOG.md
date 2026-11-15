@@ -4,7 +4,7 @@ Todos los cambios relevantes de BarHub se documentan en este archivo.
 
 El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y el proyecto usa [versionado semántico](https://semver.org/lang/es/).
 
-## [Sin publicar]
+## [2.0.0] - 2026-11-15
 
 Primera versión 2.0 en preparación. Al publicarla, cambia este título por `[2.0.0] - AAAA-MM-DD` y crea la release con la etiqueta `v2.0.0`.
 
