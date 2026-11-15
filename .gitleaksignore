@@ -1,0 +1,7 @@
+# Falsos positivos revisados el 2026-11-15
+# Ejemplo de .env en la documentación (JWT_SECRET con texto de ejemplo)
+99dd0e703e994bca12a5c6be2e6148065ec210bd:docs/infraestructura.md:generic-api-key:183
+# Ejemplo de .env en la documentación (STRIPE_SECRET_KEY y JWT_SECRET con texto de ejemplo)
+32bf2d234ec53ace892662ac46cbacdf99633f71:docs/infraestructura.md:generic-api-key:188
+# sonar.projectKey: identificador público del proyecto en SonarCloud
+723dbb0c94b613bfdb0ded55bdc28aa4f6fd945a:.github/workflows/ci-cd.yml:generic-api-key:38
