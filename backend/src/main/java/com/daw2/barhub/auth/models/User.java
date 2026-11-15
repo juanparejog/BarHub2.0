@@ -103,6 +103,7 @@ public class User {
   @JoinTable(name = "user_roles",
           joinColumns = @JoinColumn(name = "user_id"),
           inverseJoinColumns = @JoinColumn(name = "role_id"))
+  @Builder.Default
   private Set<Role> roles = new HashSet<>();
 
   @CreationTimestamp
@@ -113,6 +114,7 @@ public class User {
 
   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
   @JsonManagedReference
+  @Builder.Default
   private List<Pedido> pedidos = new ArrayList<>();
   
   public String getDireccionFormateada() {

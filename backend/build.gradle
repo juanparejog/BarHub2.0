@@ -1,8 +1,14 @@
 plugins {
     id 'java'
-    id 'org.springframework.boot' version '3.4.3'
+    id 'org.springframework.boot' version '3.5.16'
     id 'io.spring.dependency-management' version '1.1.7'
 }
+
+// Versiones por encima de las del BOM de Spring Boot 3.5.16, para corregir avisos de seguridad (ver docs/auditorias.md)
+ext['tomcat.version'] = '10.1.61'
+ext['jackson-bom.version'] = '2.22.4'
+ext['logback.version'] = '1.5.36'
+ext['hibernate-validator.version'] = '8.0.6.Final'
 
 group = 'com.daw2.barhub'
 version = '0.0.1-SNAPSHOT'
@@ -37,7 +43,7 @@ dependencies {
 
     implementation 'com.stripe:stripe-java:24.7.0'
 
-    implementation 'org.mariadb.jdbc:mariadb-java-client:3.4.3'
+    implementation 'org.mariadb.jdbc:mariadb-java-client:3.5.11'
 
     compileOnly 'org.projectlombok:lombok'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
