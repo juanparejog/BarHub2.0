@@ -7,12 +7,16 @@ updates:
     ignore:
       - dependency-name: "gradle-wrapper"
         update-types: ["version-update:semver-major"]
+      - dependency-name: "org.springframework.boot"
+        update-types: ["version-update:semver-major"] 
   - package-ecosystem: npm
     directory: /frontend
     schedule: { interval: weekly }
     open-pull-requests-limit: 3
     ignore:
       - dependency-name: "@angular/*"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "node"
         update-types: ["version-update:semver-major"]
     groups:
       npm-minor-patch:
