@@ -10,6 +10,10 @@ ext['jackson-bom.version'] = '2.22.4'
 ext['logback.version'] = '1.5.36'
 ext['hibernate-validator.version'] = '8.0.6.Final'
 
+dependencyLocking {
+    lockAllConfigurations()
+}
+
 group = 'com.daw2.barhub'
 version = '0.0.1-SNAPSHOT'
 

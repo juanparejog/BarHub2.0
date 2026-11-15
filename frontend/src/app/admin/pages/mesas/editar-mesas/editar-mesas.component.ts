@@ -50,7 +50,7 @@ export class EditarMesaComponent implements OnInit {
           this.formulario.reset(mesa);
         },
         error: () => {
-          this.router.navigate(['/admin/gestionar-mesa']);
+          void this.router.navigate(['/admin/gestionar-mesa']);
         }
       });
   }
@@ -67,7 +67,7 @@ export class EditarMesaComponent implements OnInit {
     this.mesaService.post(nuevaMesa).subscribe(
       response => {
         console.log('Mesa creada:', response);
-        this.router.navigate(['/admin/gestionar-mesas']);
+        void this.router.navigate(['/admin/gestionar-mesas']);
       },
       error => {
         console.error('Error al crear la mesa:', error);
@@ -81,7 +81,7 @@ export class EditarMesaComponent implements OnInit {
     this.mesaService.put(datosMesa).subscribe({
       next: (response) => {
         console.log('Respuesta del servidor:', response);
-        this.router.navigate(['/admin/gestionar-mesas']);
+        void this.router.navigate(['/admin/gestionar-mesas']);
       },
       error: (err) => {
         console.error('Error en la petición PUT:', err);
