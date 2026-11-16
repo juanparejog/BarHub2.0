@@ -65,6 +65,8 @@ public class JwtUtils {
       logger.error("El token JWT ha expirado: {}", e.getMessage());
     } catch (UnsupportedJwtException e) {
       logger.error("El token JWT no es compatible: {}", e.getMessage());
+    } catch (JwtException e) {
+      logger.error("Firma del token JWT no válida: {}", e.getMessage());
     } catch (IllegalArgumentException e) {
       logger.error("JWT afirma que la cadena está vacía: {}", e.getMessage());
     }

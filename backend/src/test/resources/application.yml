@@ -1,0 +1,26 @@
+# Solo para tests: base de datos en memoria y valores de prueba (no son secretos reales)
+spring:
+  application:
+    name: BarHub-test
+  sql:
+    init:
+      mode: never
+  datasource:
+    url: jdbc:h2:mem:barhub_test;MODE=MySQL;DB_CLOSE_DELAY=-1
+    username: sa
+    password:
+    driverClassName: org.h2.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        format_sql: false
+        show_sql: false
+
+stripe:
+  secret-key: sk_test_dummy_para_tests
+
+jwt:
+  jwtSecret: clave-de-pruebas-solo-para-tests-0123456789-abcdefghij
+  jwtExpirationMs: 86400000
