@@ -28,15 +28,15 @@ export class VerMesaComponent implements OnInit {
           return this.mesaService.getId(id);
         }),
       )
-      .subscribe(
-        mesa => {
+      .subscribe({
+        next: mesa => {
           this.mesa = mesa;
           console.log('Mesa cargada:', this.mesa);
         },
-        error => {
+        error: error => {
           console.error('Error al cargar la mesa:', error);
         }
-      );
+      });
   }
     
 }

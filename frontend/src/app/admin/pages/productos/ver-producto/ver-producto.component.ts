@@ -28,15 +28,15 @@ export class VerProductoComponent implements OnInit {
           return this.productoService.getId(id);
         }),
       )
-      .subscribe(
-        producto => {
+      .subscribe({
+        next: producto => {
           this.producto = producto;
           console.log('Producto cargada:', this.producto);
         },
-        error => {
+        error: error => {
           console.error('Error al cargar el producto:', error);
         }
-      );
+      });
   }
     
 }

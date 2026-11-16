@@ -64,14 +64,15 @@ export class EditarMesaComponent implements OnInit {
       estado: this.formulario.value.estado
     };
 
-    this.mesaService.post(nuevaMesa).subscribe(
-      response => {
+    this.mesaService.post(nuevaMesa).subscribe({
+      next: response => {
         console.log('Mesa creada:', response);
         void this.router.navigate(['/admin/gestionar-mesas']);
       },
-      error => {
+      error: error => {
         console.error('Error al crear la mesa:', error);
-      });
+      }
+    });
   }
 
   editarMesa() {

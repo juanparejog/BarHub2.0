@@ -36,15 +36,15 @@ export class VerPedidoComponent implements OnInit {
           return this.pedidoService.getId(id);
         }),
       )
-      .subscribe(
-        pedido => {
+      .subscribe({
+        next: pedido => {
           this.pedido = pedido;
           console.log('Pedido cargado:', this.pedido);
         },
-        error => {
+        error: error => {
           console.error('Error al cargar el pedido:', error);
         }
-      );
+      });
   }   
 
   getUserName(id_user: number | null | undefined): string {

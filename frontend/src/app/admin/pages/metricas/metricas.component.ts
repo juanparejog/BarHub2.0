@@ -133,8 +133,8 @@ export class MetricasComponent implements OnInit, OnDestroy {
         this.todosLosPedidos = (pedidos || []).map(p => {
           if (p.id && mapaDetallesPorPedido.has(p.id)) {
             p.detalles = mapaDetallesPorPedido.get(p.id);
-          } else if (!p.detalles) {
-            p.detalles = [];
+          } else {
+            p.detalles ??= [];
           }
           return p;
         });
