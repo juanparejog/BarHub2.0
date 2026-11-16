@@ -19,6 +19,8 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/seguimientos")
 public class SeguimientoController {
+
+    private static final String MSG_ERROR_AL_PROCESAR_LA_PETICION = "Error al procesar la peticion";
     @Autowired
     private PedidoRepository pedidoRepository;
 
@@ -37,7 +39,7 @@ public class SeguimientoController {
             pedidoService.save(pedido);
             return ResponseEntity.ok(PedidoDto.from(pedido));
         } catch (Exception e) {
-            log.error("Error al procesar la peticion", e);
+            log.error(MSG_ERROR_AL_PROCESAR_LA_PETICION, e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ErrorDto.from("Pedido no guardado"));
         }
     }
@@ -47,7 +49,7 @@ public class SeguimientoController {
         try {
             return ResponseEntity.ok(PedidoDto.from(pedidoService.findById(id)));
         } catch (Exception e) {
-            log.error("Error al procesar la peticion", e);
+            log.error(MSG_ERROR_AL_PROCESAR_LA_PETICION, e);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ErrorDto.from("Pedido no encontrado"));
         }
     }
@@ -62,7 +64,7 @@ public class SeguimientoController {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ErrorDto.from("Pedido no encontrado."));
             }
         } catch (Exception e) {
-            log.error("Error al procesar la peticion", e);
+            log.error(MSG_ERROR_AL_PROCESAR_LA_PETICION, e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ErrorDto.from("Error al procesar la solicitud"));
         }
     }
@@ -73,7 +75,7 @@ public class SeguimientoController {
             pedidoService.delete(id);
             return ResponseEntity.status(HttpStatus.OK).body("El pedido con id " + id + " ha sido eliminado");
         } catch (Exception e) {
-            log.error("Error al procesar la peticion", e);
+            log.error(MSG_ERROR_AL_PROCESAR_LA_PETICION, e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ErrorDto.from("Pedido no guardado"));
         }
     }
@@ -93,7 +95,7 @@ public class SeguimientoController {
             return ResponseEntity.ok(response);
 
         } catch (Exception e) {
-            log.error("Error al procesar la peticion", e);
+            log.error(MSG_ERROR_AL_PROCESAR_LA_PETICION, e);
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(ErrorDto.from("Error al procesar la solicitud"));
         }

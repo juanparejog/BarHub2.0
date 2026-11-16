@@ -76,9 +76,9 @@ class AuthIntegrationTest {
                 .andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString();
         JsonNode json = mapper.readTree(cuerpo);
-        JsonNode token = json.has("token") ? json.get("token") : json.get("accessToken");
-        assertFalse(token.asText().isBlank());
-        return token.asText();
+        String token = json.get(json.has("token") ? "token" : "accessToken").asText();
+        assertFalse(token.isBlank());
+        return token;
     }
 
     /** Pasa si la seguridad deja llegar la peticion al controlador (aunque este responda un error). */

@@ -155,7 +155,7 @@ public class User {
   }
 
   private String getDireccionCasa() {
-    return String.format("&s, Nº %s (CP: %s)",
+    return String.format("%s, Nº %s (CP: %s)",
       calle,
       casaNum != null ? casaNum : "",
       codigoPostal != null ? codigoPostal : ""

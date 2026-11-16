@@ -8,6 +8,7 @@ class BarHubApplicationTests {
 
     @Test
     void contextLoads() {
+        // Comprueba que el contexto de Spring arranca con la configuracion de pruebas (H2)
     }
 
 }

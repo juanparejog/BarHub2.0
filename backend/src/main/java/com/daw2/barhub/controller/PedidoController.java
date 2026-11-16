@@ -72,11 +72,10 @@ public class PedidoController {
                 }
             }
             // 2. Si es a DOMICILIO, validar direccion de envio
-            else if ("DOMICILIO".equals(tipoPedidoStr)) {
-                if (pedidoDto.getDireccionEnvio() == null || pedidoDto.getDireccionEnvio().trim().isEmpty()) {
-                    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                            .body(ErrorDto.from("Para pedidos a domicilio la direccion de envio es obligatoria."));
-                }
+            else if ("DOMICILIO".equals(tipoPedidoStr)
+                    && (pedidoDto.getDireccionEnvio() == null || pedidoDto.getDireccionEnvio().trim().isEmpty())) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(ErrorDto.from("Para pedidos a domicilio la direccion de envio es obligatoria."));
             }
             // 3. Si es RECOGER, no requiere mesa ni direccion de envio
 
