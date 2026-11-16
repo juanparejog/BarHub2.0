@@ -70,4 +70,4 @@ Fecha: 2026-11-14 22:46 | Objetivo: http://localhost:8080
 | :--- | :--- | :--- | :---: |
 | 30 logins fallidos seguidos | bloqueo o 429 |      30 401  | PENDIENTE |
 
-Fallos: 0. Informe guardado en resultados-seguridad-20261114-2246.md
+Fallos: 0.
