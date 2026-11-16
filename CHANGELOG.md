@@ -15,6 +15,13 @@ Versión 2.0.1 en preparación.
 
 ### Corregido
 - La validación del token JWT devuelve "no válido" ante un token con firma falsa, en lugar de propagar la excepción.
+- La fecha de los pedidos se guarda en la zona horaria de Madrid, igual que la caja. Con el servidor en UTC, el cierre de caja podía sumar mal las ventas recientes.
+- Formato erróneo (`&s` en lugar de `%s`) en la dirección de casa del usuario.
+
+### Cambiado
+- Accesibilidad: los iconos decorativos se ocultan a los lectores de pantalla y los botones de mostrar y ocultar la contraseña tienen nombre accesible.
+- `crearPedidoSeguro` dividido en métodos más pequeños, con el mismo comportamiento.
+- Llamadas `subscribe` de Angular actualizadas al formato de objeto que recomienda RxJS.
 
 ## [2.0.0] - 2026-11-15
 
