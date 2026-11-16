@@ -4,6 +4,18 @@ Todos los cambios relevantes de BarHub se documentan en este archivo.
 
 El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y el proyecto usa [versionado semántico](https://semver.org/lang/es/).
 
+## [Sin publicar]
+
+Versión 2.0.1 en preparación.
+
+### Añadido
+- Tests del backend: servicios de pedidos, caja y mesas, utilidades JWT, registro e inicio de sesión, y matriz de permisos por rol (un cliente o un empleado no accede a las rutas de administración).
+- Medición de cobertura con JaCoCo y envío del informe a SonarCloud desde la pipeline.
+- Ejecución de los tests del backend en la pipeline de GitHub Actions.
+
+### Corregido
+- La validación del token JWT devuelve "no válido" ante un token con firma falsa, en lugar de propagar la excepción.
+
 ## [2.0.0] - 2026-11-15
 
 ### Añadido
