@@ -112,6 +112,9 @@ public class UsuarioController {
             boolean admin = esAdmin(auth);
 
             String error = validarPerfil(usuarioDto, admin);
+            if (error == null) {
+                error = validarCambioPassword(usuarioExistente, usuarioDto, auth, admin);
+            }
             if (error != null) {
                 return ResponseEntity.badRequest().body(ErrorDto.from(error));
             }
@@ -123,40 +126,13 @@ public class UsuarioController {
                 usuarioExistente.setImagen(nombreImagen);
             }
 
-            // Solo un admin puede cambiar el username y los roles
-            if (admin && usuarioDto.getUsername() != null && !usuarioDto.getUsername().isBlank()) {
-                usuarioExistente.setUsername(usuarioDto.getUsername());
-            }
-            if (usuarioDto.getEmail() != null && !usuarioDto.getEmail().isBlank()) {
-                usuarioExistente.setEmail(usuarioDto.getEmail());
-            }
-            usuarioExistente.setNombre(usuarioDto.getNombre());
-            usuarioExistente.setApellido1(usuarioDto.getApellido1());
-            usuarioExistente.setApellido2(usuarioDto.getApellido2());
-            usuarioExistente.setTelefono(usuarioDto.getTelefono());
-            usuarioExistente.setCalle(usuarioDto.getCalle());
+            aplicarDatosPerfil(usuarioExistente, usuarioDto, admin);
 
-            actualizarTipoVivienda(usuarioExistente, usuarioDto);
-
-            usuarioExistente.setPortalNum(usuarioDto.getPortalNum());
-            usuarioExistente.setPisoNum(usuarioDto.getPisoNum());
-            usuarioExistente.setPuerta(usuarioDto.getPuerta());
-            usuarioExistente.setUrbanizacionNombre(usuarioDto.getUrbanizacionNombre());
-            usuarioExistente.setCasaNum(usuarioDto.getCasaNum());
-            usuarioExistente.setCodigoPostal(usuarioDto.getCodigoPostal());
-            usuarioExistente.setInstruccionesEntrega(usuarioDto.getInstruccionesEntrega());
-
-            if (usuarioDto.getPassword() != null && !usuarioDto.getPassword().isBlank()) {
+            if (hayPassword(usuarioDto)) {
                 usuarioExistente.setPassword(passwordEncoder.encode(usuarioDto.getPassword()));
             }
-
             if (admin && usuarioDto.getRoles() != null) {
-                usuarioExistente.getRoles().clear();
-                Set<Role> rolesPersistidos = usuarioDto.getRoles().stream()
-                        .map(rolDto -> roleRepository.findById(rolDto.getId())
-                                .orElseThrow(() -> new IllegalArgumentException("Rol no valido")))
-                        .collect(Collectors.toSet());
-                usuarioExistente.getRoles().addAll(rolesPersistidos);
+                actualizarRoles(usuarioExistente, usuarioDto);
             }
 
             User usuarioActualizado = userService.save(usuarioExistente);
@@ -217,8 +193,7 @@ public class UsuarioController {
                 && (d.getEmail().length() > 50 || !EMAIL_VALIDO.matcher(d.getEmail()).matches())) {
             return "Email no valido";
         }
-        if (d.getPassword() != null && !d.getPassword().isBlank()
-                && (d.getPassword().length() < 6 || d.getPassword().length() > 40)) {
+        if (hayPassword(d) && (d.getPassword().length() < 6 || d.getPassword().length() > 40)) {
             return "La contrasena debe tener entre 6 y 40 caracteres";
         }
         if (admin && d.getUsername() != null && !d.getUsername().isBlank()
@@ -226,6 +201,67 @@ public class UsuarioController {
             return "El nombre de usuario debe tener entre 3 y 20 caracteres";
         }
         return null;
+    }
+
+    private boolean hayPassword(UsuarioDto d) {
+        return d.getPassword() != null && !d.getPassword().isBlank();
+    }
+
+    /**
+     * Quien cambia su propia contrasena tiene que demostrar que conoce la actual.
+     * Un admin que cambia la de otra persona (recuperacion de cuenta) no la necesita.
+     * Devuelve el mensaje de error, o null si todo esta bien.
+     */
+    private String validarCambioPassword(User existente, UsuarioDto d, Authentication auth, boolean admin) {
+        if (!hayPassword(d)) {
+            return null;
+        }
+        boolean cambiaLaPropia = existente.getUsername().equals(auth.getName());
+        if (admin && !cambiaLaPropia) {
+            return null;
+        }
+        String actual = d.getPasswordActual();
+        if (actual == null || actual.isBlank()) {
+            return "Indica tu contrasena actual para cambiarla";
+        }
+        if (!passwordEncoder.matches(actual, existente.getPassword())) {
+            return "La contrasena actual no es correcta";
+        }
+        return null;
+    }
+
+    private void aplicarDatosPerfil(User u, UsuarioDto d, boolean admin) {
+        // Solo un admin puede cambiar el username y los roles
+        if (admin && d.getUsername() != null && !d.getUsername().isBlank()) {
+            u.setUsername(d.getUsername());
+        }
+        if (d.getEmail() != null && !d.getEmail().isBlank()) {
+            u.setEmail(d.getEmail());
+        }
+        u.setNombre(d.getNombre());
+        u.setApellido1(d.getApellido1());
+        u.setApellido2(d.getApellido2());
+        u.setTelefono(d.getTelefono());
+        u.setCalle(d.getCalle());
+
+        actualizarTipoVivienda(u, d);
+
+        u.setPortalNum(d.getPortalNum());
+        u.setPisoNum(d.getPisoNum());
+        u.setPuerta(d.getPuerta());
+        u.setUrbanizacionNombre(d.getUrbanizacionNombre());
+        u.setCasaNum(d.getCasaNum());
+        u.setCodigoPostal(d.getCodigoPostal());
+        u.setInstruccionesEntrega(d.getInstruccionesEntrega());
+    }
+
+    private void actualizarRoles(User u, UsuarioDto d) {
+        Set<Role> persistidos = d.getRoles().stream()
+                .map(rolDto -> roleRepository.findById(rolDto.getId())
+                        .orElseThrow(() -> new IllegalArgumentException("Rol no valido")))
+                .collect(Collectors.toSet());
+        u.getRoles().clear();
+        u.getRoles().addAll(persistidos);
     }
 
     private Path carpeta() {

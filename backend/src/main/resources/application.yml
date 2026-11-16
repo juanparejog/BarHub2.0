@@ -50,4 +50,4 @@ file:
 
 jwt:
   jwtSecret: ${JWT_SECRET}
-  jwtExpirationMs: 86400000
+  jwtExpirationMs: 14400000

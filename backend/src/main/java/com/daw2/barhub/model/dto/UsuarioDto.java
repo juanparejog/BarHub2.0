@@ -23,6 +23,9 @@ public class UsuarioDto {
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
 
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    private String passwordActual;
+
     private List<RoleDto> roles;
 
     private String nombre;
