@@ -30,6 +30,17 @@ jobs:
           npm ci --legacy-peer-deps --ignore-scripts
           npm run build -- --configuration=production
 
+      - uses: actions/setup-java@c5195efecf7bdfc987ee8bae7a71cb8b11521c00 # v4.7.1
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Tests del backend con cobertura
+        run: |
+          cd backend
+          chmod +x gradlew
+          ./gradlew test --no-daemon
+
       - name: SonarCloud Scan
         if: ${{ github.actor != 'dependabot[bot]' }}
         uses: SonarSource/sonarqube-scan-action@59202af334b4ba7b5db01b701b8e79f8b3bef0f4 # v8.5.0
@@ -41,6 +52,11 @@ jobs:
             -Dsonar.organization=juanparejog
             -Dsonar.projectKey=juanparejog_BarHub2.0
             -Dsonar.projectVersion=2.0.0
+            -Dsonar.exclusions=backend/build/**,backend/src/test/**
+            -Dsonar.tests=backend/src/test/java
+            -Dsonar.java.binaries=backend/build/classes/java/main
+            -Dsonar.java.test.binaries=backend/build/classes/java/test
+            -Dsonar.coverage.jacoco.xmlReportPaths=backend/build/reports/jacoco/test/jacocoTestReport.xml
 
   docker-build:
     needs: build-and-analyze
