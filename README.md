@@ -180,9 +180,12 @@ Ahora mismo el pipeline compila el frontend, lo analiza en SonarCloud y publica 
 
 ---
 
+<!-- hoja-de-ruta -->
 ## Estado del proyecto
 
-Versión publicada: **2.0.0** (15 de noviembre de 2026).
+Versión publicada: **2.0.0** (15 de noviembre de 2026). Las tareas están ordenadas por prioridad dentro de cada versión.
+
+### Hecho en 2.0.0
 
 | Bloque | Estado |
 | :--- | :--- |
@@ -194,23 +197,45 @@ Versión publicada: **2.0.0** (15 de noviembre de 2026).
 | Pipeline CI/CD del frontend y análisis en SonarCloud (Quality Gate superado) | Hecho |
 | Dependabot, acciones de GitHub fijadas por SHA y revisión de secretos con gitleaks | Hecho |
 
-**Siguiente (v2.0.1)**
+### Hoja de ruta
 
-| Bloque | Estado |
+**v2.0.1: calidad y seguridad de lo que ya existe**
+
+| Prioridad | Tarea | Objetivo |
+| :-: | :--- | :--- |
+| 1 | Tests del backend y pipeline backend con cobertura en SonarCloud | Pasar del 0 % actual de cobertura a una cifra medible |
+| 2 | Corrección del modo oscuro y del contraste en "Mis pedidos" | Interfaz legible en ambos temas |
+| 3 | Bloqueo de intentos repetidos en el login, caducidad del token y contraseña actual para cambiarla | Endurecer la autenticación |
+| 4 | Avisos de accesibilidad (imágenes sin texto alternativo) y textos de tiempo real | Fiabilidad A mantenida y mejor uso con lectores de pantalla |
+| 5 | Limpieza: conector y dialecto de MariaDB, healthcheck de la base de datos, `.gitignore` y Caddyfile | Configuración coherente |
+| 6 | Prueba de escalada de privilegios en el script de seguridad | Verificar que un cliente no accede a rutas de administración |
+
+**v2.1: funcionalidades nuevas (no requieren servidor)**
+
+| Prioridad | Tarea | Objetivo |
+| :-: | :--- | :--- |
+| 7 | Información de alérgenos (los 14 del reglamento europeo) | Cumplimiento y confianza del cliente |
+| 8 | Código QR por mesa | Pedir desde la mesa sin elegirla a mano |
+| 9 | Varios idiomas (español, portugués e inglés) | Carta traducida, tras los alérgenos |
+| 10 | Impresión de comandas | Flujo cocina y barra; pendiente decidir si hay pantalla en cocina |
+| 11 | SOC en local | Monitorización y alertas probadas sin depender de un VPS |
+| 12 | Stripe en modo de pruebas | Probar el flujo de pago completo sin cobros reales |
+
+**Cuando haya servidor**
+
+| Prioridad | Tarea | Objetivo |
+| :-: | :--- | :--- |
+| 13 | Despliegue en VPS con HTTPS y copias de seguridad | Aplicación accesible en producción |
+| 14 | SOC en producción | Monitorización real |
+| 15 | Stripe real | Último paso, tras validar todo en pruebas |
+
+**Más adelante**
+
+| Versión o momento | Tarea |
 | :--- | :--- |
-| Pipeline CI/CD del backend (compilación, tests y cobertura enviada a SonarCloud) | Pendiente |
-| Más cobertura de tests | Pendiente |
-| Avisos de accesibilidad de SonarCloud (imágenes sin texto alternativo) | Pendiente |
-| Bloqueo de intentos repetidos en el login | Pendiente |
-| Despliegue en VPS con HTTPS y copias de seguridad de la base de datos | Pendiente |
-
-**Después (v2.1)**
-
-| Bloque | Estado |
-| :--- | :--- |
-| Migración a Spring Boot 4 y a una versión de Angular con soporte | Pendiente |
-| Pago con tarjeta real (Stripe), hoy en modo demostración | Pendiente |
-| SOC automático (monitorización y alertas) | Pendiente |
+| v2.2 | Migración a Spring Boot 4 y a una versión de Angular con soporte |
+| Con demo en producción | RGPD, cliente piloto y precio |
+| Aparcado | Control de stock y analítica adicional |
 
 ---
 
