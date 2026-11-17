@@ -635,3 +635,159 @@
   .cursor-pointer {
     cursor: pointer;
   }
+
+/* Modo oscuro: contraste revisado (WCAG AA) */
+body.dark-theme .search-input::placeholder {
+  color: #cbd5e1;
+}
+
+body.dark-theme .search-icon {
+  color: #cbd5e1;
+}
+
+body.dark-theme .btn-clear-search {
+  color: #cbd5e1;
+}
+
+body.dark-theme .sort-icon {
+  color: #cbd5e1;
+}
+
+body.dark-theme .btn-crud-secondary:hover {
+  color: #f1f5f9;
+}
+
+body.dark-theme .text-slate-800 {
+  color: #f1f5f9;
+}
+
+body.dark-theme .bg-caja {
+  background: #164125;
+  color: #71e09b;
+}
+
+body.dark-theme .bg-pedidos {
+  background: #334155;
+  color: #d9d8f3;
+}
+
+body.dark-theme .bg-producto {
+  background: #413816;
+  color: #f6c2a2;
+}
+
+body.dark-theme .bg-clientes {
+  background: #163041;
+  color: #6ec7f7;
+}
+
+body.dark-theme .bg-alerta {
+  background: #411619;
+  color: #f49ab3;
+}
+
+body.dark-theme .bg-purple {
+  background: #2a1641;
+  color: #c699eb;
+}
+
+body.dark-theme .kpi-label {
+  color: #cbd5e1;
+}
+
+body.dark-theme .kpi-value {
+  color: #f1f5f9;
+}
+
+body.dark-theme .kpi-trend.positive {
+  background: #164125;
+  color: #58e48d;
+}
+
+body.dark-theme .kpi-trend.negative {
+  background: #411619;
+  color: #f599af;
+}
+
+body.dark-theme .kpi-trend.neutral {
+  background: #2b3a52;
+  color: #cbd5e1;
+}
+
+body.dark-theme .text-purple {
+  color: #e7d3f8;
+}
+
+body.dark-theme .text-emerald {
+  color: #47f5bf;
+}
+
+body.dark-theme .text-rose {
+  color: #f8c9d3;
+}
+
+body.dark-theme .text-indigo {
+  color: #d4d2f9;
+}
+
+body.dark-theme .badge-panel-subtle {
+  background: #2b3a52;
+  color: #cbc9ed;
+}
+
+body.dark-theme .cat-bebida {
+  background: #163041;
+  color: #6ec7f7;
+}
+
+body.dark-theme .cat-tapa {
+  background: #413816;
+  color: #f6c2a2;
+}
+
+body.dark-theme .cat-entrante {
+  background: #164125;
+  color: #71e09b;
+}
+
+body.dark-theme .cat-plato {
+  background: #334155;
+  color: #d9d8f3;
+}
+
+body.dark-theme .cat-postre {
+  background: #41162e;
+  color: #f19dbf;
+}
+
+body.dark-theme .action-icon.view {
+  color: #a8defa;
+}
+
+body.dark-theme .action-icon.view:hover {
+  color: #a8ddfa;
+}
+
+body.dark-theme .action-icon.edit:hover {
+  color: #facca8;
+}
+
+body.dark-theme .action-icon.delete {
+  color: #f8c9d3;
+}
+
+body.dark-theme .action-icon.delete:hover {
+  color: #fbd0db;
+}
+
+body.dark-theme .dropzone-container {
+  background: #243044;
+}
+
+body.dark-theme .dropzone-container:hover {
+  background: #334155;
+}
+
+body.dark-theme .dropzone-container.border-primary {
+  background: #2b3a52;
+}

@@ -506,3 +506,116 @@
     border-color: rgba(255, 255, 255, 0.15) !important;
     color: #f8fafc !important;
   }
+
+/* Modo oscuro: contraste revisado (WCAG AA) */
+:host-context(.dark-theme) .title-icon {
+  color: #9ce7af;
+}
+
+:host-context(.dark-theme) .kpi-card.total .material-icons {
+  background: #2b3a52;
+  color: #cbd5e1;
+}
+
+:host-context(.dark-theme) .kpi-card.disponibles .material-icons {
+  background: #164125;
+  color: #7cdfa3;
+}
+
+:host-context(.dark-theme) .kpi-card.disponible .material-icons {
+  background: #164125;
+  color: #7cdfa3;
+}
+
+:host-context(.dark-theme) .kpi-card.ocupadas .material-icons {
+  background: #411616;
+  color: #ed9797;
+}
+
+:host-context(.dark-theme) .kpi-card.ocupada .material-icons {
+  background: #411616;
+  color: #ed9797;
+}
+
+:host-context(.dark-theme) .kpi-card.reservadas .material-icons {
+  background: #163041;
+  color: #6ec7f7;
+}
+
+:host-context(.dark-theme) .kpi-card.reservada .material-icons {
+  background: #163041;
+  color: #6ec7f7;
+}
+
+:host-context(.dark-theme) .icon-avatar {
+  background: #243044;
+  color: #94a3b8;
+}
+
+:host-context(.dark-theme) .estado-disponible .icon-avatar {
+  background: #164123;
+  color: #7cdfa3;
+}
+
+:host-context(.dark-theme) .estado-ocupada .icon-avatar {
+  background: #411616;
+  color: #ed9797;
+}
+
+:host-context(.dark-theme) .estado-reservada .icon-avatar {
+  background: #163041;
+  color: #6ec7f7;
+}
+
+:host-context(.dark-theme) .badge-disponible {
+  background: #164125;
+  color: #58e48d;
+}
+
+:host-context(.dark-theme) .badge-ocupada {
+  background: #411616;
+  color: #f09e9e;
+}
+
+:host-context(.dark-theme) .badge-reservada {
+  background: #163041;
+  color: #6ec7f7;
+}
+
+:host-context(.dark-theme) .state-selector-label {
+  color: #cbd5e1;
+}
+
+:host-context(.dark-theme) .state-btn.active {
+  background: #1e293b;
+}
+
+:host-context(.dark-theme) .state-btn.active[data-state="disponible"] {
+  color: #78eda3;
+}
+
+:host-context(.dark-theme) .state-btn.active[data-state="ocupada"] {
+  color: #f6caca;
+}
+
+:host-context(.dark-theme) .state-btn.active[data-state="reservada"] {
+  color: #a8defa;
+}
+
+:host-context(.dark-theme) .btn-close-custom {
+  background: #2b3a52;
+  color: #cbd5e1;
+}
+
+:host-context(.dark-theme) .btn-close-custom:hover {
+  background: #475569;
+  color: #cbd5e1;
+}
+
+:host-context(.dark-theme) .qr-frame {
+  background: #1e293b;
+}
+
+:host-context(.dark-theme) .qr-instructions {
+  color: #cbd5e1;
+}

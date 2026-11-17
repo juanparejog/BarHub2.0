@@ -441,3 +441,96 @@
     background: #334155;
     color: #ffffff;
   }
+
+/* Modo oscuro: contraste revisado (WCAG AA) */
+:host-context(.dark-theme) .title-icon {
+  color: #fbcebc;
+}
+
+:host-context(.dark-theme) .pedido-num {
+  color: #cbd5e1;
+}
+
+:host-context(.dark-theme) .badge-status.pendiente {
+  background: #412e16;
+  color: #f8b396;
+}
+
+:host-context(.dark-theme) .badge-status.preparado {
+  background: #163041;
+  color: #6ec7f7;
+}
+
+:host-context(.dark-theme) .badge-status.listo_para_recoger {
+  background: #164123;
+  color: #58e48d;
+}
+
+:host-context(.dark-theme) .badge-status.de_camino {
+  background: #2a1641;
+  color: #c699eb;
+}
+
+:host-context(.dark-theme) .badge-status.en_camino {
+  background: #2a1641;
+  color: #c699eb;
+}
+
+:host-context(.dark-theme) .badge-status.servido {
+  background: #164123;
+  color: #58e48d;
+}
+
+:host-context(.dark-theme) .badge-status.entregado {
+  background: #164123;
+  color: #58e48d;
+}
+
+:host-context(.dark-theme) .btn-status-action.pendiente:hover:not(:disabled) {
+  background: #4d3619;
+  color: #fabfa8;
+}
+
+:host-context(.dark-theme) .btn-status-action.preparado:hover:not(:disabled) {
+  background: #19384d;
+  color: #81cef8;
+}
+
+:host-context(.dark-theme) .btn-status-action.listo_para_recoger:hover:not(:disabled) {
+  background: #194d29;
+  color: #96eeb7;
+}
+
+:host-context(.dark-theme) .btn-status-action.de_camino:hover:not(:disabled) {
+  background: #32194d;
+  color: #cba1ed;
+}
+
+:host-context(.dark-theme) .btn-status-action.en_camino:hover:not(:disabled) {
+  background: #32194d;
+  color: #cba1ed;
+}
+
+:host-context(.dark-theme) .btn-status-action.servido:hover:not(:disabled) {
+  background: #194d29;
+  color: #96eeb7;
+}
+
+:host-context(.dark-theme) .btn-status-action.entregado:hover:not(:disabled) {
+  background: #194d29;
+  color: #96eeb7;
+}
+
+:host-context(.dark-theme) .tipo-pedido-badge.is-domicilio {
+  background: #2a1641;
+  color: #c699eb;
+}
+
+:host-context(.dark-theme) .tipo-pedido-badge.is-recoger {
+  background: #413816;
+  color: #f6c2a2;
+}
+
+:host-context(.dark-theme) .empty-icon-circle {
+  background: #164123;
+}
