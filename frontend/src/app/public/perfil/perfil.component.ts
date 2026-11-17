@@ -11,6 +11,7 @@ import { Usuario } from '../../admin/pages/usuarios/interface/usuario';
 })
 export class PerfilComponent implements OnInit {
   perfilForm!: FormGroup;
+  passwordForm!: FormGroup;
   mensajeExito: string = '';
   mensajeError: string = '';
   usuarioId!: number;
@@ -43,6 +44,12 @@ export class PerfilComponent implements OnInit {
   }
 
   initForm(): void {
+    this.passwordForm = this.fb.group({
+      passwordActual: [''],
+      passwordNueva: [''],
+      passwordRepetir: ['']
+    });
+
     this.perfilForm = this.fb.group({
       username: [{ value: '', disabled: true }, [Validators.required, Validators.minLength(2)]],
       email: ['', [Validators.required, Validators.email]],
@@ -238,8 +245,43 @@ export class PerfilComponent implements OnInit {
     this.mostrarModalImagen = false;
   }
 
+  /** Devuelve el mensaje de error de la seccion de contrasena, o null si esta bien (o vacia). */
+  private validarPassword(): string | null {
+    const { passwordActual, passwordNueva, passwordRepetir } = this.passwordForm.value;
+    if (!passwordActual && !passwordNueva && !passwordRepetir) {
+      return null;
+    }
+    if (!passwordActual) {
+      return 'Indica tu contraseña actual para cambiarla.';
+    }
+    if (!passwordNueva || passwordNueva.length < 6 || passwordNueva.length > 40) {
+      return 'La nueva contraseña debe tener entre 6 y 40 caracteres.';
+    }
+    if (passwordNueva !== passwordRepetir) {
+      return 'Las contraseñas nuevas no coinciden.';
+    }
+    return null;
+  }
+
+  private mensajeDeErrorServidor(err: any): string {
+    if (err?.status === 400) {
+      const m = err.error?.message ?? err.error?.mensaje ?? err.error?.error;
+      if (typeof m === 'string' && m) {
+        return m;
+      }
+    }
+    return 'Ocurrió un error al actualizar los datos.';
+  }
+
   guardarPerfil(): void {
+    this.mensajeError = '';
     if (this.perfilForm.valid) {
+      const errorPassword = this.validarPassword();
+      if (errorPassword) {
+        this.mensajeError = errorPassword;
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        return;
+      }
       const archivoFinal = this.obtenerArchivoRenombrado();
       const nombreImagenFinal = archivoFinal ? archivoFinal.name : (this.usuarioActual?.imagen || this.perfilForm.value.imagen);
 
@@ -250,7 +292,8 @@ export class PerfilComponent implements OnInit {
         id: this.usuarioId,
         username: formValues.username,
         email: formValues.email,
-        password: this.usuarioActual?.password || '',
+        password: this.passwordForm.value.passwordNueva || '',
+        passwordActual: this.passwordForm.value.passwordActual || undefined,
         nombre: formValues.nombre,
         apellido1: formValues.apellido1,
         apellido2: formValues.apellido2,
@@ -279,7 +322,8 @@ export class PerfilComponent implements OnInit {
         },
         error: (err) => {
           console.error('Error al actualizar el perfil:', err);
-          this.mensajeError = 'Ocurrió un error al actualizar los datos.';
+          this.mensajeError = this.mensajeDeErrorServidor(err);
+          window.scrollTo({ top: 0, behavior: 'smooth' });
         }
       });
 

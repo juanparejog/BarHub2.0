@@ -3,6 +3,7 @@ export interface Usuario {
     username: string;
     email: string;
     password: string;
+    passwordActual?: string;
     roles: Rol[];
 
     nombre?:string

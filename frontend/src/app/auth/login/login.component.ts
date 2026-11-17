@@ -17,11 +17,11 @@ export class LoginComponent {
   toastMessage = '';
   toastType: 'success' | 'error' | 'info' = 'info';
 
-  showToastMessage(message: string, type: 'success' | 'error' | 'info' = 'info') {
+  showToastMessage(message: string, type: 'success' | 'error' | 'info' = 'info', duracionMs = 3000) {
     this.toastMessage = message;
     this.toastType = type;
     this.showToast = true;
-    setTimeout(() => this.showToast = false, 3000);
+    setTimeout(() => this.showToast = false, duracionMs);
   }
 
   constructor(
@@ -33,6 +33,16 @@ export class LoginComponent {
       username: ['', Validators.required],
       password: ['', Validators.required]
     });
+  }
+
+  private mensajeDeError(err: any): string {
+    if (err?.status === 429) {
+      return err.error?.message ?? 'Demasiados intentos fallidos. Vuelve a intentarlo más tarde.';
+    }
+    if (err?.status === 401) {
+      return 'Usuario o contraseña incorrectos';
+    }
+    return 'No se pudo iniciar sesión. Inténtalo de nuevo más tarde';
   }
 
   onSubmit() {
@@ -57,14 +67,12 @@ export class LoginComponent {
           localStorage.setItem('usuarioId', userId.toString());
         }
 
-        console.log('roles:', JSON.stringify(payload.roles));
-        console.log('ID guardado:', localStorage.getItem('usuarioId'));
 
         void this.router.navigate(['/carta']);
       },
       error: (err) => {
         console.error('Error de login:', err);
-        this.showToastMessage('Credenciales inválidas o error del servidor');
+        this.showToastMessage(this.mensajeDeError(err), 'error', err?.status === 429 ? 8000 : 3000);
       }
     });
   }
