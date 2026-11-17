@@ -1,14 +1,16 @@
-<div class="toast-notification" 
-     *ngIf="show" 
-     [ngClass]="type" 
-     (click)="onClose()"
-     (keydown.enter)="onClose()">
+<div class="toast-live" role="status" aria-live="polite" aria-atomic="true">
+  <div class="toast-notification" 
+       *ngIf="show" 
+       [ngClass]="type" 
+       (click)="onClose()"
+       (keydown.enter)="onClose()">
      
-    <span class="toast-message">{{ message }}</span>
-    <button type="button" 
-            class="toast-close border-0 bg-transparent" 
-            aria-label="Cerrar notificación" 
-            (click)="onClose()">
-        &times;
-    </button>
+      <span class="toast-message">{{ message }}</span>
+      <button type="button" 
+              class="toast-close border-0 bg-transparent" 
+              aria-label="Cerrar notificación" 
+              (click)="onClose()">
+          &times;
+      </button>
+  </div>
 </div>

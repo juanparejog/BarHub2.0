@@ -7,6 +7,9 @@
       <p class="pedidos-subtitle">Sigue en tiempo real el estado de tus comandas</p>
     </header>
 
+    <!-- Anuncios para lectores de pantalla -->
+    <div class="visually-hidden" role="status" aria-live="polite" aria-atomic="true">{{ anuncioEstado }}</div>
+
     <!-- Estado Vacío -->
     <div *ngIf="pedidos.length === 0" class="sin-pedidos-card">
       <div class="empty-icon">

@@ -146,6 +146,27 @@ export class SeguimientoPedidosComponent implements OnInit, OnDestroy {
     return dir;
   }
 
+  /** Texto que lee el lector de pantalla cuando cambia el estado de un pedido. */
+  anuncioEstado = '';
+  private estadosPrevios = new Map<Pedido['id'], string>();
+  private primeraCargaEstados = true;
+
+  private anunciarCambios(pedidos: Pedido[]): void {
+    const mensajes: string[] = [];
+    for (const p of pedidos) {
+      const estado = (p.estado || '').toString();
+      const antes = this.estadosPrevios.get(p.id);
+      if (!this.primeraCargaEstados && antes !== undefined && antes !== estado) {
+        mensajes.push(`Pedido ${p.id}: ahora ${estado.replace(/_/g, ' ').toLowerCase()}`);
+      }
+      this.estadosPrevios.set(p.id, estado);
+    }
+    this.primeraCargaEstados = false;
+    if (mensajes.length > 0) {
+      this.anuncioEstado = mensajes.join('. ');
+    }
+  }
+
   private iniciarRefrescoAutomatico() {
     timer(0, 5000).pipe(
       switchMap(() => this.pedidoService.getMisPedidos().pipe(
@@ -157,6 +178,7 @@ export class SeguimientoPedidosComponent implements OnInit, OnDestroy {
       takeUntil(this.destroy$)
     ).subscribe(data => {
       this.pedidos = data.filter(pedido => this.filtrarPedidosVisibles(pedido));
+      this.anunciarCambios(this.pedidos);
       this.programarEliminaciones();
     });
   }

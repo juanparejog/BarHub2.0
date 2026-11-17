@@ -334,8 +334,8 @@
   <div class="floating-cart-container">
     <div class="floating-cart-content">
       <div class="cart-info">
-        <div class="cart-items-count">
-          {{ getTotalItems() }}
+        <div class="cart-items-count" role="status" aria-live="polite">
+          {{ getTotalItems() }}<span class="visually-hidden"> productos en el carrito</span>
         </div>
         <div class="cart-total-details">
           <span class="cart-total-label">Total estimado</span>

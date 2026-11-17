@@ -59,9 +59,26 @@ export class GestionarComandasComponent implements OnInit, OnDestroy {
         });
 
         this.pedidos = sinServir;
+        this.anunciarNovedades(sinServir);
       },
       error: (err) => console.error('Error al refrescar comandas:', err)
     });
+  }
+
+  /** Texto que lee el lector de pantalla cuando llega una comanda nueva. */
+  anuncioComandas = '';
+  private idsPrevios = new Set<unknown>();
+  private primeraCargaComandas = true;
+
+  private anunciarNovedades(pedidos: any[]): void {
+    const nuevos = pedidos.filter(p => !this.idsPrevios.has(p.id));
+    if (!this.primeraCargaComandas && nuevos.length > 0) {
+      this.anuncioComandas = nuevos.length === 1
+        ? `Nueva comanda: pedido ${nuevos[0].id}`
+        : `${nuevos.length} comandas nuevas`;
+    }
+    pedidos.forEach(p => this.idsPrevios.add(p.id));
+    this.primeraCargaComandas = false;
   }
 
   getNombreProducto(det: any): string {
