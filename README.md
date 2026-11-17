@@ -130,6 +130,19 @@ He intentado tratar la seguridad como parte del desarrollo y no como algo que se
 > [!IMPORTANT]
 > Lo que queda en Snyk son avisos de Spring Framework 6.2 y Spring Security 6.5 (sus correcciones solo existen en la serie 7, Spring Boot 4) y de Angular 14, sin soporte. Ambas migraciones están documentadas como deuda técnica y en la [hoja de ruta](#estado-del-proyecto).
 
+<!-- autenticacion -->
+### Autenticación y sesiones
+
+- Contraseñas con hash en la base de datos y sesión mediante token JWT sin estado, que caduca a las 4 horas.
+- Bloqueo temporal del inicio de sesión: 5 intentos fallidos seguidos de un mismo usuario bloquean el acceso 15 minutos (respuesta 429 con `Retry-After`). También cuentan los usuarios que no existen, para no revelar cuáles existen.
+- Para cambiar la propia contraseña hay que indicar la actual.
+
+**Limitaciones conocidas** (decisiones asumidas en esta versión):
+
+- El contador de intentos vive en la memoria del backend: se reinicia al reiniciar el servicio y no se comparte entre varias instancias. Con una sola instancia es suficiente; para escalar habría que moverlo a Redis o a la base de datos.
+- El bloqueo es por usuario, no por dirección IP. Alguien podría bloquear a propósito la cuenta de otra persona durante 15 minutos. La mejora sería combinar usuario e IP.
+- Los tokens no se pueden revocar antes de caducar (por ejemplo, al cambiar la contraseña): siguen siendo válidos hasta las 4 horas.
+
 ### Pruebas de seguridad dinámicas
 
 Además de las auditorías estáticas, he probado el backend en ejecución (instancia local con Docker Compose). Los resultados están en [`docs/evidencias/`](./docs/evidencias).

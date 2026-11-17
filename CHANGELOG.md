@@ -12,16 +12,24 @@ Versión 2.0.1 en preparación.
 - Tests del backend: servicios de pedidos, caja y mesas, utilidades JWT, registro e inicio de sesión, y matriz de permisos por rol (un cliente o un empleado no accede a las rutas de administración).
 - Medición de cobertura con JaCoCo y envío del informe a SonarCloud desde la pipeline.
 - Ejecución de los tests del backend en la pipeline de GitHub Actions.
+- Bloqueo temporal del inicio de sesión: tras 5 intentos fallidos de un mismo usuario, el acceso se bloquea 15 minutos y la API responde 429 con la cabecera `Retry-After`.
+- Para cambiar la propia contraseña ahora hay que indicar la actual. Un administrador puede restablecer la de otra persona sin conocerla.
+- Sección "Cambiar contraseña" en el perfil del usuario.
 
 ### Corregido
 - La validación del token JWT devuelve "no válido" ante un token con firma falsa, en lugar de propagar la excepción.
 - La fecha de los pedidos se guarda en la zona horaria de Madrid, igual que la caja. Con el servidor en UTC, el cierre de caja podía sumar mal las ventas recientes.
 - Formato erróneo (`&s` en lugar de `%s`) en la dirección de casa del usuario.
+- El inicio de sesión distingue credenciales incorrectas, bloqueo temporal y error del servidor, en lugar de mostrar siempre el mismo mensaje.
+- Se eliminan los `console.log` del login que mostraban roles e identificador en la consola del navegador.
 
 ### Cambiado
 - Accesibilidad: los iconos decorativos se ocultan a los lectores de pantalla y los botones de mostrar y ocultar la contraseña tienen nombre accesible.
 - `crearPedidoSeguro` dividido en métodos más pequeños, con el mismo comportamiento.
 - Llamadas `subscribe` de Angular actualizadas al formato de objeto que recomienda RxJS.
+- El token de sesión caduca a las 4 horas en lugar de a las 24.
+- Al caducar la sesión se borran todos los datos guardados en el navegador (token, roles y usuario), no solo el token.
+- `UsuarioController.update` dividido en métodos más pequeños, con el mismo comportamiento.
 
 ## [2.0.0] - 2026-11-15
 
