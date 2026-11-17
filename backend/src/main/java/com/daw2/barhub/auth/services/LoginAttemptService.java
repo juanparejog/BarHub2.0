@@ -41,8 +41,9 @@ public class LoginAttemptService {
         if (r == null || r.bloqueadoHasta == null) {
             return 0;
         }
-        long segundos = Duration.between(reloj.instant(), r.bloqueadoHasta).getSeconds();
-        return Math.max(segundos, 0);
+        long milis = Duration.between(reloj.instant(), r.bloqueadoHasta).toMillis();
+        // se redondea hacia arriba: si queda medio segundo, el usuario todavia esta bloqueado
+        return milis <= 0 ? 0 : (milis + 999) / 1000;
     }
 
     public void registrarFallo(String usuario) {

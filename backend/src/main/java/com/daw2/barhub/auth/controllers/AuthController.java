@@ -10,11 +10,14 @@ import com.daw2.barhub.auth.payload.response.JwtResponse;
 import com.daw2.barhub.auth.payload.response.MessageResponse;
 import com.daw2.barhub.auth.repository.RoleRepository;
 import com.daw2.barhub.auth.repository.UserRepository;
+import com.daw2.barhub.auth.services.LoginAttemptService;
 import com.daw2.barhub.auth.services.UserDetailsImpl;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -43,11 +46,32 @@ public class AuthController {
   @Autowired
   JwtUtils jwtUtils;
 
+  @Autowired
+  LoginAttemptService loginAttemptService;
+
   @PostMapping("/login")
   public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
 
-    Authentication authentication = authenticationManager.authenticate(
-            new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
+    String usuario = loginRequest.getUsername();
+    long espera = loginAttemptService.segundosRestantes(usuario);
+    if (espera > 0) {
+      long minutos = (espera + 59) / 60;
+      return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+              .header("Retry-After", String.valueOf(espera))
+              .body(new MessageResponse("Demasiados intentos fallidos. Vuelve a intentarlo en "
+                      + minutos + (minutos == 1 ? " minuto." : " minutos.")));
+    }
+
+    Authentication authentication;
+    try {
+      authentication = authenticationManager.authenticate(
+              new UsernamePasswordAuthenticationToken(usuario, loginRequest.getPassword()));
+    } catch (BadCredentialsException e) {
+      // tambien se cuentan los usuarios que no existen: asi no se revela cuales existen
+      loginAttemptService.registrarFallo(usuario);
+      throw e;
+    }
+    loginAttemptService.registrarExito(usuario);
 
     SecurityContextHolder.getContext().setAuthentication(authentication);
     String jwt = jwtUtils.generateJwtToken(authentication);
