@@ -27,7 +27,7 @@ services:
       mysql:
         condition: service_healthy
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:mysql://barhub-mysql:3306/${DB_DATABASE:?Falta_DB_DATABASE}?useSSL=false&serverTimezone=UTC
+      - SPRING_DATASOURCE_URL=jdbc:mariadb://barhub-mysql:3306/${DB_DATABASE:?Falta_DB_DATABASE}
       - SPRING_DATASOURCE_USERNAME=${DB_USERNAME:?Falta_DB_USERNAME}
       - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD:?Falta_DB_PASSWORD}
       - JWT_SECRET=${JWT_SECRET:?Falta_JWT_SECRET}

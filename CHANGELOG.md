@@ -15,6 +15,7 @@ Versión 2.0.1 en preparación.
 - Bloqueo temporal del inicio de sesión: tras 5 intentos fallidos de un mismo usuario, el acceso se bloquea 15 minutos y la API responde 429 con la cabecera `Retry-After`.
 - Para cambiar la propia contraseña ahora hay que indicar la actual. Un administrador puede restablecer la de otra persona sin conocerla.
 - Sección "Cambiar contraseña" en el perfil del usuario.
+- `infra/docker/.env.example` con las variables necesarias para el despliegue.
 
 ### Corregido
 - La validación del token JWT devuelve "no válido" ante un token con firma falsa, en lugar de propagar la excepción.
@@ -30,6 +31,8 @@ Versión 2.0.1 en preparación.
 - El token de sesión caduca a las 4 horas en lugar de a las 24.
 - Al caducar la sesión se borran todos los datos guardados en el navegador (token, roles y usuario), no solo el token.
 - `UsuarioController.update` dividido en métodos más pequeños, con el mismo comportamiento.
+- Base de datos: un único conector (MariaDB) con su URL, driver y dialecto, y se elimina el de MySQL. Las fechas con hora se interpretan en UTC.
+- Compose local de la base de datos: versión de la imagen fijada, puerto solo accesible desde el propio equipo y comprobación de estado.
 
 ## [2.0.0] - 2026-11-15
 

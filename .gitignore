@@ -70,7 +70,7 @@ infra/mariadb_data/
 *.crt
 *.key
 *.pfx
-security/certs/
+seguridad/certs/
 
 .env
 .env.local
@@ -80,8 +80,8 @@ infra/.env
 # ------------------------------------------
 # 5. Seguridad y SOC
 # ------------------------------------------
-security/audit_scripts/logs/
-security/wazuh-agent/logs/
+seguridad/audit_scripts/logs/
+seguridad/wazuh-agent/logs/
 docker-compose.test.yml
 gitleaks-report.json
 resultados-seguridad-*.md
