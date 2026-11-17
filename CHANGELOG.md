@@ -26,6 +26,8 @@ Versión 2.0.1 en preparación.
 
 ### Cambiado
 - Accesibilidad: los iconos decorativos se ocultan a los lectores de pantalla y los botones de mostrar y ocultar la contraseña tienen nombre accesible.
+- Modo oscuro: contraste revisado según WCAG AA en 12 pantallas (Mis pedidos, comandas, pagos en efectivo, mesas, carta, confirmación de pedido, perfil, registro, bienvenida de administración, tablas de administración, cabecera y home). Se corrigen textos casi ilegibles, como el icono de ordenar de las tablas y el botón de contorno de la home. El marco del código QR sigue en blanco para que se pueda escanear.
+- Hojas de estilo sin selectores duplicados en los estilos del modo oscuro.
 - `crearPedidoSeguro` dividido en métodos más pequeños, con el mismo comportamiento.
 - Llamadas `subscribe` de Angular actualizadas al formato de objeto que recomienda RxJS.
 - El token de sesión caduca a las 4 horas en lugar de a las 24.
