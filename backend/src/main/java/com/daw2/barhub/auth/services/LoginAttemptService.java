@@ -11,7 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Frena los ataques de fuerza bruta contra el login: tras MAX_INTENTOS fallos seguidos
  * de un mismo usuario se bloquea el acceso durante DURACION_BLOQUEO.
- * Funciona en memoria (una sola instancia del backend): al reiniciar se borra todo.
+ * Funciona en memoria (una sola instancia del backend): al reiniciar se pierden los contadores.
  */
 @Service
 public class LoginAttemptService {

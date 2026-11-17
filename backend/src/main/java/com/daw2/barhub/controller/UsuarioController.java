@@ -210,7 +210,7 @@ public class UsuarioController {
     /**
      * Quien cambia su propia contrasena tiene que demostrar que conoce la actual.
      * Un admin que cambia la de otra persona (recuperacion de cuenta) no la necesita.
-     * Devuelve el mensaje de error, o null si todo esta bien.
+     * Devuelve el mensaje de error, o null si los datos son correctos.
      */
     private String validarCambioPassword(User existente, UsuarioDto d, Authentication auth, boolean admin) {
         if (!hayPassword(d)) {
