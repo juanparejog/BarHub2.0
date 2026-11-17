@@ -552,3 +552,12 @@
     gap: 4px;
   }
 }
+
+/* Modo oscuro: contraste revisado (WCAG AA) */
+:host-context(.dark-theme) .btn-bar-outline:hover {
+  color: #f1f5f9;
+}
+
+:host-context(.dark-theme) .btn-bar-subtle:hover {
+  color: #f1f5f9;
+}

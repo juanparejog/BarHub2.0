@@ -237,3 +237,36 @@ body.dark-theme .drop-zone:hover {
   border-color: #818cf8;
   background-color: #1e293b;
 }
+
+/* Modo oscuro: contraste revisado (WCAG AA) */
+body.dark-theme .perfil-card {
+  background: #1e293b;
+}
+
+body.dark-theme .custom-radio-card {
+  background: #243044;
+}
+
+body.dark-theme .custom-radio-card:hover {
+  background: #334155;
+}
+
+body.dark-theme .tipo-vivienda-card {
+  background: #243044;
+}
+
+body.dark-theme .tipo-vivienda-card .card-content {
+  color: #cbd5e1;
+}
+
+body.dark-theme .tipo-vivienda-card .icon-box {
+  color: #cbd5e1;
+}
+
+body.dark-theme .tipo-vivienda-card:hover {
+  background: #334155;
+}
+
+body.dark-theme .drop-zone.drag-over {
+  background: #2b3a52;
+}

@@ -139,3 +139,55 @@
   color: #4f46e5;
   transform: translateX(2px);
 }
+
+/* Modo oscuro: contraste revisado (WCAG AA) */
+:host-context(.dark-theme) .header-badge {
+  background: #2b3a52;
+  color: #cbc9ed;
+}
+
+:host-context(.dark-theme) .admin-title {
+  color: #f1f5f9;
+}
+
+:host-context(.dark-theme) .kpi-card {
+  background: #1e293b;
+}
+
+:host-context(.dark-theme) .admin-card {
+  background: #1e293b;
+}
+
+:host-context(.dark-theme) .icon-bg-primary {
+  background: #334155;
+  color: #d9d7f4;
+}
+
+:host-context(.dark-theme) .icon-bg-success {
+  background: #164125;
+  color: #58e48d;
+}
+
+:host-context(.dark-theme) .icon-bg-warning {
+  background: #413816;
+  color: #f9c095;
+}
+
+:host-context(.dark-theme) .icon-bg-info {
+  background: #163041;
+  color: #6ec7f7;
+}
+
+:host-context(.dark-theme) .icon-bg-danger {
+  background: #411619;
+  color: #f599af;
+}
+
+:host-context(.dark-theme) .icon-bg-purple {
+  background: #2a1641;
+  color: #c699eb;
+}
+
+:host-context(.dark-theme) .admin-card-link:hover .card-arrow {
+  color: #d4d2f9;
+}

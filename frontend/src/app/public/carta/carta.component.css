@@ -848,3 +848,17 @@
   background-color: #334155;
   color: #ffffff;
 }
+
+/* Modo oscuro: contraste revisado (WCAG AA) */
+:host-context(.dark-theme) .cart-items-count {
+  color: #f1f5f9;
+}
+
+:host-context(.dark-theme) .required-asterisk {
+  color: #fbd0d0;
+}
+
+:host-context(.dark-theme) .lock-warning-banner {
+  background: #411616;
+  color: #ed9797;
+}

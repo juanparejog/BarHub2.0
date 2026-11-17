@@ -180,3 +180,59 @@ html, body {
 .italic {
   font-style: italic;
 }
+
+/* Modo oscuro: contraste revisado (WCAG AA) */
+:host-context(.dark-theme) .crud-title {
+  color: #f1f5f9;
+}
+
+:host-context(.dark-theme) .btn-crud-secondary {
+  background: #1e293b;
+  color: #94a3b8;
+}
+
+:host-context(.dark-theme) .btn-crud-secondary:hover {
+  background: #2b3a52;
+  color: #cbd5e1;
+}
+
+:host-context(.dark-theme) .crud-card {
+  background: #1e293b;
+}
+
+:host-context(.dark-theme) .crud-table thead th {
+  background: #243044;
+  color: #94a3b8;
+}
+
+:host-context(.dark-theme) .crud-table tbody td {
+  color: #f1f5f9;
+}
+
+:host-context(.dark-theme) .crud-table tbody tr:hover {
+  background: #2b3a52;
+}
+
+:host-context(.dark-theme) .form-label {
+  color: #f1f5f9;
+}
+
+:host-context(.dark-theme) .input-group-text {
+  background: #243044;
+  color: #94a3b8;
+}
+
+:host-context(.dark-theme) .bg-success-subtle {
+  background: #16412b;
+  color: #49f3c4;
+}
+
+:host-context(.dark-theme) .bg-danger-subtle {
+  background: #411616;
+  color: #ed9797;
+}
+
+:host-context(.dark-theme) .bg-warning-subtle {
+  background: #413816;
+  color: #f6c2a2;
+}

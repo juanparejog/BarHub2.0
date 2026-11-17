@@ -220,3 +220,8 @@ button:disabled {
 :host-context(.dark-theme) .eye-btn {
   color: var(--text-muted);
 }
+
+/* Modo oscuro: contraste revisado (WCAG AA) */
+:host-context(.dark-theme) .invalid-feedback {
+  color: #fbd0d0;
+}

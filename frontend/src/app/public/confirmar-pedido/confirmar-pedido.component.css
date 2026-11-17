@@ -474,3 +474,12 @@
     justify-content: center;
   }
 }
+
+/* Modo oscuro: contraste revisado (WCAG AA) */
+:host-context(.dark-theme) .card-errors {
+  color: #fbd0d0;
+}
+
+:host-context(.dark-theme) .btn-cancel-link:hover {
+  color: #fbd0d0;
+}
