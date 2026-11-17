@@ -489,8 +489,9 @@
 
 :host-context(.dark-theme) .btn-bar-outline:hover,
 :host-context([data-theme="dark"]) .btn-bar-outline:hover {
-  background-color: #3b82f6 !important;
-  border-color: #3b82f6 !important;
+  background-color: #2563eb !important;
+  border-color: #2563eb !important;
+  color: #ffffff;
 }
 
 :host-context(.dark-theme) .btn-bar-subtle,
@@ -554,10 +555,6 @@
 }
 
 /* Modo oscuro: contraste revisado (WCAG AA) */
-:host-context(.dark-theme) .btn-bar-outline:hover {
-  color: #f1f5f9;
-}
-
 :host-context(.dark-theme) .btn-bar-subtle:hover {
   color: #f1f5f9;
 }

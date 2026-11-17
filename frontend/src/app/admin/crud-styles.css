@@ -536,6 +536,7 @@
   body.dark-theme .btn-crud-secondary:hover {
     background-color: #334155 !important;
     border-color: #475569 !important;
+    color: #f1f5f9;
   }
   
   body.dark-theme .table-toolbar {
@@ -550,7 +551,7 @@
   }
   
   body.dark-theme .search-input::placeholder {
-    color: #64748b !important;
+    color: #94a3b8 !important;
   }
   
   body.dark-theme .search-icon,
@@ -572,7 +573,7 @@
   }
   
   body.dark-theme .sort-icon {
-    color: #475569 !important;
+    color: #94a3b8 !important;
   }
   
   body.dark-theme .sort-icon.active {
@@ -637,24 +638,12 @@
   }
 
 /* Modo oscuro: contraste revisado (WCAG AA) */
-body.dark-theme .search-input::placeholder {
-  color: #cbd5e1;
-}
-
 body.dark-theme .search-icon {
   color: #cbd5e1;
 }
 
 body.dark-theme .btn-clear-search {
   color: #cbd5e1;
-}
-
-body.dark-theme .sort-icon {
-  color: #cbd5e1;
-}
-
-body.dark-theme .btn-crud-secondary:hover {
-  color: #f1f5f9;
 }
 
 body.dark-theme .text-slate-800 {

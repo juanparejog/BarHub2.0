@@ -400,3 +400,8 @@ body.dark-theme .btn-light:hover {
     scroll-behavior: auto !important;
   }
 }
+
+/* Modo oscuro: fondo del carrusel de la home en movil */
+body.dark-theme .home-bar-carousel {
+  background: #1e293b;
+}
