@@ -169,8 +169,8 @@
   height: 85px;
   border-radius: 50%;
   object-fit: cover;
-  box-shadow: 0 6px 16px rgba(10, 35, 66, 0.18);
-  border: 3px solid #ffffff;
+  box-shadow: 0 2px 8px rgba(10, 35, 66, 0.1);
+  border: 3px solid #e2e8f0;
   transition: transform 0.3s ease;
 }
 
@@ -557,4 +557,9 @@
 /* Modo oscuro: contraste revisado (WCAG AA) */
 :host-context(.dark-theme) .btn-bar-subtle:hover {
   color: #f1f5f9;
+}
+
+:host-context(.dark-theme) .home-bar-logo {
+  border-color: #334155;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
 }

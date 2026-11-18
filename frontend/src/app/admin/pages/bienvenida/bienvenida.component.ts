@@ -35,7 +35,7 @@ export class BienvenidaComponent implements OnInit {
       next: (mesas) => {
         if (mesas) {
           this.totalMesasCount = mesas.length;
-          this.mesasLibresCount = mesas.filter((m: any) => m.estado === 'disponible' || m.disponible === true).length;
+          this.mesasLibresCount = mesas.filter((m: any) => String(m.estado).toLowerCase() === 'disponible' || m.disponible === true).length;
         }
       },
       error: (err) => console.error('Error al obtener mesas:', err)

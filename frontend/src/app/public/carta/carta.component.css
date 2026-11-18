@@ -862,3 +862,7 @@
   background: #411616;
   color: #ed9797;
 }
+
+:host-context(.dark-theme) .tienda-fixed-info.bg-light {
+  background-color: #0f172a !important;
+}

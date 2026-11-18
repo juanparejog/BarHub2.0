@@ -466,8 +466,8 @@
 }
 
 :host-context(.dark-theme) .channel-icon.is-mesa {
-  background: #334155;
-  color: #cbd5f6;
+  background: #1e3a5f;
+  color: #93c5fd;
 }
 
 :host-context(.dark-theme) .badge-channel.is-mesa {
@@ -602,4 +602,10 @@
 :host-context(.dark-theme) .btn-cancel-pay:hover {
   background: #334155;
   color: #cbd5e1;
+}
+
+:host-context(.dark-theme) .panel-header .badge {
+  background-color: #0f172a !important;
+  color: #e2e8f0 !important;
+  border-color: #334155 !important;
 }
