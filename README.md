@@ -196,7 +196,7 @@ Ahora mismo el pipeline compila el frontend, lo analiza en SonarCloud y publica 
 <!-- hoja-de-ruta -->
 ## Estado del proyecto
 
-Versión publicada: **2.0.0** (15 de noviembre de 2026). Las tareas están ordenadas por prioridad dentro de cada versión.
+Versión publicada: **2.0.1** (18 de noviembre de 2026). Las tareas están ordenadas por prioridad dentro de cada versión.
 
 ### Hecho en 2.0.0
 
@@ -210,18 +210,27 @@ Versión publicada: **2.0.0** (15 de noviembre de 2026). Las tareas están orden
 | Pipeline CI/CD del frontend y análisis en SonarCloud (Quality Gate superado) | Hecho |
 | Dependabot, acciones de GitHub fijadas por SHA y revisión de secretos con gitleaks | Hecho |
 
+### Hecho en 2.0.1
+
+| Bloque | Estado |
+| :--- | :--- |
+| Tests del backend (servicios, JWT, autenticación y permisos por rol) y cobertura con JaCoCo en SonarCloud | Hecho |
+| Modo oscuro con contraste revisado (WCAG AA) en las pantallas públicas y de administración | Hecho |
+| Bloqueo de intentos repetidos en el login, caducidad del token a 4 horas y contraseña actual para cambiarla | Hecho |
+| Accesibilidad: avisos a lectores de pantalla, errores de formulario asociados a su campo y movimiento reducido | Hecho |
+| Limpieza de configuración: conector de MariaDB, healthcheck, `DB_USERNAME` unificado, actuator y Caddyfile | Hecho |
+| Prueba de escalada de privilegios con evidencia en `docs/evidencias` | Hecho |
+| Despliegue verificado desde un clon limpio con Docker Compose | Hecho |
+
 ### Hoja de ruta
 
-**v2.0.1: calidad y seguridad de lo que ya existe**
+**v2.0.2: pendiente de la 2.0.1**
 
-| Prioridad | Tarea | Objetivo |
-| :-: | :--- | :--- |
-| 1 | Tests del backend y pipeline backend con cobertura en SonarCloud | Pasar del 0 % actual de cobertura a una cifra medible |
-| 2 | Corrección del modo oscuro y del contraste en "Mis pedidos" | Interfaz legible en ambos temas |
-| 3 | Bloqueo de intentos repetidos en el login, caducidad del token y contraseña actual para cambiarla | Endurecer la autenticación |
-| 4 | Avisos de accesibilidad (imágenes sin texto alternativo) y textos de tiempo real | Fiabilidad A mantenida y mejor uso con lectores de pantalla |
-| 5 | Limpieza: conector y dialecto de MariaDB, healthcheck de la base de datos, `.gitignore` y Caddyfile | Configuración coherente |
-| 6 | Prueba de escalada de privilegios en el script de seguridad | Verificar que un cliente no accede a rutas de administración |
+| Tarea | Objetivo |
+| :--- | :--- |
+| Alertas de dependencias (Dependabot) y versiones de Angular 14 sin soporte | Reducir las vulnerabilidades abiertas |
+| Lote de avisos CSS de SonarCloud (`!important`, `transition: all`) | Hojas de estilo más mantenibles |
+| Dominio del Caddyfile como variable de entorno | Que cualquiera pueda desplegar sin tocar el repositorio |
 
 **v2.1: funcionalidades nuevas (no requieren servidor)**
 
@@ -264,6 +273,8 @@ docker compose up -d --build
 ```
 
 Los secretos nunca se versionan: el `docker-compose.yml` los lee del `.env`. Todas las variables necesarias están descritas en [`.env.example`](./infra/docker/.env.example) y el despliegue se explica con más detalle en [`infra/README.md`](./infra/README.md).
+
+En local la aplicación se sirve en `http://localhost`. Para cargar datos de demostración (productos, mesas y un administrador), pon `APP_SEED_DEMO=true` y una contraseña en `APP_SEED_ADMIN_PASSWORD` dentro del `.env`. Un cliente se obtiene registrándose en la propia aplicación, y un empleado asignando el rol desde Administración, Gestionar Usuarios.
 
 ---
 
