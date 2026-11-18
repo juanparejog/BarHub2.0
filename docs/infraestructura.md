@@ -511,20 +511,20 @@ Propuestas **aún no implementadas**, ordenadas por prioridad. Se irán marcando
 | Media | `healthcheck` en MariaDB y `depends_on` con `condition: service_healthy` | Evitar que el backend arranque antes que la base de datos |
 | Media | Fail2Ban (SSH y logs de Caddy) con aviso por Telegram | Pasar de análisis manual a detección y respuesta automáticas |
 | Media | Límite de peticiones en el login y en la creación de pedidos | Fuerza bruta y abuso de la API |
-| Media | Cabeceras de seguridad en Caddy (ejemplo abajo) | Defensa en profundidad en el navegador |
+| Media | Política de seguridad de contenido (CSP) en Caddy, que necesita pruebas con la aplicación | Complementa las cabeceras ya aplicadas frente a XSS |
 | Media | Endurecer contenedores: `security_opt: [no-new-privileges:true]` y `cap_drop: [ALL]` donde sea posible | Reducir lo que puede hacer un contenedor comprometido |
 | Media | Pipeline del backend y `trivy image` sobre las imágenes finales, más `gitleaks` | Cobertura completa de CI y detección de secretos |
 | Baja | Quitar DuckDNS cuando el servidor tenga IP fija | Un servicio y una credencial menos |
 | Baja | Definir el endpoint de salud del backend para Uptime Kuma | Monitorización más fiable que la comprobación de puerto |
 
-**Ya aplicadas:** `JWT_SECRET` y `STRIPE_SECRET_KEY` llegan al backend desde el entorno, las imágenes tienen la versión fijada y DuckDNS solo arranca con el perfil `prod`.
+**Ya aplicadas:** `JWT_SECRET` y `STRIPE_SECRET_KEY` llegan al backend desde el entorno, las imágenes tienen la versión fijada, DuckDNS solo arranca con el perfil `prod` y Caddy envía las cabeceras de seguridad básicas (HSTS, `nosniff`, `X-Frame-Options` y `Referrer-Policy`).
 
-**Ejemplo de cabeceras de seguridad en Caddy** (la política CSP depende de la aplicación y requiere pruebas):
+**Cabeceras de seguridad que Caddy aplica ya** (el dominio sale de la variable `SITE_ADDRESS`; la política CSP queda pendiente porque depende de la aplicación y requiere pruebas):
 
 ```caddyfile
-barhub2.duckdns.org {
+{$SITE_ADDRESS:http://localhost} {
     header {
-        Strict-Transport-Security "max-age=31536000; includeSubDomains"
+        Strict-Transport-Security "max-age=31536000"
         X-Content-Type-Options "nosniff"
         X-Frame-Options "DENY"
         Referrer-Policy "strict-origin-when-cross-origin"

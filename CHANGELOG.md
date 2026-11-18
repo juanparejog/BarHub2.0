@@ -14,6 +14,10 @@ El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y e
 - Carta: comentario que explica por qué el mapa incrustado usa `bypassSecurityTrustResourceUrl` (origen fijo y dirección codificada).
 - Backend: JaCoCo se fija en la 0.8.13 para que el wrapper de Gradle 8.14 resuelva el agente de cobertura.
 - Dependabot: se ignora el salto mayor del driver `mariadb-java-client` (4.x) hasta la migración prevista en la 2.2.
+- Backend: `gradle.lockfile` regenerado (JaCoCo 0.8.13 y ASM 9.8), porque el bloqueo de dependencias estaba desfasado respecto a Spring Boot.
+- Frontend: `zone.js` vuelve a la 0.11.8, la rama que admite Angular 14 (una actualización automática lo había subido a la 0.16, que `npm ci` rechaza sin `--legacy-peer-deps`).
+- Dependabot: se ignoran los menores de `zone.js` y los mayores de `@zxing/ngx-scanner` y `@stripe/stripe-js`.
+- Documentación: el ejemplo de Caddy de `docs/infraestructura.md` refleja las cabeceras y la variable `SITE_ADDRESS` reales, y `SECURITY.md` aclara que las alertas de solo desarrollo no afectan a lo que se sirve.
 
 ## [2.0.1] - 2026-11-18
 

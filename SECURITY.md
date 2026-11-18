@@ -65,6 +65,8 @@ Análisis a fecha de 18 de noviembre de 2026, a partir del código de este repos
 
 El único uso de `bypassSecurityTrustResourceUrl` es el mapa de la ubicación del local: el origen de la URL es fijo (`maps.google.com`) y la dirección se codifica con `encodeURIComponent`, de modo que un usuario no puede cambiar el servidor ni el protocolo del `iframe`.
 
+Las alertas marcadas como de desarrollo (por ejemplo `piscina` o `tar`, que llegan con Angular CLI y las herramientas de compilación) no forman parte de lo que se sirve a los usuarios: solo afectan al equipo que compila. Se resuelven con la misma migración prevista en la 2.2.
+
 Mitigaciones en el despliegue: cabeceras `Strict-Transport-Security`, `X-Content-Type-Options`, `X-Frame-Options` y `Referrer-Policy` desde Caddy, y el actuator no accesible desde fuera de la red de Docker.
 
 Esta tabla se revisa cada vez que se actualice Angular o se añada SSR, internacionalización, `innerHTML` o componentes dinámicos.
