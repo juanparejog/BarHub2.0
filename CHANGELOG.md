@@ -41,6 +41,9 @@ Versión 2.0.1 en preparación.
 - `UsuarioController.update` dividido en métodos más pequeños, con el mismo comportamiento.
 - Base de datos: un único conector (MariaDB) con su URL, driver y dialecto, y se elimina el de MySQL. Las fechas con hora se interpretan en UTC.
 - Compose local de la base de datos: versión de la imagen fijada, puerto solo accesible desde el propio equipo y comprobación de estado.
+- Variable del usuario de la base de datos unificada como `DB_USERNAME` (antes el backend leía `DB_USER` y la documentación y Docker usaban `DB_USERNAME`). Quien arranque el backend en local debe definir `DB_USERNAME`.
+- `application.yml`: el bloque de actuator estaba mal sangrado dentro de `spring`. Se mueve al nivel superior; el comportamiento no cambia (solo `health`, sin detalles).
+- Se elimina `infra/mysql/import.sql`, que no usaba nada, y la mención a un `import.sql` inexistente en `infra/README.md`.
 
 ## [2.0.0] - 2026-11-15
 

@@ -94,7 +94,6 @@ ssh -i C:\Users\User\.ssh\id_rsa -p 22022 usuario@<IP_SERVIDOR>
    Se corrobora la correcta disposición de los componentes:
    * Orquestación Docker: `infra/docker/docker-compose.yml`
    * Enrutamiento y Proxy: `infra/caddy/Caddyfile`
-   * Inicialización de Base de Datos: `infra/docker/import.sql` (opcional)
 
 ---
 

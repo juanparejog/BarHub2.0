@@ -14,7 +14,7 @@ spring:
     name: BarHub
   datasource:
     url: jdbc:mariadb://127.0.0.1:3306/barhub2_0
-    username: ${DB_USER}
+    username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
     driverClassName: org.mariadb.jdbc.Driver
   jpa:
@@ -30,18 +30,19 @@ spring:
           time_zone: UTC
   main:
     allow-bean-definition-overriding: false
-  management:
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 6MB     
+
+management:
   endpoints:
     web:
       exposure:
         include: health
   endpoint:
     health:
-      show-details: never   
-  servlet:
-    multipart:
-      max-file-size: 5MB
-      max-request-size: 6MB     
+      show-details: never
 
 file:
   name: logs/app.log
