@@ -48,8 +48,8 @@
               <div class="input-group">
                 <span class="input-group-text bg-light border-end-0"><i class="bi bi-at"></i></span>
                 <input type="text" id="username" class="form-control search-input border-start-0 ps-0" formControlName="username" 
-                       [class.is-invalid]="perfilForm.get('username')?.invalid && perfilForm.get('username')?.touched">
-                <div class="invalid-feedback">El nombre de usuario es obligatorio.</div>
+                       [class.is-invalid]="perfilForm.get('username')?.invalid && perfilForm.get('username')?.touched" [attr.aria-invalid]="perfilForm.get('username')?.invalid && perfilForm.get('username')?.touched" [attr.aria-describedby]="(perfilForm.get('username')?.invalid && perfilForm.get('username')?.touched) ? 'perfil-username-error' : null">
+                <div class="invalid-feedback" id="perfil-username-error">El nombre de usuario es obligatorio.</div>
               </div>
             </div>
 
@@ -58,23 +58,23 @@
               <div class="input-group">
                 <span class="input-group-text bg-light border-end-0"><i class="bi bi-envelope"></i></span>
                 <input type="email" id="email" class="form-control search-input border-start-0 ps-0" formControlName="email"
-                       [class.is-invalid]="perfilForm.get('email')?.invalid && perfilForm.get('email')?.touched">
-                <div class="invalid-feedback">Introduce un correo válido.</div>
+                       [class.is-invalid]="perfilForm.get('email')?.invalid && perfilForm.get('email')?.touched" [attr.aria-invalid]="perfilForm.get('email')?.invalid && perfilForm.get('email')?.touched" [attr.aria-describedby]="(perfilForm.get('email')?.invalid && perfilForm.get('email')?.touched) ? 'perfil-email-error' : null">
+                <div class="invalid-feedback" id="perfil-email-error">Introduce un correo válido.</div>
               </div>
             </div>
 
             <div class="col-md-4">
               <label for="nombre" class="form-label font-size-14 fw-semibold text-slate-800">Nombre <span class="text-rose">*</span></label>
               <input type="text" id="nombre" class="form-control search-input" formControlName="nombre" placeholder="Nombre"
-                     [class.is-invalid]="perfilForm.get('nombre')?.invalid && perfilForm.get('nombre')?.touched">
-              <div class="invalid-feedback">Obligatorio.</div>
+                     [class.is-invalid]="perfilForm.get('nombre')?.invalid && perfilForm.get('nombre')?.touched" [attr.aria-invalid]="perfilForm.get('nombre')?.invalid && perfilForm.get('nombre')?.touched" [attr.aria-describedby]="(perfilForm.get('nombre')?.invalid && perfilForm.get('nombre')?.touched) ? 'perfil-nombre-error' : null">
+              <div class="invalid-feedback" id="perfil-nombre-error">Obligatorio.</div>
             </div>
 
             <div class="col-md-4">
               <label for="apellido1" class="form-label font-size-14 fw-semibold text-slate-800">Primer Apellido <span class="text-rose">*</span></label>
               <input type="text" id="apellido1" class="form-control search-input" formControlName="apellido1" placeholder="Apellido"
-                     [class.is-invalid]="perfilForm.get('apellido1')?.invalid && perfilForm.get('apellido1')?.touched">
-              <div class="invalid-feedback">Obligatorio.</div>
+                     [class.is-invalid]="perfilForm.get('apellido1')?.invalid && perfilForm.get('apellido1')?.touched" [attr.aria-invalid]="perfilForm.get('apellido1')?.invalid && perfilForm.get('apellido1')?.touched" [attr.aria-describedby]="(perfilForm.get('apellido1')?.invalid && perfilForm.get('apellido1')?.touched) ? 'perfil-apellido1-error' : null">
+              <div class="invalid-feedback" id="perfil-apellido1-error">Obligatorio.</div>
             </div>
 
             <div class="col-md-4">
@@ -95,8 +95,8 @@
               <div class="input-group">
                 <span class="input-group-text bg-light border-end-0"><i class="bi bi-telephone"></i></span>
                 <input type="tel" id="telefono" class="form-control search-input border-start-0 ps-0" formControlName="telefono" placeholder="Ej. 600123456"
-                       [class.is-invalid]="perfilForm.get('telefono')?.invalid && perfilForm.get('telefono')?.touched">
-                <div class="invalid-feedback">Mínimo 9 dígitos.</div>
+                       [class.is-invalid]="perfilForm.get('telefono')?.invalid && perfilForm.get('telefono')?.touched" [attr.aria-invalid]="perfilForm.get('telefono')?.invalid && perfilForm.get('telefono')?.touched" [attr.aria-describedby]="(perfilForm.get('telefono')?.invalid && perfilForm.get('telefono')?.touched) ? 'perfil-telefono-error' : null">
+                <div class="invalid-feedback" id="perfil-telefono-error">Mínimo 9 dígitos.</div>
               </div>
             </div>
 
@@ -105,8 +105,8 @@
               <div class="input-group">
                 <span class="input-group-text bg-light border-end-0"><i class="bi bi-mailbox"></i></span>
                 <input type="text" id="codigoPostal" class="form-control search-input border-start-0 ps-0" formControlName="codigoPostal" placeholder="Codigo Postal"
-                       [class.is-invalid]="perfilForm.get('codigoPostal')?.invalid && perfilForm.get('codigoPostal')?.touched">
-                <div class="invalid-feedback">5 dígitos.</div>
+                       [class.is-invalid]="perfilForm.get('codigoPostal')?.invalid && perfilForm.get('codigoPostal')?.touched" [attr.aria-invalid]="perfilForm.get('codigoPostal')?.invalid && perfilForm.get('codigoPostal')?.touched" [attr.aria-describedby]="(perfilForm.get('codigoPostal')?.invalid && perfilForm.get('codigoPostal')?.touched) ? 'perfil-codigoPostal-error' : null">
+                <div class="invalid-feedback" id="perfil-codigoPostal-error">5 dígitos.</div>
               </div>
             </div>
 
@@ -115,8 +115,8 @@
               <div class="input-group">
                 <span class="input-group-text bg-light border-end-0"><i class="bi bi-house"></i></span>
                 <input type="text" id="calle" class="form-control search-input border-start-0 ps-0" formControlName="calle" placeholder="Calle"
-                       [class.is-invalid]="perfilForm.get('calle')?.invalid && perfilForm.get('calle')?.touched">
-                <div class="invalid-feedback">La calle es obligatoria.</div>
+                       [class.is-invalid]="perfilForm.get('calle')?.invalid && perfilForm.get('calle')?.touched" [attr.aria-invalid]="perfilForm.get('calle')?.invalid && perfilForm.get('calle')?.touched" [attr.aria-describedby]="(perfilForm.get('calle')?.invalid && perfilForm.get('calle')?.touched) ? 'perfil-calle-error' : null">
+                <div class="invalid-feedback" id="perfil-calle-error">La calle es obligatoria.</div>
               </div>
             </div>
 
