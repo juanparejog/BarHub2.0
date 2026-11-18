@@ -86,3 +86,6 @@ docker-compose.test.yml
 gitleaks-report.json
 resultados-seguridad-*.md
 **/uploads/
+
+# Binarios compilados: no se versionan (el gradle-wrapper.jar sigue versionado)
+/backend/*.jar

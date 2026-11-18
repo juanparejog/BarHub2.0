@@ -201,6 +201,8 @@ APP_SEED_ADMIN_PASSWORD=
 | `DB_USERNAME` / `DB_PASSWORD` | Usuario y contraseña que usa el backend |
 | `MYSQL_ROOT_PASSWORD` | Contraseña del usuario `root` de la base de datos |
 | `DUCKDNS_DOMAINS` | Solo producción. Subdominio registrado (sin `.duckdns.org`) |
+| `SITE_ADDRESS` | Solo producción. Dominio completo (por defecto `http://localhost`, sin HTTPS) |
+| `CORS_ALLOWED_ORIGINS` | Solo producción. Orígenes permitidos por el backend, separados por comas |
 | `DUCKDNS_TOKEN` | Solo producción. Token de tu cuenta de DuckDNS |
 | `STRIPE_SECRET_KEY` | Opcional. Clave secreta de Stripe; sin ella, el pago con tarjeta funciona en modo demostración |
 | `JWT_SECRET` | Secreto de firma de los tokens JWT |

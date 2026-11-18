@@ -40,8 +40,10 @@
     }
 }
 
-# Produccion: Caddy obtiene y renueva el certificado solo
-barhub2.duckdns.org {
+# Direccion del sitio. En local vale http://localhost (sin HTTPS), que es el valor
+# por defecto. En produccion se define SITE_ADDRESS=tu-dominio en el .env y Caddy
+# obtiene y renueva el certificado solo. Las cabeceras de seguridad se aplican siempre.
+{$SITE_ADDRESS:http://localhost} {
     import app
     header {
         Strict-Transport-Security "max-age=31536000"
@@ -50,9 +52,4 @@ barhub2.duckdns.org {
         Referrer-Policy "strict-origin-when-cross-origin"
         -Server
     }
-}
-
-# Pruebas en local, sin HTTPS
-http://localhost {
-    import app
 }
