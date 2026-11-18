@@ -6,7 +6,10 @@ El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y e
 
 ## [Sin publicar]
 
+## [2.0.2] - 2026-11-19
+
 ### Cambiado
+- Dependencias: Gradle 8.14.7, las acciones de GitHub del pipeline (checkout, setup-java, setup-node, setup-buildx, login y build-push) y el grupo de actualizaciones menores del frontend (Bootstrap, Chart.js y pdfmake, entre otras).
 - El dominio de producción ya no está escrito en el código: Caddy lo lee de `SITE_ADDRESS` (por defecto `http://localhost`, sin errores de certificado en local) y el backend toma los orígenes permitidos de `CORS_ALLOWED_ORIGINS`. En producción hay que definir ambas en el `.env`.
 - `.gitignore`: los `.jar` compilados de `backend/` no se versionan.
 - `SECURITY.md`: nueva sección de limitaciones conocidas con el análisis de las alertas de Angular 14 (sin soporte) y su exposición real. La migración está prevista en la 2.2.

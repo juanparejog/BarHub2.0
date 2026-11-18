@@ -196,7 +196,7 @@ Ahora mismo el pipeline compila el frontend, lo analiza en SonarCloud y publica 
 <!-- hoja-de-ruta -->
 ## Estado del proyecto
 
-Versión publicada: **2.0.1** (18 de noviembre de 2026). Las tareas están ordenadas por prioridad dentro de cada versión.
+Versión publicada: **2.0.2** (19 de noviembre de 2026). Las tareas están ordenadas por prioridad dentro de cada versión.
 
 ### Hecho en 2.0.0
 
@@ -222,15 +222,22 @@ Versión publicada: **2.0.1** (18 de noviembre de 2026). Las tareas están orden
 | Prueba de escalada de privilegios con evidencia en `docs/evidencias` | Hecho |
 | Despliegue verificado desde un clon limpio con Docker Compose | Hecho |
 
+### Hecho en 2.0.2
+
+| Bloque | Estado |
+| :--- | :--- |
+| Dominio del Caddyfile y orígenes CORS como variables de entorno (`SITE_ADDRESS` y `CORS_ALLOWED_ORIGINS`) | Hecho |
+| Alertas de dependencias analizadas: limitaciones de Angular 14 documentadas en `SECURITY.md` y Dependabot ajustado a esa versión | Hecho |
+| Actualizaciones seguras aplicadas (Gradle 8.14, acciones de GitHub y dependencias menores del frontend) y bloqueo de dependencias del backend regenerado | Hecho |
+| Los `.jar` compilados ya no se versionan y la documentación de Caddy refleja la configuración real | Hecho |
+
 ### Hoja de ruta
 
-**v2.0.2: pendiente de la 2.0.1**
+**v2.0.3: pendiente de la 2.0.2**
 
 | Tarea | Objetivo |
 | :--- | :--- |
-| Alertas de dependencias (Dependabot) y versiones de Angular 14 sin soporte | Reducir las vulnerabilidades abiertas |
 | Lote de avisos CSS de SonarCloud (`!important`, `transition: all`) | Hojas de estilo más mantenibles |
-| Dominio del Caddyfile como variable de entorno | Que cualquiera pueda desplegar sin tocar el repositorio |
 
 **v2.1: funcionalidades nuevas (no requieren servidor)**
 
