@@ -48,3 +48,23 @@ Es un proyecto mantenido por una sola persona, así que me comprometo a hacer un
 ## Pruebas permitidas
 
 Realiza las pruebas **solo en tu propia instancia local**. No ataques servidores desplegados sin autorización expresa por escrito.
+
+## Limitaciones conocidas
+
+**Frontend en Angular 14 (sin soporte).** El frontend usa Angular 14, que ya no recibe correcciones de seguridad. Las alertas de dependencias que afectan a `@angular/common`, `@angular/compiler`, `@angular/core` y `@angular/router` solo se resuelven migrando a una versión con soporte, lo que implica varios saltos de versión mayor. Esa migración está prevista para la versión 2.2.
+
+Análisis a fecha de 18 de noviembre de 2026, a partir del código de este repositorio. Los avisos abiertos en producción se agrupan así:
+
+| Grupo de avisos | ¿Afecta a BarHub? | Motivo |
+| :--- | :---: | :--- |
+| Renderizado en servidor, hidratación y `HttpTransferCache` | No | El frontend es estático, servido por Caddy, sin SSR ni hidratación |
+| `formatDate` y `digitsInfo` (consumo de memoria) | No | Los formatos de fecha y número son literales, no vienen del usuario |
+| Fuga del token XSRF por URLs relativas al protocolo | No | La sesión usa JWT en la cabecera `Authorization`, no la cookie XSRF de Angular |
+| XSS en i18n de Angular | No, por ahora | No se usa la internacionalización de Angular; se revisará si se adopta |
+| Saltos de sanitización (SVG, MathML, bindings) | Sin uso de riesgo | No hay `innerHTML` ni componentes dinámicos con contenido del usuario |
+
+El único uso de `bypassSecurityTrustResourceUrl` es el mapa de la ubicación del local: el origen de la URL es fijo (`maps.google.com`) y la dirección se codifica con `encodeURIComponent`, de modo que un usuario no puede cambiar el servidor ni el protocolo del `iframe`.
+
+Mitigaciones en el despliegue: cabeceras `Strict-Transport-Security`, `X-Content-Type-Options`, `X-Frame-Options` y `Referrer-Policy` desde Caddy, y el actuator no accesible desde fuera de la red de Docker.
+
+Esta tabla se revisa cada vez que se actualice Angular o se añada SSR, internacionalización, `innerHTML` o componentes dinámicos.

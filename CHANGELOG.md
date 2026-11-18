@@ -9,6 +9,9 @@ El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y e
 ### Cambiado
 - El dominio de producción ya no está escrito en el código: Caddy lo lee de `SITE_ADDRESS` (por defecto `http://localhost`, sin errores de certificado en local) y el backend toma los orígenes permitidos de `CORS_ALLOWED_ORIGINS`. En producción hay que definir ambas en el `.env`.
 - `.gitignore`: los `.jar` compilados de `backend/` no se versionan.
+- `SECURITY.md`: nueva sección de limitaciones conocidas con el análisis de las alertas de Angular 14 (sin soporte) y su exposición real. La migración está prevista en la 2.2.
+- Dependabot: se ignoran las versiones mayores de las herramientas ligadas a Angular 14 (devkit, Karma, Jasmine, RxJS, zone.js y TypeScript) hasta la migración, y se elimina una regla duplicada.
+- Carta: comentario que explica por qué el mapa incrustado usa `bypassSecurityTrustResourceUrl` (origen fijo y dirección codificada).
 
 ## [2.0.1] - 2026-11-18
 

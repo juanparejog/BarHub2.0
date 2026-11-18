@@ -243,6 +243,9 @@ export class CartaComponent implements OnInit {
     const baseUrl = 'https://maps.google.com/maps?q=';
     const url = `${baseUrl}${query}&z=18&iwloc=&output=embed`;
 
+    // Seguro: el origen es fijo (maps.google.com) y la direccion va codificada con
+    // encodeURIComponent, asi que quien escribe la direccion no puede cambiar el
+    // servidor ni el protocolo del iframe. Angular exige este paso para un iframe.
     return this.sanitizer.bypassSecurityTrustResourceUrl(url); // NOSONAR
   }
 
