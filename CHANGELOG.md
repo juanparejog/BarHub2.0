@@ -30,6 +30,7 @@ Versión 2.0.1 en preparación.
 ### Cambiado
 - Accesibilidad: los iconos decorativos se ocultan a los lectores de pantalla y los botones de mostrar y ocultar la contraseña tienen nombre accesible.
 - Accesibilidad: los avisos emergentes, el contador del carrito, los errores del formulario de registro y los cambios de estado en seguimiento de pedidos y comandas se anuncian a los lectores de pantalla.
+- Accesibilidad: los mensajes de error del perfil se asocian a su campo para que los lea el lector de pantalla, y se respeta la preferencia de movimiento reducido del sistema (se apagan animaciones y transiciones).
 - Modo oscuro: contraste revisado según WCAG AA en 12 pantallas (Mis pedidos, comandas, pagos en efectivo, mesas, carta, confirmación de pedido, perfil, registro, bienvenida de administración, tablas de administración, cabecera y home). Se corrigen textos casi ilegibles, como el icono de ordenar de las tablas y el botón de contorno de la home. El marco del código QR sigue en blanco para que se pueda escanear.
 - Hojas de estilo sin selectores duplicados en los estilos del modo oscuro.
 - Revisión visual en claro y oscuro de las pantallas públicas y de administración: colores unificados por tipo de pedido (mesa azul, recoger ámbar, domicilio morado) y por estado de mesa (disponible verde, ocupada roja, reservada azul); insignias de administración legibles en modo oscuro y sin la losa clara en las pantallas de gestión.
