@@ -591,15 +591,18 @@
 }
 
 :host-context(.dark-theme) .state-btn.active[data-state="disponible"] {
-  color: #78eda3;
+  background: #164125;
+  color: #58e48d;
 }
 
 :host-context(.dark-theme) .state-btn.active[data-state="ocupada"] {
-  color: #f6caca;
+  background: #4a1d1d;
+  color: #fca5a5;
 }
 
 :host-context(.dark-theme) .state-btn.active[data-state="reservada"] {
-  color: #a8defa;
+  background: #163041;
+  color: #7dd3fc;
 }
 
 :host-context(.dark-theme) .btn-close-custom {

@@ -120,15 +120,17 @@
         <span>Ver Carta Digital</span>
       </a>
       
-      <a routerLink="/auth/login" class="btn-bar btn-bar-outline">
-        <i class="bi bi-box-arrow-in-right"></i>
-        <span>Iniciar Sesión</span>
-      </a>
-      
-      <a routerLink="/auth/register" class="btn-bar btn-bar-subtle">
-        <i class="bi bi-person-plus"></i>
-        <span>Registrarse</span>
-      </a>
+      <ng-container *ngIf="!(isAuthenticated$ | async)">
+        <a routerLink="/auth/login" class="btn-bar btn-bar-outline">
+          <i class="bi bi-box-arrow-in-right"></i>
+          <span>Iniciar Sesión</span>
+        </a>
+
+        <a routerLink="/auth/register" class="btn-bar btn-bar-subtle">
+          <i class="bi bi-person-plus"></i>
+          <span>Registrarse</span>
+        </a>
+      </ng-container>
     </div>
   </section>
 

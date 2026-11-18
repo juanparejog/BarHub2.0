@@ -31,7 +31,7 @@ export class GestionarMesaComponent implements OnInit {
     this.mesaService.get().subscribe({
       next: (mesas) => {
         console.log('Mesas cargadas:', mesas);
-        this.mesas = mesas;
+        this.mesas = mesas.map((m) => ({ ...m, estado: String(m.estado).toLowerCase() }));
       },
       error: (err) => {
         console.error('Error cargando mesas:', err);

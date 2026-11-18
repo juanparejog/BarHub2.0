@@ -30,7 +30,7 @@ export class VerMesaComponent implements OnInit {
       )
       .subscribe({
         next: mesa => {
-          this.mesa = mesa;
+          this.mesa = { ...mesa, estado: String(mesa.estado).toLowerCase() };
           console.log('Mesa cargada:', this.mesa);
         },
         error: error => {

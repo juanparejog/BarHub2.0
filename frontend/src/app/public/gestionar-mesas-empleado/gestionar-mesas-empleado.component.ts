@@ -12,9 +12,9 @@ export class GestionarMesasEmpleadoComponent implements OnInit {
   mesaSeleccionadaQr: Mesa | null = null;
 
   estados = [
-    { value: 'disponible', label: 'Disponible', icon: 'event_available', classBadge: 'bg-success' },
-    { value: 'ocupada', label: 'Ocupada', icon: 'table_restaurant', classBadge: 'bg-danger' },
-    { value: 'reservada', label: 'Reservada', icon: 'event_note', classBadge: 'bg-warning text-dark' }
+    { value: 'disponible', label: 'Disponible', icon: 'event_available', classBadge: 'badge-disponible' },
+    { value: 'ocupada', label: 'Ocupada', icon: 'table_restaurant', classBadge: 'badge-ocupada' },
+    { value: 'reservada', label: 'Reservada', icon: 'event_note', classBadge: 'badge-reservada' }
   ];
 
   constructor(private readonly mesaService: MesaService) {}
@@ -30,7 +30,7 @@ export class GestionarMesasEmpleadoComponent implements OnInit {
 
   cargarMesas() {
     this.mesaService.get().subscribe({
-      next: (data) => (this.mesas = data),
+      next: (data) => (this.mesas = data.map((m) => ({ ...m, estado: String(m.estado).toLowerCase() }))),
       error: (err) => console.error('Error al cargar mesas:', err)
     });
   }

@@ -244,7 +244,6 @@ h1 {
   }
   
   /* Sobrescribir tarjetas y contenedores en Modo Oscuro */
-  body.dark-theme .crud-container,
   body.dark-theme .crud-form-card,
   body.dark-theme .card,
   body.dark-theme .table-responsive,
@@ -404,4 +403,27 @@ body.dark-theme .btn-light:hover {
 /* Modo oscuro: fondo del carrusel de la home en movil */
 body.dark-theme .home-bar-carousel {
   background: #1e293b;
+}
+
+/* Modo oscuro: textos oscuros dentro de tablas (por ejemplo, el historial de caja) */
+body.dark-theme td .text-dark:not([class*="bg-"]) {
+  color: #f1f5f9 !important;
+}
+
+/* Modo oscuro: insignias suaves de admin (WCAG AA) */
+body.dark-theme .badge.bg-primary-subtle.text-primary {
+  background-color: rgba(59, 130, 246, 0.22) !important;
+  color: #93c5fd !important;
+}
+body.dark-theme .badge.bg-success-subtle.text-success {
+  background-color: rgba(34, 197, 94, 0.2) !important;
+  color: #86efac !important;
+}
+body.dark-theme .badge.bg-danger-subtle.text-danger {
+  background-color: rgba(239, 68, 68, 0.2) !important;
+  color: #fca5a5 !important;
+}
+body.dark-theme .badge.bg-warning-subtle.text-warning {
+  background-color: rgba(245, 158, 11, 0.2) !important;
+  color: #fcd34d !important;
 }

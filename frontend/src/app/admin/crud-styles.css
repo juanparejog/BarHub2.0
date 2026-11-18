@@ -462,8 +462,7 @@
      ========================================================================== */
   
   body.dark-theme .crud-card,
-  body.dark-theme .kpi-card,
-  body.dark-theme .crud-container {
+  body.dark-theme .kpi-card {
     background-color: #1e293b !important;
     color: #f8fafc !important;
     border-color: #334155 !important;
