@@ -64,6 +64,12 @@ tasks.named('test') {
     finalizedBy tasks.named('jacocoTestReport')
 }
 
+jacoco {
+    // Fija la version que impone la gestion de dependencias de Spring Boot;
+    // sin esto, Gradle 8.14 pide otra distinta y el agente no se resuelve.
+    toolVersion = '0.8.13'
+}
+
 jacocoTestReport {
     dependsOn tasks.named('test')
     reports {

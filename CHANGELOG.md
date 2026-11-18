@@ -12,6 +12,8 @@ El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y e
 - `SECURITY.md`: nueva sección de limitaciones conocidas con el análisis de las alertas de Angular 14 (sin soporte) y su exposición real. La migración está prevista en la 2.2.
 - Dependabot: se ignoran las versiones mayores de las herramientas ligadas a Angular 14 (devkit, Karma, Jasmine, RxJS, zone.js y TypeScript) hasta la migración, y se elimina una regla duplicada.
 - Carta: comentario que explica por qué el mapa incrustado usa `bypassSecurityTrustResourceUrl` (origen fijo y dirección codificada).
+- Backend: JaCoCo se fija en la 0.8.13 para que el wrapper de Gradle 8.14 resuelva el agente de cobertura.
+- Dependabot: se ignora el salto mayor del driver `mariadb-java-client` (4.x) hasta la migración prevista en la 2.2.
 
 ## [2.0.1] - 2026-11-18
 
