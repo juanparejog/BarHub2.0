@@ -23,11 +23,16 @@ Versión 2.0.1 en preparación.
 - Formato erróneo (`&s` en lugar de `%s`) en la dirección de casa del usuario.
 - El inicio de sesión distingue credenciales incorrectas, bloqueo temporal y error del servidor, en lugar de mostrar siempre el mismo mensaje.
 - Se eliminan los `console.log` del login que mostraban roles e identificador en la consola del navegador.
+- El estado de las mesas en administración salía vacío en modo claro y el panel mostraba 0 mesas disponibles, porque la base de datos guarda el estado en mayúsculas.
+- Los botones de iniciar sesión y registrarse de la home ya no aparecen con la sesión iniciada.
+- `package-lock.json` del frontend regenerado (faltaban las dependencias de zxing, y la pipeline fallaba con `npm ci`) y correcciones automáticas de `npm audit fix`.
 
 ### Cambiado
 - Accesibilidad: los iconos decorativos se ocultan a los lectores de pantalla y los botones de mostrar y ocultar la contraseña tienen nombre accesible.
+- Accesibilidad: los avisos emergentes, el contador del carrito, los errores del formulario de registro y los cambios de estado en seguimiento de pedidos y comandas se anuncian a los lectores de pantalla.
 - Modo oscuro: contraste revisado según WCAG AA en 12 pantallas (Mis pedidos, comandas, pagos en efectivo, mesas, carta, confirmación de pedido, perfil, registro, bienvenida de administración, tablas de administración, cabecera y home). Se corrigen textos casi ilegibles, como el icono de ordenar de las tablas y el botón de contorno de la home. El marco del código QR sigue en blanco para que se pueda escanear.
 - Hojas de estilo sin selectores duplicados en los estilos del modo oscuro.
+- Revisión visual en claro y oscuro de las pantallas públicas y de administración: colores unificados por tipo de pedido (mesa azul, recoger ámbar, domicilio morado) y por estado de mesa (disponible verde, ocupada roja, reservada azul); insignias de administración legibles en modo oscuro y sin la losa clara en las pantallas de gestión.
 - `crearPedidoSeguro` dividido en métodos más pequeños, con el mismo comportamiento.
 - Llamadas `subscribe` de Angular actualizadas al formato de objeto que recomienda RxJS.
 - El token de sesión caduca a las 4 horas en lugar de a las 24.
