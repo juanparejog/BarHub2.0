@@ -148,7 +148,7 @@ export class SeguimientoPedidosComponent implements OnInit, OnDestroy {
 
   /** Texto que lee el lector de pantalla cuando cambia el estado de un pedido. */
   anuncioEstado = '';
-  private estadosPrevios = new Map<Pedido['id'], string>();
+  private readonly estadosPrevios = new Map<Pedido['id'], string>();
   private primeraCargaEstados = true;
 
   private anunciarCambios(pedidos: Pedido[]): void {

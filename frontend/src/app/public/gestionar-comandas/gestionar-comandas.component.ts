@@ -67,7 +67,7 @@ export class GestionarComandasComponent implements OnInit, OnDestroy {
 
   /** Texto que lee el lector de pantalla cuando llega una comanda nueva. */
   anuncioComandas = '';
-  private idsPrevios = new Set<unknown>();
+  private readonly idsPrevios = new Set<unknown>();
   private primeraCargaComandas = true;
 
   private anunciarNovedades(pedidos: any[]): void {

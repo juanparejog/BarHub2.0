@@ -1,5 +1,5 @@
-<div class="toast-live" role="status" aria-live="polite" aria-atomic="true">
-  <div class="toast-notification" 
+<output class="toast-live" aria-live="polite" aria-atomic="true">
+  <span class="toast-notification" 
        *ngIf="show" 
        [ngClass]="type" 
        (click)="onClose()"
@@ -12,5 +12,5 @@
               (click)="onClose()">
           &times;
       </button>
-  </div>
-</div>
+  </span>
+</output>

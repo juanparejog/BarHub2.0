@@ -532,6 +532,7 @@
   }
   
   .cart-items-count {
+    display: block;
     background: rgba(255, 255, 255, 0.2);
     color: #0f172a;
     font-weight: 800;
