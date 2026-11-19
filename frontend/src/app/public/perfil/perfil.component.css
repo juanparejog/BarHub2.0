@@ -251,28 +251,13 @@ ng-container {
   background: #334155;
 }
 
-:host-context(.dark-theme) .tipo-vivienda-card {
-  background: #243044;
-}
-
-:host-context(.dark-theme) .tipo-vivienda-card .card-content {
-  color: #cbd5e1;
-}
-
-:host-context(.dark-theme) .tipo-vivienda-card .icon-box {
-  color: #cbd5e1;
-}
-
-:host-context(.dark-theme) .tipo-vivienda-card:hover {
-  background: #334155;
-}
-
 :host-context(.dark-theme) .drop-zone.drag-over {
   background: #2b3a52;
 }
 
 /* Modo oscuro: tarjetas de tipo de vivienda (borde, textos, hover y seleccionada) */
 :host-context(.dark-theme) .tipo-vivienda-card {
+  background: #243044;
   border-color: #334155;
 }
 
