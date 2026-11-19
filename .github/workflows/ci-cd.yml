@@ -51,9 +51,10 @@ jobs:
           args: >
             -Dsonar.organization=juanparejog
             -Dsonar.projectKey=juanparejog_BarHub2.0
-            -Dsonar.projectVersion=2.0.0
+            -Dsonar.projectVersion=2.0.3
             -Dsonar.sources=.
             -Dsonar.exclusions=backend/build/**,backend/src/test/**,backend/src/main/resources/demo/**
+            -Dsonar.coverage.exclusions=frontend/**,seguridad/**
             -Dsonar.tests=backend/src/test/java
             -Dsonar.java.binaries=backend/build/classes/java/main
             -Dsonar.java.test.binaries=backend/build/classes/java/test
