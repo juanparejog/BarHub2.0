@@ -35,7 +35,7 @@
 
 /* Transiciones suaves en campos de formulario e inputs */
 .form-control, .input-group-text, .form-select {
-  transition: all 0.3s ease;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .form-control:focus, .form-select:focus {
@@ -58,7 +58,7 @@
   border-radius: 0.75rem;
   padding: 0.75rem 1.25rem 0.75rem 2.5rem;
   cursor: pointer;
-  transition: all 0.25s ease-in-out;
+  transition: background-color 0.25s ease-in-out, border-color 0.25s ease-in-out, box-shadow 0.25s ease-in-out, transform 0.25s ease-in-out;
 }
 
 .custom-radio-card:hover {
@@ -94,7 +94,7 @@ ng-container {
 
 /* Botón con animación de elevación al pasar el ratón */
 .btn-animated {
-  transition: all 0.3s ease;
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
 }
 
 .btn-animated:not(:disabled):hover {
@@ -120,7 +120,7 @@ ng-container {
   border-radius: 1rem;
   padding: 1.25rem 1rem;
   text-align: center;
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: background-color 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1), color 0.3s cubic-bezier(0.16, 1, 0.3, 1), transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   height: 100%;
 }
 
@@ -220,7 +220,7 @@ ng-container {
   background-color: #f8fafc;
   border-radius: 12px;
   cursor: pointer;
-  transition: all 0.2s ease-in-out;
+  transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out;
 }
 
 .drop-zone:hover, .drop-zone.drag-over {

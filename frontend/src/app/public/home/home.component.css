@@ -118,7 +118,7 @@
   border-radius: 50%;
   backdrop-filter: blur(4px);
   margin: 0 16px;
-  transition: all 0.3s ease;
+  transition: background 0.3s ease, transform 0.3s ease;
 }
 
 .carousel-control-prev:hover, .carousel-control-next:hover {
@@ -231,7 +231,7 @@
   background: #f8fafc;
   border: 1px solid rgba(74, 103, 130, 0.15);
   border-radius: 16px;
-  transition: all 0.3s ease;
+  transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
 }
 
 .info-badge:hover {

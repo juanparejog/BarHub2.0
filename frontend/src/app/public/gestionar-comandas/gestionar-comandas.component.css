@@ -46,7 +46,7 @@
     color: #475569;
     display: flex;
     align-items: center;
-    transition: all 0.2s ease;
+    transition: background 0.2s ease, color 0.2s ease;
     cursor: pointer;
   }
   
@@ -239,7 +239,7 @@
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, color 0.2s ease, opacity 0.2s ease, transform 0.2s ease;
   }
   
   .btn-status-action:hover:not(:disabled) {
@@ -337,7 +337,7 @@
     display: flex;
     align-items: center;
     gap: 6px;
-    transition: all 0.2s ease;
+    transition: background 0.2s ease, border 0.2s ease, color 0.2s ease;
   }
   
   .tipo-pedido-badge .material-icons {

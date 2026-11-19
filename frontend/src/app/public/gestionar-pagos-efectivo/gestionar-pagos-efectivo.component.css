@@ -81,7 +81,7 @@
     border-radius: 16px;
     padding: 14px 16px;
     cursor: pointer;
-    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: background 0.25s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1), transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   }
   
   .pedido-item-card:hover {
@@ -105,7 +105,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.2s ease;
+    transition: background 0.2s ease, color 0.2s ease;
   }
   
   /* 1. MESA (Azul) */
@@ -212,7 +212,7 @@
     justify-content: center;
     color: #475569;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: background 0.2s ease, color 0.2s ease;
   }
   
   .btn-close-custom:hover {
@@ -344,7 +344,7 @@
     font-size: 0.95rem;
     color: #1e293b;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
     display: flex;
     align-items: center;
     justify-content: center;

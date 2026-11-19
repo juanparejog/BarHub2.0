@@ -92,7 +92,7 @@
   background-color: #ffffff;
   border: 1px solid rgba(0, 0, 0, 0.06) !important;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03) !important;
-  transition: all var(--transition-fast);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast), transform var(--transition-fast);
 }
 
 /* Efectos al pasar el ratón (Hover) */
@@ -129,7 +129,7 @@
 .card-arrow {
   font-size: 1.1rem;
   color: #cbd5e1;
-  transition: all var(--transition-fast);
+  transition: color var(--transition-fast), opacity var(--transition-fast), transform var(--transition-fast);
   opacity: 0.5;
   transform: translateX(-4px);
 }

@@ -55,7 +55,7 @@
     font-weight: 600;
     padding: 8px 18px;
     border-radius: 30px;
-    transition: all 0.2s ease-in-out;
+    transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out, color 0.2s ease-in-out;
     cursor: pointer;
     font-size: 0.88rem;
     display: inline-flex;
@@ -83,7 +83,7 @@
     padding: 6px 14px;
     border-radius: 20px;
     font-size: 0.82rem;
-    transition: all 0.2s ease-in-out;
+    transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out, color 0.2s ease-in-out;
     cursor: pointer;
   }
   
@@ -313,7 +313,7 @@
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    transition: all 0.2s ease-in-out;
+    transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out, color 0.2s ease-in-out;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
   }
   
@@ -336,7 +336,7 @@
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    transition: all 0.2s ease-in-out;
+    transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out, color 0.2s ease-in-out;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
   }
   
@@ -624,7 +624,7 @@
   .dropzone-container {
     background-color: #f8f9fa;
     border-color: #dee2e6 !important;
-    transition: all 0.2s ease-in-out;
+    transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out;
   }
   
   .dropzone-container:hover, .dropzone-container.border-primary {
