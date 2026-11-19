@@ -31,14 +31,14 @@
              style="object-fit: cover;" />
         
         <!-- Fallback si la imagen no existe -->
-        <div class="avatar-placeholder-fallback rounded-circle bg-light border border-3 border-white shadow-sm align-items-center justify-content-center w-100 h-100 d-none">
+        <div class="avatar-placeholder-fallback rounded-circle bg-body-tertiary border border-3 border-white shadow-sm align-items-center justify-content-center w-100 h-100 d-none">
           <i class="bi bi-person-fill text-secondary fs-1"></i>
         </div>
       </div>
 
       <!-- Nombre y Roles -->
       <div class="flex-grow-1 text-center text-md-start">
-        <h2 class="h3 mb-1 fw-bold text-dark">{{ obtenerNombreCompleto() }}</h2>
+        <h2 class="h3 mb-1 fw-bold text-body">{{ obtenerNombreCompleto() }}</h2>
         <div class="text-muted mb-2">&#64;{{ usuario.username }}</div>
         
         <!-- Badges de Roles -->
@@ -50,7 +50,7 @@
             </span>
           </ng-container>
           <ng-template #sinRoles>
-            <span class="badge-role text-muted bg-light border">Sin Roles</span>
+            <span class="badge-role text-muted bg-body-tertiary border">Sin Roles</span>
           </ng-template>
         </div>
       </div>
@@ -63,39 +63,39 @@
     <!-- Bloque 1: Información de Cuenta y Contacto -->
     <div class="col-lg-6">
       <div class="crud-card h-100 p-4">
-        <h5 class="fw-bold text-dark mb-3 border-bottom pb-2">
+        <h5 class="fw-bold text-body mb-3 border-bottom pb-2">
           <i class="bi bi-person-lines-fill text-primary me-2"></i>Información Personal y Cuenta
         </h5>
 
         <div class="row g-3">
           <div class="col-sm-6">
             <span class="text-muted small d-block">ID de Usuario</span>
-            <span class="fw-semibold text-dark">#{{ usuario.id }}</span>
+            <span class="fw-semibold text-body">#{{ usuario.id }}</span>
           </div>
 
           <div class="col-sm-6">
             <span class="text-muted small d-block">Nombre de Usuario</span>
-            <span class="fw-semibold text-dark">&#64;{{ usuario.username }}</span>
+            <span class="fw-semibold text-body">&#64;{{ usuario.username }}</span>
           </div>
 
           <div class="col-sm-6">
             <span class="text-muted small d-block">Correo Electrónico</span>
-            <span class="fw-semibold text-dark">{{ usuario.email }}</span>
+            <span class="fw-semibold text-body">{{ usuario.email }}</span>
           </div>
 
           <div class="col-sm-6">
             <span class="text-muted small d-block">Teléfono de Contacto</span>
-            <span class="fw-semibold text-dark">{{ usuario.telefono || 'No registrado' }}</span>
+            <span class="fw-semibold text-body">{{ usuario.telefono || 'No registrado' }}</span>
           </div>
 
           <div class="col-sm-6">
             <span class="text-muted small d-block">Nombre</span>
-            <span class="fw-semibold text-dark">{{ usuario.nombre || 'No registrado' }}</span>
+            <span class="fw-semibold text-body">{{ usuario.nombre || 'No registrado' }}</span>
           </div>
 
           <div class="col-sm-6">
             <span class="text-muted small d-block">Apellidos</span>
-            <span class="fw-semibold text-dark">{{ obtenerApellidos() || 'No registrados' }}</span>
+            <span class="fw-semibold text-body">{{ obtenerApellidos() || 'No registrados' }}</span>
           </div>
         </div>
       </div>
@@ -104,56 +104,56 @@
     <!-- Bloque 2: Dirección y Entrega -->
     <div class="col-lg-6">
       <div class="crud-card h-100 p-4">
-        <h5 class="fw-bold text-dark mb-3 border-bottom pb-2">
+        <h5 class="fw-bold text-body mb-3 border-bottom pb-2">
           <i class="bi bi-house-door-fill text-primary me-2"></i>Dirección y Datos de Envío
         </h5>
 
         <div class="row g-3">
           <div class="col-sm-6">
             <span class="text-muted small d-block">Tipo de Vivienda</span>
-            <span class="fw-semibold text-dark text-capitalize">{{ usuario.tipoVivienda || 'No especificada' }}</span>
+            <span class="fw-semibold text-body text-capitalize">{{ usuario.tipoVivienda || 'No especificada' }}</span>
           </div>
 
           <div class="col-sm-6">
             <span class="text-muted small d-block">Código Postal</span>
-            <span class="fw-semibold text-dark">{{ usuario.codigoPostal || 'No especificado' }}</span>
+            <span class="fw-semibold text-body">{{ usuario.codigoPostal || 'No especificado' }}</span>
           </div>
 
           <div class="col-12">
             <span class="text-muted small d-block">Calle / Dirección</span>
-            <span class="fw-semibold text-dark">{{ usuario.calle || 'No registrada' }}</span>
+            <span class="fw-semibold text-body">{{ usuario.calle || 'No registrada' }}</span>
           </div>
 
           <!-- Campos específicos según tipo de vivienda -->
           <div class="col-sm-4" *ngIf="usuario.portalNum">
             <span class="text-muted small d-block">Portal / Nº</span>
-            <span class="fw-semibold text-dark">{{ usuario.portalNum }}</span>
+            <span class="fw-semibold text-body">{{ usuario.portalNum }}</span>
           </div>
 
           <div class="col-sm-4" *ngIf="usuario.pisoNum">
             <span class="text-muted small d-block">Piso</span>
-            <span class="fw-semibold text-dark">{{ usuario.pisoNum }}</span>
+            <span class="fw-semibold text-body">{{ usuario.pisoNum }}</span>
           </div>
 
           <div class="col-sm-4" *ngIf="usuario.puerta">
             <span class="text-muted small d-block">Puerta</span>
-            <span class="fw-semibold text-dark">{{ usuario.puerta }}</span>
+            <span class="fw-semibold text-body">{{ usuario.puerta }}</span>
           </div>
 
           <div class="col-sm-6" *ngIf="usuario.urbanizacionNombre">
             <span class="text-muted small d-block">Urbanización</span>
-            <span class="fw-semibold text-dark">{{ usuario.urbanizacionNombre }}</span>
+            <span class="fw-semibold text-body">{{ usuario.urbanizacionNombre }}</span>
           </div>
 
           <div class="col-sm-6" *ngIf="usuario.casaNum">
             <span class="text-muted small d-block">Nº Casa / Chalet</span>
-            <span class="fw-semibold text-dark">{{ usuario.casaNum }}</span>
+            <span class="fw-semibold text-body">{{ usuario.casaNum }}</span>
           </div>
 
           <!-- Instrucciones de Entrega -->
           <div class="col-12 mt-3 pt-2 border-top">
             <span class="text-muted small d-block mb-1">Instrucciones Especiales de Entrega</span>
-            <p class="small text-secondary mb-0 bg-light p-2 rounded border" *ngIf="usuario.instruccionesEntrega; else sinInstrucciones">
+            <p class="small text-secondary mb-0 bg-body-tertiary p-2 rounded border" *ngIf="usuario.instruccionesEntrega; else sinInstrucciones">
               <i class="bi bi-chat-left-text me-1"></i> {{ usuario.instruccionesEntrega }}
             </p>
             <ng-template #sinInstrucciones>

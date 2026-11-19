@@ -44,7 +44,7 @@
 
       <!-- Contador de registros -->
       <div class="text-muted small fw-medium">
-        Mostrando <span class="text-dark fw-bold">{{ usuariosFiltrados.length }}</span> de {{ usuarios.length }} usuarios
+        Mostrando <span class="text-body fw-bold">{{ usuariosFiltrados.length }}</span> de {{ usuarios.length }} usuarios
       </div>
     </div>
 
@@ -113,7 +113,7 @@
                        style="width: 42px; height: 42px; object-fit: cover;" />
                   
                   <!-- Fallback si la imagen no existe en assets/images/usuarios/ -->
-                  <div class="avatar-placeholder-fallback rounded-circle bg-light align-items-center justify-content-center border d-none" 
+                  <div class="avatar-placeholder-fallback rounded-circle bg-body-tertiary align-items-center justify-content-center border d-none" 
                        style="width: 42px; height: 42px;">
                     <i class="bi bi-person-fill text-secondary fs-5"></i>
                   </div>
@@ -121,7 +121,7 @@
 
                 <!-- Datos de Nombre y Nickname -->
                 <div>
-                  <div class="fw-semibold text-dark">
+                  <div class="fw-semibold text-body">
                     {{ obtenerNombreCompleto(usuario) }}
                   </div>
                   <div class="text-muted small" *ngIf="usuario.nombre || usuario.apellido1">
@@ -146,7 +146,7 @@
                   </span>
                 </ng-container>
                 <ng-template #sinRoles>
-                  <span class="badge-role text-muted bg-light">Sin Roles</span>
+                  <span class="badge-role text-muted bg-body-tertiary">Sin Roles</span>
                 </ng-template>
               </div>
             </td>

@@ -21,7 +21,7 @@
         </div>
         <div>
           <span class="d-block text-muted small fw-semibold">Pedidos Totales</span>
-          <span class="fs-5 fw-bold text-dark" *ngIf="!cargandoMetrics; else spinner">
+          <span class="fs-5 fw-bold text-body" *ngIf="!cargandoMetrics; else spinner">
             {{ totalPedidosHoy }}
           </span>
         </div>
@@ -36,7 +36,7 @@
         </div>
         <div>
           <span class="d-block text-muted small fw-semibold">Mesas Disponibles</span>
-          <span class="fs-5 fw-bold text-dark" *ngIf="!cargandoMetrics; else spinner">
+          <span class="fs-5 fw-bold text-body" *ngIf="!cargandoMetrics; else spinner">
             {{ mesasLibresCount }} / {{ totalMesasCount }}
           </span>
         </div>
@@ -51,7 +51,7 @@
         </div>
         <div>
           <span class="d-block text-muted small fw-semibold">Caja Total</span>
-          <span class="fs-5 fw-bold text-dark" *ngIf="!cargandoMetrics; else spinner">
+          <span class="fs-5 fw-bold text-body" *ngIf="!cargandoMetrics; else spinner">
             {{ cajaDiariaTotal | currency:'EUR':'symbol':'1.2-2' }}
           </span>
         </div>
@@ -93,7 +93,7 @@
             </div>
             <div class="card-content flex-grow-1">
               <div class="d-flex align-items-center justify-content-between mb-1">
-                <h2 class="card-title h5 fw-bold text-dark mb-0">Detalles de Pedido</h2>
+                <h2 class="card-title h5 fw-bold text-body mb-0">Detalles de Pedido</h2>
                 <i class="bi bi-arrow-right card-arrow"></i>
               </div>
               <p class="card-text text-secondary small mb-0">
@@ -115,7 +115,7 @@
             </div>
             <div class="card-content flex-grow-1">
               <div class="d-flex align-items-center justify-content-between mb-1">
-                <h2 class="card-title h5 fw-bold text-dark mb-0">Gestionar Mesas</h2>
+                <h2 class="card-title h5 fw-bold text-body mb-0">Gestionar Mesas</h2>
                 <i class="bi bi-arrow-right card-arrow"></i>
               </div>
               <p class="card-text text-secondary small mb-0">
@@ -137,7 +137,7 @@
             </div>
             <div class="card-content flex-grow-1">
               <div class="d-flex align-items-center justify-content-between mb-1">
-                <h2 class="card-title h5 fw-bold text-dark mb-0">Gestionar Pedidos</h2>
+                <h2 class="card-title h5 fw-bold text-body mb-0">Gestionar Pedidos</h2>
                 <i class="bi bi-arrow-right card-arrow"></i>
               </div>
               <p class="card-text text-secondary small mb-0">
@@ -159,7 +159,7 @@
             </div>
             <div class="card-content flex-grow-1">
               <div class="d-flex align-items-center justify-content-between mb-1">
-                <h2 class="card-title h5 fw-bold text-dark mb-0">Gestionar Productos</h2>
+                <h2 class="card-title h5 fw-bold text-body mb-0">Gestionar Productos</h2>
                 <i class="bi bi-arrow-right card-arrow"></i>
               </div>
               <p class="card-text text-secondary small mb-0">
@@ -181,7 +181,7 @@
             </div>
             <div class="card-content flex-grow-1">
               <div class="d-flex align-items-center justify-content-between mb-1">
-                <h2 class="card-title h5 fw-bold text-dark mb-0">Gestionar Usuarios</h2>
+                <h2 class="card-title h5 fw-bold text-body mb-0">Gestionar Usuarios</h2>
                 <i class="bi bi-arrow-right card-arrow"></i>
               </div>
               <p class="card-text text-secondary small mb-0">

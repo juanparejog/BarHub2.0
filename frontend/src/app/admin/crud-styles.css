@@ -463,84 +463,85 @@
   
   body.dark-theme .crud-card,
   body.dark-theme .kpi-card {
-    background-color: #1e293b !important;
-    color: #f8fafc !important;
-    border-color: #334155 !important;
+    background-color: #1e293b;
+    color: #f8fafc;
+    border-color: #334155;
   }
   
   body.dark-theme .crud-header {
-    border-bottom-color: #334155 !important;
+    border-bottom-color: #334155;
   }
   
   body.dark-theme .crud-title {
-    color: #f8fafc !important;
+    color: #f8fafc;
   }
   
   body.dark-theme .crud-table {
-    background-color: #1e293b !important;
-    color: #f8fafc !important;
+    background-color: #1e293b;
+    color: #f8fafc;
   }
   
   body.dark-theme .crud-table thead th {
-    background-color: #0f172a !important;
-    color: #cbd5e1 !important;
-    border-bottom: 2px solid #334155 !important;
+    background-color: #0f172a;
+    color: #cbd5e1;
+    border-bottom: 2px solid #334155;
   }
   
   body.dark-theme .crud-table tbody td {
-    color: #f8fafc !important;
-    border-bottom: 1px solid #334155 !important;
+    color: #f8fafc;
+    border-bottom: 1px solid #334155;
   }
   
   body.dark-theme .crud-table tbody tr:hover {
-    background-color: #2d3748 !important;
+    background-color: #2d3748;
   }
   
   body.dark-theme .btn-categoria-filtro,
   body.dark-theme .btn-rango-filtro {
-    background-color: #1e293b !important;
-    color: #94a3b8 !important;
-    border-color: #334155 !important;
+    background-color: #1e293b;
+    color: #94a3b8;
+    border-color: #334155;
   }
   
   body.dark-theme .btn-categoria-filtro:hover,
   body.dark-theme .btn-rango-filtro:hover {
-    background-color: #334155 !important;
-    color: #f8fafc !important;
+    background-color: #334155;
+    color: #f8fafc;
   }
   
   body.dark-theme .btn-categoria-filtro.active {
-    background-color: #4f46e5 !important;
-    color: #ffffff !important;
-    border-color: #4f46e5 !important;
+    background-color: #4f46e5;
+    color: #ffffff;
+    border-color: #4f46e5;
   }
   
   body.dark-theme .btn-rango-filtro.active {
-    background-color: #0f172a !important;
-    color: #ffffff !important;
-    border-color: #64748b !important;
+    background-color: #0f172a;
+    color: #ffffff;
+    border-color: #64748b;
   }
   
   body.dark-theme .crud-table img,
   body.dark-theme .product-thumbnail {
-    border-color: #334155 !important;
+    border-color: #334155;
   }
   
   body.dark-theme .btn-crud-secondary {
-    background-color: #1e293b !important;
-    color: #f8fafc !important;
-    border-color: #334155 !important;
+    background-color: #1e293b;
+    color: #f8fafc;
+    border-color: #334155;
   }
   
   body.dark-theme .btn-crud-secondary:hover {
-    background-color: #334155 !important;
-    border-color: #475569 !important;
+    background-color: #334155;
+    border-color: #475569;
     color: #f1f5f9;
   }
   
   body.dark-theme .table-toolbar {
-    background-color: #0f172a !important;
-    border-bottom-color: #334155 !important;
+    --bs-light-bg-subtle: #0f172a;
+    background-color: #0f172a;
+    border-bottom-color: #334155;
   }
   
   body.dark-theme .search-input {
@@ -555,11 +556,11 @@
   
   body.dark-theme .search-icon,
   body.dark-theme .btn-clear-search {
-    color: #64748b !important;
+    color: #64748b;
   }
   
   body.dark-theme .btn-clear-search:hover {
-    color: #f8fafc !important;
+    color: #f8fafc;
   }
   
   body.dark-theme .img-thumbnail-crud {
@@ -568,21 +569,21 @@
   }
   
   body.dark-theme .sortable-th:hover {
-    background-color: #2d3748 !important;
+    background-color: #2d3748;
   }
   
   body.dark-theme .sort-icon {
-    color: #94a3b8 !important;
+    color: #94a3b8;
   }
   
   body.dark-theme .sort-icon.active {
-    color: #818cf8 !important;
+    color: #818cf8;
   }
   
-  body.dark-theme .crud-card .bg-light {
-    background-color: #0f172a !important;
-    border-top-color: #334155 !important;
-    color: #f8fafc !important;
+  body.dark-theme .crud-card .bg-body-tertiary {
+    /* border-top es una utilidad de Bootstrap con !important: se cambia la variable que lee */
+    --bs-border-color: #334155;
+    color: #f8fafc;
   }
 /* ==========================================================================
    ESTILOS DIRECTOS PARA INPUT DE TIPO FILE (Sin :has y sin tocar HTML)

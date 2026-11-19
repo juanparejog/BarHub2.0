@@ -239,63 +239,10 @@ h1 {
     --input-bg: #0f172a;
     --input-text: #f8fafc;
   
-    background-color: var(--bg-main) !important;
-    color: var(--text-main) !important;
+    background-color: var(--bg-main);
+    color: var(--text-main);
   }
-  
-  /* Sobrescribir tarjetas y contenedores en Modo Oscuro */
-  body.dark-theme .crud-form-card,
-  body.dark-theme .card,
-  body.dark-theme .table-responsive,
-  body.dark-theme .modal-content {
-    background-color: var(--bg-card) !important;
-    color: var(--text-main) !important;
-    border-color: var(--border-color) !important;
-  }
-  
-  /* Sobrescribir tablas */
-  body.dark-theme .table {
-    color: var(--text-main) !important;
-    background-color: var(--bg-card) !important;
-  }
-  
-  body.dark-theme .table td,
-  body.dark-theme .table th {
-    border-color: var(--border-color) !important;
-    color: var(--text-main) !important;
-  }
-  
-  body.dark-theme .table-hover tbody tr:hover {
-    background-color: var(--table-hover) !important;
-  }
-  
-  /* Sobrescribir inputs, selects y controles de formulario */
-  body.dark-theme .form-control,
-  body.dark-theme .form-select {
-    background-color: var(--input-bg) !important;
-    color: var(--input-text) !important;
-    border-color: var(--border-color) !important;
-  }
-  
-  body.dark-theme .form-control::placeholder {
-    color: var(--text-muted) !important;
-  }
-  
-  /* Sobrescribir encabezados y textos */
-  body.dark-theme h1, 
-  body.dark-theme h2, 
-  body.dark-theme h3, 
-  body.dark-theme h4, 
-  body.dark-theme h5, 
-  body.dark-theme h6,
-  body.dark-theme .crud-title {
-    color: var(--text-main) !important;
-  }
-  
-  body.dark-theme .text-muted {
-    color: var(--text-muted) !important;
-  }
-  
+
   /* Estilo para el botón conmutador de tema */
   .btn-theme-toggle {
     background: transparent;
@@ -315,78 +262,6 @@ h1 {
   /* =========================================================
    ESTILOS GLOBALES PARA MODO OSCURO (dark-theme)
    ========================================================= */
-
-/* 1. Fondos de Tarjetas / Containers blancos */
-body.dark-theme .card,
-body.dark-theme .bg-white,
-body.dark-theme [class*="card"],
-body.dark-theme .container-fluid .bg-light,
-body.dark-theme .table-responsive,
-body.dark-theme .modal-content {
-  background-color: #1e293b !important; /* Fondo azul oscuro/grisáceo */
-  color: #f8fafc !important;            /* Texto blanco/claro */
-  border-color: #334155 !important;
-}
-
-/* 2. Encabezados, títulos y textos secundarios */
-body.dark-theme h1, 
-body.dark-theme h2, 
-body.dark-theme h3, 
-body.dark-theme h4, 
-body.dark-theme h5, 
-body.dark-theme h6,
-body.dark-theme .card-title,
-body.dark-theme .fw-bold {
-  color: #f8fafc !important;
-}
-
-body.dark-theme .text-muted,
-body.dark-theme .text-secondary,
-body.dark-theme small {
-  color: #94a3b8 !important;
-}
-
-/* 3. Tablas de datos (ej. Gestión de Usuarios / Pedidos) */
-body.dark-theme table,
-body.dark-theme .table {
-  color: #f8fafc !important;
-  background-color: #1e293b !important;
-}
-
-body.dark-theme .table thead th {
-  background-color: #0f172a !important;
-  color: #cbd5e1 !important;
-  border-bottom-color: #334155 !important;
-}
-
-body.dark-theme .table tbody td,
-body.dark-theme .table tbody tr {
-  background-color: #1e293b !important;
-  color: #f8fafc !important;
-  border-color: #334155 !important;
-}
-
-/* 4. Formularios e Inputs (Buscadores, Selects, Inputs) */
-body.dark-theme .form-control,
-body.dark-theme .form-select,
-body.dark-theme .input-group-text {
-  background-color: #0f172a !important;
-  color: #f8fafc !important;
-  border-color: #334155 !important;
-}
-
-
-/* 5. Botones Neutros / Blancos */
-body.dark-theme .btn-light,
-body.dark-theme .btn-outline-secondary {
-  background-color: #334155 !important;
-  color: #f8fafc !important;
-  border-color: #475569 !important;
-}
-
-body.dark-theme .btn-light:hover {
-  background-color: #475569 !important;
-}
 
 /* ==========================================================================
    MODO OSCURO NATIVO DE BOOTSTRAP 5.3 (data-bs-theme="dark" en <html>)
@@ -419,6 +294,112 @@ html[data-bs-theme="dark"] {
   --bs-carousel-control-icon-filter: none;
   --bs-carousel-indicator-active-bg: #fff;
   --bs-carousel-caption-color: #fff;
+  /* bg-light-subtle: azul pizarra de BarHub en lugar del gris de Bootstrap */
+  --bs-light-bg-subtle: #1e293b;
+  --bs-light-border-subtle: #334155;
+}
+
+/* Componentes de Bootstrap en modo oscuro: se ajustan sus variables, sin !important.
+   html[...] .x gana a las reglas de bootstrap.min.css aunque se cargue despues. */
+html[data-bs-theme="dark"] .card {
+  --bs-card-bg: #1e293b;
+  --bs-card-color: #f8fafc;
+  --bs-card-border-color: #334155;
+}
+
+html[data-bs-theme="dark"] .modal {
+  --bs-modal-bg: #1e293b;
+  --bs-modal-color: #f8fafc;
+  --bs-modal-border-color: #334155;
+}
+
+html[data-bs-theme="dark"] .crud-form-card,
+html[data-bs-theme="dark"] .table-responsive {
+  background-color: #1e293b;
+  color: #f8fafc;
+  border-color: #334155;
+}
+
+html[data-bs-theme="dark"] .table {
+  --bs-table-bg: #1e293b;
+  --bs-table-color: #f8fafc;
+  --bs-table-border-color: #334155;
+  --bs-table-hover-bg: #2d3748;
+  --bs-table-hover-color: #f8fafc;
+}
+
+html[data-bs-theme="dark"] .table thead th {
+  --bs-table-bg: #0f172a;
+  --bs-table-color: #cbd5e1;
+  border-bottom-color: #334155;
+}
+
+html[data-bs-theme="dark"] table:not(.table) {
+  color: #f8fafc;
+  background-color: #1e293b;
+}
+
+html[data-bs-theme="dark"] .form-control,
+html[data-bs-theme="dark"] .form-select,
+html[data-bs-theme="dark"] .input-group-text {
+  --bs-body-bg: #0f172a;
+  --bs-tertiary-bg: #0f172a;
+  --bs-body-color: #f8fafc;
+}
+
+/* Utilidades de Bootstrap: se cambia la variable que leen, no se pisa su !important */
+html[data-bs-theme="dark"] .text-secondary {
+  --bs-secondary-rgb: 148, 163, 184;
+}
+
+html[data-bs-theme="dark"] .bg-body {
+  --bs-body-bg-rgb: 30, 41, 59;
+}
+
+html[data-bs-theme="dark"] .container-fluid .bg-body-tertiary {
+  --bs-tertiary-bg-rgb: 30, 41, 59;
+}
+
+/* Botones neutros */
+html[data-bs-theme="dark"] .btn-light,
+html[data-bs-theme="dark"] .btn-outline-secondary {
+  --bs-btn-bg: #334155;
+  --bs-btn-color: #f8fafc;
+  --bs-btn-border-color: #475569;
+  --bs-btn-hover-color: #f8fafc;
+  --bs-btn-hover-border-color: #475569;
+  --bs-btn-active-bg: #475569;
+  --bs-btn-active-color: #f8fafc;
+  --bs-btn-active-border-color: #475569;
+}
+
+html[data-bs-theme="dark"] .btn-light {
+  --bs-btn-hover-bg: #475569;
+}
+
+html[data-bs-theme="dark"] .btn-outline-secondary {
+  --bs-btn-hover-bg: #334155;
+}
+
+/* Insignias suaves de admin (WCAG AA): fondo opaco sobre #1e293b y texto claro */
+html[data-bs-theme="dark"] .badge.bg-primary-subtle.text-primary {
+  --bs-primary-bg-subtle: #243d64;
+  --bs-primary-rgb: 147, 197, 253;
+}
+
+html[data-bs-theme="dark"] .badge.bg-success-subtle.text-success {
+  --bs-success-bg-subtle: #1f4842;
+  --bs-success-rgb: 134, 239, 172;
+}
+
+html[data-bs-theme="dark"] .badge.bg-danger-subtle.text-danger {
+  --bs-danger-bg-subtle: #482e3d;
+  --bs-danger-rgb: 252, 165, 165;
+}
+
+html[data-bs-theme="dark"] .badge.bg-warning-subtle.text-warning {
+  --bs-warning-bg-subtle: #494031;
+  --bs-warning-rgb: 252, 211, 77;
 }
 
 /* Respeta la preferencia del sistema de reducir el movimiento */
@@ -438,25 +419,4 @@ body.dark-theme .home-bar-carousel {
   background: #1e293b;
 }
 
-/* Modo oscuro: textos oscuros dentro de tablas (por ejemplo, el historial de caja) */
-body.dark-theme td .text-dark:not([class*="bg-"]) {
-  color: #f1f5f9 !important;
-}
 
-/* Modo oscuro: insignias suaves de admin (WCAG AA) */
-body.dark-theme .badge.bg-primary-subtle.text-primary {
-  background-color: #243d64 !important; /* rgba(59,130,246,.22) sobre #1e293b */
-  color: #93c5fd !important;
-}
-body.dark-theme .badge.bg-success-subtle.text-success {
-  background-color: #1f4842 !important; /* rgba(34,197,94,.2) sobre #1e293b */
-  color: #86efac !important;
-}
-body.dark-theme .badge.bg-danger-subtle.text-danger {
-  background-color: #482e3d !important; /* rgba(239,68,68,.2) sobre #1e293b */
-  color: #fca5a5 !important;
-}
-body.dark-theme .badge.bg-warning-subtle.text-warning {
-  background-color: #494031 !important; /* rgba(245,158,11,.2) sobre #1e293b */
-  color: #fcd34d !important;
-}

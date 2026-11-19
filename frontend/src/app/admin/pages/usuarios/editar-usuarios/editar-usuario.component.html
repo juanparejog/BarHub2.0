@@ -19,7 +19,7 @@
       <!-- SECCIÓN 1: IMAGEN DE PERFIL (DRAG & DROP) -->
       <div class="card mb-4 border-0 bg-light-subtle shadow-sm">
         <div class="card-body">
-          <h5 class="card-title text-dark fw-semibold mb-3">
+          <h5 class="card-title text-body fw-semibold mb-3">
             <i class="bi bi-image text-primary me-2"></i>Foto de Perfil
           </h5>
           
@@ -36,7 +36,7 @@
               <input #fileInput id="fileInput" type="file" accept="image/*" class="d-none" (change)="onFileSelected($event)" aria-label="Subir foto de perfil">
               
               <i class="bi bi-cloud-arrow-up fs-1 text-primary d-block mb-2"></i>
-              <p class="mb-1 fw-semibold text-dark">Arrastra y suelta aquí la imagen de usuario</p>
+              <p class="mb-1 fw-semibold text-body">Arrastra y suelta aquí la imagen de usuario</p>
               <p class="text-muted small mb-0">o haz clic para buscar en tu equipo (PNG, JPG, WEBP)</p>
             </div>
 
@@ -71,7 +71,7 @@
       <!-- SECCIÓN 2: INFORMACIÓN DE CUENTA Y ROL -->
       <div class="card mb-4 border-0 bg-light-subtle shadow-sm">
         <div class="card-body">
-          <h5 class="card-title text-dark fw-semibold mb-3">
+          <h5 class="card-title text-body fw-semibold mb-3">
             <i class="bi bi-shield-lock text-primary me-2"></i>Credenciales y Roles
           </h5>
 
@@ -110,7 +110,7 @@
               <div class="form-label d-block fw-medium">
                 Roles Asignados <span class="text-danger">* (mínimo 1)</span>
               </div>
-              <div class="roles-selection-container p-3 rounded border bg-white"
+              <div class="roles-selection-container p-3 rounded border bg-body"
                    [class.border-danger]="formulario.get('roles')?.invalid && formulario.get('roles')?.touched">
                 <div class="d-flex flex-wrap gap-3">
                   <div *ngFor="let rol of rolesDisponibles" class="form-check custom-role-check d-flex align-items-center">
@@ -140,7 +140,7 @@
       <!-- SECCIÓN 3: DATOS PERSONALES -->
       <div class="card mb-4 border-0 bg-light-subtle shadow-sm">
         <div class="card-body">
-          <h5 class="card-title text-dark fw-semibold mb-3">
+          <h5 class="card-title text-body fw-semibold mb-3">
             <i class="bi bi-person text-primary me-2"></i>Información Personal
           </h5>
 
@@ -175,7 +175,7 @@
       <!-- SECCIÓN 4: DIRECCIÓN Y VIVIENDA -->
       <div class="card mb-4 border-0 bg-light-subtle shadow-sm">
         <div class="card-body">
-          <h5 class="card-title text-dark fw-semibold mb-3">
+          <h5 class="card-title text-body fw-semibold mb-3">
             <i class="bi bi-geo-alt text-primary me-2"></i>Dirección y Datos de Envío
           </h5>
 

@@ -21,7 +21,7 @@
       <!-- Búsqueda General -->
       <div class="col-md-4">
         <div class="input-group">
-          <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+          <span class="input-group-text bg-body"><i class="bi bi-search"></i></span>
           <input 
             id="busquedaPedido"
             type="text" 
@@ -80,7 +80,7 @@
         <tbody *ngIf="pedidosFiltradosYOrdenados.length > 0; else sinPedidos">
           <tr *ngFor="let pedido of pedidosFiltradosYOrdenados">
             <!-- Usuario -->
-            <td class="ps-4 fw-semibold text-dark">
+            <td class="ps-4 fw-semibold text-body">
               {{ pedido.usuario?.username || 'Usuario no encontrado' }}
             </td>
 
@@ -100,13 +100,13 @@
                   {{ pedido.tipo_pedido || 'MESA' }}
                 </span>
 
-                <small class="text-dark fw-medium" *ngIf="pedido.tipo_pedido?.toUpperCase() === 'MESA' || !pedido.tipo_pedido">
+                <small class="text-body fw-medium" *ngIf="pedido.tipo_pedido?.toUpperCase() === 'MESA' || !pedido.tipo_pedido">
                   Mesa #{{ pedido.id_mesa }} ({{ pedido.mesa?.codigoqr || 'Sin QR' }})
                 </small>
-                <small class="text-dark fw-medium" *ngIf="pedido.tipo_pedido?.toUpperCase() === 'DOMICILIO'">
+                <small class="text-body fw-medium" *ngIf="pedido.tipo_pedido?.toUpperCase() === 'DOMICILIO'">
                   {{ pedido.direccion_envio || 'Dirección no disponible' }}
                 </small>
-                <small class="text-dark fw-medium" *ngIf="pedido.tipo_pedido?.toUpperCase() === 'RECOGER'">
+                <small class="text-body fw-medium" *ngIf="pedido.tipo_pedido?.toUpperCase() === 'RECOGER'">
                   {{ pedido.direccion_tienda || 'Tienda Principal' }}
                 </small>
               </div>
@@ -129,7 +129,7 @@
             </td>
 
             <!-- Total -->
-            <td class="text-end font-monospace fw-bold text-dark">
+            <td class="text-end font-monospace fw-bold text-body">
               {{ pedido.total | currency:'EUR':'symbol':'1.2-2' }}
             </td>
 

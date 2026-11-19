@@ -30,7 +30,7 @@
         <tbody>
           <tr>
             <!-- Usuario -->
-            <td class="ps-4 fw-semibold text-dark">
+            <td class="ps-4 fw-semibold text-body">
               {{ getUserName(pedido.id_user) }}
             </td>
 
@@ -52,13 +52,13 @@
 
             <!-- Detalle de Ubicación -->
             <td>
-              <span class="fw-medium text-dark" *ngIf="pedido.tipo_pedido?.toLowerCase() === 'mesa'">
+              <span class="fw-medium text-body" *ngIf="pedido.tipo_pedido?.toLowerCase() === 'mesa'">
                 {{ getMesaCodigo(pedido.id_mesa) }}
               </span>
-              <span class="fw-medium text-dark" *ngIf="pedido.tipo_pedido?.toLowerCase() === 'domicilio'">
+              <span class="fw-medium text-body" *ngIf="pedido.tipo_pedido?.toLowerCase() === 'domicilio'">
                 {{ pedido.direccion_envio || 'Sin dirección registrada' }}
               </span>
-              <span class="fw-medium text-dark" *ngIf="pedido.tipo_pedido?.toLowerCase() === 'recoger'">
+              <span class="fw-medium text-body" *ngIf="pedido.tipo_pedido?.toLowerCase() === 'recoger'">
                 {{ pedido.direccion_tienda || 'Recoger en Local' }}
               </span>
             </td>
@@ -80,7 +80,7 @@
             </td>
 
             <!-- Total -->
-            <td class="text-end pe-4 font-monospace fw-bold text-dark">
+            <td class="text-end pe-4 font-monospace fw-bold text-body">
               {{ pedido.total | currency:'EUR':'symbol':'1.2-2' }}
             </td>
           </tr>

@@ -864,6 +864,6 @@
   color: #ed9797;
 }
 
-:host-context(.dark-theme) .tienda-fixed-info.bg-light {
+:host-context(.dark-theme) .tienda-fixed-info.bg-body-tertiary {
   background-color: #0f172a !important;
 }

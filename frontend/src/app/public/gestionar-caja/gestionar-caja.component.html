@@ -30,7 +30,7 @@
           <i class="bi bi-door-closed fs-2"></i>
         </div>
         <div>
-          <h3 class="h5 fw-bold text-dark mb-1">La caja se encuentra actualmente CERRADA</h3>
+          <h3 class="h5 fw-bold text-body mb-1">La caja se encuentra actualmente CERRADA</h3>
           <p class="text-muted small mb-0">Introduce el fondo inicial para abrir la caja y empezar a registrar comandas.</p>
         </div>
       </div>
@@ -71,7 +71,7 @@
           </div>
           <div>
             <div class="d-flex align-items-center gap-2">
-              <h3 class="h5 fw-bold text-dark mb-0">Caja Actual #{{ cajaActual.id }}</h3>
+              <h3 class="h5 fw-bold text-body mb-0">Caja Actual #{{ cajaActual.id }}</h3>
               <span class="badge bg-success">ABIERTA</span>
             </div>
             <p class="text-muted small mb-0">Abierta por <strong>{{ cajaActual.nombreUsuarioApertura }}</strong> el {{ cajaActual.fechaApertura | date:'dd/MM/yyyy HH:mm' }}</p>
@@ -82,19 +82,19 @@
       <!-- MÉTRICAS EN TIEMPO REAL -->
       <div class="row g-3 mb-4">
         <div class="col-md-3 col-6">
-          <div class="p-3 bg-light rounded border">
+          <div class="p-3 bg-body-tertiary rounded border">
             <span class="text-muted small d-block">Fondo Inicial</span>
-            <span class="fs-4 fw-bold text-dark">{{ cajaActual.montoInicial | currency:'EUR' }}</span>
+            <span class="fs-4 fw-bold text-body">{{ cajaActual.montoInicial | currency:'EUR' }}</span>
           </div>
         </div>
         <div class="col-md-3 col-6">
-          <div class="p-3 bg-light rounded border">
+          <div class="p-3 bg-body-tertiary rounded border">
             <span class="text-muted small d-block">Ventas Efectivo</span>
             <span class="fs-4 fw-bold text-success">+{{ (cajaActual.ventasEfectivo || 0) | currency:'EUR' }}</span>
           </div>
         </div>
         <div class="col-md-3 col-6">
-          <div class="p-3 bg-light rounded border">
+          <div class="p-3 bg-body-tertiary rounded border">
             <span class="text-muted small d-block">Ventas Tarjeta</span>
             <span class="fs-4 fw-bold text-info">+{{ (cajaActual.ventasTarjeta || 0) | currency:'EUR' }}</span>
           </div>
@@ -108,8 +108,8 @@
       </div>
 
       <!-- FORMULARIO DE CIERRE Y CONTEO REAL -->
-      <form [formGroup]="formCierre" (ngSubmit)="cerrarCaja()" class="bg-light p-3 rounded border">
-        <h5 class="fw-bold text-dark mb-3"><i class="bi bi-calculator me-2 text-primary"></i>Realizar Arqueo y Cierre</h5>
+      <form [formGroup]="formCierre" (ngSubmit)="cerrarCaja()" class="bg-body-tertiary p-3 rounded border">
+        <h5 class="fw-bold text-body mb-3"><i class="bi bi-calculator me-2 text-primary"></i>Realizar Arqueo y Cierre</h5>
 
         <div class="row g-3">
           <div class="col-md-4">
@@ -158,8 +158,8 @@
 
     <!-- TABLA: HISTORIAL DE ARQUEOS DE CAJA -->
     <div class="crud-card">
-      <div class="p-3 border-bottom bg-light">
-        <h5 class="fw-bold text-dark mb-0"><i class="bi bi-clock-history me-2 text-secondary"></i>Historial de Cajas y Arqueos</h5>
+      <div class="p-3 border-bottom bg-body-tertiary">
+        <h5 class="fw-bold text-body mb-0"><i class="bi bi-clock-history me-2 text-secondary"></i>Historial de Cajas y Arqueos</h5>
       </div>
 
       <div class="table-responsive">
@@ -179,14 +179,14 @@
             <tr *ngFor="let caja of historialCajas">
               <!-- Fecha e Usuario Apertura -->
               <td class="ps-4">
-                <div class="fw-semibold text-dark">{{ caja.fechaApertura | date:'dd/MM/yyyy HH:mm' }}</div>
+                <div class="fw-semibold text-body">{{ caja.fechaApertura | date:'dd/MM/yyyy HH:mm' }}</div>
                 <div class="text-muted small"><i class="bi bi-person me-1"></i>{{ caja.nombreUsuarioApertura }}</div>
               </td>
 
               <!-- Fecha e Usuario Cierre -->
               <td>
                 <div *ngIf="caja.fechaCierre; else enCurso">
-                  <div class="fw-semibold text-dark">{{ caja.fechaCierre | date:'dd/MM/yyyy HH:mm' }}</div>
+                  <div class="fw-semibold text-body">{{ caja.fechaCierre | date:'dd/MM/yyyy HH:mm' }}</div>
                   <div class="text-muted small"><i class="bi bi-person me-1"></i>{{ caja.nombreUsuarioCierre || '-' }}</div>
                 </div>
                 <ng-template #enCurso>
@@ -195,7 +195,7 @@
               </td>
 
               <!-- Fondo Inicial -->
-              <td class="fw-medium text-dark">
+              <td class="fw-medium text-body">
                 {{ caja.montoInicial | currency:'EUR' }}
               </td>
 
@@ -208,7 +208,7 @@
               </td>
 
               <!-- Efectivo Real Contado -->
-              <td class="fw-bold text-dark">
+              <td class="fw-bold text-body">
                 {{ (caja.efectivoReal !== null && caja.efectivoReal !== undefined) ? (caja.efectivoReal | currency:'EUR') : '-' }}
               </td>
 

@@ -228,45 +228,73 @@ ng-container {
   background-color: #f1f5f9;
 }
 
-body.dark-theme .drop-zone {
+:host-context(.dark-theme) .drop-zone {
   background-color: #0f172a;
   border-color: #334155;
 }
 
-body.dark-theme .drop-zone:hover {
+:host-context(.dark-theme) .drop-zone:hover {
   border-color: #818cf8;
   background-color: #1e293b;
 }
 
 /* Modo oscuro: contraste revisado (WCAG AA) */
-body.dark-theme .perfil-card {
+:host-context(.dark-theme) .perfil-card {
   background: #1e293b;
 }
 
-body.dark-theme .custom-radio-card {
+:host-context(.dark-theme) .custom-radio-card {
   background: #243044;
 }
 
-body.dark-theme .custom-radio-card:hover {
+:host-context(.dark-theme) .custom-radio-card:hover {
   background: #334155;
 }
 
-body.dark-theme .tipo-vivienda-card {
+:host-context(.dark-theme) .tipo-vivienda-card {
   background: #243044;
 }
 
-body.dark-theme .tipo-vivienda-card .card-content {
+:host-context(.dark-theme) .tipo-vivienda-card .card-content {
   color: #cbd5e1;
 }
 
-body.dark-theme .tipo-vivienda-card .icon-box {
+:host-context(.dark-theme) .tipo-vivienda-card .icon-box {
   color: #cbd5e1;
 }
 
-body.dark-theme .tipo-vivienda-card:hover {
+:host-context(.dark-theme) .tipo-vivienda-card:hover {
   background: #334155;
 }
 
-body.dark-theme .drop-zone.drag-over {
+:host-context(.dark-theme) .drop-zone.drag-over {
   background: #2b3a52;
+}
+
+/* Modo oscuro: tarjetas de tipo de vivienda (borde, textos, hover y seleccionada) */
+:host-context(.dark-theme) .tipo-vivienda-card {
+  border-color: #334155;
+}
+
+:host-context(.dark-theme) .tipo-vivienda-card .card-content {
+  color: #cbd5e1;
+}
+
+:host-context(.dark-theme) .tipo-vivienda-card .icon-box {
+  color: #94a3b8;
+}
+
+:host-context(.dark-theme) .tipo-vivienda-card:hover {
+  background-color: #2b3a52;
+  border-color: #475569;
+}
+
+:host-context(.dark-theme) .tipo-vivienda-card.active {
+  background-color: #1f3a63;
+  border-color: var(--bs-primary);
+}
+
+:host-context(.dark-theme) .tipo-vivienda-card.active .card-content,
+:host-context(.dark-theme) .tipo-vivienda-card.active .icon-box {
+  color: #6ea8fe;
 }

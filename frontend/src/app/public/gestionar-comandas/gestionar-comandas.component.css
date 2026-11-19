@@ -397,7 +397,7 @@
     background: rgba(15, 23, 42, 0.7) !important;
   }
   
-  :host-context(.dark-theme) .comanda-card-sub-header small.text-dark {
+  :host-context(.dark-theme) .comanda-card-sub-header small.text-body {
     color: #f1f5f9 !important;
   }
   

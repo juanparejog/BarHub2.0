@@ -30,7 +30,7 @@
           <tr>
             <!-- ID Pedido -->
             <td>
-              <span class="badge bg-light text-dark border px-2 py-1 font-monospace">
+              <span class="badge bg-body-tertiary text-body border px-2 py-1 font-monospace">
                 #{{ detalle.id_pedido || 'N/A' }}
               </span>
             </td>
@@ -56,7 +56,7 @@
             </td>
 
             <!-- Subtotal -->
-            <td class="text-end font-monospace fw-bold text-dark">
+            <td class="text-end font-monospace fw-bold text-body">
               {{ ((detalle.cantidad || 0) * (detalle.precio_unitario || 0)) | currency:'EUR':'symbol':'1.2-2' }}
             </td>
           </tr>

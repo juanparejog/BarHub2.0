@@ -44,7 +44,7 @@
 
       <!-- Contador de registros -->
       <div class="text-muted small fw-medium">
-        Mostrando <span class="text-dark fw-bold">{{ mesasFiltradas.length }}</span> de {{ mesas.length }} mesas
+        Mostrando <span class="text-body fw-bold">{{ mesasFiltradas.length }}</span> de {{ mesas.length }} mesas
       </div>
     </div>
 
@@ -89,7 +89,7 @@
         <tbody *ngIf="mesasFiltradas.length > 0; else sinMesas">
           <tr *ngFor="let mesa of mesasFiltradas">
             <!-- Código QR -->
-            <td class="ps-4 font-monospace fw-semibold text-dark">
+            <td class="ps-4 font-monospace fw-semibold text-body">
               {{ mesa.codigoqr }}
             </td>
 

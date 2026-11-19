@@ -144,7 +144,7 @@
                     <td class="text-end text-muted">
                       {{ (det.precio_unitario || det.precioUnitario || det.precio) | currency:'EUR':'symbol':'1.2-2' }}
                     </td>
-                    <td class="text-end font-bold text-dark">
+                    <td class="text-end font-bold text-body">
                       {{ (det.cantidad * (det.precio_unitario || det.precioUnitario || det.precio || 0)) | currency:'EUR':'symbol':'1.2-2' }}
                     </td>
                   </tr>

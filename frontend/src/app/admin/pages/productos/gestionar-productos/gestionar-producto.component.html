@@ -44,7 +44,7 @@
 
       <!-- Contador de registros -->
       <div class="text-muted small fw-medium">
-        Mostrando <span class="text-dark fw-bold">{{ productosFiltrados.length }}</span> de {{ productos.length }} productos
+        Mostrando <span class="text-body fw-bold">{{ productosFiltrados.length }}</span> de {{ productos.length }} productos
       </div>
     </div>
 
@@ -120,7 +120,7 @@
         <tbody *ngIf="productosFiltrados.length > 0; else sinProductos">
           <tr *ngFor="let producto of productosFiltrados">
             <!-- Nombre -->
-            <td class="ps-4 fw-semibold text-dark">
+            <td class="ps-4 fw-semibold text-body">
               {{ producto.nombre }}
             </td>
 
@@ -130,13 +130,13 @@
             </td>
 
             <!-- Precio -->
-            <td class="fw-bold text-dark">
+            <td class="fw-bold text-body">
               {{ producto.precio | currency:'EUR' }}
             </td>
 
             <!-- Tipo de Producto -->
             <td>
-              <span class="badge bg-light text-dark border fw-medium">
+              <span class="badge bg-body-tertiary text-body border fw-medium">
                 {{ producto.tipoProducto }}
               </span>
             </td>

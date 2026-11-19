@@ -34,7 +34,7 @@
   <!-- ESTADO DE CARGA -->
   <div *ngIf="cargando" class="loading-state card border-0 shadow-sm p-5 text-center my-4">
     <div class="spinner-border text-success mx-auto mb-3"></div>
-    <h5 class="fw-bold text-dark">Cargando pedidos pendientes...</h5>
+    <h5 class="fw-bold text-body">Cargando pedidos pendientes...</h5>
   </div>
 
   <!-- CONTENIDO PRINCIPAL -->
@@ -49,7 +49,7 @@
             <span class="material-icons text-primary fs-5">receipt_long</span>
             <h5 class="panel-title mb-0">Cuentas Pendientes</h5>
           </div>
-          <span class="badge bg-light text-dark border px-2 py-1 fs-7 fw-bold">
+          <span class="badge bg-body-tertiary text-body border px-2 py-1 fs-7 fw-bold">
             {{ pedidosPendientes.length }} {{ pedidosPendientes.length === 1 ? 'pedido' : 'pedidos' }}
           </span>
         </div>
@@ -61,7 +61,7 @@
             <div class="empty-icon-wrap mb-3">
               <span class="material-icons text-success">check_circle_outline</span>
             </div>
-            <h5 class="fw-bold text-dark mb-1">¡Al día! Todo cobrado</h5>
+            <h5 class="fw-bold text-body mb-1">¡Al día! Todo cobrado</h5>
           </div>
 
           <!-- LISTADO DE PEDIDOS -->
