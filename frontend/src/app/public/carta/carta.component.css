@@ -480,7 +480,7 @@
   }
   
   .btn-quantity-add:active {
-    background: var(--primary-hover) !important;
+    background: var(--primary-hover);
   }
   
   .quantity-counter {

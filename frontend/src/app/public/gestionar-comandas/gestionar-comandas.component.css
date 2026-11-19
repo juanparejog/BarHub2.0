@@ -284,7 +284,7 @@
      ========================================================================== */
   .btn-status-action.active-current,
   :host-context(.dark-theme) .btn-status-action.active-current {
-    opacity: 1 !important;
+    opacity: 1;
     cursor: default !important;
     box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2) !important;
   }

@@ -457,11 +457,11 @@
   
   /* Solución a los números invisibles en el KPI superior */
   :host-context(.dark-theme) .kpi-value {
-    color: #f8fafc !important;
+    color: #f8fafc;
   }
   
   :host-context(.dark-theme) .kpi-label {
-    color: #cbd5e1 !important;
+    color: #cbd5e1;
   }
   
   :host-context(.dark-theme) .kpi-card {
@@ -474,9 +474,9 @@
   }
   
   :host-context(.dark-theme) .btn-refresh {
-    background: #1e293b !important;
-    color: #f8fafc !important;
-    border-color: rgba(255, 255, 255, 0.15) !important;
+    background: #1e293b;
+    color: #f8fafc;
+    border-color: rgba(255, 255, 255, 0.15);
   }
   
   :host-context(.dark-theme) .mesa-card {
@@ -489,7 +489,7 @@
   }
   
   :host-context(.dark-theme) .state-selector-group {
-    background: #0f172a !important;
+    background: #0f172a;
   }
   
   :host-context(.dark-theme) .state-btn {
@@ -502,9 +502,9 @@
   }
   
   :host-context(.dark-theme) .btn-qr-action {
-    background: #0f172a !important;
-    border-color: rgba(255, 255, 255, 0.15) !important;
-    color: #f8fafc !important;
+    background: #0f172a;
+    border-color: rgba(255, 255, 255, 0.15);
+    color: #f8fafc;
   }
 
 /* Modo oscuro: contraste revisado (WCAG AA) */

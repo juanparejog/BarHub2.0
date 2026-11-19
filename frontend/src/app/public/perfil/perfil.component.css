@@ -21,7 +21,7 @@
 }
 
 .perfil-card:hover {
-  box-shadow: 0 1.25rem 2.5rem rgba(0, 0, 0, 0.08) !important;
+  box-shadow: 0 1.25rem 2.5rem rgba(0, 0, 0, 0.08);
 }
 
 /* Animación del icono de cabecera */
@@ -99,7 +99,7 @@ ng-container {
 
 .btn-animated:not(:disabled):hover {
   transform: translateY(-2px);
-  box-shadow: 0 0.5rem 1rem rgba(var(--bs-primary-rgb), 0.35) !important;
+  box-shadow: 0 0.5rem 1rem rgba(var(--bs-primary-rgb), 0.35);
 }
 
 .btn-animated:not(:disabled):active {

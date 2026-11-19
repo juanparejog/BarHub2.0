@@ -91,14 +91,14 @@
   border-radius: var(--card-radius);
   background-color: #ffffff;
   border: 1px solid rgba(0, 0, 0, 0.06) !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
   transition: border-color var(--transition-fast), box-shadow var(--transition-fast), transform var(--transition-fast);
 }
 
 /* Efectos al pasar el ratón (Hover) */
 .admin-card-link:hover .admin-card {
   transform: translateY(-6px);
-  box-shadow: 0 16px 28px -8px rgba(79, 70, 229, 0.15) !important;
+  box-shadow: 0 16px 28px -8px rgba(79, 70, 229, 0.15);
   border-color: rgba(79, 70, 229, 0.25) !important;
 }
 
