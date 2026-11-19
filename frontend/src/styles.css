@@ -412,18 +412,18 @@ body.dark-theme td .text-dark:not([class*="bg-"]) {
 
 /* Modo oscuro: insignias suaves de admin (WCAG AA) */
 body.dark-theme .badge.bg-primary-subtle.text-primary {
-  background-color: rgba(59, 130, 246, 0.22) !important;
+  background-color: #243d64 !important; /* rgba(59,130,246,.22) sobre #1e293b */
   color: #93c5fd !important;
 }
 body.dark-theme .badge.bg-success-subtle.text-success {
-  background-color: rgba(34, 197, 94, 0.2) !important;
+  background-color: #1f4842 !important; /* rgba(34,197,94,.2) sobre #1e293b */
   color: #86efac !important;
 }
 body.dark-theme .badge.bg-danger-subtle.text-danger {
-  background-color: rgba(239, 68, 68, 0.2) !important;
+  background-color: #482e3d !important; /* rgba(239,68,68,.2) sobre #1e293b */
   color: #fca5a5 !important;
 }
 body.dark-theme .badge.bg-warning-subtle.text-warning {
-  background-color: rgba(245, 158, 11, 0.2) !important;
+  background-color: #494031 !important; /* rgba(245,158,11,.2) sobre #1e293b */
   color: #fcd34d !important;
 }

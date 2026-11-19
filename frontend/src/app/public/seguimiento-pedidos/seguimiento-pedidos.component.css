@@ -420,11 +420,6 @@
 }
 
 /* 2. Ajustar fondos y elementos con colores fijos */
-:host-context(.dark-theme) .pedido-card-header,
-:host-context(.dark-theme) .pedido-accordion {
-  background: rgba(15, 23, 42, 0.4); /* Fondo un poco más profundo para las cabeceras */
-}
-
 :host-context(.dark-theme) .accordion-trigger:hover {
   background: #2b3a52;
 }
@@ -501,7 +496,6 @@
 
 /* Modo Oscuro para los Badges */
 :host-context(.dark-theme) .badge-tipo-mesa {
-  background-color: rgba(30, 58, 138, 0.4);
   color: #93c5fd;
   border-color: #2b4f7e;
   background: #1e3a5f;
@@ -520,7 +514,6 @@
 }
 
 :host-context(.dark-theme) .badge-tipo-default {
-    background-color: #334155;
     color: #e2e8f0;
     border-color: #475569;
     background: #334155;

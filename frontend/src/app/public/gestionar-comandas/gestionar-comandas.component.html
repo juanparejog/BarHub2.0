@@ -67,7 +67,7 @@
 
   <!-- ESTADO VACÍO (SIN COMANDAS) -->
   <!-- Anuncios para lectores de pantalla -->
-  <div class="visually-hidden" role="status" aria-live="polite" aria-atomic="true">{{ anuncioComandas }}</div>
+  <output class="visually-hidden" aria-live="polite" aria-atomic="true">{{ anuncioComandas }}</output>
 
   <div *ngIf="getPedidosFiltrados().length === 0" class="empty-kds-card text-center py-5 my-4">
     <div class="empty-icon-circle mb-3 mx-auto">

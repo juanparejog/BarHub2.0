@@ -8,7 +8,7 @@
     </header>
 
     <!-- Anuncios para lectores de pantalla -->
-    <div class="visually-hidden" role="status" aria-live="polite" aria-atomic="true">{{ anuncioEstado }}</div>
+    <output class="visually-hidden" aria-live="polite" aria-atomic="true">{{ anuncioEstado }}</output>
 
     <!-- Estado Vacío -->
     <div *ngIf="pedidos.length === 0" class="sin-pedidos-card">
