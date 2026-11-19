@@ -30,6 +30,8 @@ export class ThemeService {
 
   public setDarkMode(isDark: boolean): void {
     this.darkModeSubject.next(isDark);
+    // Modo de color nativo de Bootstrap 5.3: sus componentes leen este atributo
+    this.renderer.setAttribute(document.documentElement, 'data-bs-theme', isDark ? 'dark' : 'light');
     if (isDark) {
       this.renderer.addClass(document.body, 'dark-theme');
       localStorage.setItem('theme', 'dark');

@@ -388,6 +388,39 @@ body.dark-theme .btn-light:hover {
   background-color: #475569 !important;
 }
 
+/* ==========================================================================
+   MODO OSCURO NATIVO DE BOOTSTRAP 5.3 (data-bs-theme="dark" en <html>)
+   ThemeService lo activa junto a la clase dark-theme de <body>.
+   Se usa html[...] para ganar a bootstrap.min.css, que se carga despues.
+   ========================================================================== */
+html[data-bs-theme="dark"] {
+  --bs-body-bg: #121824;
+  --bs-body-bg-rgb: 18, 24, 36;
+  --bs-body-color: #f1f5f9;
+  --bs-body-color-rgb: 241, 245, 249;
+  --bs-emphasis-color: #f8fafc;
+  --bs-emphasis-color-rgb: 248, 250, 252;
+  --bs-heading-color: #f8fafc;
+  --bs-secondary-color: #94a3b8;
+  --bs-secondary-color-rgb: 148, 163, 184;
+  --bs-secondary-bg: #1e293b;
+  --bs-secondary-bg-rgb: 30, 41, 59;
+  --bs-tertiary-color: #94a3b8;
+  --bs-tertiary-color-rgb: 148, 163, 184;
+  --bs-tertiary-bg: #0f172a;
+  --bs-tertiary-bg-rgb: 15, 23, 42;
+  --bs-border-color: #334155;
+  /* Enlaces: mismos colores que en tema claro (sin cambios visuales en esta fase) */
+  --bs-link-color: #0d6efd;
+  --bs-link-color-rgb: 13, 110, 253;
+  --bs-link-hover-color: #0a58ca;
+  --bs-link-hover-color-rgb: 10, 88, 202;
+  /* El carrusel va sobre fotos: sus controles se quedan claros en los dos temas */
+  --bs-carousel-control-icon-filter: none;
+  --bs-carousel-indicator-active-bg: #fff;
+  --bs-carousel-caption-color: #fff;
+}
+
 /* Respeta la preferencia del sistema de reducir el movimiento */
 @media (prefers-reduced-motion: reduce) {
   *,
