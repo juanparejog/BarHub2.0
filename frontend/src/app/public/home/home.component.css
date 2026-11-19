@@ -433,9 +433,9 @@
 :host-context(.dark-theme) .home-bar-map,
 :host-context([data-theme="dark"]) .home-bar-content,
 :host-context([data-theme="dark"]) .home-bar-map {
-  background-color: #1e293b !important;
-  border-color: #334155 !important;
-  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.5) !important;
+  background-color: #1e293b;
+  border-color: #334155;
+  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.5);
 }
 
 :host-context(.dark-theme) .home-bar-titles h1,
@@ -445,69 +445,69 @@
 
 :host-context(.dark-theme) .subtitle,
 :host-context([data-theme="dark"]) .subtitle {
-  color: #cbd5e1 !important;
+  color: #cbd5e1;
 }
 
 :host-context(.dark-theme) .lead,
 :host-context([data-theme="dark"]) .lead {
-  color: #e2e8f0 !important;
+  color: #e2e8f0;
 }
 
 :host-context(.dark-theme) .info-badge,
 :host-context([data-theme="dark"]) .info-badge {
-  background-color: #0f172a !important;
-  border-color: #334155 !important;
+  background-color: #0f172a;
+  border-color: #334155;
 }
 
 :host-context(.dark-theme) .info-badge:hover,
 :host-context([data-theme="dark"]) .info-badge:hover {
-  background-color: #1e293b !important;
-  border-color: #3b82f6 !important;
+  background-color: #1e293b;
+  border-color: #3b82f6;
 }
 
 :host-context(.dark-theme) .badge-icon-box,
 :host-context(.dark-theme) [data-theme="dark"] .badge-icon-box {
-  background-color: #1d4ed8 !important;
-  color: #ffffff !important;
+  background-color: #1d4ed8;
+  color: #ffffff;
 }
 
 :host-context(.dark-theme) .badge-content strong,
 :host-context([data-theme="dark"]) .badge-content strong {
-  color: #f8fafc !important;
+  color: #f8fafc;
 }
 
 :host-context(.dark-theme) .badge-content p,
 :host-context([data-theme="dark"]) .badge-content p {
-  color: #cbd5e1 !important;
+  color: #cbd5e1;
 }
 
 :host-context(.dark-theme) .btn-bar-outline,
 :host-context([data-theme="dark"]) .btn-bar-outline {
   color: #ffffff !important;
-  border-color: #ffffff !important;
+  border-color: #ffffff;
 }
 
 :host-context(.dark-theme) .btn-bar-outline:hover,
 :host-context([data-theme="dark"]) .btn-bar-outline:hover {
-  background-color: #2563eb !important;
-  border-color: #2563eb !important;
+  background-color: #2563eb;
+  border-color: #2563eb;
   color: #ffffff;
 }
 
 :host-context(.dark-theme) .btn-bar-subtle,
 :host-context([data-theme="dark"]) .btn-bar-subtle {
-  background-color: #334155 !important;
+  background-color: #334155;
   color: #f8fafc !important;
 }
 
 :host-context(.dark-theme) .btn-bar-subtle:hover,
 :host-context([data-theme="dark"]) .btn-bar-subtle:hover {
-  background-color: #475569 !important;
+  background-color: #475569;
 }
 
 :host-context(.dark-theme) .home-bar-actions,
 :host-context([data-theme="dark"]) .home-bar-actions {
-  border-top-color: #334155 !important;
+  border-top-color: #334155;
 }
 
 /* --- RESPONSIVE --- */
