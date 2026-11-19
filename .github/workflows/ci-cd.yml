@@ -53,7 +53,7 @@ jobs:
             -Dsonar.projectKey=juanparejog_BarHub2.0
             -Dsonar.projectVersion=2.0.0
             -Dsonar.sources=.
-            -Dsonar.exclusions=backend/build/**,backend/src/test/**
+            -Dsonar.exclusions=backend/build/**,backend/src/test/**,backend/src/main/resources/demo/**
             -Dsonar.tests=backend/src/test/java
             -Dsonar.java.binaries=backend/build/classes/java/main
             -Dsonar.java.test.binaries=backend/build/classes/java/test

@@ -3,6 +3,10 @@ import os
 import sys
 import subprocess
 
+# Constantes usadas en varios pasos
+SSHD_CONFIG = "/etc/ssh/sshd_config"
+SEPARADOR = "=================================================="
+
 def run_cmd(cmd, shell=False, env=None, input_data=None):
     """Ejecuta un comando de forma segura pasándole listas limpias de argumentos."""
     try:
@@ -165,8 +169,8 @@ def paso_7_cifrado():
 
 def paso_8_ssh_hardening():
     print("\n=== [8] Hardening Avanzado de OpenSSH ===")
-    if os.path.exists("/etc/ssh/sshd_config") and not os.path.exists("/etc/ssh/sshd_config.bak"):
-        run_cmd(["cp", "/etc/ssh/sshd_config", "/etc/ssh/sshd_config.bak"])
+    if os.path.exists(SSHD_CONFIG) and not os.path.exists("/etc/ssh/sshd_config.bak"):
+        run_cmd(["cp", SSHD_CONFIG, "/etc/ssh/sshd_config.bak"])
     
     ssh_dir = "/root/.ssh"
     if os.path.exists(ssh_dir):
@@ -177,7 +181,7 @@ def paso_8_ssh_hardening():
 
     ssh_conf = "\nProtocol 2\nPort 22022\nPermitRootLogin prohibit-password\nPubkeyAuthentication yes\nPasswordAuthentication yes\nPermitEmptyPasswords no\nMaxAuthTries 3\nMaxSessions 2\nClientAliveInterval 300\nClientAliveCountMax 2\nX11Forwarding no\nAllowTcpForwarding no\nLogLevel VERBOSE\nBanner /etc/issue.net\n"
     
-    with open("/etc/ssh/sshd_config", "a") as f:
+    with open(SSHD_CONFIG, "a") as f:
         f.write(ssh_conf)
     
     run_cmd(["sshd", "-t"])
@@ -215,9 +219,9 @@ def paso_10_firewall():
 
 def main():
     check_root()
-    print("==================================================")
+    print(SEPARADOR)
     print("[*] Iniciando Script de Hardening (Docker Compatible)")
-    print("==================================================")
+    print(SEPARADOR)
     paso_0_preparacion()
     paso_1_usuarios_y_permisos()
     paso_2_banners()
@@ -231,7 +235,7 @@ def main():
     paso_10_firewall()
     print("\n==================================================")
     print("[✓] Hardening completado con éxito.")
-    print("==================================================")
+    print(SEPARADOR)
 
 if __name__ == "__main__":
     main()

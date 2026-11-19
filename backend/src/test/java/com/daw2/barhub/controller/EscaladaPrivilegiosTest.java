@@ -36,7 +36,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 /**
  * Escalada de privilegios: un cliente no puede darse permisos de administrador,
  * cambiar su nombre de usuario, tocar a otra persona ni usar las rutas de administracion.
- * Cada caso comprueba la respuesta HTTP y, sobre todo, lo que queda guardado en la base de datos.
+ * Cada caso comprueba la respuesta HTTP y, en especial, lo que queda guardado en la base de datos.
  * Se deshace al terminar (@Transactional). La evidencia resumida esta en docs/evidencias/.
  */
 @SpringBootTest
