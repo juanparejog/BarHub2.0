@@ -157,7 +157,7 @@
     justify-content: center;
     background: #f8fafc;
     color: #475569;
-    transition: all 0.3s ease;
+    transition: background 0.3s ease, color 0.3s ease;
   }
   
 .estado-disponible .icon-avatar { background: #f0fdf4; color: #14532d; }
