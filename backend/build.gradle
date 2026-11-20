@@ -39,14 +39,16 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-webmvc'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
 
-    implementation 'io.jsonwebtoken:jjwt-api:0.12.5'
-    implementation 'io.jsonwebtoken:jjwt-impl:0.12.5'
+    implementation 'io.jsonwebtoken:jjwt-api:0.13.0'
+    implementation 'io.jsonwebtoken:jjwt-impl:0.13.0'
     // Gson en lugar de Jackson: jjwt-jackson usa Jackson 2, y Spring Boot 4 trae Jackson 3
-    implementation 'io.jsonwebtoken:jjwt-gson:0.12.5'
+    implementation 'io.jsonwebtoken:jjwt-gson:0.13.0'
 
     implementation 'com.stripe:stripe-java:24.7.0'
 
-    implementation 'org.mariadb.jdbc:mariadb-java-client:3.5.11'
+    // Connector/J 4: TLS por defecto con verificacion completa (sslMode=verify-full). Con MariaDB 11.4 o
+    // superior el certificado autogenerado del servidor se valida durante el login, sin configurar nada.
+    implementation 'org.mariadb.jdbc:mariadb-java-client:4.0.0'
 
     compileOnly 'org.projectlombok:lombok'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'

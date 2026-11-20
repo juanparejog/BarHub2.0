@@ -7,8 +7,10 @@ updates:
     ignore:
       - dependency-name: "gradle-wrapper"
         update-types: ["version-update:semver-major"]
-      - dependency-name: "org.mariadb.jdbc:mariadb-java-client"
-        update-types: ["version-update:semver-major"]
+    groups:
+      # Las tres piezas de JJWT (api, impl y gson) tienen que ir siempre en la misma version
+      jjwt:
+        patterns: ["io.jsonwebtoken:*"]
   - package-ecosystem: npm
     directory: /frontend
     schedule: { interval: weekly }

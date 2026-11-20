@@ -10,6 +10,8 @@ services:
       MYSQL_PASSWORD: ${DB_PASSWORD:?Falta_DB_PASSWORD}
     volumes:
       - mysql_data:/var/lib/mysql
+      # Scripts de la primera arrancada: el usuario de la aplicacion queda obligado a usar TLS
+      - ./initdb:/docker-entrypoint-initdb.d:ro
     healthcheck:
       test: ["CMD-SHELL", "MYSQL_PWD=$$MYSQL_ROOT_PASSWORD mariadb-admin ping -h 127.0.0.1 -uroot --silent"]
       interval: 10s
