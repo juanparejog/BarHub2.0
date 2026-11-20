@@ -58,7 +58,8 @@ class JwtUtilsTest {
         String token = jwtUtils.generateJwtToken(autenticacion("ROLE_EMPLEADO"));
         var claims = Jwts.parser().verifyWith(Keys.hmacShaKeyFor(SECRETO.getBytes())).build()
                 .parseSignedClaims(token).getPayload();
-        assertEquals(7, claims.get("id", Integer.class));
+        // Number: Gson lee los numeros como Double y Jackson como Integer; el valor es el mismo
+        assertEquals(7, claims.get("id", Number.class).intValue());
         assertTrue(claims.get("roles", List.class).contains("ROLE_EMPLEADO"));
     }
 

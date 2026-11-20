@@ -7,8 +7,6 @@ updates:
     ignore:
       - dependency-name: "gradle-wrapper"
         update-types: ["version-update:semver-major"]
-      - dependency-name: "org.springframework.boot"
-        update-types: ["version-update:semver-major"]
       - dependency-name: "org.mariadb.jdbc:mariadb-java-client"
         update-types: ["version-update:semver-major"]
   - package-ecosystem: npm

@@ -6,6 +6,16 @@ El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y e
 
 ## [Sin publicar]
 
+### Cambiado
+- Backend: Spring Boot 3.5.16 a 4.2.0 (Spring Framework 7, Spring Security 7, Hibernate 7, Tomcat 11 y Jackson 3). Se mantienen Java 17 y Gradle 8.14.
+- Backend: `spring-boot-starter-web` pasa a `spring-boot-starter-webmvc`, y los tests de MockMvc usan `spring-boot-starter-webmvc-test` con el nuevo paquete de `@AutoConfigureMockMvc`.
+- Backend: Jackson 3 con `spring.jackson.use-jackson2-defaults`, para que la API siga respondiendo y aceptando el mismo JSON.
+- Backend: JJWT serializa con Gson (`jjwt-gson`) en lugar de Jackson 2, que deja de estar en el classpath.
+- Tests: `spring-security-test` pasa a `spring-boot-starter-security-test`, que en Spring Boot 4 es el que integra `@WithMockUser` con MockMvc.
+- Backend: se quita `database-platform` de `application.yml`; Hibernate 7 detecta el dialecto de MariaDB solo.
+- Backend: se quitan las versiones forzadas de Tomcat, Jackson, Logback e Hibernate Validator, que Spring Boot 4 ya trae corregidas.
+- Dependabot: deja de ignorar las versiones mayores de Spring Boot.
+
 ### Eliminado
 - Frontend: dependencias que no se usaban o estaban duplicadas, como paso previo a la migración de Angular: `@angular/material` y `@angular/cdk` (solo se cargaba su CSS `indigo-pink`), `@angular/animations` y `BrowserAnimationsModule` (no había animaciones), `@zxing/ngx-scanner` (sin uso), jQuery y el Popper suelto (ya va dentro de `bootstrap.bundle`).
 

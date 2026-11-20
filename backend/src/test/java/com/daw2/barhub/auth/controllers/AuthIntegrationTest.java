@@ -3,12 +3,11 @@ package com.daw2.barhub.auth.controllers;
 import com.daw2.barhub.auth.models.RoleEnum;
 import com.daw2.barhub.auth.models.User;
 import com.daw2.barhub.auth.repository.UserRepository;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -16,6 +15,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -75,8 +75,8 @@ class AuthIntegrationTest {
                         .content(credenciales(username, password)))
                 .andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString();
-        JsonNode json = mapper.readTree(cuerpo);
-        String token = json.get(json.has("token") ? "token" : "accessToken").asText();
+        Map<?, ?> json = mapper.readValue(cuerpo, Map.class);
+        String token = String.valueOf(json.containsKey("token") ? json.get("token") : json.get("accessToken"));
         assertFalse(token.isBlank());
         return token;
     }

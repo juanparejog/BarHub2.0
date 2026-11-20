@@ -3,7 +3,7 @@ package com.daw2.barhub.controller;
 import com.daw2.barhub.model.dto.PedidoDto;
 import com.daw2.barhub.model.entity.Pedido;
 import com.daw2.barhub.service.PedidoService;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -28,7 +28,7 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class PedidoControllerTest {
 
-    private static final ObjectMapper JSON = new ObjectMapper();
+    private static final JsonMapper JSON = JsonMapper.builder().build();
 
     @Mock
     private PedidoService pedidoService;
