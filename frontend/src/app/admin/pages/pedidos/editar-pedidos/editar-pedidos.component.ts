@@ -7,8 +7,9 @@ import { UsuarioService } from "../../usuarios/services/usuario";
 import { MesaService } from "../../mesas/services/mesa";
 
 @Component({
-  selector: 'app-editar-pedido',
-  templateUrl: './editar-pedido.component.html',
+    selector: 'app-editar-pedido',
+    templateUrl: './editar-pedido.component.html',
+    standalone: false
 })
 export class EditarPedidoComponent implements OnInit {
 

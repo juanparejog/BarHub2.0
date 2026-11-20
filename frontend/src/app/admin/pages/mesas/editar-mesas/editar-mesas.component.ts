@@ -6,8 +6,9 @@ import { MesaService } from "../services/mesa";
 import { Mesa } from "../interface/mesa";
 
 @Component({
-  selector: 'app-editar-mesa',
-  templateUrl: './editar-mesa.component.html',
+    selector: 'app-editar-mesa',
+    templateUrl: './editar-mesa.component.html',
+    standalone: false
 })
 export class EditarMesaComponent implements OnInit {
 

@@ -3,9 +3,10 @@ import { PedidoService } from '../services/pedido';
 import { Pedido } from '../../public/interface/pedido';
 
 @Component({
-  selector: 'app-gestionar-pagos-efectivo',
-  templateUrl: './gestionar-pagos-efectivo.component.html',
-  styleUrls: ['./gestionar-pagos-efectivo.component.css']
+    selector: 'app-gestionar-pagos-efectivo',
+    templateUrl: './gestionar-pagos-efectivo.component.html',
+    styleUrls: ['./gestionar-pagos-efectivo.component.css'],
+    standalone: false
 })
 export class GestionarPagosEfectivoComponent implements OnInit {
   pedidosPendientes: Pedido[] = [];

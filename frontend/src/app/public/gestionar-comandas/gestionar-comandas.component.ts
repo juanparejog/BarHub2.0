@@ -11,9 +11,10 @@ export interface EstadoOpcion {
 }
 
 @Component({
-  selector: 'app-gestionar-comandas',
-  templateUrl: './gestionar-comandas.component.html',
-  styleUrls: ['./gestionar-comandas.component.css']
+    selector: 'app-gestionar-comandas',
+    templateUrl: './gestionar-comandas.component.html',
+    styleUrls: ['./gestionar-comandas.component.css'],
+    standalone: false
 })
 export class GestionarComandasComponent implements OnInit, OnDestroy {
   pedidos: any[] = [];

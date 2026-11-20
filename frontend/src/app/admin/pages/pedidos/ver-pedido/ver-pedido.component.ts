@@ -7,8 +7,9 @@ import { Pedido } from '../interface/pedido';
 import { PedidoService } from '../services/pedido';
 
 @Component({
-  selector: 'app-ver-pedido',
-  templateUrl: './ver-pedido.component.html'
+    selector: 'app-ver-pedido',
+    templateUrl: './ver-pedido.component.html',
+    standalone: false
 })
 export class VerPedidoComponent implements OnInit {
   users: any[] = [];

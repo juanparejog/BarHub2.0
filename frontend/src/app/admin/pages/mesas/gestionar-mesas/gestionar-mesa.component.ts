@@ -4,8 +4,9 @@ import { Mesa } from '../interface/mesa';
 import { DialogService } from 'src/app/main/services/shared/services/dialog.service';
 
 @Component({
-  selector: 'app-gestionar-mesa',
-  templateUrl: './gestionar-mesa.component.html'
+    selector: 'app-gestionar-mesa',
+    templateUrl: './gestionar-mesa.component.html',
+    standalone: false
 })
 export class GestionarMesaComponent implements OnInit {
 

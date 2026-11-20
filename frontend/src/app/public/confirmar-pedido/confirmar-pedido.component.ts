@@ -29,9 +29,10 @@ interface PedidoTemporal {
 }
 
 @Component({
-  selector: 'app-confirmar-pedido',
-  templateUrl: './confirmar-pedido.component.html',
-  styleUrls: ['./confirmar-pedido.component.css']
+    selector: 'app-confirmar-pedido',
+    templateUrl: './confirmar-pedido.component.html',
+    styleUrls: ['./confirmar-pedido.component.css'],
+    standalone: false
 })
 export class ConfirmarPedidoComponent implements OnInit {
   stripe: Stripe | null = null;

@@ -4,8 +4,9 @@ import { Producto } from '../interface/producto';
 import { DialogService } from 'src/app/main/services/shared/services/dialog.service';
 
 @Component({
-  selector: 'app-gestionar-producto',
-  templateUrl: './gestionar-producto.component.html'
+    selector: 'app-gestionar-producto',
+    templateUrl: './gestionar-producto.component.html',
+    standalone: false
 })
 export class GestionarProductoComponent implements OnInit {
 

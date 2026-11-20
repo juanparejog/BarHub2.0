@@ -1,8 +1,9 @@
 import { Component } from '@angular/core';
 
 @Component({
-  selector: 'app-politica-privacidad',
-  templateUrl: './politica-privacidad.component.html',
-  styleUrls: ['./politica-privacidad.component.css']
+    selector: 'app-politica-privacidad',
+    templateUrl: './politica-privacidad.component.html',
+    styleUrls: ['./politica-privacidad.component.css'],
+    standalone: false
 })
 export class PoliticaPrivacidadComponent {}

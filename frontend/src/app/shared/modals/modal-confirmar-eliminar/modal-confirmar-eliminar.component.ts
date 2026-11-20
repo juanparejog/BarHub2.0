@@ -1,9 +1,9 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 
 @Component({
-  selector: 'app-modal-confirmar-eliminar',
-  templateUrl: './modal-confirmar-eliminar.component.html',
-  //styleUrls: ['./modal-confirmar-eliminar.component.css']
+    selector: 'app-modal-confirmar-eliminar',
+    templateUrl: './modal-confirmar-eliminar.component.html',
+    standalone: false
 })
 export class ModalConfirmarEliminarComponent {
 

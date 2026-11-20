@@ -5,9 +5,10 @@ import { PedidoService } from '../services/pedido';
 import { Pedido } from '../interface/pedido';
 
 @Component({
-  selector: 'app-seguimiento-pedidos',
-  templateUrl: './seguimiento-pedidos.component.html',
-  styleUrls: ['./seguimiento-pedidos.component.css']
+    selector: 'app-seguimiento-pedidos',
+    templateUrl: './seguimiento-pedidos.component.html',
+    styleUrls: ['./seguimiento-pedidos.component.css'],
+    standalone: false
 })
 export class SeguimientoPedidosComponent implements OnInit, OnDestroy {
   pedidos: Pedido[] = [];

@@ -4,8 +4,9 @@ import { Usuario } from '../interface/usuario';
 import { DialogService } from 'src/app/main/services/shared/services/dialog.service';
 
 @Component({
-  selector: 'app-gestionar-usuario',
-  templateUrl: './gestionar-usuario.component.html'
+    selector: 'app-gestionar-usuario',
+    templateUrl: './gestionar-usuario.component.html',
+    standalone: false
 })
 export class GestionarUsuarioComponent implements OnInit {
   

@@ -8,8 +8,9 @@ import { DetallesPedido } from '../interface/detalle';
 import { forkJoin } from 'rxjs';
 
 @Component({
-  selector: 'app-editar-detalle',
-  templateUrl: './editar-detalle.component.html',
+    selector: 'app-editar-detalle',
+    templateUrl: './editar-detalle.component.html',
+    standalone: false
 })
 export class EditarDetalleComponent implements OnInit {
 

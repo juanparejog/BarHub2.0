@@ -18,9 +18,10 @@ interface ProductoSeleccionado {
 }
 
 @Component({
-  selector: 'app-carta',
-  templateUrl: './carta.component.html',
-  styleUrls: ['./carta.component.css']
+    selector: 'app-carta',
+    templateUrl: './carta.component.html',
+    styleUrls: ['./carta.component.css'],
+    standalone: false
 })
 export class CartaComponent implements OnInit {
   public isLoggedIn = false;

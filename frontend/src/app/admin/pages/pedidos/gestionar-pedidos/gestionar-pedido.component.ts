@@ -10,8 +10,9 @@ import { MesaService } from "../../mesas/services/mesa";
 declare var bootstrap: any;
 
 @Component({
-  selector: 'app-gestionar-pedido',
-  templateUrl: './gestionar-pedido.component.html'
+    selector: 'app-gestionar-pedido',
+    templateUrl: './gestionar-pedido.component.html',
+    standalone: false
 })
 export class GestionarPedidoComponent implements OnInit {
   @ViewChild('modalBorrar') modalBorrarRef!: ElementRef;

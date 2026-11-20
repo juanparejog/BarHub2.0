@@ -9,8 +9,9 @@ import { forkJoin } from 'rxjs';
 type SortableColumn = 'id_pedido' | 'producto' | 'cantidad' | 'precio_unitario';
 
 @Component({
-  selector: 'app-gestionar-detalle',
-  templateUrl: './gestionar-detalle.component.html'
+    selector: 'app-gestionar-detalle',
+    templateUrl: './gestionar-detalle.component.html',
+    standalone: false
 })
 export class GestionarDetalleComponent implements OnInit {
   pedidos: any[] = [];

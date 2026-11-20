@@ -15,8 +15,9 @@ export interface ProductoRanking {
 }
 
 @Component({
-  selector: 'app-metricas',
-  templateUrl: './metricas.component.html',
+    selector: 'app-metricas',
+    templateUrl: './metricas.component.html',
+    standalone: false
 })
 export class MetricasComponent implements OnInit, OnDestroy {
   @ViewChild('ingresosChartCanvas') ingresosChartCanvas!: ElementRef;

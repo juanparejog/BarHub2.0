@@ -5,8 +5,9 @@ import { Producto } from '../interface/producto';
 import { ProductoService } from '../services/producto';
 
 @Component({
-  selector: 'app-ver-producto',
-  templateUrl: './ver-producto.component.html'
+    selector: 'app-ver-producto',
+    templateUrl: './ver-producto.component.html',
+    standalone: false
 })
 export class VerProductoComponent implements OnInit {
 

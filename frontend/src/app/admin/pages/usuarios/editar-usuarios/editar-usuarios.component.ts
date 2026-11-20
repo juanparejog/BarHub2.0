@@ -12,8 +12,9 @@ function minimoUnRolValidator(control: AbstractControl): ValidationErrors | null
 }
 
 @Component({
-  selector: 'app-editar-usuario',
-  templateUrl: './editar-usuario.component.html',
+    selector: 'app-editar-usuario',
+    templateUrl: './editar-usuario.component.html',
+    standalone: false
 })
 export class EditarUsuarioComponent implements OnInit {
 

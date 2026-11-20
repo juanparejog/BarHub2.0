@@ -3,9 +3,10 @@ import { MesaService } from '../../admin/pages/mesas/services/mesa';
 import { Mesa } from '../../admin/pages/mesas/interface/mesa';
 
 @Component({
-  selector: 'app-gestionar-mesas-empleado',
-  templateUrl: './gestionar-mesas-empleado.component.html',
-  styleUrls: ['./gestionar-mesas-empleado.component.css']
+    selector: 'app-gestionar-mesas-empleado',
+    templateUrl: './gestionar-mesas-empleado.component.html',
+    styleUrls: ['./gestionar-mesas-empleado.component.css'],
+    standalone: false
 })
 export class GestionarMesasEmpleadoComponent implements OnInit {
   mesas: Mesa[] = [];

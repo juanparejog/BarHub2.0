@@ -5,9 +5,10 @@ import { UsuarioService } from '../../admin/pages/usuarios/services/usuario';
 import { Usuario } from '../../admin/pages/usuarios/interface/usuario';
 
 @Component({
-  selector: 'app-perfil',
-  templateUrl: './perfil.component.html',
-  styleUrls: ['./perfil.component.css']
+    selector: 'app-perfil',
+    templateUrl: './perfil.component.html',
+    styleUrls: ['./perfil.component.css'],
+    standalone: false
 })
 export class PerfilComponent implements OnInit {
   perfilForm!: FormGroup;

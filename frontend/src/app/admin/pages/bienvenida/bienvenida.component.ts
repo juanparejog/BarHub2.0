@@ -5,9 +5,10 @@ import { DetallesService } from '../detalles_pedidos/services/detalle';
 import { Pedido } from '../pedidos/interface/pedido';
 
 @Component({
-  selector: 'app-bienvenida',
-  templateUrl: './bienvenida.component.html',
-  styleUrls: ['./bienvenida.component.css']
+    selector: 'app-bienvenida',
+    templateUrl: './bienvenida.component.html',
+    styleUrls: ['./bienvenida.component.css'],
+    standalone: false
 })
 export class BienvenidaComponent implements OnInit {
 

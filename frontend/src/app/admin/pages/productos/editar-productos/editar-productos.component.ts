@@ -6,8 +6,9 @@ import { ProductoService } from "../services/producto";
 import { Producto } from "../interface/producto";
 
 @Component({
-  selector: 'app-editar-productos',
-  templateUrl: './editar-producto.component.html',
+    selector: 'app-editar-productos',
+    templateUrl: './editar-producto.component.html',
+    standalone: false
 })
 export class EditarProductoComponent implements OnInit {
 

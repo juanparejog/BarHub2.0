@@ -5,8 +5,9 @@ import { Mesa } from '../interface/mesa';
 import { MesaService } from '../services/mesa';
 
 @Component({
-  selector: 'app-ver-mesa',
-  templateUrl: './ver-mesa.component.html'
+    selector: 'app-ver-mesa',
+    templateUrl: './ver-mesa.component.html',
+    standalone: false
 })
 export class VerMesaComponent implements OnInit {
 

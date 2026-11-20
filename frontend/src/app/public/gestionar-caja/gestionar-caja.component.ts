@@ -5,8 +5,9 @@ import { Caja } from './interface/caja';
 import { DialogService } from 'src/app/main/services/shared/services/dialog.service';
 
 @Component({
-  selector: 'app-gestionar-caja',
-  templateUrl: './gestionar-caja.component.html'
+    selector: 'app-gestionar-caja',
+    templateUrl: './gestionar-caja.component.html',
+    standalone: false
 })
 export class GestionarCajaComponent implements OnInit {
 

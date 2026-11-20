@@ -7,8 +7,9 @@ import { DetallesPedido } from '../interface/detalle';
 import { DetallesService } from '../services/detalle';
 
 @Component({
-  selector: 'app-ver-detalle',
-  templateUrl: './ver-detalle.component.html'
+    selector: 'app-ver-detalle',
+    templateUrl: './ver-detalle.component.html',
+    standalone: false
 })
 export class VerDetalleComponent implements OnInit {
   pedidos: any[] = [];
