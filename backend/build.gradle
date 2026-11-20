@@ -42,7 +42,7 @@ dependencies {
     implementation 'io.jsonwebtoken:jjwt-api:0.12.5'
     implementation 'io.jsonwebtoken:jjwt-impl:0.12.5'
     // Gson en lugar de Jackson: jjwt-jackson usa Jackson 2, y Spring Boot 4 trae Jackson 3
-    implementation 'io.jsonwebtoken:jjwt-gson:0.12.5'
+    implementation 'io.jsonwebtoken:jjwt-gson:0.13.0'
 
     implementation 'com.stripe:stripe-java:24.7.0'
 
