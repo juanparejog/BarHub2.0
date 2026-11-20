@@ -29,7 +29,7 @@
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "^15.2.11",
-    "@angular/cli": "~15.2.11",
+    "@angular/cli": "~22.3.0",
     "@angular/compiler-cli": "^15.2.10",
     "@types/jasmine": "~4.6.6",
     "@types/pdfmake": "^0.3.3",
