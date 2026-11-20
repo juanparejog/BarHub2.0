@@ -10,13 +10,13 @@
   },
   "private": true,
   "dependencies": {
-    "@angular/common": "^16.2.12",
-    "@angular/compiler": "^16.2.12",
-    "@angular/core": "^16.2.12",
-    "@angular/forms": "^16.2.12",
-    "@angular/platform-browser": "^16.2.12",
-    "@angular/platform-browser-dynamic": "^16.2.12",
-    "@angular/router": "^16.2.12",
+    "@angular/common": "^17.3.12",
+    "@angular/compiler": "^17.3.12",
+    "@angular/core": "^17.3.12",
+    "@angular/forms": "^17.3.12",
+    "@angular/platform-browser": "^17.3.12",
+    "@angular/platform-browser-dynamic": "^17.3.12",
+    "@angular/router": "^17.3.12",
     "@auth0/angular-jwt": "^5.2.0",
     "@stripe/stripe-js": "^7.10.0",
     "bootstrap": "^5.3.9",
@@ -25,12 +25,12 @@
     "pdfmake": "^0.3.14",
     "rxjs": "~7.8.2",
     "tslib": "^2.9.1",
-    "zone.js": "^0.13.3"
+    "zone.js": "^0.14.10"
   },
   "devDependencies": {
-    "@angular-devkit/build-angular": "^16.2.16",
-    "@angular/cli": "~16.2.16",
-    "@angular/compiler-cli": "^16.2.12",
+    "@angular-devkit/build-angular": "^17.3.17",
+    "@angular/cli": "~17.3.17",
+    "@angular/compiler-cli": "^17.3.12",
     "@types/jasmine": "~4.6.6",
     "@types/pdfmake": "^0.3.3",
     "jasmine-core": "~4.6.1",
@@ -39,18 +39,6 @@
     "karma-coverage": "~2.2.0",
     "karma-jasmine": "~5.1.0",
     "karma-jasmine-html-reporter": "~2.3.0",
-    "typescript": "~5.1.6"
-  },
-  "overrides": {
-    "@angular-devkit/core": {
-      "ajv": "8.20.0"
-    },
-    "@babel/core": "7.29.13",
-    "@babel/runtime": "7.29.14",
-    "engine.io": "^6.6.10",
-    "minimatch@5.1.0": "5.1.9",
-    "postcss": "8.5.33",
-    "socket.io-parser": "^4.2.7",
-    "ws": "^8.21.0"
+    "typescript": "~5.4.5"
   }
 }
