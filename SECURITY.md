@@ -51,7 +51,7 @@ Realiza las pruebas **solo en tu propia instancia local**. No ataques servidores
 
 ## Limitaciones conocidas
 
-**Frontend en Angular 14 (sin soporte).** El frontend usa Angular 14, que ya no recibe correcciones de seguridad. Las alertas de dependencias que afectan a `@angular/common`, `@angular/compiler`, `@angular/core` y `@angular/router` solo se resuelven migrando a una versión con soporte, lo que implica varios saltos de versión mayor. Esa migración está prevista para la versión 2.2.
+**Frontend en Angular 14 (sin soporte).** El frontend usa Angular 14, que ya no recibe correcciones de seguridad. Las alertas de dependencias que afectan a `@angular/common`, `@angular/compiler`, `@angular/core` y `@angular/router` solo se resuelven migrando a una versión con soporte, lo que implica varios saltos de versión mayor. Esa migración está prevista para la versión 2.1, antes de las funcionalidades nuevas. Hasta entonces, las alertas se dejan abiertas a propósito en Dependabot como recordatorio.
 
 Análisis a fecha de 18 de noviembre de 2026, a partir del código de este repositorio. Los avisos abiertos en producción se agrupan así:
 
@@ -65,7 +65,7 @@ Análisis a fecha de 18 de noviembre de 2026, a partir del código de este repos
 
 El único uso de `bypassSecurityTrustResourceUrl` es el mapa de la ubicación del local: el origen de la URL es fijo (`maps.google.com`) y la dirección se codifica con `encodeURIComponent`, de modo que un usuario no puede cambiar el servidor ni el protocolo del `iframe`.
 
-Las alertas marcadas como de desarrollo (por ejemplo `piscina` o `tar`, que llegan con Angular CLI y las herramientas de compilación) no forman parte de lo que se sirve a los usuarios: solo afectan al equipo que compila. Se resuelven con la misma migración prevista en la 2.2.
+Las alertas marcadas como de desarrollo (por ejemplo `piscina` o `tar`, que llegan con Angular CLI y las herramientas de compilación) no forman parte de lo que se sirve a los usuarios: solo afectan al equipo que compila. Se resuelven con la misma migración prevista en la 2.1.
 
 Mitigaciones en el despliegue: cabeceras `Strict-Transport-Security`, `X-Content-Type-Options`, `X-Frame-Options` y `Referrer-Policy` desde Caddy, y el actuator no accesible desde fuera de la red de Docker.
 

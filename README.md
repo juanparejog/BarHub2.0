@@ -105,7 +105,7 @@ flowchart LR
 | Capa | Tecnologías |
 | :--- | :--- |
 | **Backend** | Java 17, Spring Boot 3.5.16, Spring Security, JWT (jjwt 0.12.5), Gradle |
-| **Frontend** | Angular 14, TypeScript, Tailwind CSS, PrimeNG |
+| **Frontend** | Angular 14, TypeScript, Bootstrap 5.3, Bootstrap Icons |
 | **Base de datos** | MariaDB |
 | **Infraestructura** | Docker (multi-stage), Docker Compose, Caddy, DuckDNS, Uptime Kuma |
 | **Calidad y seguridad** | SonarQube / SonarCloud, Snyk, Trivy, GitHub Actions, Dependabot |
@@ -125,7 +125,7 @@ He intentado tratar la seguridad como parte del desarrollo y no como algo que se
 | **Snyk** | Dependencias del frontend | 29 incidencias | 25 (reanálisis del 15-nov-2026), 24 de Angular 14 sin soporte |
 | **Trivy** | Dockerfiles | 1 HIGH y 2 LOW | 0 (usuario no root y `HEALTHCHECK`) |
 
-> El Quality Gate de SonarCloud se evalúa sobre el código posterior a la versión 2.0.0 (`sonar.projectVersion`). La cobertura global es del 0 % porque todavía no se envían informes de tests, y la duplicación global es del 1,7 %. Los 45 avisos de fiabilidad restantes son de gravedad baja, casi todos imágenes sin texto alternativo, y están en la hoja de ruta.
+> El Quality Gate de SonarCloud se evalúa sobre el código nuevo de cada versión (`sonar.projectVersion`) y está superado desde la 2.0.3: la cobertura se mide en el backend con JaCoCo y los avisos que quedan están revisados. El frontend todavía no tiene tests con cobertura; llegarán con la migración de Angular (2.1).
 
 > [!IMPORTANT]
 > Lo que queda en Snyk son avisos de Spring Framework 6.2 y Spring Security 6.5 (sus correcciones solo existen en la serie 7, Spring Boot 4) y de Angular 14, sin soporte. Ambas migraciones están documentadas como deuda técnica y en la [hoja de ruta](#estado-del-proyecto).
@@ -156,7 +156,7 @@ Además de las auditorías estáticas, he probado el backend en ejecución (inst
 | JWT | Firma alterada y `alg=none` rechazados | Verificado |
 | Subidas | Extensión, tipo, firma del fichero, tamaño y ruta | Verificado |
 | Errores | Respuestas genéricas y `404` en recursos inexistentes | Verificado |
-| Fuerza bruta en el login | Todavía sin bloqueo | Pendiente |
+| Fuerza bruta en el login | Bloqueo tras 5 intentos fallidos (429 con `Retry-After`), cubierto por tests | Implementado; falta repetir la prueba dinámica |
 
 ### Pipeline CI/CD
 
@@ -170,7 +170,7 @@ flowchart LR
     E --> F["Docker Hub"]
 ```
 
-Ahora mismo el pipeline compila el frontend, lo analiza en SonarCloud y publica la imagen en Docker Hub. El pipeline del backend (compilación, tests y cobertura) está pendiente.
+El pipeline compila el frontend, ejecuta los tests del backend con cobertura (JaCoCo), lo analiza todo en SonarCloud y publica la imagen en Docker Hub.
 
 <details>
 <summary><b>Prácticas de seguridad aplicadas</b></summary>
@@ -196,7 +196,7 @@ Ahora mismo el pipeline compila el frontend, lo analiza en SonarCloud y publica 
 <!-- hoja-de-ruta -->
 ## Estado del proyecto
 
-Versión publicada: **2.0.2** (19 de noviembre de 2026). Las tareas están ordenadas por prioridad dentro de cada versión.
+Versión publicada: **2.0.3** (20 de noviembre de 2026). Las tareas están ordenadas por prioridad dentro de cada versión.
 
 ### Hecho en 2.0.0
 
@@ -231,38 +231,46 @@ Versión publicada: **2.0.2** (19 de noviembre de 2026). Las tareas están orden
 | Actualizaciones seguras aplicadas (Gradle 8.14, acciones de GitHub y dependencias menores del frontend) y bloqueo de dependencias del backend regenerado | Hecho |
 | Los `.jar` compilados ya no se versionan y la documentación de Caddy refleja la configuración real | Hecho |
 
+### Hecho en 2.0.3
+
+| Bloque | Estado |
+| :--- | :--- |
+| Tema oscuro sobre el modo de color nativo de Bootstrap 5.3, sin pisar a Bootstrap con `!important` (tema claro verificado idéntico con capturas automáticas) | Hecho |
+| Estilos: `transition: all` sustituido por las propiedades que se animan y clases de Bootstrap adaptables al tema | Hecho |
+| SonarCloud: quality gate superado; cobertura medida en el backend | Hecho |
+| Dependencias del build parcheadas sin migrar (overrides en la misma rama) | Hecho |
+
 ### Hoja de ruta
 
-**v2.0.3: pendiente de la 2.0.2**
+**v2.1: migración de versiones y funcionalidades nuevas (no requieren servidor)**
 
-| Tarea | Objetivo |
-| :--- | :--- |
-| Lote de avisos CSS de SonarCloud (`!important`, `transition: all`) | Hojas de estilo más mantenibles |
-
-**v2.1: funcionalidades nuevas (no requieren servidor)**
+La migración va primero, para que las funcionalidades nuevas se construyan ya sobre versiones con soporte.
 
 | Prioridad | Tarea | Objetivo |
 | :-: | :--- | :--- |
-| 7 | Información de alérgenos (los 14 del reglamento europeo) | Cumplimiento y confianza del cliente |
-| 8 | Código QR por mesa | Pedir desde la mesa sin elegirla a mano |
-| 9 | Varios idiomas (español, portugués e inglés) | Carta traducida, tras los alérgenos |
-| 10 | Impresión de comandas | Flujo cocina y barra; pendiente decidir si hay pantalla en cocina |
-| 11 | SOC en local | Monitorización y alertas probadas sin depender de un VPS |
-| 12 | Stripe en modo de pruebas | Probar el flujo de pago completo sin cobros reales |
+| 7 | Migración a Spring Boot 4.1 (Spring Framework 7, Spring Security 7 y Jackson 3) | Backend con soporte y sin las alertas de Spring 6 |
+| 8 | Migración de Angular 14 a 22, versión a versión, con Node 24 en el CI y en Docker | Frontend con soporte y sin las alertas de Angular 14 |
+| 9 | Tests del frontend con cobertura en SonarCloud | Medir el frontend igual que el backend |
+| 10 | Información de alérgenos (los 14 del reglamento europeo) | Cumplimiento y confianza del cliente |
+| 11 | Código QR por mesa | Pedir desde la mesa sin elegirla a mano |
+| 12 | Varios idiomas (español, portugués e inglés) | Carta traducida, tras los alérgenos |
+| 13 | Impresión de comandas | Flujo cocina y barra; pendiente decidir si hay pantalla en cocina |
+| 14 | SOC en local | Monitorización y alertas probadas sin depender de un VPS |
+| 15 | Stripe en modo de pruebas | Probar el flujo de pago completo sin cobros reales |
 
 **Cuando haya servidor**
 
 | Prioridad | Tarea | Objetivo |
 | :-: | :--- | :--- |
-| 13 | Despliegue en VPS con HTTPS y copias de seguridad | Aplicación accesible en producción |
-| 14 | SOC en producción | Monitorización real |
-| 15 | Stripe real | Último paso, tras validar todo en pruebas |
+| 16 | Despliegue en VPS con HTTPS y copias de seguridad | Aplicación accesible en producción |
+| 17 | SOC en producción | Monitorización real |
+| 18 | Stripe real | Último paso, tras validar todo en pruebas |
 
 **Más adelante**
 
 | Versión o momento | Tarea |
 | :--- | :--- |
-| v2.2 | Migración a Spring Boot 4 y a una versión de Angular con soporte |
+| Tras la migración | Revisión de los `!important` que quedan en el CSS |
 | Con demo en producción | RGPD, cliente piloto y precio |
 | Aparcado | Control de stock y analítica adicional |
 

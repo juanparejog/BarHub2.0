@@ -6,6 +6,31 @@ El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y e
 
 ## [Sin publicar]
 
+## [2.0.3] - 2026-11-20
+
+### Cambiado
+- Tema oscuro rehecho sobre el modo de color nativo de Bootstrap 5.3 (`data-bs-theme`) con la paleta de BarHub en variables: las reglas que pisaban a Bootstrap con `!important` se sustituyen por sus variables (tarjetas, modales, tablas, formularios, botones, utilidades e insignias). El tema claro queda idéntico, comprobado con capturas automáticas de 36 pantallas en los dos temas.
+- HTML: `text-dark`, `bg-light` y `bg-white` pasan a `text-body`, `bg-body-tertiary` y `bg-body`, que dan el mismo color en tema claro y se adaptan al oscuro (salvo `text-dark` sobre fondos de color, que se mantiene).
+- Estilos: las 43 `transition: all` se sustituyen por las propiedades que realmente se animan.
+- Accesibilidad: los anuncios para lectores de pantalla, el contador del carrito y los avisos usan `<output>`; las insignias del modo oscuro tienen fondo opaco con contraste AA.
+- Backend: campos `final` en los DTO de respuesta y en `UserDetailsImpl`; test de la limpieza de registros de `LoginAttemptService`.
+- Dependencias del build: overrides con versiones parcheadas de la misma rama para `@babel/core`, `@babel/runtime`, `postcss`, `minimatch` y `ajv` (este último solo en `@angular-devkit/core`).
+- Hoja de ruta: la migración a Spring Boot 4 y a Angular 22 se adelanta de la 2.2 a la 2.1, antes de las funcionalidades nuevas. README actualizado con el stack real del frontend, el estado del pipeline, la cobertura y el bloqueo del login.
+- SonarCloud: la cobertura se mide solo en el backend, que es el único con informe; el análisis lleva la versión real y excluye los datos SQL de demostración.
+
+### Corregido
+- Reglas oscuras del perfil que nunca se aplicaban (`body.dark-theme` dentro de un componente encapsulado por Angular); tarjetas de tipo de vivienda en modo oscuro.
+- Secciones de formularios y barras del buscador del panel de administración, que salían grises en modo oscuro.
+- Dos errores de CSS en el seguimiento de pedidos (`background` anulaba a `background-color`) y selectores duplicados.
+- La lupa del buscador del panel ya usa el color de contraste revisado, que antes anulaba un `!important`.
+
+### Notas
+- Quedan 129 `!important` en el código (bloque de móvil, buscador y campo de archivo del panel, comandas, entre otros). SonarCloud dejó de contarlos al retirar esa regla de su perfil; se revisarán con la migración de Angular (2.1).
+- El movimiento reducido se resuelve con una regla global; los avisos por componente de SonarCloud se aceptan con ese motivo.
+- El frontend no tiene cobertura de tests medida en el CI; se incorporará en la 2.1, con la migración de Angular.
+- La etiqueta `v2.0.2` incluye dos actualizaciones de Dependabot fusionadas después de su cierre (`@stripe/stripe-js` menor y jQuery 4.0.0); se ha comprobado que los diálogos que usan jQuery funcionan.
+- Las alertas de dependencias que quedan son de Angular 14, sin soporte, y de herramientas de compilación que exigen un salto de versión mayor (ver `SECURITY.md`). Se dejan abiertas a propósito: se cierran con la migración de la 2.1.
+
 ## [2.0.2] - 2026-11-19
 
 ### Cambiado
