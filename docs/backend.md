@@ -18,12 +18,12 @@ El backend de BarHub 2.0 expone una **API REST** securizada con JWT. El frontend
 
 | Componente | Tecnología | Notas |
 | :--- | :--- | :--- |
-| Lenguaje / framework | Java 17 + **Spring Boot 3.5.16** | Elevado desde 3.4.3 tras el reanálisis de Snyk ([auditorias.md](auditorias.md)) |
+| Lenguaje / framework | Java 21 + **Spring Boot 4.2.0** | Spring Framework 7, Spring Security 7, Hibernate 7, Tomcat 11 y Jackson 3. Migrado desde 3.5.16 en la 2.1 ([auditorias.md](auditorias.md)) |
 | Build | Gradle | `./gradlew clean build -x test` |
 | Base de datos | **MariaDB** | Modelo ER en [base-de-datos.md](base-de-datos.md) |
-| Autenticación | **JWT** (`jjwt 0.12.5`) | Implementado en `JwtUtils.java` con el API moderno |
-| Conectores BBDD | `mariadb-java-client` 3.5.11, `mysql-connector-j` | Versiones estables y seguras |
-| Versiones fijadas | Tomcat 10.1.61, Jackson 2.22.4, Logback 1.5.36, Hibernate Validator 8.0.6 | Por encima del BOM de Spring Boot, por avisos de seguridad |
+| Autenticación | **JWT** (`jjwt 0.13.0`, serialización con Gson) | Implementado en `JwtUtils.java` con el API moderno |
+| Conector BBDD | `mariadb-java-client` 4.0.0 | TLS por defecto con el certificado del servidor verificado ([evidencia](evidencias/tls-mariadb-2026-11-20.md)) |
+| JSON | Jackson 3 con `spring.jackson.use-jackson2-defaults` | La API acepta y devuelve el mismo JSON que con Spring Boot 3.5 |
 | Actualización de datos | Sondeo REST desde el frontend | Ver [sección 6](#6-actualización-de-datos) |
 | Fechas | `java.time` / `Instant` | Sustituye al obsoleto `new Date()` |
 

@@ -23,7 +23,8 @@ Resumen de las prácticas de seguridad aplicadas en BarHub 2.0 y un modelo de am
 | **Errores** | Respuestas genéricas al cliente; el detalle queda solo en el log | Pruebas dinámicas |
 | **Validación** | Bean Validation (`@Valid`) en los DTO de entrada | Pruebas dinámicas |
 | **CORS** | Orígenes limitados a los del frontend (local y dominio de producción) | Revisión de código |
-| **Dependencias** | Spring Boot 3.5.16 y `jjwt 0.12.5`; Tomcat, Jackson, Logback y el conector de MariaDB fijados por encima del BOM; dependencias sin uso retiradas | Snyk |
+| **Dependencias** | Spring Boot 4.2 (Spring Framework 7 y Spring Security 7), `jjwt 0.13.0` y conector de MariaDB 4; dependencias sin uso retiradas | Snyk y Dependabot |
+| **Conexión con la base de datos** | TLS 1.3 con el certificado del servidor verificado (Connector/J 4, `sslMode=verify-full` por defecto) y TLS obligatorio para el usuario de la aplicación (`REQUIRE SSL`) | [Evidencia](evidencias/tls-mariadb-2026-11-20.md) |
 | **Código** | Eliminado `e.printStackTrace()`; `equals()` y `hashCode()` en `UserDetailsImpl` | SonarQube |
 | **Contenedores** | Usuario no root (DS-0002) y `HEALTHCHECK` (DS-0026); versiones de imagen fijadas | Trivy |
 | **Contraseñas** | Almacenadas como hash mediante el `PasswordEncoder` de Spring Security, nunca en claro | Modelo ER |
@@ -42,7 +43,7 @@ flowchart LR
     F -- valida firma, expiración y rol --> C[Controlador]
 ```
 
-- **JWT** firmado con `jjwt 0.12.5` (`JwtUtils.java`), sin sesión en el servidor. La caducidad actual es de 24 horas.
+- **JWT** firmado con `jjwt 0.13.0` (`JwtUtils.java`), sin sesión en el servidor. La caducidad actual es de 4 horas.
 - **Control por roles** (`role_admin`, `role_cliente`, `role_empleado`) en dos capas:
   - **Backend:** barrera real, con Spring Security y `UserDetailsImpl`.
   - **Frontend:** `auth.guard.ts`, `role.guard.ts` y `auth.interceptor.ts`, que mejoran la experiencia pero **no sustituyen** al backend.
@@ -72,7 +73,7 @@ flowchart LR
 
 | # | Amenaza | Tipo | Mitigación | Estado |
 | :--- | :--- | :--- | :--- | :---: |
-| 1 | Robo o falsificación de JWT | Suplantación | Firma con `jjwt 0.12.5`, HTTPS, caducidad de 24 h | Parcial: reducir la caducidad |
+| 1 | Robo o falsificación de JWT | Suplantación | Firma con `jjwt 0.13.0`, HTTPS, caducidad de 4 h | Parcial: token corto con renovación (v2.1) |
 | 2 | Acceso a endpoints de otro rol (p. ej. `POST /productos`) | Elevación de privilegios | `@PreAuthorize` y denegación por defecto | Verificado |
 | 3 | Ver o modificar pedidos y perfiles de otro usuario (IDOR) | Divulgación | Filtrado por usuario autenticado y `404` uniforme | Verificado |
 | 4 | Manipular precios desde el cliente | Manipulación | El backend recalcula con `productos.precio` | Verificado |
@@ -95,6 +96,7 @@ Ataques físicos al local, ingeniería social contra el personal y seguridad del
 
 La API en ejecución se probó con un script propio contra una instancia local y se repitió tras cada cambio del backend. El script no se versiona; los resultados sí:
 
+- [Conexión cifrada con MariaDB (20 de noviembre de 2026, con Spring Boot 4.2 y Connector/J 4)](evidencias/tls-mariadb-2026-11-20.md)
 - [Pruebas de seguridad (15 de noviembre de 2026, con Spring Boot 3.5.16)](evidencias/seguridad-2026-11-15.md)
 - [Pruebas de seguridad (14 de noviembre de 2026)](evidencias/seguridad-2026-11-14.md)
 - [Subidas de archivos y errores](evidencias/subidas-y-errores.md)
@@ -107,8 +109,7 @@ Resultado de la última ejecución (15 de noviembre de 2026): 0 fallos. La fuerz
 | :--- | :--- |
 | Pago con tarjeta simulado | Funciona en modo demostración y la interfaz lo indica. Antes de un uso real hay que verificar en el servidor el `PaymentIntent` de Stripe (estado `succeeded` e importe) |
 | Verificación de correo | No implementada: el registro no envía ni exige confirmación por correo |
-| Límite de intentos | Login y creación de pedidos sin limitación (Fail2Ban sobre los logs de Caddy o límite en la aplicación) |
-| Caducidad del JWT | 24 horas; valorar token de corta duración con renovación |
-| Contraseña actual | No se exige al cambiar la contraseña |
+| Límite de intentos | El login bloquea 15 minutos tras 5 fallos seguidos de un mismo usuario (desde la 2.0.1); el bloqueo es por usuario y no por IP, y la creación de pedidos sigue sin límite |
+| Caducidad del JWT | 4 horas; en la 2.1 pasa a token de acceso corto con renovación y límites por rol |
 | Uptime Kuma | Publicado en el puerto 3001; ver mejoras en [infraestructura.md](infraestructura.md#13-mejoras-recomendadas) |
-| Dependencias sin parche compatible | Spring Framework 6.2, Spring Security 6.5 y Spring Data (backend) y Angular 14 (frontend): requieren migrar a Spring Boot 4 y a una versión de Angular con soporte (hito v2.1) |
+| Dependencias sin parche compatible | Angular 14 (frontend): requiere migrar a una versión con soporte (siguiente tarea de la 2.1). El backend ya está en Spring Boot 4.2 |

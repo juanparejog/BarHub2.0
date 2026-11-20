@@ -291,6 +291,10 @@ services:
       MYSQL_DATABASE: ${DB_DATABASE:?}
       MYSQL_USER: ${DB_USERNAME:?}
       MYSQL_PASSWORD: ${DB_PASSWORD:?}
+    volumes:
+      - mysql_data:/var/lib/mysql
+      # Primera arrancada: TLS obligatorio para el usuario de la aplicación
+      - ./initdb:/docker-entrypoint-initdb.d:ro
 
   backend:
     build: ../../backend
@@ -320,6 +324,18 @@ services:
     ports:
       - "3001:3001"
 ```
+
+**Conexión cifrada con la base de datos.** MariaDB 13 genera su propio certificado al arrancar, y el driver del backend (Connector/J 4) cifra la conexión con TLS y verifica ese certificado durante el login, sin configurar nada. Además, el usuario de la aplicación tiene el TLS obligatorio (`REQUIRE SSL`):
+
+- En una instalación nueva lo aplica `infra/docker/initdb/10-tls-obligatorio.sh`, que MariaDB ejecuta solo al crear el volumen de datos.
+- En una instalación existente se aplica una vez a mano:
+
+```bash
+docker exec barhub-mysql sh -c 'MYSQL_PWD=$MYSQL_ROOT_PASSWORD mariadb -uroot -h127.0.0.1 -e "ALTER USER \"$MYSQL_USER\"@\"%\" REQUIRE SSL;"'
+docker compose restart backend
+```
+
+La comprobación está en [evidencias/tls-mariadb-2026-11-20.md](evidencias/tls-mariadb-2026-11-20.md).
 
 > Los puntos que aún se endurecerán (Uptime Kuma y `docker.sock`, `healthcheck` de MariaDB, `no-new-privileges`) están en la [sección 13](#13-mejoras-recomendadas).
 

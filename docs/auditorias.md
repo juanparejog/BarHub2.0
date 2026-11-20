@@ -72,6 +72,15 @@ Spring Boot 3.4 había salido de soporte y, con el tiempo, se habían publicado 
 
 Estos avisos no se han analizado uno a uno para decidir si son explotables en esta aplicación. La solución de fondo es migrar a Spring Boot 4 (Spring Framework 7), que está en la hoja de ruta (v2.1).
 
+#### Migración a Spring Boot 4 (20 de noviembre de 2026, versión 2.1)
+
+- Spring Boot de 3.5.16 a **4.2.0**: Spring Framework 7, Spring Security 7, Spring Data JPA 4, Hibernate 7, Tomcat 11 y Jackson 3. Java de 17 a **21**.
+- Se quitan las versiones fijadas por encima del BOM (Tomcat, Jackson, Logback e Hibernate Validator): Spring Boot 4 ya trae versiones corregidas.
+- `jjwt` 0.13.0 con Gson en lugar de Jackson 2, que deja de estar en el classpath.
+- `mariadb-java-client` 4.0.0: conexión con TLS y certificado verificado por defecto, y TLS obligatorio para el usuario de la aplicación ([evidencia](evidencias/tls-mariadb-2026-11-20.md)).
+- Verificación: los 176 tests del backend pasan, y las capturas automáticas de las 36 pantallas en los dos temas salen idénticas antes y después, de modo que la API devuelve los mismos datos.
+- Pendiente: repetir el análisis de Snyk y las pruebas dinámicas con la versión nueva para actualizar las tablas de esta sección.
+
 ### Frontend · 102 dependencias
 
 | Métrica | Inicial | Final |

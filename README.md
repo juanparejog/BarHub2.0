@@ -10,7 +10,7 @@ Pedidos desde el móvil, comandas con actualización automática, control de caj
 
 <br>
 
-![Java](https://img.shields.io/badge/Java-17-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)
+![Java](https://img.shields.io/badge/Java-21-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)
 ![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.5-6DB33F?style=for-the-badge&logo=springboot&logoColor=white)
 ![Angular](https://img.shields.io/badge/Angular_14-DD0031?style=for-the-badge&logo=angular&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
@@ -104,7 +104,7 @@ flowchart LR
 
 | Capa | Tecnologías |
 | :--- | :--- |
-| **Backend** | Java 17, Spring Boot 3.5.16, Spring Security, JWT (jjwt 0.12.5), Gradle |
+| **Backend** | Java 21, Spring Boot 4.2, Spring Security 7, JWT (jjwt 0.13), Gradle |
 | **Frontend** | Angular 14, TypeScript, Bootstrap 5.3, Bootstrap Icons |
 | **Base de datos** | MariaDB |
 | **Infraestructura** | Docker (multi-stage), Docker Compose, Caddy, DuckDNS, Uptime Kuma |
@@ -121,14 +121,14 @@ He intentado tratar la seguridad como parte del desarrollo y no como algo que se
 | **SonarQube** (local) | Backend | 48 incidencias | 0 abiertas, Quality Gate superado |
 | **SonarQube** (local) | Frontend | 1 de seguridad, 145 de fiabilidad, 173 de mantenibilidad | 0 abiertas, Quality Gate superado |
 | **SonarCloud** (CI, 15-nov-2026) | Repositorio completo | 10 de seguridad (C), 49 de fiabilidad (C), 363 de mantenibilidad (A) | 0 de seguridad (A), 45 de fiabilidad (A), 363 de mantenibilidad (A) |
-| **Snyk** | Dependencias del backend | 136 incidencias | 29 (reanálisis del 15-nov-2026), de Spring Framework 6.2 y Spring Security 6.5 |
+| **Snyk** | Dependencias del backend | 136 incidencias | 29 (reanálisis del 15-nov-2026, antes de migrar a Spring Boot 4), de Spring Framework 6.2 y Spring Security 6.5 |
 | **Snyk** | Dependencias del frontend | 29 incidencias | 25 (reanálisis del 15-nov-2026), 24 de Angular 14 sin soporte |
 | **Trivy** | Dockerfiles | 1 HIGH y 2 LOW | 0 (usuario no root y `HEALTHCHECK`) |
 
 > El Quality Gate de SonarCloud se evalúa sobre el código nuevo de cada versión (`sonar.projectVersion`) y está superado desde la 2.0.3: la cobertura se mide en el backend con JaCoCo y los avisos que quedan están revisados. El frontend todavía no tiene tests con cobertura; llegarán con la migración de Angular (2.1).
 
 > [!IMPORTANT]
-> Lo que queda en Snyk son avisos de Spring Framework 6.2 y Spring Security 6.5 (sus correcciones solo existen en la serie 7, Spring Boot 4) y de Angular 14, sin soporte. Ambas migraciones están documentadas como deuda técnica y en la [hoja de ruta](#estado-del-proyecto).
+> Los avisos de Spring Framework 6.2 y Spring Security 6.5 tenían corrección solo en la serie 7: el backend ya está migrado a Spring Boot 4.2 (Spring Framework 7 y Spring Security 7) dentro de la 2.1, a falta de repetir el análisis de Snyk. Quedan los de Angular 14, sin soporte, cuya migración es la siguiente tarea de la [hoja de ruta](#estado-del-proyecto).
 
 <!-- autenticacion -->
 ### Autenticación y sesiones
@@ -184,6 +184,7 @@ El pipeline compila el frontend, ejecuta los tests del backend con cobertura (Ja
 - **Errores:** respuestas genéricas al cliente y detalle solo en el log del servidor.
 - **Contenedores:** imágenes multi-stage, usuario no root, `HEALTHCHECK` y `.dockerignore` para no meter secretos en las imágenes.
 - **Red:** solo Caddy publica puertos hacia fuera; base de datos, backend y frontend viven en una red interna de Docker.
+- **Base de datos:** el backend se conecta a MariaDB con TLS 1.3 y certificado verificado, y el usuario de la aplicación tiene el TLS obligatorio (`REQUIRE SSL`): una conexión sin cifrar se rechaza ([evidencia](docs/evidencias/tls-mariadb-2026-11-20.md)).
 - **Dependencias:** auditoría con Snyk, versiones de seguridad forzadas donde hace falta (`overrides`) y Dependabot para las actualizaciones.
 - **Servidor:** script de bastionado del sistema Linux en [`seguridad/`](./seguridad).
 - **Accesibilidad:** contrastes revisados para cumplir los mínimos de WCAG.

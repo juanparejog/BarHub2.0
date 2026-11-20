@@ -11,7 +11,9 @@ El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y e
 - El usuario de la aplicación queda obligado a usar TLS (`REQUIRE SSL`): una conexión sin cifrar se rechaza. En instalaciones nuevas lo aplica `infra/docker/initdb/10-tls-obligatorio.sh`; en las existentes se aplica una vez a mano.
 
 ### Cambiado
+- Backend: Java 17 a 21 (toolchain de Gradle, imágenes `eclipse-temurin:21` y CI).
 - Backend: driver `mariadb-java-client` 3.5.11 a 4.0.0, y Dependabot deja de ignorar sus versiones mayores.
+- Documentación: versiones nuevas en el README, `docs/backend.md`, `docs/seguridad.md`, `docs/auditorias.md` e `infraestructura.md`; evidencia de la conexión cifrada con MariaDB; en `docs/seguridad.md` se corrigen datos desfasados (caducidad del JWT de 4 horas, bloqueo del login y contraseña actual, ya implementados en la 2.0.1).
 - Backend: JJWT 0.12.5 a 0.13.0 en sus tres módulos a la vez; Dependabot los agrupa para que no vuelvan a separarse de versión.
 - Backend: Spring Boot 3.5.16 a 4.2.0 (Spring Framework 7, Spring Security 7, Hibernate 7, Tomcat 11 y Jackson 3). Se mantienen Java 17 y Gradle 8.14.
 - Backend: `spring-boot-starter-web` pasa a `spring-boot-starter-webmvc`, y los tests de MockMvc usan `spring-boot-starter-webmvc-test` con el nuevo paquete de `@AutoConfigureMockMvc`.
