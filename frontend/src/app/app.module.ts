@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { AppRoutingModule } from './app-routing.module';
 import { UicomponentsModule } from './uicomponents/uicomponents.module';
-import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { AuthInterceptor } from './auth/auth.interceptor';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { CartaComponent } from './public/carta/carta.component';
@@ -21,38 +21,32 @@ import { HomeComponent } from './public/home/home.component';
 import { FooterComponent } from './shared/footer/footer.component';
 import { PerfilComponent } from './public/perfil/perfil.component';
 
-@NgModule({
-  declarations: [
-    AppComponent,
-    CartaComponent,
-    ContactoComponent,
-    ConfirmarPedidoComponent,
-    GestionarCajaComponent,
-    GestionarComandasComponent,
-    GestionarMesasEmpleadoComponent,
-    GestionarPagosEfectivoComponent,
-    SeguimientoPedidosComponent,
-    HomeComponent,
-    FooterComponent,
-    PoliticaPrivacidadComponent,
-    TerminosCondicionesComponent,
-    PerfilComponent
-  ],
-  imports: [
-    BrowserModule,
-    HttpClientModule,
-    AppRoutingModule,
-    UicomponentsModule,
-    FormsModule,
-    ReactiveFormsModule,
-    SharedModule
-  ],
-  exports: [
-    CartaComponent
-  ],
-  providers: [
-    { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true }
-  ],
-  bootstrap: [AppComponent]
-})
+@NgModule({ declarations: [
+        AppComponent,
+        CartaComponent,
+        ContactoComponent,
+        ConfirmarPedidoComponent,
+        GestionarCajaComponent,
+        GestionarComandasComponent,
+        GestionarMesasEmpleadoComponent,
+        GestionarPagosEfectivoComponent,
+        SeguimientoPedidosComponent,
+        HomeComponent,
+        FooterComponent,
+        PoliticaPrivacidadComponent,
+        TerminosCondicionesComponent,
+        PerfilComponent
+    ],
+    exports: [
+        CartaComponent
+    ],
+    bootstrap: [AppComponent], imports: [BrowserModule,
+        AppRoutingModule,
+        UicomponentsModule,
+        FormsModule,
+        ReactiveFormsModule,
+        SharedModule], providers: [
+        { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
+        provideHttpClient(withInterceptorsFromDi())
+    ] })
 export class AppModule { }
