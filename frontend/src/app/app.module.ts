@@ -17,7 +17,6 @@ import { PoliticaPrivacidadComponent } from './public/politica-privacidad/politi
 import { TerminosCondicionesComponent } from './public/terminos-condiciones/terminos-condiciones.component';
 import { SharedModule } from './shared/shared.module';
 import { AppComponent } from './app.component';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HomeComponent } from './public/home/home.component';
 import { FooterComponent } from './shared/footer/footer.component';
 import { PerfilComponent } from './public/perfil/perfil.component';
@@ -46,7 +45,6 @@ import { PerfilComponent } from './public/perfil/perfil.component';
     UicomponentsModule,
     FormsModule,
     ReactiveFormsModule,
-    BrowserAnimationsModule,
     SharedModule
   ],
   exports: [

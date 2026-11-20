@@ -1,21 +1,23 @@
 import { Injectable } from '@angular/core';
 
+/**
+ * Diálogos y avisos con la API nativa de Bootstrap 5 (sin jQuery).
+ * Bootstrap se carga como script global desde angular.json (bootstrap.bundle).
+ */
 @Injectable({
   providedIn: 'root'
 })
 export class DialogService {
 
   private readonly HTML_MODAL_ALERT = `
-    <div class="modal fade" id="modalAlert" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal fade" id="modalAlert" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="modalAlertTitulo" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered">
           <div class="modal-content">
               <div class="modal-header">
-                  <h5 class="modal-title" id="staticBackdropLabel">Advertencia</h5>
-                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                  <h5 class="modal-title" id="modalAlertTitulo">Advertencia</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
               </div>
-              <div class="modal-body">
-                  CUERPO
-              </div>
+              <div class="modal-body"></div>
               <div class="modal-footer">
                   <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Aceptar</button>
               </div>
@@ -25,16 +27,14 @@ export class DialogService {
   `;
 
   private readonly HTML_MODAL_CONFIRMAR = `
-    <div class="modal fade" id="modalConfirmar" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal fade" id="modalConfirmar" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="modalConfirmarTitulo" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="modalEliminarBackdropLabel">Advertencia</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <h5 class="modal-title" id="modalConfirmarTitulo">Advertencia</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
-            <div class="modal-body">
-                CONTENIDO
-            </div>
+            <div class="modal-body"></div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                 <button id="botonAceptar" type="button" class="btn btn-danger">Aceptar</button>
@@ -44,101 +44,74 @@ export class DialogService {
     </div>
   `;
 
-
   private readonly HTML_TOAST = `
-  <div aria-live="polite" aria-atomic="true" class="d-flex justify-content-center align-items-center w-100">
-    <div id="__Toast" class="toast align-items-center" role="alert" aria-live="assertive" aria-atomic="true">
-      <div class="d-flex">
-        <div class="toast-body">
-          Hello, world! This is a toast message.
+    <div aria-live="polite" aria-atomic="true" class="d-flex justify-content-center align-items-center w-100">
+      <div id="__Toast" class="toast align-items-center" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+          <div class="toast-body"></div>
+          <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Cerrar"></button>
         </div>
-        <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
       </div>
     </div>
-  </div>
-  `
-  constructor() { }
-
+  `;
 
   /**
-   * Muestra un mensaje
-   *
-   * @param mensaje
-   * @param titulo
+   * Muestra un mensaje en un modal con un botón de aceptar.
    */
   mostrarMensaje(mensaje: string, titulo: string = 'Advertencia'): void {
-
-    // Si no tengo insertado el alert lo inserto en el cuerpo
-    if (!$('#modalAlert').length) {
-
-      // Esto añade al body el HTML del alert
-      $('body').append(this.HTML_MODAL_ALERT);
-    }
-
-    _mostrarAlert();
-
-    function _mostrarAlert() {
-      $('#modalAlert .modal-title').text(titulo);
-      $('#modalAlert .modal-body').text(mensaje);
-
-      $('#modalAlert').modal('show');
-    }
-  }
-
-  solicitarConfirmacion(mensaje: string, titulo: string, accion: any) {
-
-    // Si no está insertado, lo inserto
-    if (!$('#modalConfirmar').length) {
-
-      // Esto añade al body el html del diálogo
-      $('body').append(this.HTML_MODAL_CONFIRMAR);
-    }
-
-    _solicitarConfirmacion();
-
-    function _solicitarConfirmacion() {
-
-      $('#modalConfirmar .modal-title').text(titulo);
-      $('#modalConfirmar .modal-body').text(mensaje);
-
-      $('#modalConfirmar #botonAceptar').on('click', (event: any) => {
-
-        // Detiene la propagación
-        event.stopPropagation();
-
-        // Llama a la función pasada como argumento en acción
-        accion();
-
-        // Desactiva el gestor de evento. Tendremos que añadirlo la próxima vez
-        $('#modalConfirmar #botonAceptar').off('click');
-
-        // Oculto el modal
-        $('#modalConfirmar').modal('hide');
-      });
-
-      $('#modalConfirmar').modal('show');
-    }
+    const modal = this.obtenerElemento('modalAlert', this.HTML_MODAL_ALERT);
+    this.ponerTexto(modal, '.modal-title', titulo);
+    this.ponerTexto(modal, '.modal-body', mensaje);
+    bootstrap.Modal.getOrCreateInstance(modal).show();
   }
 
   /**
-  * Muestra un mensaje en formato Toast
-  *
-  * @param mensaje
-  */
-  mostrarToast(mensaje: string): void {
+   * Pide confirmación y ejecuta la acción solo si el usuario pulsa Aceptar.
+   */
+  solicitarConfirmacion(mensaje: string, titulo: string, accion: () => void): void {
+    const modal = this.obtenerElemento('modalConfirmar', this.HTML_MODAL_CONFIRMAR);
+    this.ponerTexto(modal, '.modal-title', titulo);
+    this.ponerTexto(modal, '.modal-body', mensaje);
 
-    // Si no tengo insertado el alert lo inserto en el cuerpo
-    if (!$('#__Toast').length) {
-
-      // Esto añade al body el HTML del alert
-      $('body').append(this.HTML_TOAST);
+    const instancia = bootstrap.Modal.getOrCreateInstance(modal);
+    const botonAceptar = modal.querySelector<HTMLButtonElement>('#botonAceptar');
+    if (botonAceptar) {
+      // onclick sustituye al manejador anterior: si antes se pulsó Cancelar,
+      // la acción de aquella confirmación no se queda enganchada
+      botonAceptar.onclick = (evento: MouseEvent) => {
+        evento.stopPropagation();
+        botonAceptar.onclick = null;
+        instancia.hide();
+        accion();
+      };
     }
+    instancia.show();
+  }
 
-    _mostrarToast();
+  /**
+   * Muestra un mensaje breve en formato toast.
+   */
+  mostrarToast(mensaje: string): void {
+    const toast = this.obtenerElemento('__Toast', this.HTML_TOAST);
+    this.ponerTexto(toast, '.toast-body', mensaje);
+    bootstrap.Toast.getOrCreateInstance(toast).show();
+  }
 
-    function _mostrarToast() {
-      $('#__Toast .toast-body').text(mensaje);
-      $('#__Toast').toast('show');
+  /** Devuelve el elemento por id; si no existe, inserta su HTML (constante) al final del body. */
+  private obtenerElemento(id: string, html: string): HTMLElement {
+    let elemento = document.getElementById(id);
+    if (!elemento) {
+      document.body.insertAdjacentHTML('beforeend', html);
+      elemento = document.getElementById(id) as HTMLElement;
+    }
+    return elemento;
+  }
+
+  /** textContent, como el .text() de jQuery: el mensaje nunca se interpreta como HTML. */
+  private ponerTexto(contenedor: HTMLElement, selector: string, texto: string): void {
+    const destino = contenedor.querySelector(selector);
+    if (destino) {
+      destino.textContent = texto;
     }
   }
 }

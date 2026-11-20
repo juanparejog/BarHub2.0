@@ -40,9 +40,7 @@ updates:
       # En 0.x, Dependabot cuenta 0.11 a 0.16 como menor; Angular 14 solo admite zone.js 0.11 y 0.12
       - dependency-name: "zone.js"
         update-types: ["version-update:semver-minor"]
-      # Exigen una version de Angular mas reciente; se revisan en la migracion (v2.1)
-      - dependency-name: "@zxing/ngx-scanner"
-        update-types: ["version-update:semver-major"]
+      # Exige una version de Angular mas reciente; se revisa en la migracion (v2.1)
       - dependency-name: "@stripe/stripe-js"
         update-types: ["version-update:semver-major"]
       - dependency-name: "node"

@@ -6,6 +6,16 @@ El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y e
 
 ## [Sin publicar]
 
+### Eliminado
+- Frontend: dependencias que no se usaban o estaban duplicadas, como paso previo a la migración de Angular: `@angular/material` y `@angular/cdk` (solo se cargaba su CSS `indigo-pink`), `@angular/animations` y `BrowserAnimationsModule` (no había animaciones), `@zxing/ngx-scanner` (sin uso), jQuery y el Popper suelto (ya va dentro de `bootstrap.bundle`).
+
+### Cambiado
+- `DialogService` usa la API nativa de Bootstrap 5 (`Modal` y `Toast`) en lugar de jQuery. Los textos se insertan con `textContent`, sin interpretar HTML.
+
+### Corregido
+- `index.html`: el idioma del documento pasa de `en` a `es`, para que los lectores de pantalla lean el contenido en español, y se cierra la etiqueta `</html>`, que estaba incompleta.
+- `solicitarConfirmacion`: si se cancelaba una confirmación, su acción quedaba enganchada al botón Aceptar y se ejecutaba también en la siguiente.
+
 ## [2.0.3] - 2026-11-20
 
 ### Cambiado
