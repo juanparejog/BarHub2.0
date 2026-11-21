@@ -59,6 +59,24 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-security-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     testRuntimeOnly 'com.h2database:h2'
+
+    constraints {
+        // Mockito trae objenesis 3.3, con un aviso de Snyk corregido en la 3.6 (solo en los tests)
+        testRuntimeOnly('org.objenesis:objenesis:3.6') {
+            because 'SNYK-JAVA-ORGOBJENESIS-21755439'
+        }
+    }
+}
+
+// JaCoCo (solo genera el informe de cobertura, no va en la aplicacion) trae ASM 9.8, con cinco avisos
+// de Snyk corregidos en la 9.11. Se alinea con la 9.11.1 que ya usan los tests.
+configurations.matching { it.name == 'jacocoAnt' }.configureEach {
+    resolutionStrategy.eachDependency { detalle ->
+        if (detalle.requested.group == 'org.ow2.asm') {
+            detalle.useVersion '9.11.1'
+            detalle.because 'Avisos de Snyk en ASM 9.8 (SNYK-JAVA-ORGOW2ASM-21715439 y siguientes)'
+        }
+    }
 }
 
 tasks.named('test') {

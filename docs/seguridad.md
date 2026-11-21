@@ -81,7 +81,7 @@ flowchart LR
 | 6 | Subida de archivos maliciosos | Ejecución / DoS | Lista blanca, firma real, límites, nombre aleatorio | Verificado |
 | 7 | Fuga de información en errores | Divulgación | Respuestas genéricas; detalle solo en el log | Verificado |
 | 8 | Reutilizar el QR de otra mesa | Manipulación | `token_qr` por mesa | Pendiente de verificar, sin rotación |
-| 9 | Dependencias vulnerables | Varias | Snyk y SonarCloud; versiones de seguridad fijadas | Parcial: 29 avisos en el backend y 25 en el frontend sin parche compatible (ver [auditorias.md](auditorias.md)) |
+| 9 | Dependencias vulnerables | Varias | Snyk y SonarCloud; versiones de seguridad fijadas | Parcial: 2 avisos en el backend sin parche publicado y no explotables en BarHub; 0 en el frontend (ver [auditorias.md](auditorias.md)) |
 | 10 | Escape de contenedor o escalada | Elevación | Usuario no root, imágenes multi-etapa | Aplicada |
 | 11 | Fuerza bruta en el login | Suplantación | Límite de intentos | Pendiente: 30 intentos fallidos seguidos no provocan bloqueo |
 | 12 | Cambio de contraseña con una sesión robada | Suplantación | Exigir la contraseña actual | Pendiente |
@@ -112,4 +112,4 @@ Resultado de la última ejecución (15 de noviembre de 2026): 0 fallos. La fuerz
 | Límite de intentos | El login bloquea 15 minutos tras 5 fallos seguidos de un mismo usuario (desde la 2.0.1); el bloqueo es por usuario y no por IP, y la creación de pedidos sigue sin límite |
 | Caducidad del JWT | 4 horas; en la 2.1 pasa a token de acceso corto con renovación y límites por rol |
 | Uptime Kuma | Publicado en el puerto 3001; ver mejoras en [infraestructura.md](infraestructura.md#13-mejoras-recomendadas) |
-| Dependencias sin parche compatible | Ninguna conocida tras migrar a Spring Boot 4.2 y Angular 22; queda 1 alerta de Dependabot por revisar en la siguiente auditoría (Snyk, después SonarCloud) |
+| Dependencias sin parche compatible | `jaxb-core` 4.0.9 (XXE, no explotable: BarHub no lee XML de fuera) y `jakarta.validation-api` 3.1.1 (baja, corrección solo en una versión preliminar). Queda 1 alerta de Dependabot por revisar |

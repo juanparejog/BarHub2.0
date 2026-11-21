@@ -12,6 +12,7 @@ El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y e
 
 ### Seguridad
 - La conexión entre el backend y MariaDB va cifrada con TLS y con el certificado del servidor verificado: el driver MariaDB Connector/J 4 lo hace por defecto (`sslMode=verify-full`) y MariaDB 13 genera y valida su certificado sin configuración.
+- Reanálisis de Snyk con las versiones nuevas: backend de 29 incidencias a 2 (ninguna crítica ni explotable, sin parche publicado) y frontend de 25 a 0. ASM, que solo usa JaCoCo para el informe de cobertura, pasa de la 9.8 a la 9.11.1 (cinco avisos medios), y `objenesis`, que solo usan los tests, de la 3.3 a la 3.6. El aviso XXE de `jaxb-core` se acepta con su justificación en `SECURITY.md`.
 - El usuario de la aplicación queda obligado a usar TLS (`REQUIRE SSL`): una conexión sin cifrar se rechaza. En instalaciones nuevas lo aplica `infra/docker/initdb/10-tls-obligatorio.sh`; en las existentes se aplica una vez a mano.
 
 ### Cambiado

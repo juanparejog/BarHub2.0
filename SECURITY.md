@@ -53,6 +53,11 @@ Realiza las pruebas **solo en tu propia instancia local**. No ataques servidores
 
 **Dependencias del frontend.** Desde la versión 2.1 el frontend usa Angular 22, con soporte activo, compilado con esbuild. La migración desde Angular 14 (sin soporte) se hizo versión a versión con las migraciones oficiales y cerró casi todas las alertas de Dependabot: de 53 abiertas a 1, que se revisa en la siguiente auditoría.
 
+**Dependencias del backend.** Desde la versión 2.1 el backend usa Spring Boot 4.2. El reanálisis de Snyk del 21 de noviembre de 2026 deja dos avisos sin parche publicado, aceptados:
+
+- `org.glassfish.jaxb:jaxb-core` 4.0.9, XXE (alta). El aviso de `jaxb-core` (XXE) exige que la aplicación lea un XML enviado desde fuera, y BarHub no lo hace: ningún código usa JAXB (`@XmlRootElement`, `Unmarshaller` ni `application/xml`), no hay archivos `orm.xml` (Hibernate lee el mapeo de las anotaciones) y el conversor JAXB que registra Spring solo actúa sobre clases con `@XmlRootElement`, que la API no tiene; además, Spring desactiva por defecto las entidades externas.
+- `jakarta.validation:jakarta.validation-api` 3.1.1 (baja): la corrección solo existe en una versión preliminar (4.0.0-M1); se actualizará cuando Spring Boot la adopte.
+
 El único uso de `bypassSecurityTrustResourceUrl` es el mapa de la ubicación del local: el origen de la URL es fijo (`maps.google.com`) y la dirección se codifica con `encodeURIComponent`, de modo que un usuario no puede cambiar el servidor ni el protocolo del `iframe`.
 
 Las herramientas de desarrollo (Angular CLI, Vitest) no forman parte de lo que se sirve a los usuarios: solo afectan al equipo que compila. Al sustituir Karma por Vitest desapareció la cadena `socket.io`/`ws` que arrastraba, y `npm audit` del frontend queda sin vulnerabilidades conocidas.

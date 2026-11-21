@@ -121,14 +121,14 @@ He intentado tratar la seguridad como parte del desarrollo y no como algo que se
 | **SonarQube** (local) | Backend | 48 incidencias | 0 abiertas, Quality Gate superado |
 | **SonarQube** (local) | Frontend | 1 de seguridad, 145 de fiabilidad, 173 de mantenibilidad | 0 abiertas, Quality Gate superado |
 | **SonarCloud** (CI, 15-nov-2026) | Repositorio completo | 10 de seguridad (C), 49 de fiabilidad (C), 363 de mantenibilidad (A) | 0 de seguridad (A), 45 de fiabilidad (A), 363 de mantenibilidad (A) |
-| **Snyk** | Dependencias del backend | 136 incidencias | 29 (reanálisis del 15-nov-2026, antes de migrar a Spring Boot 4), de Spring Framework 6.2 y Spring Security 6.5 |
-| **Snyk** | Dependencias del frontend | 29 incidencias | 25 (reanálisis del 15-nov-2026, antes de migrar a Angular 22), 24 de Angular 14 sin soporte |
+| **Snyk** | Dependencias del backend | 136 incidencias | 2 (reanálisis del 21-nov-2026, con Spring Boot 4.2): ninguna crítica y ninguna explotable, sin parche publicado ([detalle](docs/auditorias.md)) |
+| **Snyk** | Dependencias del frontend | 29 incidencias | 0 (reanálisis del 21-nov-2026, con Angular 22) |
 | **Trivy** | Dockerfiles | 1 HIGH y 2 LOW | 0 (usuario no root y `HEALTHCHECK`) |
 
 > El Quality Gate de SonarCloud se evalúa sobre el código nuevo de cada versión (`sonar.projectVersion`) y está superado desde la 2.0.3: la cobertura se mide en el backend con JaCoCo y los avisos que quedan están revisados. Desde la 2.1 el frontend también tiene tests (Vitest) y su cobertura se envía a SonarCloud, de modo que el código nuevo del frontend tiene que cumplir el mismo 80 % que el backend.
 
 > [!IMPORTANT]
-> Los avisos de Spring Framework 6.2, Spring Security 6.5 y Angular 14 solo tenían corrección migrando de versión mayor. En la 2.1 el backend ya está en Spring Boot 4.2 (Spring Framework 7 y Spring Security 7) y el frontend en Angular 22: Dependabot ha pasado de 53 alertas abiertas a 1. Falta repetir los análisis de Snyk con las versiones nuevas, que es la siguiente auditoría de la [hoja de ruta](#estado-del-proyecto).
+> Los avisos de Spring Framework 6.2, Spring Security 6.5 y Angular 14 solo tenían corrección migrando de versión mayor. En la 2.1 el backend ya está en Spring Boot 4.2 (Spring Framework 7 y Spring Security 7) y el frontend en Angular 22: Dependabot ha pasado de 53 alertas abiertas a 1, y Snyk de 54 incidencias (29 + 25) a 2 en el backend, que no son explotables en BarHub y no tienen parche ([detalle](docs/auditorias.md)).
 
 <!-- autenticacion -->
 ### Autenticación y sesiones
@@ -185,7 +185,7 @@ El pipeline compila el frontend, ejecuta los tests del backend con cobertura (Ja
 - **Contenedores:** imágenes multi-stage, usuario no root, `HEALTHCHECK` y `.dockerignore` para no meter secretos en las imágenes.
 - **Red:** solo Caddy publica puertos hacia fuera; base de datos, backend y frontend viven en una red interna de Docker.
 - **Base de datos:** el backend se conecta a MariaDB con TLS 1.3 y certificado verificado, y el usuario de la aplicación tiene el TLS obligatorio (`REQUIRE SSL`): una conexión sin cifrar se rechaza ([evidencia](docs/evidencias/tls-mariadb-2026-11-20.md)).
-- **Dependencias:** auditoría con Snyk, versiones de seguridad forzadas donde hace falta (`overrides`) y Dependabot para las actualizaciones.
+- **Dependencias:** auditoría con Snyk, versiones de seguridad alineadas donde hace falta (restricciones de Gradle) y Dependabot para las actualizaciones.
 - **Servidor:** script de bastionado del sistema Linux en [`seguridad/`](./seguridad).
 - **Accesibilidad:** contrastes revisados para cumplir los mínimos de WCAG.
 - **Divulgación responsable:** política de reporte de vulnerabilidades en [`SECURITY.md`](./SECURITY.md).

@@ -6,7 +6,7 @@ Resultados de las auditorías de seguridad y calidad realizadas sobre BarHub 2.0
 
 | Herramienta | Objetivo | Backend | Frontend |
 | :--- | :--- | :---: | :---: |
-| **Snyk** (reanálisis 15-nov-2026) | Vulnerabilidades en dependencias | 136 → 29 incidencias | 29 → 25 incidencias |
+| **Snyk** (reanálisis 21-nov-2026, versión 2.1) | Vulnerabilidades en dependencias | 136 → 2 incidencias (ninguna crítica, ninguna explotable) | 29 → 0 incidencias |
 | **SonarQube** | Calidad, fiabilidad y mantenibilidad | PASSED |  PASSED |
 | **SonarCloud** (CI, 15-nov-2026) | Calidad en el repositorio completo | Seguridad C, fiabilidad C | Seguridad A, fiabilidad A, mantenibilidad A; Quality Gate superado sobre el código nuevo |
 | **Trivy** | Configuración de Dockerfiles | 1 LOW → 0 | 1 HIGH + 1 LOW → 0 |
@@ -79,7 +79,28 @@ Estos avisos no se han analizado uno a uno para decidir si son explotables en es
 - `jjwt` 0.13.0 con Gson en lugar de Jackson 2, que deja de estar en el classpath.
 - `mariadb-java-client` 4.0.0: conexión con TLS y certificado verificado por defecto, y TLS obligatorio para el usuario de la aplicación ([evidencia](evidencias/tls-mariadb-2026-11-20.md)).
 - Verificación: los 176 tests del backend pasan, y las capturas automáticas de las 36 pantallas en los dos temas salen idénticas antes y después, de modo que la API devuelve los mismos datos.
-- Pendiente: repetir el análisis de Snyk y las pruebas dinámicas con la versión nueva para actualizar las tablas de esta sección.
+- Pendiente: repetir las pruebas dinámicas con la versión nueva.
+
+#### Reanálisis del 21 de noviembre de 2026 (versión 2.1)
+
+Con Spring Boot 4.2 quedaron 8 incidencias en 149 dependencias. Se comprobó en `gradle.lockfile` dónde está cada una:
+
+| Paquete | Avisos | Dónde está | Acción |
+| :--- | :---: | :--- | :--- |
+| `org.ow2.asm:asm` 9.8 | 5 medios | Solo en la herramienta de cobertura (JaCoCo), no en la aplicación | Alineado con la 9.11.1 que ya usaban los tests (`resolutionStrategy` en `build.gradle`) |
+| `org.objenesis:objenesis` 3.3 | 1 bajo | Solo en los tests (lo trae Mockito) | Subido a la 3.6 (`constraints` en `build.gradle`) |
+| `org.glassfish.jaxb:jaxb-core` 4.0.9 | 1 alto (XXE) | En producción, lo trae Hibernate | Aceptado: no explotable y sin parche publicado |
+| `jakarta.validation:jakarta.validation-api` 3.1.1 | 1 bajo | En producción | Aceptado: la corrección solo existe en una versión preliminar (4.0.0-M1) |
+
+| Gravedad | 15-nov (Spring Boot 3.5) | 21-nov, tras migrar | 21-nov, final |
+| :--- | :---: | :---: | :---: |
+| Crítica | 1 | 0 | 0 |
+| Alta | 11 | 1 | 1 |
+| Media | 14 | 5 | 0 |
+| Baja | 3 | 2 | 1 |
+| **Total** | **29** | **8** | **2** |
+
+El aviso de `jaxb-core` (XXE) exige que la aplicación lea un XML enviado desde fuera, y BarHub no lo hace: ningún código usa JAXB (`@XmlRootElement`, `Unmarshaller` ni `application/xml`), no hay archivos `orm.xml` (Hibernate lee el mapeo de las anotaciones) y el conversor JAXB que registra Spring solo actúa sobre clases con `@XmlRootElement`, que la API no tiene; además, Spring desactiva por defecto las entidades externas. Verificación: los tests del backend pasan y el informe de cobertura se sigue generando con la ASM nueva.
 
 ### Frontend · 102 dependencias
 
@@ -117,7 +138,7 @@ Estos avisos no se han analizado uno a uno para decidir si son explotables en es
 - Antes de migrar se retiraron las dependencias sin uso o duplicadas (`@angular/material`, `@angular/cdk`, `@angular/animations`, `@zxing/ngx-scanner`, jQuery y el Popper suelto) y se quitaron los `overrides`, que solo parcheaban las herramientas de Angular 14.
 - Verificación: build de producción en cada salto y capturas automáticas de las 36 pantallas en los dos temas, sin diferencias más allá de datos y ruido conocido (fecha del día, mapa incrustado). Prueba manual del flujo de pedido completo con descarga del ticket en PDF.
 - Resultado en Dependabot: de 53 alertas abiertas a 1, pendiente de revisar.
-- Pendiente: repetir el análisis de Snyk con las versiones nuevas, en la siguiente auditoría.
+- Reanálisis de Snyk (21 de noviembre de 2026): **0 incidencias** en las 40 dependencias de producción, frente a las 25 de antes de migrar. Snyk analiza por defecto las dependencias que llegan a la web publicada; las de desarrollo (Angular CLI, Vitest) se revisan con `npm audit`, que también queda sin vulnerabilidades.
 
 ---
 
