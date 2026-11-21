@@ -112,4 +112,4 @@ Resultado de la última ejecución (15 de noviembre de 2026): 0 fallos. La fuerz
 | Límite de intentos | El login bloquea 15 minutos tras 5 fallos seguidos de un mismo usuario (desde la 2.0.1); el bloqueo es por usuario y no por IP, y la creación de pedidos sigue sin límite |
 | Caducidad del JWT | 4 horas; en la 2.1 pasa a token de acceso corto con renovación y límites por rol |
 | Uptime Kuma | Publicado en el puerto 3001; ver mejoras en [infraestructura.md](infraestructura.md#13-mejoras-recomendadas) |
-| Dependencias sin parche compatible | Angular 14 (frontend): requiere migrar a una versión con soporte (siguiente tarea de la 2.1). El backend ya está en Spring Boot 4.2 |
+| Dependencias sin parche compatible | Ninguna conocida tras migrar a Spring Boot 4.2 y Angular 22; queda 1 alerta de Dependabot por revisar en la siguiente auditoría (Snyk, después SonarCloud) |

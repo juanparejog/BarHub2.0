@@ -111,6 +111,14 @@ Estos avisos no se han analizado uno a uno para decidir si son explotables en es
 - **1 es de `pdfmake` 0.2.20** (media). Subir a 0.3.14 la corrige, pero introduce `fflate` con un aviso alto sin parche publicado, así que se mantiene la 0.2.20 hasta que exista corrección.
 - Los `overrides` de `engine.io`, `socket.io-parser` y `ws` ya solo afectan a herramientas de desarrollo (Karma y `webpack-dev-server`). La dependencia `ngx-socket-io` se retiró al sustituir el canal en tiempo real por sondeo.
 
+#### Migración a Angular 22 (21 de noviembre de 2026, versión 2.1)
+
+- Angular de 14 a **22**, versión a versión con `ng update` y sus migraciones oficiales; TypeScript 6.0, zone.js 0.16 y Node 24. Build con el builder `application` (esbuild).
+- Antes de migrar se retiraron las dependencias sin uso o duplicadas (`@angular/material`, `@angular/cdk`, `@angular/animations`, `@zxing/ngx-scanner`, jQuery y el Popper suelto) y se quitaron los `overrides`, que solo parcheaban las herramientas de Angular 14.
+- Verificación: build de producción en cada salto y capturas automáticas de las 36 pantallas en los dos temas, sin diferencias más allá de datos y ruido conocido (fecha del día, mapa incrustado). Prueba manual del flujo de pedido completo con descarga del ticket en PDF.
+- Resultado en Dependabot: de 53 alertas abiertas a 1, pendiente de revisar.
+- Pendiente: repetir el análisis de Snyk con las versiones nuevas, en la siguiente auditoría.
+
 ---
 
 ## 2. SonarQube

@@ -1,6 +1,6 @@
 # Frontend
 
-Aplicación **Angular 14** organizada en módulos por área funcional, con rutas protegidas por guardas, interceptor de autenticación y actualización periódica de datos.
+Aplicación **Angular 22** organizada en módulos por área funcional, con rutas protegidas por guardas, interceptor de autenticación y actualización periódica de datos.
 
 ## Índice
 
@@ -25,15 +25,26 @@ Archivos de la raíz `frontend/`:
 | `package.json` / `package-lock.json` | Dependencias y scripts (`npm start`, `npm build`, `npm test`) |
 | `Caddyfile` | Servidor estático del contenedor: caché (`immutable` para los bundles con hash, `no-cache` para el resto) y reescritura de rutas de la SPA |
 | `Dockerfile` | Multi-etapa (Node.js + Caddy) para producción, usuario no root y `HEALTHCHECK` |
-| `karma.conf.js` | Pruebas unitarias con Karma + Jasmine (usa el prefijo `node:path`) |
-| `.browserslistrc` | Navegadores objetivo |
+| `karma.conf.js` | Pruebas unitarias con Karma + Jasmine (se sustituirá por Vitest en la 2.1) |
 | `.editorconfig` | Estilo de código consistente entre editores |
 
 ```bash
-npm install --legacy-peer-deps   # necesario por restricciones de peer deps de Angular 14
+npm ci --legacy-peer-deps   # igual que en el CI y en Docker; alguna dependencia aún declara versiones antiguas de Angular
 npm start
 npm test
 ```
+
+Versiones y decisiones de la migración a Angular 22 (versión 2.1):
+
+| Pieza | Situación |
+| :--- | :--- |
+| Angular | 22, migrado desde la 14 versión a versión con `ng update` |
+| Build | Builder `application` (esbuild); la web compilada queda en `dist/barhub/browser`, que es lo que copia el Dockerfile |
+| TypeScript | 6.0; `tsconfig.json` usa `paths` para los imports `src/...` en lugar de `baseUrl`, que TypeScript 6 declara obsoleto |
+| Node.js | 24, en Docker y en el CI |
+| Detección de cambios | `ChangeDetectionStrategy.Eager` en todos los componentes: la migración de la 22 conserva así el comportamiento de antes |
+| Plantillas | Parte de las plantillas ya usa el control flow nuevo (`@if`, `@for`) |
+| Ticket en PDF | `pdfmake` se carga con `import()` dinámico solo al generar el ticket, para no sumar unos 2 MB al arranque |
 
 ## 2. Mapa de rutas y áreas
 

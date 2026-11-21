@@ -11,11 +11,20 @@ El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y e
 - El usuario de la aplicación queda obligado a usar TLS (`REQUIRE SSL`): una conexión sin cifrar se rechaza. En instalaciones nuevas lo aplica `infra/docker/initdb/10-tls-obligatorio.sh`; en las existentes se aplica una vez a mano.
 
 ### Cambiado
+- Frontend: Angular 14 a **22**, versión a versión con `ng update` y sus migraciones oficiales (control flow `@if`/`@for`, `standalone: false` en los componentes de módulos, `ChangeDetectionStrategy.Eager` para conservar la detección de cambios anterior, `withXhr` en el cliente HTTP). TypeScript 4.8 a 6.0, zone.js 0.11 a 0.16 y Node 18 a 24 en Docker y en el CI. Cada salto se verificó con el build de producción y con capturas automáticas de las 36 pantallas en los dos temas.
+- Frontend: el build pasa del builder `browser` (Webpack) al builder `application` (esbuild): compila en unos 15 segundos en lugar de 30 a 55. La salida pasa a `dist/barhub/browser`, y el Dockerfile copia desde ahí.
+- Frontend: `pdfmake` y sus fuentes (cerca de 2 MB) se cargan solo al generar el ticket, con `import()` dinámico, en lugar de en el arranque.
+- Frontend: `tsconfig.json` sin las opciones que TypeScript 6 declara obsoletas: `baseUrl` pasa a `paths` (los imports `src/...` siguen igual), fuera `downlevelIteration` y `moduleResolution` pasa a `bundler`.
+- Frontend: se quitan los `overrides` de `package.json`, que parcheaban las herramientas de Angular 14; con las versiones nuevas sobran. Dependabot pasa de 53 alertas abiertas a 1.
+- Caddy: la regla que cachea un año los JS y CSS con hash reconoce los nombres de esbuild (`main-VMWQ63FG.js`).
+- `DialogService` usa la API nativa de Bootstrap 5 (`Modal` y `Toast`) en lugar de jQuery. Los textos se insertan con `textContent`, sin interpretar HTML.
+- Dependabot: comentarios de las reglas del frontend actualizados a Angular 22; deja de ignorar las versiones mayores de `@stripe/stripe-js`.
+- Documentación: Angular 22 en el README, `docs/frontend.md`, `docs/README.md`, `docs/auditorias.md`, `docs/seguridad.md`, `SECURITY.md` y el README del frontend.
 - Backend: Java 17 a 21 (toolchain de Gradle, imágenes `eclipse-temurin:21` y CI).
 - Backend: driver `mariadb-java-client` 3.5.11 a 4.0.0, y Dependabot deja de ignorar sus versiones mayores.
 - Documentación: versiones nuevas en el README, `docs/backend.md`, `docs/seguridad.md`, `docs/auditorias.md` e `infraestructura.md`; evidencia de la conexión cifrada con MariaDB; en `docs/seguridad.md` se corrigen datos desfasados (caducidad del JWT de 4 horas, bloqueo del login y contraseña actual, ya implementados en la 2.0.1).
 - Backend: JJWT 0.12.5 a 0.13.0 en sus tres módulos a la vez; Dependabot los agrupa para que no vuelvan a separarse de versión.
-- Backend: Spring Boot 3.5.16 a 4.2.0 (Spring Framework 7, Spring Security 7, Hibernate 7, Tomcat 11 y Jackson 3). Se mantienen Java 17 y Gradle 8.14.
+- Backend: Spring Boot 3.5.16 a 4.2.0 (Spring Framework 7, Spring Security 7, Hibernate 7, Tomcat 11 y Jackson 3). Se mantiene Gradle 8.14.
 - Backend: `spring-boot-starter-web` pasa a `spring-boot-starter-webmvc`, y los tests de MockMvc usan `spring-boot-starter-webmvc-test` con el nuevo paquete de `@AutoConfigureMockMvc`.
 - Backend: Jackson 3 con `spring.jackson.use-jackson2-defaults`, para que la API siga respondiendo y aceptando el mismo JSON.
 - Backend: JJWT serializa con Gson (`jjwt-gson`) en lugar de Jackson 2, que deja de estar en el classpath.
@@ -27,8 +36,6 @@ El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y e
 ### Eliminado
 - Frontend: dependencias que no se usaban o estaban duplicadas, como paso previo a la migración de Angular: `@angular/material` y `@angular/cdk` (solo se cargaba su CSS `indigo-pink`), `@angular/animations` y `BrowserAnimationsModule` (no había animaciones), `@zxing/ngx-scanner` (sin uso), jQuery y el Popper suelto (ya va dentro de `bootstrap.bundle`).
 
-### Cambiado
-- `DialogService` usa la API nativa de Bootstrap 5 (`Modal` y `Toast`) en lugar de jQuery. Los textos se insertan con `textContent`, sin interpretar HTML.
 
 ### Corregido
 - `index.html`: el idioma del documento pasa de `en` a `es`, para que los lectores de pantalla lean el contenido en español, y se cierra la etiqueta `</html>`, que estaba incompleta.

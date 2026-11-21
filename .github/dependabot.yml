@@ -16,11 +16,12 @@ updates:
     schedule: { interval: weekly }
     open-pull-requests-limit: 3
     ignore:
+      # Las versiones mayores de Angular se hacen a mano con `ng update`, que ademas migra el codigo
       - dependency-name: "@angular/*"
         update-types: ["version-update:semver-major"]
-      # Herramientas ligadas a Angular 14: suben de version mayor con la migracion (v2.1)
       - dependency-name: "@angular-devkit/*"
         update-types: ["version-update:semver-major"]
+      # Karma se sustituye por Vitest en la 2.1
       - dependency-name: "karma"
         update-types: ["version-update:semver-major"]
       - dependency-name: "karma-*"
@@ -33,16 +34,16 @@ updates:
         update-types: ["version-update:semver-major"]
       - dependency-name: "rxjs"
         update-types: ["version-update:semver-major"]
+      # Cada version de Angular admite un rango cerrado de TypeScript (Angular 22: >=6.0 <6.1);
+      # TypeScript sube junto con Angular, con `ng update`
       - dependency-name: "typescript"
         update-types: ["version-update:semver-major"]
       - dependency-name: "typescript"
         update-types: ["version-update:semver-minor"]
-      # En 0.x, Dependabot cuenta 0.11 a 0.16 como menor; Angular 14 solo admite zone.js 0.11 y 0.12
+      # En 0.x, Dependabot cuenta un salto de zone.js como menor; Angular 22 admite 0.15 y 0.16
       - dependency-name: "zone.js"
         update-types: ["version-update:semver-minor"]
-      # Exige una version de Angular mas reciente; se revisa en la migracion (v2.1)
-      - dependency-name: "@stripe/stripe-js"
-        update-types: ["version-update:semver-major"]
+      # Node sube de version mayor junto con Angular (Angular 22 pide Node 22 o 24)
       - dependency-name: "node"
         update-types: ["version-update:semver-major"]
     groups:

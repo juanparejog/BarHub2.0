@@ -36,7 +36,7 @@ flowchart LR
     end
 
     subgraph Frontend
-        F[Angular 14<br/>servido por Caddy]
+        F[Angular 22<br/>servido por Caddy]
     end
 
     subgraph Backend
@@ -66,7 +66,7 @@ flowchart LR
 
 | Capa | Tecnología |
 | :--- | :--- |
-| Frontend | Angular 14 · Karma/Jasmine |
+| Frontend | Angular 22 · TypeScript 6 · build con esbuild · Karma/Jasmine |
 | Backend | Java 21 · Spring Boot 4.2 · Gradle · JWT (`jjwt 0.13.0`) |
 | Base de datos | MariaDB |
 | Actualización de datos | Sondeo REST cada 5 s |

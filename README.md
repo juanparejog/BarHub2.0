@@ -11,8 +11,8 @@ Pedidos desde el móvil, comandas con actualización automática, control de caj
 <br>
 
 ![Java](https://img.shields.io/badge/Java-21-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)
-![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.5-6DB33F?style=for-the-badge&logo=springboot&logoColor=white)
-![Angular](https://img.shields.io/badge/Angular_14-DD0031?style=for-the-badge&logo=angular&logoColor=white)
+![Spring Boot](https://img.shields.io/badge/Spring_Boot-4.2-6DB33F?style=for-the-badge&logo=springboot&logoColor=white)
+![Angular](https://img.shields.io/badge/Angular_22-DD0031?style=for-the-badge&logo=angular&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
 ![MariaDB](https://img.shields.io/badge/MariaDB-003545?style=for-the-badge&logo=mariadb&logoColor=white)
 ![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
@@ -105,7 +105,7 @@ flowchart LR
 | Capa | Tecnologías |
 | :--- | :--- |
 | **Backend** | Java 21, Spring Boot 4.2, Spring Security 7, JWT (jjwt 0.13), Gradle |
-| **Frontend** | Angular 14, TypeScript, Bootstrap 5.3, Bootstrap Icons |
+| **Frontend** | Angular 22 (build con esbuild), TypeScript 6, Bootstrap 5.3, Bootstrap Icons |
 | **Base de datos** | MariaDB |
 | **Infraestructura** | Docker (multi-stage), Docker Compose, Caddy, DuckDNS, Uptime Kuma |
 | **Calidad y seguridad** | SonarQube / SonarCloud, Snyk, Trivy, GitHub Actions, Dependabot |
@@ -122,13 +122,13 @@ He intentado tratar la seguridad como parte del desarrollo y no como algo que se
 | **SonarQube** (local) | Frontend | 1 de seguridad, 145 de fiabilidad, 173 de mantenibilidad | 0 abiertas, Quality Gate superado |
 | **SonarCloud** (CI, 15-nov-2026) | Repositorio completo | 10 de seguridad (C), 49 de fiabilidad (C), 363 de mantenibilidad (A) | 0 de seguridad (A), 45 de fiabilidad (A), 363 de mantenibilidad (A) |
 | **Snyk** | Dependencias del backend | 136 incidencias | 29 (reanálisis del 15-nov-2026, antes de migrar a Spring Boot 4), de Spring Framework 6.2 y Spring Security 6.5 |
-| **Snyk** | Dependencias del frontend | 29 incidencias | 25 (reanálisis del 15-nov-2026), 24 de Angular 14 sin soporte |
+| **Snyk** | Dependencias del frontend | 29 incidencias | 25 (reanálisis del 15-nov-2026, antes de migrar a Angular 22), 24 de Angular 14 sin soporte |
 | **Trivy** | Dockerfiles | 1 HIGH y 2 LOW | 0 (usuario no root y `HEALTHCHECK`) |
 
-> El Quality Gate de SonarCloud se evalúa sobre el código nuevo de cada versión (`sonar.projectVersion`) y está superado desde la 2.0.3: la cobertura se mide en el backend con JaCoCo y los avisos que quedan están revisados. El frontend todavía no tiene tests con cobertura; llegarán con la migración de Angular (2.1).
+> El Quality Gate de SonarCloud se evalúa sobre el código nuevo de cada versión (`sonar.projectVersion`) y está superado desde la 2.0.3: la cobertura se mide en el backend con JaCoCo y los avisos que quedan están revisados. El frontend todavía no tiene tests con cobertura; llegarán en la 2.1, ya sobre Angular 22.
 
 > [!IMPORTANT]
-> Los avisos de Spring Framework 6.2 y Spring Security 6.5 tenían corrección solo en la serie 7: el backend ya está migrado a Spring Boot 4.2 (Spring Framework 7 y Spring Security 7) dentro de la 2.1, a falta de repetir el análisis de Snyk. Quedan los de Angular 14, sin soporte, cuya migración es la siguiente tarea de la [hoja de ruta](#estado-del-proyecto).
+> Los avisos de Spring Framework 6.2, Spring Security 6.5 y Angular 14 solo tenían corrección migrando de versión mayor. En la 2.1 el backend ya está en Spring Boot 4.2 (Spring Framework 7 y Spring Security 7) y el frontend en Angular 22: Dependabot ha pasado de 53 alertas abiertas a 1. Falta repetir los análisis de Snyk con las versiones nuevas, que es la siguiente auditoría de la [hoja de ruta](#estado-del-proyecto).
 
 <!-- autenticacion -->
 ### Autenticación y sesiones
@@ -249,8 +249,8 @@ La migración va primero, para que las funcionalidades nuevas se construyan ya s
 
 | Prioridad | Tarea | Objetivo |
 | :-: | :--- | :--- |
-| 7 | Migración a Spring Boot 4.1 (Spring Framework 7, Spring Security 7 y Jackson 3) | Backend con soporte y sin las alertas de Spring 6 |
-| 8 | Migración de Angular 14 a 22, versión a versión, con Node 24 en el CI y en Docker | Frontend con soporte y sin las alertas de Angular 14 |
+| 7 | Migración a Spring Boot 4.2 (Spring Framework 7, Spring Security 7 y Jackson 3), Java 21 y conexión con MariaDB cifrada | Hecho |
+| 8 | Migración de Angular 14 a 22, versión a versión, con Node 24 y build con esbuild | Hecho |
 | 9 | Tests del frontend con cobertura en SonarCloud | Medir el frontend igual que el backend |
 | 10 | Información de alérgenos (los 14 del reglamento europeo) | Cumplimiento y confianza del cliente |
 | 11 | Código QR por mesa | Pedir desde la mesa sin elegirla a mano |

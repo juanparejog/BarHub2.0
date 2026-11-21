@@ -51,22 +51,12 @@ Realiza las pruebas **solo en tu propia instancia local**. No ataques servidores
 
 ## Limitaciones conocidas
 
-**Frontend en Angular 14 (sin soporte).** El frontend usa Angular 14, que ya no recibe correcciones de seguridad. Las alertas de dependencias que afectan a `@angular/common`, `@angular/compiler`, `@angular/core` y `@angular/router` solo se resuelven migrando a una versión con soporte, lo que implica varios saltos de versión mayor. Esa migración está prevista para la versión 2.1, antes de las funcionalidades nuevas. Hasta entonces, las alertas se dejan abiertas a propósito en Dependabot como recordatorio.
-
-Análisis a fecha de 18 de noviembre de 2026, a partir del código de este repositorio. Los avisos abiertos en producción se agrupan así:
-
-| Grupo de avisos | ¿Afecta a BarHub? | Motivo |
-| :--- | :---: | :--- |
-| Renderizado en servidor, hidratación y `HttpTransferCache` | No | El frontend es estático, servido por Caddy, sin SSR ni hidratación |
-| `formatDate` y `digitsInfo` (consumo de memoria) | No | Los formatos de fecha y número son literales, no vienen del usuario |
-| Fuga del token XSRF por URLs relativas al protocolo | No | La sesión usa JWT en la cabecera `Authorization`, no la cookie XSRF de Angular |
-| XSS en i18n de Angular | No, por ahora | No se usa la internacionalización de Angular; se revisará si se adopta |
-| Saltos de sanitización (SVG, MathML, bindings) | Sin uso de riesgo | No hay `innerHTML` ni componentes dinámicos con contenido del usuario |
+**Dependencias del frontend.** Desde la versión 2.1 el frontend usa Angular 22, con soporte activo, compilado con esbuild. La migración desde Angular 14 (sin soporte) se hizo versión a versión con las migraciones oficiales y cerró casi todas las alertas de Dependabot: de 53 abiertas a 1, que se revisa en la siguiente auditoría.
 
 El único uso de `bypassSecurityTrustResourceUrl` es el mapa de la ubicación del local: el origen de la URL es fijo (`maps.google.com`) y la dirección se codifica con `encodeURIComponent`, de modo que un usuario no puede cambiar el servidor ni el protocolo del `iframe`.
 
-Las alertas marcadas como de desarrollo (por ejemplo `piscina` o `tar`, que llegan con Angular CLI y las herramientas de compilación) no forman parte de lo que se sirve a los usuarios: solo afectan al equipo que compila. Se resuelven con la misma migración prevista en la 2.1.
+Las herramientas de desarrollo (Angular CLI, Karma) no forman parte de lo que se sirve a los usuarios: solo afectan al equipo que compila. Karma se sustituirá por Vitest en la 2.1.
 
 Mitigaciones en el despliegue: cabeceras `Strict-Transport-Security`, `X-Content-Type-Options`, `X-Frame-Options` y `Referrer-Policy` desde Caddy, y el actuator no accesible desde fuera de la red de Docker.
 
-Esta tabla se revisa cada vez que se actualice Angular o se añada SSR, internacionalización, `innerHTML` o componentes dinámicos.
+Esta sección se revisa cada vez que se actualice Angular o se añada SSR, internacionalización, `innerHTML` o componentes dinámicos.
