@@ -1,45 +1,45 @@
-<div class="crud-container" *ngIf="producto">
+@if (producto) {
+  <div class="crud-container">
     <div class="crud-header">
-        <h2 class="crud-title">Producto #{{ producto.id }}</h2>
-        <div>
-            <button [routerLink]="['/admin/gestionar-productos']" class="btn-crud-secondary">
-                <i class="bi bi-arrow-90deg-left me-1"></i> Volver
-            </button>
-        </div>
-    </div>
-
-    <div class="crud-card">
-        <table class="crud-table">
-            <thead>
-                <tr>
-                    <th>Nombre</th>
-                    <th>Descripción</th>
-                    <th>Precio</th>
-                    <th>Tipo</th>
-                    <th>Imagen</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>{{ producto.nombre }}</td>
-                    <td>{{ producto.descripcion }}</td>
-                    <td>{{ producto.precio | currency:'EUR' }}</td>
-                    <td>{{ producto.tipoProducto }}</td>
-                    <td class="text-center">
-                        <img [src]="producto.imagen ? 'assets/images/productos/' + producto.imagen : 'assets/images/productos/default.jpg'" 
-                             (error)="$any($event.target).src = 'assets/images/default.jpg'"
-                             [alt]="producto.nombre" 
-                             class="img-detail-crud">
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-
-    <div class="p-3 d-flex justify-content-end">
-        <button [routerLink]="['/admin/editar-productos', producto.id]" class="btn-crud-primary d-inline-flex align-items-center gap-2">
-          <i class="bi bi-pencil-square"></i>
-          <span>Editar Registro</span>
+      <h2 class="crud-title">Producto #{{ producto.id }}</h2>
+      <div>
+        <button [routerLink]="['/admin/gestionar-productos']" class="btn-crud-secondary">
+          <i class="bi bi-arrow-90deg-left me-1"></i> Volver
         </button>
+      </div>
     </div>
-</div>
+    <div class="crud-card">
+      <table class="crud-table">
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Descripción</th>
+            <th>Precio</th>
+            <th>Tipo</th>
+            <th>Imagen</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>{{ producto.nombre }}</td>
+            <td>{{ producto.descripcion }}</td>
+            <td>{{ producto.precio | currency:'EUR' }}</td>
+            <td>{{ producto.tipoProducto }}</td>
+            <td class="text-center">
+              <img [src]="producto.imagen ? 'assets/images/productos/' + producto.imagen : 'assets/images/productos/default.jpg'"
+                (error)="$any($event.target).src = 'assets/images/default.jpg'"
+                [alt]="producto.nombre"
+                class="img-detail-crud">
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="p-3 d-flex justify-content-end">
+      <button [routerLink]="['/admin/editar-productos', producto.id]" class="btn-crud-primary d-inline-flex align-items-center gap-2">
+        <i class="bi bi-pencil-square"></i>
+        <span>Editar Registro</span>
+      </button>
+    </div>
+  </div>
+}

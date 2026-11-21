@@ -10,9 +10,11 @@
         <div class="col-md-6 mb-3">
           <label for="id_pedido" class="form-label">Pedido</label>
           <select id="id_pedido" formControlName="id_pedido" class="form-select form-control">
-            <option *ngFor="let pedido of pedidos" [ngValue]="pedido.id">
-              Pedido #{{ pedido.id }} - {{ pedido.fecha }}
-            </option>
+            @for (pedido of pedidos; track pedido) {
+              <option [ngValue]="pedido.id">
+                Pedido #{{ pedido.id }} - {{ pedido.fecha }}
+              </option>
+            }
           </select>
         </div>
 
@@ -20,9 +22,11 @@
         <div class="col-md-6 mb-3">
           <label for="id_producto" class="form-label">Producto</label>
           <select id="id_producto" formControlName="id_producto" class="form-select form-control">
-            <option *ngFor="let producto of productos" [ngValue]="producto.id">
-              {{ producto.nombre }} (ID: {{ producto.id }})
-            </option>
+            @for (producto of productos; track producto) {
+              <option [ngValue]="producto.id">
+                {{ producto.nombre }} (ID: {{ producto.id }})
+              </option>
+            }
           </select>
         </div>
 

@@ -1,73 +1,77 @@
 <div class="crud-container">
-    <div class="crud-form-card">
-        <h2 class="crud-title mb-4">Gestión de Producto</h2>
+  <div class="crud-form-card">
+    <h2 class="crud-title mb-4">Gestión de Producto</h2>
 
-        <form (ngSubmit)="guardar()" [formGroup]="formulario" autocomplete="off">
+    <form (ngSubmit)="guardar()" [formGroup]="formulario" autocomplete="off">
 
-            <input id="id" name="id" type="hidden" value="-1">
+      <input id="id" name="id" type="hidden" value="-1">
 
-            <div class="mb-3">
-                <label for="nombre" class="form-label">Nombre:</label>
-                <input formControlName="nombre" type="text" class="form-control" id="nombre">
+      <div class="mb-3">
+        <label for="nombre" class="form-label">Nombre:</label>
+        <input formControlName="nombre" type="text" class="form-control" id="nombre">
+      </div>
+
+      <div class="mb-3">
+        <label for="descripcion" class="form-label">Descripción:</label>
+        <input formControlName="descripcion" type="text" class="form-control" id="descripcion">
+      </div>
+
+      <div class="mb-3">
+        <label for="precio" class="form-label">Precio:</label>
+        <input formControlName="precio" type="number" class="form-control" id="precio">
+      </div>
+
+      <div class="mb-3">
+        <label for="tipoProducto" class="form-label">Tipo:</label>
+        <select id="tipoProducto" formControlName="tipoProducto" class="form-control" required>
+          <option value="bebida">Bebida</option>
+          <option value="entrante">Entrante</option>
+          <option value="tapa">Tapa</option>
+          <option value="postre">Postre</option>
+        </select>
+      </div>
+
+      <!-- Zona Drag and Drop -->
+      <div class="mb-3">
+        <label for="fileInput" class="form-label">Imagen del Producto:</label>
+
+        <div class="drop-zone"
+          [class.drag-over]="isDragging"
+          (dragover)="onDragOver($event)"
+          (dragleave)="onDragLeave($event)"
+          (drop)="onDrop($event)"
+          (click)="fileInput.click()"
+          (keydown.enter)="fileInput.click()">
+
+          <input
+            #fileInput
+            id="fileInput"
+            type="file"
+            class="d-none"
+            accept="image/png, image/jpeg"
+            (change)="onFileSelected($event)">
+
+          @if (!previewUrl) {
+            <div class="drop-zone-prompt">
+              <p class="mb-1 fw-bold">Arrastra y suelta tu imagen aquí</p>
+              <small class="text-muted">o haz clic para examinar (JPG, PNG)</small>
             </div>
+          }
 
-            <div class="mb-3">
-                <label for="descripcion" class="form-label">Descripción:</label>
-                <input formControlName="descripcion" type="text" class="form-control" id="descripcion">
+          @if (previewUrl) {
+            <div class="preview-container">
+              <img [src]="previewUrl" alt="Vista previa" class="img-preview" />
+              <p class="mt-2 mb-0 small text-muted">{{ nombreArchivoRenombrado || 'Imagen seleccionada' }}</p>
             </div>
+          }
+        </div>
+      </div>
 
-            <div class="mb-3">
-                <label for="precio" class="form-label">Precio:</label>
-                <input formControlName="precio" type="number" class="form-control" id="precio">
-            </div>
+      <div class="d-flex justify-content-end gap-2 mt-4">
+        <button type="button" class="btn-crud-secondary" routerLink="/admin/gestionar-productos">Volver</button>
+        <button type="submit" class="btn-crud-primary">Guardar</button>
+      </div>
 
-            <div class="mb-3">
-                <label for="tipoProducto" class="form-label">Tipo:</label>
-                <select id="tipoProducto" formControlName="tipoProducto" class="form-control" required>
-                    <option value="bebida">Bebida</option>
-                    <option value="entrante">Entrante</option>
-                    <option value="tapa">Tapa</option>
-                    <option value="postre">Postre</option>
-                </select>
-            </div>
-
-            <!-- Zona Drag and Drop -->
-            <div class="mb-3">
-                <label for="fileInput" class="form-label">Imagen del Producto:</label>
-
-                <div class="drop-zone"
-                     [class.drag-over]="isDragging"
-                     (dragover)="onDragOver($event)"
-                     (dragleave)="onDragLeave($event)"
-                     (drop)="onDrop($event)"
-                     (click)="fileInput.click()"
-                     (keydown.enter)="fileInput.click()">
-
-                    <input 
-                        #fileInput 
-                        id="fileInput"
-                        type="file" 
-                        class="d-none" 
-                        accept="image/png, image/jpeg"
-                        (change)="onFileSelected($event)">
-
-                    <div *ngIf="!previewUrl" class="drop-zone-prompt">
-                        <p class="mb-1 fw-bold">Arrastra y suelta tu imagen aquí</p>
-                        <small class="text-muted">o haz clic para examinar (JPG, PNG)</small>
-                    </div>
-
-                    <div *ngIf="previewUrl" class="preview-container">
-                        <img [src]="previewUrl" alt="Vista previa" class="img-preview" />
-                        <p class="mt-2 mb-0 small text-muted">{{ nombreArchivoRenombrado || 'Imagen seleccionada' }}</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="d-flex justify-content-end gap-2 mt-4">
-                <button type="button" class="btn-crud-secondary" routerLink="/admin/gestionar-productos">Volver</button>
-                <button type="submit" class="btn-crud-primary">Guardar</button>
-            </div>
-
-        </form>
-    </div>
+    </form>
+  </div>
 </div>

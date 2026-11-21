@@ -19,27 +19,28 @@
 
   <!-- Tarjeta Principal del CRUD -->
   <div class="crud-card">
-    
+
     <!-- Barra Superior / Barra de Filtro Integrada -->
     <div class="table-toolbar d-flex flex-wrap align-items-center justify-content-between gap-3 p-3 border-bottom bg-light-subtle">
       <!-- Buscador Estilizado -->
       <div class="search-box position-relative">
         <i class="bi bi-search search-icon"></i>
-        <input 
-          type="text" 
-          class="form-control search-input" 
+        <input
+          type="text"
+          class="form-control search-input"
           placeholder="Buscar por nombre, descripción o tipo..."
           [(ngModel)]="searchTerm"
           aria-label="Buscar">
-        <button 
-          *ngIf="searchTerm" 
-          class="btn-clear-search" 
-          type="button" 
-          (click)="searchTerm = ''"
-          title="Limpiar búsqueda"
-          >
-          <i class="bi bi-x-lg"></i>
-        </button>
+        @if (searchTerm) {
+          <button
+            class="btn-clear-search"
+            type="button"
+            (click)="searchTerm = ''"
+            title="Limpiar búsqueda"
+            >
+            <i class="bi bi-x-lg"></i>
+          </button>
+        }
       </div>
 
       <!-- Contador de registros -->
@@ -117,74 +118,74 @@
           </tr>
         </thead>
 
-        <tbody *ngIf="productosFiltrados.length > 0; else sinProductos">
-          <tr *ngFor="let producto of productosFiltrados">
-            <!-- Nombre -->
-            <td class="ps-4 fw-semibold text-body">
-              {{ producto.nombre }}
-            </td>
-
-            <!-- Descripción -->
-            <td class="text-secondary">
-              {{ producto.descripcion }}
-            </td>
-
-            <!-- Precio -->
-            <td class="fw-bold text-body">
-              {{ producto.precio | currency:'EUR' }}
-            </td>
-
-            <!-- Tipo de Producto -->
-            <td>
-              <span class="badge bg-body-tertiary text-body border fw-medium">
-                {{ producto.tipoProducto }}
-              </span>
-            </td>
-
-            <!-- Imagen -->
-            <td class="text-center">
-              <img 
-                [src]="producto.imagen ? 'assets/images/productos/' + producto.imagen : 'assets/images/productos/default.jpg'" 
-                (error)="onImgError($event)"
-                [alt]="producto.nombre" 
-                class="img-thumbnail-crud">
-            </td>
-
-            <!-- Acciones -->
-            <td class="text-center">
-              <div class="crud-actions">
-                <i [routerLink]="['/admin/ver-producto', producto.id]" 
-                   class="bi bi-eye-fill action-icon view" 
-                   title="Ver Producto"></i>
-
-                <i [routerLink]="['/admin/editar-productos', producto.id]" 
-                   class="bi bi-pencil-fill action-icon edit" 
-                   title="Editar"></i>
-
-                <button type="button" 
-                        class="btn btn-link p-0 border-0 bg-transparent text-decoration-none" 
-                        (click)="borrarProducto(producto)" 
-                        title="Eliminar" 
-                        aria-label="Eliminar">
-                  <i class="bi bi-trash3-fill action-icon delete"></i>
-                </button>  
-              </div>
-            </td>
-          </tr>
-        </tbody>
-
-        <!-- Estado vacío -->
-        <ng-template #sinProductos>
+        @if (productosFiltrados.length > 0) {
+          <tbody>
+            @for (producto of productosFiltrados; track producto) {
+              <tr>
+                <!-- Nombre -->
+                <td class="ps-4 fw-semibold text-body">
+                  {{ producto.nombre }}
+                </td>
+                <!-- Descripción -->
+                <td class="text-secondary">
+                  {{ producto.descripcion }}
+                </td>
+                <!-- Precio -->
+                <td class="fw-bold text-body">
+                  {{ producto.precio | currency:'EUR' }}
+                </td>
+                <!-- Tipo de Producto -->
+                <td>
+                  <span class="badge bg-body-tertiary text-body border fw-medium">
+                    {{ producto.tipoProducto }}
+                  </span>
+                </td>
+                <!-- Imagen -->
+                <td class="text-center">
+                  <img
+                    [src]="producto.imagen ? 'assets/images/productos/' + producto.imagen : 'assets/images/productos/default.jpg'"
+                    (error)="onImgError($event)"
+                    [alt]="producto.nombre"
+                    class="img-thumbnail-crud">
+                </td>
+                <!-- Acciones -->
+                <td class="text-center">
+                  <div class="crud-actions">
+                    <i [routerLink]="['/admin/ver-producto', producto.id]"
+                      class="bi bi-eye-fill action-icon view"
+                    title="Ver Producto"></i>
+                    <i [routerLink]="['/admin/editar-productos', producto.id]"
+                      class="bi bi-pencil-fill action-icon edit"
+                    title="Editar"></i>
+                    <button type="button"
+                      class="btn btn-link p-0 border-0 bg-transparent text-decoration-none"
+                      (click)="borrarProducto(producto)"
+                      title="Eliminar"
+                      aria-label="Eliminar">
+                      <i class="bi bi-trash3-fill action-icon delete"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        } @else {
           <tbody>
             <tr>
               <td colspan="6" class="text-center py-5 text-muted">
                 <i class="bi bi-box-seam fs-1 d-block mb-2 text-secondary opacity-50"></i>
-                <span *ngIf="searchTerm">No se encontraron productos que coincidan con "<strong>{{ searchTerm }}</strong>".</span>
-                <span *ngIf="!searchTerm">No hay productos registrados en el sistema.</span>
+                @if (searchTerm) {
+                  <span>No se encontraron productos que coincidan con "<strong>{{ searchTerm }}</strong>".</span>
+                }
+                @if (!searchTerm) {
+                  <span>No hay productos registrados en el sistema.</span>
+                }
               </td>
             </tr>
           </tbody>
-        </ng-template>
+        }
+
+        <!-- Estado vacío -->
       </table>
     </div>
   </div>

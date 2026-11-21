@@ -21,9 +21,15 @@
         </div>
         <div>
           <span class="d-block text-muted small fw-semibold">Pedidos Totales</span>
-          <span class="fs-5 fw-bold text-body" *ngIf="!cargandoMetrics; else spinner">
-            {{ totalPedidosHoy }}
-          </span>
+          @if (!cargandoMetrics) {
+            <span class="fs-5 fw-bold text-body">
+              {{ totalPedidosHoy }}
+            </span>
+          } @else {
+            <output class="spinner-border spinner-border-sm text-secondary">
+              <span class="visually-hidden">Cargando...</span>
+            </output>
+          }
         </div>
       </div>
     </div>
@@ -36,9 +42,15 @@
         </div>
         <div>
           <span class="d-block text-muted small fw-semibold">Mesas Disponibles</span>
-          <span class="fs-5 fw-bold text-body" *ngIf="!cargandoMetrics; else spinner">
-            {{ mesasLibresCount }} / {{ totalMesasCount }}
-          </span>
+          @if (!cargandoMetrics) {
+            <span class="fs-5 fw-bold text-body">
+              {{ mesasLibresCount }} / {{ totalMesasCount }}
+            </span>
+          } @else {
+            <output class="spinner-border spinner-border-sm text-secondary">
+              <span class="visually-hidden">Cargando...</span>
+            </output>
+          }
         </div>
       </div>
     </div>
@@ -51,9 +63,15 @@
         </div>
         <div>
           <span class="d-block text-muted small fw-semibold">Caja Total</span>
-          <span class="fs-5 fw-bold text-body" *ngIf="!cargandoMetrics; else spinner">
-            {{ cajaDiariaTotal | currency:'EUR':'symbol':'1.2-2' }}
-          </span>
+          @if (!cargandoMetrics) {
+            <span class="fs-5 fw-bold text-body">
+              {{ cajaDiariaTotal | currency:'EUR':'symbol':'1.2-2' }}
+            </span>
+          } @else {
+            <output class="spinner-border spinner-border-sm text-secondary">
+              <span class="visually-hidden">Cargando...</span>
+            </output>
+          }
         </div>
       </div>
     </div>
@@ -75,11 +93,6 @@
   </div>
 
   <!-- Plantilla de Carga para los KPIs -->
-  <ng-template #spinner>
-    <output class="spinner-border spinner-border-sm text-secondary">
-      <span class="visually-hidden">Cargando...</span>
-    </output>
-  </ng-template>
 
   <!-- Rejilla de Opciones Centrada -->
   <div class="row g-4 justify-content-center">

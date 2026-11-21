@@ -11,9 +11,11 @@
           <label for="id_user" class="form-label">Usuario</label>
           <select id="id_user" formControlName="id_user" class="form-select form-control">
             <option [ngValue]="null" disabled>Seleccione un usuario...</option>
-            <option *ngFor="let user of users" [ngValue]="user.id">
-              {{ user.nombre }} (ID: {{ user.id }})
-            </option>
+            @for (user of users; track user) {
+              <option [ngValue]="user.id">
+                {{ user.nombre }} (ID: {{ user.id }})
+              </option>
+            }
           </select>
         </div>
 
@@ -28,27 +30,35 @@
         </div>
 
         <!-- Opción A: Mesa -->
-        <div class="col-md-6 mb-3" *ngIf="formulario.get('tipo_pedido')?.value?.toLowerCase() === 'mesa'">
-          <label for="id_mesa" class="form-label">Seleccionar Mesa</label>
-          <select id="id_mesa" formControlName="id_mesa" class="form-select form-control">
-            <option [ngValue]="null" disabled>Seleccione una mesa...</option>
-            <option *ngFor="let mesa of mesas" [ngValue]="mesa.id">
-              Mesa #{{ mesa.id }} - {{ mesa.codigoqr }}
-            </option>
-          </select>
-        </div>
+        @if (formulario.get('tipo_pedido')?.value?.toLowerCase() === 'mesa') {
+          <div class="col-md-6 mb-3">
+            <label for="id_mesa" class="form-label">Seleccionar Mesa</label>
+            <select id="id_mesa" formControlName="id_mesa" class="form-select form-control">
+              <option [ngValue]="null" disabled>Seleccione una mesa...</option>
+              @for (mesa of mesas; track mesa) {
+                <option [ngValue]="mesa.id">
+                  Mesa #{{ mesa.id }} - {{ mesa.codigoqr }}
+                </option>
+              }
+            </select>
+          </div>
+        }
 
         <!-- Opción B: Domicilio -->
-        <div class="col-md-6 mb-3" *ngIf="formulario.get('tipo_pedido')?.value?.toLowerCase() === 'domicilio'">
-          <label for="direccion_envio" class="form-label">Dirección de Entrega</label>
-          <input id="direccion_envio" type="text" formControlName="direccion_envio" class="form-control" placeholder="Calle, número, piso...">
-        </div>
+        @if (formulario.get('tipo_pedido')?.value?.toLowerCase() === 'domicilio') {
+          <div class="col-md-6 mb-3">
+            <label for="direccion_envio" class="form-label">Dirección de Entrega</label>
+            <input id="direccion_envio" type="text" formControlName="direccion_envio" class="form-control" placeholder="Calle, número, piso...">
+          </div>
+        }
 
         <!-- Opción C: Recoger -->
-        <div class="col-md-6 mb-3" *ngIf="formulario.get('tipo_pedido')?.value?.toLowerCase() === 'recoger'">
-          <label for="direccion_tienda" class="form-label">Tienda / Local de Recogida</label>
-          <input id="direccion_tienda" type="text" formControlName="direccion_tienda" class="form-control" placeholder="Nombre o dirección del local">
-        </div>
+        @if (formulario.get('tipo_pedido')?.value?.toLowerCase() === 'recoger') {
+          <div class="col-md-6 mb-3">
+            <label for="direccion_tienda" class="form-label">Tienda / Local de Recogida</label>
+            <input id="direccion_tienda" type="text" formControlName="direccion_tienda" class="form-control" placeholder="Nombre o dirección del local">
+          </div>
+        }
 
         <!-- Estado -->
         <div class="col-md-6 mb-3">

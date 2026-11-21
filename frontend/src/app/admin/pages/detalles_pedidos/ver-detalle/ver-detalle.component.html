@@ -1,75 +1,71 @@
-<div class="crud-container" *ngIf="detalle">
-  <!-- Header principal -->
-  <div class="crud-header">
-    <div>
-      <h1 class="crud-title">Detalle del Pedido #{{ detalle.id_pedido || detalle.id }}</h1>
-      <p class="text-muted small mb-0">Información detallada de la línea de producto seleccionada</p>
+@if (detalle) {
+  <div class="crud-container">
+    <!-- Header principal -->
+    <div class="crud-header">
+      <div>
+        <h1 class="crud-title">Detalle del Pedido #{{ detalle.id_pedido || detalle.id }}</h1>
+        <p class="text-muted small mb-0">Información detallada de la línea de producto seleccionada</p>
+      </div>
+      <div>
+        <button [routerLink]="['/admin/gestionar-detalles']" class="btn-crud-secondary d-inline-flex align-items-center gap-2">
+          <i class="bi bi-arrow-left"></i>
+          <span>Volver</span>
+        </button>
+      </div>
     </div>
-    <div>
-      <button [routerLink]="['/admin/gestionar-detalles']" class="btn-crud-secondary d-inline-flex align-items-center gap-2">
-        <i class="bi bi-arrow-left"></i>
-        <span>Volver</span>
-      </button>
-    </div>
-  </div>
-
-  <!-- Contenedor / Tarjeta -->
-  <div class="crud-card">
-    <div class="table-responsive">
-      <table class="crud-table">
-        <thead>
-          <tr>
-            <th>ID Pedido</th>
-            <th>Producto</th>
-            <th class="text-center">Cantidad</th>
-            <th class="text-end">Precio / Ud.</th>
-            <th class="text-end">Subtotal</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <!-- ID Pedido -->
-            <td>
-              <span class="badge bg-body-tertiary text-body border px-2 py-1 font-monospace">
-                #{{ detalle.id_pedido || 'N/A' }}
-              </span>
-            </td>
-
-            <!-- Producto -->
-            <td class="fw-semibold">
-              <div class="d-flex align-items-center gap-2">
-                <i class="bi bi-box-seam text-primary"></i>
-                <span>{{ getProducto(detalle.id_producto) }}</span>
-              </div>
-            </td>
-
-            <!-- Cantidad -->
-            <td class="text-center">
-              <span class="badge rounded-pill bg-primary-subtle text-primary fw-bold px-3 py-1">
-                {{ detalle.cantidad }}
-              </span>
-            </td>
-
-            <!-- Precio Unitario -->
-            <td class="text-end font-monospace fw-semibold text-secondary">
-              {{ detalle.precio_unitario | currency:'EUR':'symbol':'1.2-2' }}
-            </td>
-
-            <!-- Subtotal -->
-            <td class="text-end font-monospace fw-bold text-body">
-              {{ ((detalle.cantidad || 0) * (detalle.precio_unitario || 0)) | currency:'EUR':'symbol':'1.2-2' }}
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <!-- Pie de Tarjeta con botón de Acción -->
-    <div class="p-3 d-flex justify-content-end">
-      <button [routerLink]="['/admin/editar-detalle', detalle.id]" class="btn-crud-primary d-inline-flex align-items-center gap-2">
-        <i class="bi bi-pencil-square"></i>
-        <span>Editar Registro</span>
-      </button>
+    <!-- Contenedor / Tarjeta -->
+    <div class="crud-card">
+      <div class="table-responsive">
+        <table class="crud-table">
+          <thead>
+            <tr>
+              <th>ID Pedido</th>
+              <th>Producto</th>
+              <th class="text-center">Cantidad</th>
+              <th class="text-end">Precio / Ud.</th>
+              <th class="text-end">Subtotal</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <!-- ID Pedido -->
+              <td>
+                <span class="badge bg-body-tertiary text-body border px-2 py-1 font-monospace">
+                  #{{ detalle.id_pedido || 'N/A' }}
+                </span>
+              </td>
+              <!-- Producto -->
+              <td class="fw-semibold">
+                <div class="d-flex align-items-center gap-2">
+                  <i class="bi bi-box-seam text-primary"></i>
+                  <span>{{ getProducto(detalle.id_producto) }}</span>
+                </div>
+              </td>
+              <!-- Cantidad -->
+              <td class="text-center">
+                <span class="badge rounded-pill bg-primary-subtle text-primary fw-bold px-3 py-1">
+                  {{ detalle.cantidad }}
+                </span>
+              </td>
+              <!-- Precio Unitario -->
+              <td class="text-end font-monospace fw-semibold text-secondary">
+                {{ detalle.precio_unitario | currency:'EUR':'symbol':'1.2-2' }}
+              </td>
+              <!-- Subtotal -->
+              <td class="text-end font-monospace fw-bold text-body">
+                {{ ((detalle.cantidad || 0) * (detalle.precio_unitario || 0)) | currency:'EUR':'symbol':'1.2-2' }}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <!-- Pie de Tarjeta con botón de Acción -->
+      <div class="p-3 d-flex justify-content-end">
+        <button [routerLink]="['/admin/editar-detalle', detalle.id]" class="btn-crud-primary d-inline-flex align-items-center gap-2">
+          <i class="bi bi-pencil-square"></i>
+          <span>Editar Registro</span>
+        </button>
+      </div>
     </div>
   </div>
-</div>
+}

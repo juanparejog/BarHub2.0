@@ -1,6 +1,6 @@
 <div class="crud-container">
   <div class="crud-form-card">
-    
+
     <!-- Cabecera -->
     <div class="crud-header mb-4 d-flex justify-content-between align-items-center">
       <div>
@@ -22,19 +22,19 @@
           <h5 class="card-title text-body fw-semibold mb-3">
             <i class="bi bi-image text-primary me-2"></i>Foto de Perfil
           </h5>
-          
+
           <div class="d-flex flex-column flex-md-row gap-4 align-items-center">
             <!-- Zona Drag and Drop -->
             <div class="drop-zone"
-                   [class.drag-over]="isDragging"
-                   (dragover)="onDragOver($event)"
-                   (dragleave)="onDragLeave($event)"
-                   (drop)="onDrop($event)"
-                   (click)="fileInput.click()"
-                   (keydown.enter)="fileInput.click()">
-              
+              [class.drag-over]="isDragging"
+              (dragover)="onDragOver($event)"
+              (dragleave)="onDragLeave($event)"
+              (drop)="onDrop($event)"
+              (click)="fileInput.click()"
+              (keydown.enter)="fileInput.click()">
+
               <input #fileInput id="fileInput" type="file" accept="image/*" class="d-none" (change)="onFileSelected($event)" aria-label="Subir foto de perfil">
-              
+
               <i class="bi bi-cloud-arrow-up fs-1 text-primary d-block mb-2"></i>
               <p class="mb-1 fw-semibold text-body">Arrastra y suelta aquí la imagen de usuario</p>
               <p class="text-muted small mb-0">o haz clic para buscar en tu equipo (PNG, JPG, WEBP)</p>
@@ -42,27 +42,30 @@
 
             <!-- Previsualización de la Imagen -->
             <div class="text-center position-relative flex-shrink-0" style="width: 110px;">
-              <div class="avatar-preview-box rounded-circle border shadow-sm mx-auto position-relative overflow-hidden" 
-                   style="width: 100px; height: 100px; background-color: #f8f9fa;">
-                <img *ngIf="imagenPreview; else noPreview" 
-                     [src]="imagenPreview" 
-                     (error)="manejarErrorImagenPreview()" 
-                     alt="Previsualización" 
-                     class="w-100 h-100 object-fit-cover" />
-                <ng-template #noPreview>
+              <div class="avatar-preview-box rounded-circle border shadow-sm mx-auto position-relative overflow-hidden"
+                style="width: 100px; height: 100px; background-color: #f8f9fa;">
+                @if (imagenPreview) {
+                  <img
+                    [src]="imagenPreview"
+                    (error)="manejarErrorImagenPreview()"
+                    alt="Previsualización"
+                    class="w-100 h-100 object-fit-cover" />
+                } @else {
                   <div class="w-100 h-100 d-flex align-items-center justify-content-center text-secondary">
                     <i class="bi bi-person-fill fs-1"></i>
                   </div>
-                </ng-template>
+                }
               </div>
 
-              <button *ngIf="imagenPreview" 
-                      type="button" 
-                      (click)="eliminarImagen()" 
-                      class="btn btn-danger btn-sm rounded-circle position-absolute top-0 end-0 shadow-sm"
-                      title="Quitar foto">
-                <i class="bi bi-x"></i>
-              </button>
+              @if (imagenPreview) {
+                <button
+                  type="button"
+                  (click)="eliminarImagen()"
+                  class="btn btn-danger btn-sm rounded-circle position-absolute top-0 end-0 shadow-sm"
+                  title="Quitar foto">
+                  <i class="bi bi-x"></i>
+                </button>
+              }
             </div>
           </div>
         </div>
@@ -80,40 +83,49 @@
             <div class="col-md-6 mb-3">
               <label for="username" class="form-label fw-medium">Nombre de Usuario <span class="text-danger">*</span></label>
               <input formControlName="username" type="text" class="form-control" id="username" placeholder="ej. jparejo">
-              <div *ngIf="formulario.get('username')?.touched && formulario.get('username')?.hasError('required')" class="text-danger small mt-1">
-                El nombre de usuario es obligatorio.
-              </div>
+              @if (formulario.get('username')?.touched && formulario.get('username')?.hasError('required')) {
+                <div class="text-danger small mt-1">
+                  El nombre de usuario es obligatorio.
+                </div>
+              }
             </div>
 
             <!-- Email -->
             <div class="col-md-6 mb-3">
               <label for="email" class="form-label fw-medium">Correo Electrónico <span class="text-danger">*</span></label>
               <input formControlName="email" type="email" class="form-control" id="email" placeholder="correo@ejemplo.com">
-              <div *ngIf="formulario.get('email')?.touched && formulario.get('email')?.hasError('required')" class="text-danger small mt-1">
-                El correo electrónico es obligatorio.
-              </div>
-              <div *ngIf="formulario.get('email')?.touched && formulario.get('email')?.hasError('email')" class="text-danger small mt-1">
-                Formato de correo no válido.
-              </div>
+              @if (formulario.get('email')?.touched && formulario.get('email')?.hasError('required')) {
+                <div class="text-danger small mt-1">
+                  El correo electrónico es obligatorio.
+                </div>
+              }
+              @if (formulario.get('email')?.touched && formulario.get('email')?.hasError('email')) {
+                <div class="text-danger small mt-1">
+                  Formato de correo no válido.
+                </div>
+              }
             </div>
 
             <!-- Contraseña -->
             <div class="col-md-12 mb-3">
               <label for="password" class="form-label fw-medium">
-                Contraseña <span class="text-muted small fw-normal" *ngIf="editar">(dejar en blanco para conservar la actual)</span>
-              </label>
-              <input formControlName="password" type="password" class="form-control" id="password" placeholder="••••••••">
-            </div>
+                Contraseña @if (editar) {
+                <span class="text-muted small fw-normal">(dejar en blanco para conservar la actual)</span>
+              }
+            </label>
+            <input formControlName="password" type="password" class="form-control" id="password" placeholder="••••••••">
+          </div>
 
-            <!-- Roles Asignados -->
-            <div class="col-md-12 mb-2">
-              <div class="form-label d-block fw-medium">
-                Roles Asignados <span class="text-danger">* (mínimo 1)</span>
-              </div>
-              <div class="roles-selection-container p-3 rounded border bg-body"
-                   [class.border-danger]="formulario.get('roles')?.invalid && formulario.get('roles')?.touched">
-                <div class="d-flex flex-wrap gap-3">
-                  <div *ngFor="let rol of rolesDisponibles" class="form-check custom-role-check d-flex align-items-center">
+          <!-- Roles Asignados -->
+          <div class="col-md-12 mb-2">
+            <div class="form-label d-block fw-medium">
+              Roles Asignados <span class="text-danger">* (mínimo 1)</span>
+            </div>
+            <div class="roles-selection-container p-3 rounded border bg-body"
+              [class.border-danger]="formulario.get('roles')?.invalid && formulario.get('roles')?.touched">
+              <div class="d-flex flex-wrap gap-3">
+                @for (rol of rolesDisponibles; track rol) {
+                  <div class="form-check custom-role-check d-flex align-items-center">
                     <input
                       type="checkbox"
                       class="form-check-input mt-0"
@@ -121,147 +133,146 @@
                       [disabled]="isRoleChecked(rol) && formulario.get('roles')?.value?.length === 1"
                       (change)="toggleRol(rol)"
                       id="rol-{{rol.id}}"
-                    >
+                      >
                     <label class="form-check-label badge-role ms-2 cursor-pointer" [ngClass]="getRolClass(rol.nombre)" for="rol-{{rol.id}}">
                       <i class="bi bi-shield-lock me-1"></i>
                       {{ formatearNombreRol(rol.nombre) }}
                     </label>
                   </div>
-                </div>
+                }
               </div>
-              <div *ngIf="formulario.get('roles')?.hasError('requiereRol') && formulario.get('roles')?.touched" class="text-danger small mt-1">
+            </div>
+            @if (formulario.get('roles')?.hasError('requiereRol') && formulario.get('roles')?.touched) {
+              <div class="text-danger small mt-1">
                 Debes asignar al menos un rol al usuario.
               </div>
-            </div>
+            }
           </div>
         </div>
       </div>
+    </div>
 
-      <!-- SECCIÓN 3: DATOS PERSONALES -->
-      <div class="card mb-4 border-0 bg-light-subtle shadow-sm">
-        <div class="card-body">
-          <h5 class="card-title text-body fw-semibold mb-3">
-            <i class="bi bi-person text-primary me-2"></i>Información Personal
-          </h5>
+    <!-- SECCIÓN 3: DATOS PERSONALES -->
+    <div class="card mb-4 border-0 bg-light-subtle shadow-sm">
+      <div class="card-body">
+        <h5 class="card-title text-body fw-semibold mb-3">
+          <i class="bi bi-person text-primary me-2"></i>Información Personal
+        </h5>
 
-          <div class="row">
-            <!-- Nombre -->
-            <div class="col-md-4 mb-3">
-              <label for="nombre" class="form-label fw-medium">Nombre</label>
-              <input formControlName="nombre" type="text" class="form-control" id="nombre" placeholder="Nombre de pila">
-            </div>
+        <div class="row">
+          <!-- Nombre -->
+          <div class="col-md-4 mb-3">
+            <label for="nombre" class="form-label fw-medium">Nombre</label>
+            <input formControlName="nombre" type="text" class="form-control" id="nombre" placeholder="Nombre de pila">
+          </div>
 
-            <!-- Primer Apellido -->
-            <div class="col-md-4 mb-3">
-              <label for="apellido1" class="form-label fw-medium">Primer Apellido</label>
-              <input formControlName="apellido1" type="text" class="form-control" id="apellido1" placeholder="Primer apellido">
-            </div>
+          <!-- Primer Apellido -->
+          <div class="col-md-4 mb-3">
+            <label for="apellido1" class="form-label fw-medium">Primer Apellido</label>
+            <input formControlName="apellido1" type="text" class="form-control" id="apellido1" placeholder="Primer apellido">
+          </div>
 
-            <!-- Segundo Apellido -->
-            <div class="col-md-4 mb-3">
-              <label for="apellido2" class="form-label fw-medium">Segundo Apellido</label>
-              <input formControlName="apellido2" type="text" class="form-control" id="apellido2" placeholder="Segundo apellido">
-            </div>
+          <!-- Segundo Apellido -->
+          <div class="col-md-4 mb-3">
+            <label for="apellido2" class="form-label fw-medium">Segundo Apellido</label>
+            <input formControlName="apellido2" type="text" class="form-control" id="apellido2" placeholder="Segundo apellido">
+          </div>
 
-            <!-- Teléfono -->
-            <div class="col-md-6 mb-3">
-              <label for="telefono" class="form-label fw-medium">Teléfono de Contacto</label>
-              <input formControlName="telefono" type="tel" class="form-control" id="telefono" placeholder="ej. 600123456">
-            </div>
+          <!-- Teléfono -->
+          <div class="col-md-6 mb-3">
+            <label for="telefono" class="form-label fw-medium">Teléfono de Contacto</label>
+            <input formControlName="telefono" type="tel" class="form-control" id="telefono" placeholder="ej. 600123456">
           </div>
         </div>
       </div>
+    </div>
 
-      <!-- SECCIÓN 4: DIRECCIÓN Y VIVIENDA -->
-      <div class="card mb-4 border-0 bg-light-subtle shadow-sm">
-        <div class="card-body">
-          <h5 class="card-title text-body fw-semibold mb-3">
-            <i class="bi bi-geo-alt text-primary me-2"></i>Dirección y Datos de Envío
-          </h5>
+    <!-- SECCIÓN 4: DIRECCIÓN Y VIVIENDA -->
+    <div class="card mb-4 border-0 bg-light-subtle shadow-sm">
+      <div class="card-body">
+        <h5 class="card-title text-body fw-semibold mb-3">
+          <i class="bi bi-geo-alt text-primary me-2"></i>Dirección y Datos de Envío
+        </h5>
 
-          <div class="row">
-            <!-- Tipo de Vivienda -->
-            <div class="col-md-4 mb-3">
-              <label for="tipoVivienda" class="form-label fw-medium">Tipo de Vivienda</label>
-              <select formControlName="tipoVivienda" id="tipoVivienda" class="form-select">
-                <option value="piso">Piso / Ap. / Ático</option>
-                <option value="casa">Casa Unifamiliar</option>
-                <option value="urbanizacion">Urbanización</option>
-              </select>
-            </div>
+        <div class="row">
+          <!-- Tipo de Vivienda -->
+          <div class="col-md-4 mb-3">
+            <label for="tipoVivienda" class="form-label fw-medium">Tipo de Vivienda</label>
+            <select formControlName="tipoVivienda" id="tipoVivienda" class="form-select">
+              <option value="piso">Piso / Ap. / Ático</option>
+              <option value="casa">Casa Unifamiliar</option>
+              <option value="urbanizacion">Urbanización</option>
+            </select>
+          </div>
 
-            <!-- Calle -->
-            <div class="col-md-5 mb-3">
-              <label for="calle" class="form-label fw-medium">Calle / Avenida / Plaza</label>
-              <input formControlName="calle" type="text" class="form-control" id="calle" placeholder="Nombre de la vía y número">
-            </div>
+          <!-- Calle -->
+          <div class="col-md-5 mb-3">
+            <label for="calle" class="form-label fw-medium">Calle / Avenida / Plaza</label>
+            <input formControlName="calle" type="text" class="form-control" id="calle" placeholder="Nombre de la vía y número">
+          </div>
 
-            <!-- Código Postal -->
-            <div class="col-md-3 mb-3">
-              <label for="codigoPostal" class="form-label fw-medium">Código Postal</label>
-              <input formControlName="codigoPostal" type="text" class="form-control" id="codigoPostal" placeholder="28001">
-            </div>
+          <!-- Código Postal -->
+          <div class="col-md-3 mb-3">
+            <label for="codigoPostal" class="form-label fw-medium">Código Postal</label>
+            <input formControlName="codigoPostal" type="text" class="form-control" id="codigoPostal" placeholder="28001">
+          </div>
 
-            <!-- Campos condicionales según el tipo de vivienda -->
-            <ng-container [ngSwitch]="formulario.get('tipoVivienda')?.value">
-              
-              <!-- Si es Piso -->
-              <ng-container *ngSwitchCase="'piso'">
-                <div class="col-md-4 mb-3">
-                  <label for="portalNum" class="form-label fw-medium">Portal / Nº</label>
-                  <input formControlName="portalNum" type="text" class="form-control" id="portalNum" placeholder="ej. 12">
-                </div>
-                <div class="col-md-4 mb-3">
-                  <label for="pisoNum" class="form-label fw-medium">Piso</label>
-                  <input formControlName="pisoNum" type="text" class="form-control" id="pisoNum" placeholder="ej. 3º">
-                </div>
-                <div class="col-md-4 mb-3">
-                  <label for="puerta" class="form-label fw-medium">Puerta</label>
-                  <input formControlName="puerta" type="text" class="form-control" id="puerta" placeholder="ej. B">
-                </div>
-              </ng-container>
+          <!-- Campos condicionales según el tipo de vivienda -->
+          @switch (formulario.get('tipoVivienda')?.value) {
+            <!-- Si es Piso -->
+            @case ('piso') {
+              <div class="col-md-4 mb-3">
+                <label for="portalNum" class="form-label fw-medium">Portal / Nº</label>
+                <input formControlName="portalNum" type="text" class="form-control" id="portalNum" placeholder="ej. 12">
+              </div>
+              <div class="col-md-4 mb-3">
+                <label for="pisoNum" class="form-label fw-medium">Piso</label>
+                <input formControlName="pisoNum" type="text" class="form-control" id="pisoNum" placeholder="ej. 3º">
+              </div>
+              <div class="col-md-4 mb-3">
+                <label for="puerta" class="form-label fw-medium">Puerta</label>
+                <input formControlName="puerta" type="text" class="form-control" id="puerta" placeholder="ej. B">
+              </div>
+            }
+            <!-- Si es Casa -->
+            @case ('casa') {
+              <div class="col-md-12 mb-3">
+                <label for="casaNumCasa" class="form-label fw-medium">Número de Casa / Parcela</label>
+                <input formControlName="casaNum" type="text" class="form-control" id="casaNumCasa" placeholder="ej. Nº 45">
+              </div>
+            }
+            <!-- Si es Urbanización -->
+            @case ('urbanizacion') {
+              <div class="col-md-6 mb-3">
+                <label for="urbanizacionNombre" class="form-label fw-medium">Nombre de la Urbanización</label>
+                <input formControlName="urbanizacionNombre" type="text" class="form-control" id="urbanizacionNombre" placeholder="ej. Los Olivos">
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="casaNumChalet" class="form-label fw-medium">Número de Bloque / Chalet</label>
+                <input formControlName="casaNum" type="text" class="form-control" id="casaNumChalet" placeholder="ej. Chalet 12">
+              </div>
+            }
+          }
 
-              <!-- Si es Casa -->
-              <ng-container *ngSwitchCase="'casa'">
-                <div class="col-md-12 mb-3">
-                  <label for="casaNumCasa" class="form-label fw-medium">Número de Casa / Parcela</label>
-                  <input formControlName="casaNum" type="text" class="form-control" id="casaNumCasa" placeholder="ej. Nº 45">
-                </div>
-              </ng-container>
-
-              <!-- Si es Urbanización -->
-              <ng-container *ngSwitchCase="'urbanizacion'">
-                <div class="col-md-6 mb-3">
-                  <label for="urbanizacionNombre" class="form-label fw-medium">Nombre de la Urbanización</label>
-                  <input formControlName="urbanizacionNombre" type="text" class="form-control" id="urbanizacionNombre" placeholder="ej. Los Olivos">
-                </div>
-                <div class="col-md-6 mb-3">
-                  <label for="casaNumChalet" class="form-label fw-medium">Número de Bloque / Chalet</label>
-                  <input formControlName="casaNum" type="text" class="form-control" id="casaNumChalet" placeholder="ej. Chalet 12">
-                </div>
-              </ng-container>
-
-            </ng-container>
-
-            <!-- Instrucciones de Entrega -->
-            <div class="col-md-12 mb-2">
-              <label for="instruccionesEntrega" class="form-label fw-medium">Instrucciones Especiales de Entrega</label>
-              <textarea formControlName="instruccionesEntrega" id="instruccionesEntrega" class="form-control" rows="2" placeholder="ej. Dejar en recepción, llamar al timbre izquierdo..."></textarea>
-            </div>
+          <!-- Instrucciones de Entrega -->
+          <div class="col-md-12 mb-2">
+            <label for="instruccionesEntrega" class="form-label fw-medium">Instrucciones Especiales de Entrega</label>
+            <textarea formControlName="instruccionesEntrega" id="instruccionesEntrega" class="form-control" rows="2" placeholder="ej. Dejar en recepción, llamar al timbre izquierdo..."></textarea>
           </div>
         </div>
       </div>
+    </div>
 
-      <!-- Botones de Acción -->
-      <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
-        <button type="button" class="btn-crud-secondary" routerLink="/admin/gestionar-usuarios">
-          Cancelar
-        </button>
-        <button type="submit" class="btn-crud-primary" [disabled]="formulario.invalid">
-          {{ editar ? 'Guardar Cambios' : 'Crear Usuario' }}
-        </button>
-      </div>
+    <!-- Botones de Acción -->
+    <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
+      <button type="button" class="btn-crud-secondary" routerLink="/admin/gestionar-usuarios">
+        Cancelar
+      </button>
+      <button type="submit" class="btn-crud-primary" [disabled]="formulario.invalid">
+        {{ editar ? 'Guardar Cambios' : 'Crear Usuario' }}
+      </button>
+    </div>
 
-    </form>
-  </div>
+  </form>
+</div>
 </div>

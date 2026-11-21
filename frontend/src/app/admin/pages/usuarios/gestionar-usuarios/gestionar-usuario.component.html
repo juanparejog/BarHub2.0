@@ -19,27 +19,28 @@
 
   <!-- Tarjeta Principal del CRUD -->
   <div class="crud-card">
-    
+
     <!-- Barra Superior / Barra de Filtro Integrada -->
     <div class="table-toolbar d-flex flex-wrap align-items-center justify-content-between gap-3 p-3 border-bottom bg-light-subtle">
       <!-- Buscador Estilizado -->
       <div class="search-box position-relative">
         <i class="bi bi-search search-icon"></i>
-        <input 
-          type="text" 
-          class="form-control search-input" 
+        <input
+          type="text"
+          class="form-control search-input"
           placeholder="Buscar por nombre, apellidos, correo o rol..."
           [(ngModel)]="searchTerm"
           aria-label="Buscar">
-        <button 
-          *ngIf="searchTerm" 
-          class="btn-clear-search" 
-          type="button" 
-          (click)="searchTerm = ''"
-          title="Limpiar búsqueda"
-          >
-          <i class="bi bi-x-lg"></i>
-        </button>
+        @if (searchTerm) {
+          <button
+            class="btn-clear-search"
+            type="button"
+            (click)="searchTerm = ''"
+            title="Limpiar búsqueda"
+            >
+            <i class="bi bi-x-lg"></i>
+          </button>
+        }
       </div>
 
       <!-- Contador de registros -->
@@ -99,93 +100,96 @@
           </tr>
         </thead>
 
-        <tbody *ngIf="usuariosFiltrados.length > 0; else sinUsuarios">
-          <tr *ngFor="let usuario of usuariosFiltrados">
-            <!-- Avatar, Nombre completo y Username -->
-            <td class="ps-4">
-              <div class="d-flex align-items-center gap-3">
-                <!-- Imagen / Avatar de Perfil en Assets -->
-                <div class="user-avatar-wrapper position-relative" style="width: 42px; height: 42px;">
-                  <img [src]="obtenerImagenUsuario(usuario)" 
-                       [alt]="usuario.username" 
-                       (error)="onImgError($event)"
-                       class="rounded-circle border" 
-                       style="width: 42px; height: 42px; object-fit: cover;" />
-                  
-                  <!-- Fallback si la imagen no existe en assets/images/usuarios/ -->
-                  <div class="avatar-placeholder-fallback rounded-circle bg-body-tertiary align-items-center justify-content-center border d-none" 
-                       style="width: 42px; height: 42px;">
-                    <i class="bi bi-person-fill text-secondary fs-5"></i>
+        @if (usuariosFiltrados.length > 0) {
+          <tbody>
+            @for (usuario of usuariosFiltrados; track usuario) {
+              <tr>
+                <!-- Avatar, Nombre completo y Username -->
+                <td class="ps-4">
+                  <div class="d-flex align-items-center gap-3">
+                    <!-- Imagen / Avatar de Perfil en Assets -->
+                    <div class="user-avatar-wrapper position-relative" style="width: 42px; height: 42px;">
+                      <img [src]="obtenerImagenUsuario(usuario)"
+                        [alt]="usuario.username"
+                        (error)="onImgError($event)"
+                        class="rounded-circle border"
+                        style="width: 42px; height: 42px; object-fit: cover;" />
+                      <!-- Fallback si la imagen no existe en assets/images/usuarios/ -->
+                      <div class="avatar-placeholder-fallback rounded-circle bg-body-tertiary align-items-center justify-content-center border d-none"
+                        style="width: 42px; height: 42px;">
+                        <i class="bi bi-person-fill text-secondary fs-5"></i>
+                      </div>
+                    </div>
+                    <!-- Datos de Nombre y Nickname -->
+                    <div>
+                      <div class="fw-semibold text-body">
+                        {{ obtenerNombreCompleto(usuario) }}
+                      </div>
+                      @if (usuario.nombre || usuario.apellido1) {
+                        <div class="text-muted small">
+                          &#64;{{ usuario.username }}
+                        </div>
+                      }
+                    </div>
                   </div>
-                </div>
-
-                <!-- Datos de Nombre y Nickname -->
-                <div>
-                  <div class="fw-semibold text-body">
-                    {{ obtenerNombreCompleto(usuario) }}
+                </td>
+                <!-- Email -->
+                <td class="text-secondary">
+                  {{ usuario.email }}
+                </td>
+                <!-- Roles -->
+                <td>
+                  <div class="d-flex flex-wrap gap-1 align-items-center">
+                    @if (usuario.roles && usuario.roles.length > 0) {
+                      @for (rol of usuario.roles; track rol) {
+                        <span class="badge-role" [ngClass]="getRolClass(rol.nombre)">
+                          <i class="bi bi-shield-lock"></i>
+                          {{ formatearNombreRol(rol.nombre) }}
+                        </span>
+                      }
+                    } @else {
+                      <span class="badge-role text-muted bg-body-tertiary">Sin Roles</span>
+                    }
                   </div>
-                  <div class="text-muted small" *ngIf="usuario.nombre || usuario.apellido1">
-                    &#64;{{ usuario.username }}
+                </td>
+                <!-- Acciones -->
+                <td class="text-center">
+                  <div class="crud-actions">
+                    <i [routerLink]="['/admin/ver-usuario', usuario.id]"
+                      class="bi bi-eye-fill action-icon view"
+                    title="Ver usuario"></i>
+                    <i [routerLink]="['/admin/editar-usuarios', usuario.id]"
+                      class="bi bi-pencil-fill action-icon edit"
+                    title="Editar"></i>
+                    <button type="button"
+                      class="btn btn-link p-0 border-0 bg-transparent text-decoration-none"
+                      (click)="borrarUsuario(usuario)"
+                      title="Eliminar"
+                      aria-label="Eliminar">
+                      <i class="bi bi-trash3-fill action-icon delete"></i>
+                    </button>
                   </div>
-                </div>
-              </div>
-            </td>
-
-            <!-- Email -->
-            <td class="text-secondary">
-              {{ usuario.email }}
-            </td>
-
-            <!-- Roles -->
-            <td>
-              <div class="d-flex flex-wrap gap-1 align-items-center">
-                <ng-container *ngIf="usuario.roles && usuario.roles.length > 0; else sinRoles">
-                  <span *ngFor="let rol of usuario.roles" class="badge-role" [ngClass]="getRolClass(rol.nombre)">
-                    <i class="bi bi-shield-lock"></i>
-                    {{ formatearNombreRol(rol.nombre) }}
-                  </span>
-                </ng-container>
-                <ng-template #sinRoles>
-                  <span class="badge-role text-muted bg-body-tertiary">Sin Roles</span>
-                </ng-template>
-              </div>
-            </td>
-
-            <!-- Acciones -->
-            <td class="text-center">
-              <div class="crud-actions">
-                <i [routerLink]="['/admin/ver-usuario', usuario.id]" 
-                   class="bi bi-eye-fill action-icon view" 
-                   title="Ver usuario"></i>
-
-                <i [routerLink]="['/admin/editar-usuarios', usuario.id]" 
-                   class="bi bi-pencil-fill action-icon edit" 
-                   title="Editar"></i>
-
-                <button type="button" 
-                        class="btn btn-link p-0 border-0 bg-transparent text-decoration-none" 
-                        (click)="borrarUsuario(usuario)" 
-                        title="Eliminar" 
-                        aria-label="Eliminar">
-                  <i class="bi bi-trash3-fill action-icon delete"></i>
-                </button>
-              </div>
-            </td>
-          </tr>
-        </tbody>
-
-        <!-- Estado vacío -->
-        <ng-template #sinUsuarios>
+                </td>
+              </tr>
+            }
+          </tbody>
+        } @else {
           <tbody>
             <tr>
               <td colspan="4" class="text-center py-5 text-muted">
                 <i class="bi bi-people fs-1 d-block mb-2 text-secondary opacity-50"></i>
-                <span *ngIf="searchTerm">No se encontraron usuarios que coincidan con "<strong>{{ searchTerm }}</strong>".</span>
-                <span *ngIf="!searchTerm">No hay usuarios registrados en el sistema.</span>
+                @if (searchTerm) {
+                  <span>No se encontraron usuarios que coincidan con "<strong>{{ searchTerm }}</strong>".</span>
+                }
+                @if (!searchTerm) {
+                  <span>No hay usuarios registrados en el sistema.</span>
+                }
               </td>
             </tr>
           </tbody>
-        </ng-template>
+        }
+
+        <!-- Estado vacío -->
       </table>
     </div>
   </div>

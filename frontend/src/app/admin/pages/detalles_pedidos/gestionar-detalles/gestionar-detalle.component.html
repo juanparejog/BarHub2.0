@@ -1,186 +1,180 @@
-<div class="crud-container" *ngIf="detalles">
-  <!-- Header principal -->
-  <div class="crud-header">
-    <div>
-      <h1 class="crud-title">Detalles de los Pedidos</h1>
-      <p class="text-muted small mb-0">Listado general de líneas de pedido registradas en el sistema</p>
-    </div>
-    <div class="d-flex align-items-center gap-2">
-      <button [routerLink]="['../crear-detalle']" class="btn-crud-primary d-inline-flex align-items-center gap-2">
-        <i class="bi bi-plus-lg"></i>
-        <span>Nuevo Detalle</span>
-      </button>
-      <button [routerLink]="['../']" class="btn-crud-secondary d-inline-flex align-items-center gap-2">
-        <i class="bi bi-arrow-left"></i>
-        <span>Volver</span>
-      </button>
-    </div>
-  </div>
-
-  <!-- Contenedor / Tarjeta de la Tabla -->
-  <div class="crud-card">
-    
-    <!-- Barra Superior / Barra de Filtro Integrada -->
-    <div class="table-toolbar d-flex flex-wrap align-items-center justify-content-between gap-3 p-3 border-bottom bg-light-subtle">
-      <!-- Buscador Estilizado -->
-      <div class="search-box position-relative">
-        <i class="bi bi-search search-icon"></i>
-        <input 
-          type="text"
-          class="form-control search-input"
-          placeholder="Buscar por ID, pedido o producto..."
-          [(ngModel)]="searchTerm"
-          aria-label="Buscar"
-        >
-        <button 
-          *ngIf="searchTerm" 
-          class="btn-clear-search" 
-          type="button" 
-          (click)="searchTerm = ''"
-          title="Limpiar búsqueda">
-          <i class="bi bi-x-lg"></i>
+@if (detalles) {
+  <div class="crud-container">
+    <!-- Header principal -->
+    <div class="crud-header">
+      <div>
+        <h1 class="crud-title">Detalles de los Pedidos</h1>
+        <p class="text-muted small mb-0">Listado general de líneas de pedido registradas en el sistema</p>
+      </div>
+      <div class="d-flex align-items-center gap-2">
+        <button [routerLink]="['../crear-detalle']" class="btn-crud-primary d-inline-flex align-items-center gap-2">
+          <i class="bi bi-plus-lg"></i>
+          <span>Nuevo Detalle</span>
+        </button>
+        <button [routerLink]="['../']" class="btn-crud-secondary d-inline-flex align-items-center gap-2">
+          <i class="bi bi-arrow-left"></i>
+          <span>Volver</span>
         </button>
       </div>
-
-      <!-- Contador de registros -->
-      <div class="text-muted small fw-medium">
-        Mostrando <span class="text-body fw-bold">{{ detallesFiltrados.length }}</span> de {{ detalles.length }} detalles
-      </div>
     </div>
-
-    <!-- Tabla -->
-    <div class="table-responsive">
-      <table class="crud-table mb-0">
-        <thead>
-          <tr>
-            <!-- Columna ID Pedido -->
-            <th class="ps-4 sortable-th" (click)="sortBy('id_pedido')" (keydown.enter)="sortBy('id_pedido')" tabindex="0">
-              <div class="th-content">
-                <span>ID Pedido</span>
-                <span class="sort-icon" [ngClass]="{'active': sortColumn === 'id_pedido'}">
+    <!-- Contenedor / Tarjeta de la Tabla -->
+    <div class="crud-card">
+      <!-- Barra Superior / Barra de Filtro Integrada -->
+      <div class="table-toolbar d-flex flex-wrap align-items-center justify-content-between gap-3 p-3 border-bottom bg-light-subtle">
+        <!-- Buscador Estilizado -->
+        <div class="search-box position-relative">
+          <i class="bi bi-search search-icon"></i>
+          <input
+            type="text"
+            class="form-control search-input"
+            placeholder="Buscar por ID, pedido o producto..."
+            [(ngModel)]="searchTerm"
+            aria-label="Buscar"
+            >
+          @if (searchTerm) {
+            <button
+              class="btn-clear-search"
+              type="button"
+              (click)="searchTerm = ''"
+              title="Limpiar búsqueda">
+              <i class="bi bi-x-lg"></i>
+            </button>
+          }
+        </div>
+        <!-- Contador de registros -->
+        <div class="text-muted small fw-medium">
+          Mostrando <span class="text-body fw-bold">{{ detallesFiltrados.length }}</span> de {{ detalles.length }} detalles
+        </div>
+      </div>
+      <!-- Tabla -->
+      <div class="table-responsive">
+        <table class="crud-table mb-0">
+          <thead>
+            <tr>
+              <!-- Columna ID Pedido -->
+              <th class="ps-4 sortable-th" (click)="sortBy('id_pedido')" (keydown.enter)="sortBy('id_pedido')" tabindex="0">
+                <div class="th-content">
+                  <span>ID Pedido</span>
+                  <span class="sort-icon" [ngClass]="{'active': sortColumn === 'id_pedido'}">
                   <i class="bi" [ngClass]="{
                     'bi-sort-numeric-down': sortColumn === 'id_pedido' && sortDirection === 'asc',
                     'bi-sort-numeric-up-alt': sortColumn === 'id_pedido' && sortDirection === 'desc',
                     'bi-arrow-down-up': sortColumn !== 'id_pedido'
                   }"></i>
-                </span>
-              </div>
-            </th>
-
-            <!-- Columna Producto -->
-            <th class="sortable-th" (click)="sortBy('producto')" (keydown.enter)="sortBy('producto')" tabindex="0">
-              <div class="th-content">
-                <span>Producto</span>
-                <span class="sort-icon" [ngClass]="{'active': sortColumn === 'producto'}">
+                  </span>
+                </div>
+              </th>
+              <!-- Columna Producto -->
+              <th class="sortable-th" (click)="sortBy('producto')" (keydown.enter)="sortBy('producto')" tabindex="0">
+                <div class="th-content">
+                  <span>Producto</span>
+                  <span class="sort-icon" [ngClass]="{'active': sortColumn === 'producto'}">
                   <i class="bi" [ngClass]="{
                     'bi-sort-alpha-down': sortColumn === 'producto' && sortDirection === 'asc',
                     'bi-sort-alpha-up-alt': sortColumn === 'producto' && sortDirection === 'desc',
                     'bi-arrow-down-up': sortColumn !== 'producto'
                   }"></i>
-                </span>
-              </div>
-            </th>
-
-            <!-- Columna Cantidad -->
-            <th class="text-center sortable-th" (click)="sortBy('cantidad')" (keydown.enter)="sortBy('cantidad')" tabindex="0">
-              <div class="th-content justify-content-center">
-                <span>Cantidad</span>
-                <span class="sort-icon" [ngClass]="{'active': sortColumn === 'cantidad'}">
+                  </span>
+                </div>
+              </th>
+              <!-- Columna Cantidad -->
+              <th class="text-center sortable-th" (click)="sortBy('cantidad')" (keydown.enter)="sortBy('cantidad')" tabindex="0">
+                <div class="th-content justify-content-center">
+                  <span>Cantidad</span>
+                  <span class="sort-icon" [ngClass]="{'active': sortColumn === 'cantidad'}">
                   <i class="bi" [ngClass]="{
                     'bi-sort-numeric-down': sortColumn === 'cantidad' && sortDirection === 'asc',
                     'bi-sort-numeric-up-alt': sortColumn === 'cantidad' && sortDirection === 'desc',
                     'bi-arrow-down-up': sortColumn !== 'cantidad'
                   }"></i>
-                </span>
-              </div>
-            </th>
-
-            <!-- Columna Precio Unitario -->
-            <th class="text-end sortable-th" (click)="sortBy('precio_unitario')" (keydown.enter)="sortBy('precio_unitario')" tabindex="0">
-              <div class="th-content justify-content-end">
-                <span>Precio / Ud.</span>
-                <span class="sort-icon" [ngClass]="{'active': sortColumn === 'precio_unitario'}">
+                  </span>
+                </div>
+              </th>
+              <!-- Columna Precio Unitario -->
+              <th class="text-end sortable-th" (click)="sortBy('precio_unitario')" (keydown.enter)="sortBy('precio_unitario')" tabindex="0">
+                <div class="th-content justify-content-end">
+                  <span>Precio / Ud.</span>
+                  <span class="sort-icon" [ngClass]="{'active': sortColumn === 'precio_unitario'}">
                   <i class="bi" [ngClass]="{
                     'bi-sort-numeric-down': sortColumn === 'precio_unitario' && sortDirection === 'asc',
                     'bi-sort-numeric-up-alt': sortColumn === 'precio_unitario' && sortDirection === 'desc',
                     'bi-arrow-down-up': sortColumn !== 'precio_unitario'
                   }"></i>
-                </span>
-              </div>
-            </th>
-
-            <th class="text-center">Acciones</th>
-          </tr>
-        </thead>
-
-        <tbody *ngIf="detallesFiltrados.length > 0; else sinDetalles">
-          <tr *ngFor="let detalle of detallesFiltrados">
-            <!-- ID Pedido -->
-            <td class="ps-4">
-              <span class="badge bg-body-tertiary text-body border px-2 py-1 font-monospace">
-                #{{ detalle.id_pedido || 'N/A' }}
-              </span>
-            </td>
-
-            <!-- Producto -->
-            <td class="fw-semibold">
-              <div class="d-flex align-items-center gap-2">
-                <i class="bi bi-box-seam text-primary"></i>
-                <span>{{ detalle.producto?.nombre || 'Producto no encontrado' }}</span>
-              </div>
-            </td>
-
-            <!-- Cantidad -->
-            <td class="text-center">
-              <span class="badge rounded-pill bg-primary-subtle text-primary fw-bold px-3 py-1">
-                {{ detalle.cantidad }}
-              </span>
-            </td>
-
-            <!-- Precio Unitario -->
-            <td class="text-end font-monospace fw-semibold text-secondary">
-              {{ detalle.precio_unitario | currency:'EUR':'symbol':'1.2-2' }}
-            </td>
-
-            <!-- Acciones -->
-            <td class="text-center">
-              <div class="crud-actions">
-                <i [routerLink]="['/admin/ver-detalle', detalle.id]" 
-                   class="bi bi-eye-fill action-icon view" 
-                   title="Ver Detalle"></i>
-
-                <i [routerLink]="['/admin/editar-detalle', detalle.id]" 
-                   class="bi bi-pencil-fill action-icon edit" 
-                   title="Editar"></i>
-
-                <button type="button" 
-                        class="btn btn-link p-0 border-0 bg-transparent text-decoration-none" 
-                        (click)="borrarDetalle(detalle)" 
-                        title="Eliminar" 
-                        aria-label="Eliminar">
-                  <i class="bi bi-trash3-fill action-icon delete"></i>
-                </button>
-              </div>
-            </td>
-          </tr>
-        </tbody>
-
-        <!-- Estado vacío -->
-        <ng-template #sinDetalles>
-          <tbody>
-            <tr>
-              <td colspan="5" class="text-center py-5 text-muted">
-                <i class="bi bi-inbox fs-1 d-block mb-2 text-secondary opacity-50"></i>
-                <span *ngIf="searchTerm">No se encontraron detalles que coincidan con "<strong>{{ searchTerm }}</strong>".</span>
-                <span *ngIf="!searchTerm">No hay detalles de pedido registrados en el sistema.</span>
-              </td>
+                  </span>
+                </div>
+              </th>
+              <th class="text-center">Acciones</th>
             </tr>
-          </tbody>
-        </ng-template>
-      </table>
+          </thead>
+          @if (detallesFiltrados.length > 0) {
+            <tbody>
+              @for (detalle of detallesFiltrados; track detalle) {
+                <tr>
+                  <!-- ID Pedido -->
+                  <td class="ps-4">
+                    <span class="badge bg-body-tertiary text-body border px-2 py-1 font-monospace">
+                      #{{ detalle.id_pedido || 'N/A' }}
+                    </span>
+                  </td>
+                  <!-- Producto -->
+                  <td class="fw-semibold">
+                    <div class="d-flex align-items-center gap-2">
+                      <i class="bi bi-box-seam text-primary"></i>
+                      <span>{{ detalle.producto?.nombre || 'Producto no encontrado' }}</span>
+                    </div>
+                  </td>
+                  <!-- Cantidad -->
+                  <td class="text-center">
+                    <span class="badge rounded-pill bg-primary-subtle text-primary fw-bold px-3 py-1">
+                      {{ detalle.cantidad }}
+                    </span>
+                  </td>
+                  <!-- Precio Unitario -->
+                  <td class="text-end font-monospace fw-semibold text-secondary">
+                    {{ detalle.precio_unitario | currency:'EUR':'symbol':'1.2-2' }}
+                  </td>
+                  <!-- Acciones -->
+                  <td class="text-center">
+                    <div class="crud-actions">
+                      <i [routerLink]="['/admin/ver-detalle', detalle.id]"
+                        class="bi bi-eye-fill action-icon view"
+                      title="Ver Detalle"></i>
+                      <i [routerLink]="['/admin/editar-detalle', detalle.id]"
+                        class="bi bi-pencil-fill action-icon edit"
+                      title="Editar"></i>
+                      <button type="button"
+                        class="btn btn-link p-0 border-0 bg-transparent text-decoration-none"
+                        (click)="borrarDetalle(detalle)"
+                        title="Eliminar"
+                        aria-label="Eliminar">
+                        <i class="bi bi-trash3-fill action-icon delete"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          } @else {
+            <tbody>
+              <tr>
+                <td colspan="5" class="text-center py-5 text-muted">
+                  <i class="bi bi-inbox fs-1 d-block mb-2 text-secondary opacity-50"></i>
+                  @if (searchTerm) {
+                    <span>No se encontraron detalles que coincidan con "<strong>{{ searchTerm }}</strong>".</span>
+                  }
+                  @if (!searchTerm) {
+                    <span>No hay detalles de pedido registrados en el sistema.</span>
+                  }
+                </td>
+              </tr>
+            </tbody>
+          }
+          <!-- Estado vacío -->
+        </table>
+      </div>
     </div>
   </div>
-</div>
+}
 
 <!-- Modal General Reutilizable -->
 <app-modal-confirmar-eliminar
