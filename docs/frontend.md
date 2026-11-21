@@ -25,13 +25,13 @@ Archivos de la raíz `frontend/`:
 | `package.json` / `package-lock.json` | Dependencias y scripts (`npm start`, `npm build`, `npm test`) |
 | `Caddyfile` | Servidor estático del contenedor: caché (`immutable` para los bundles con hash, `no-cache` para el resto) y reescritura de rutas de la SPA |
 | `Dockerfile` | Multi-etapa (Node.js + Caddy) para producción, usuario no root y `HEALTHCHECK` |
-| `karma.conf.js` | Pruebas unitarias con Karma + Jasmine (se sustituirá por Vitest en la 2.1) |
 | `.editorconfig` | Estilo de código consistente entre editores |
 
 ```bash
 npm ci --legacy-peer-deps   # igual que en el CI y en Docker; alguna dependencia aún declara versiones antiguas de Angular
 npm start
-npm test
+npm test                              # tests unitarios con Vitest
+npx ng test --watch=false --coverage  # con cobertura (coverage/BarHub/lcov.info, el que lee SonarCloud)
 ```
 
 Versiones y decisiones de la migración a Angular 22 (versión 2.1):
@@ -44,7 +44,20 @@ Versiones y decisiones de la migración a Angular 22 (versión 2.1):
 | Node.js | 24, en Docker y en el CI |
 | Detección de cambios | `ChangeDetectionStrategy.Eager` en todos los componentes: la migración de la 22 conserva así el comportamiento de antes |
 | Plantillas | Parte de las plantillas ya usa el control flow nuevo (`@if`, `@for`) |
-| Ticket en PDF | `pdfmake` se carga con `import()` dinámico solo al generar el ticket, para no sumar unos 2 MB al arranque |
+| Ticket en PDF | `pdfmake` se carga con `import()` dinámico solo al generar el ticket: el bundle inicial bajó de 2,80 MB a 1,13 MB |
+| Tests | Vitest con jsdom (sin navegador), desde el builder `@angular/build:unit-test`; se ejecutan en el CI y su cobertura va a SonarCloud |
+
+Tests unitarios actuales:
+
+| Archivo | Qué comprueba |
+| :--- | :--- |
+| `services/theme.service.spec.ts` | Tema guardado frente a la preferencia del sistema, `data-bs-theme`, clase `dark-theme` e `isDarkMode$` |
+| `auth/role.guard.spec.ts` | Acceso por rol: admin, empleado, cliente y sin sesión |
+| `auth/auth.interceptor.spec.ts` | Cabecera `Bearer`, limpieza de la sesión y redirección al login ante un 401 |
+| `main/services/shared/services/dialog.service.spec.ts` | Toast sin interpretar HTML, modal y la confirmación cancelada que no se ejecuta después |
+| `app.component.spec.ts` | Título y estructura de menú, contenido y pie |
+| `public/home`, `shared/footer` | Que los componentes se crean |
+
 
 ## 2. Mapa de rutas y áreas
 

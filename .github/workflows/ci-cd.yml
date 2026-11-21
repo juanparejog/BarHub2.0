@@ -30,6 +30,13 @@ jobs:
           npm ci --legacy-peer-deps --ignore-scripts
           npm run build -- --configuration=production
 
+      - name: Tests del frontend con cobertura
+        run: |
+          cd frontend
+          npx ng test --watch=false --coverage
+          # SonarCloud lee las rutas del informe desde la raiz del repo
+          sed -i 's#^SF:src/#SF:frontend/src/#' coverage/BarHub/lcov.info
+
       - uses: actions/setup-java@d1374f8ac74474200d16ef8ecee22c7ae7a51880 # v6.3.0
         with:
           distribution: 'temurin'
@@ -51,14 +58,16 @@ jobs:
           args: >
             -Dsonar.organization=juanparejog
             -Dsonar.projectKey=juanparejog_BarHub2.0
-            -Dsonar.projectVersion=2.0.3
+            -Dsonar.projectVersion=2.1.0
             -Dsonar.sources=.
-            -Dsonar.exclusions=backend/build/**,backend/src/test/**,backend/src/main/resources/demo/**
-            -Dsonar.coverage.exclusions=frontend/**,seguridad/**
-            -Dsonar.tests=backend/src/test/java
+            -Dsonar.exclusions=backend/build/**,backend/src/test/**,backend/src/main/resources/demo/**,frontend/src/**/*.spec.ts
+            -Dsonar.coverage.exclusions=seguridad/**,frontend/src/**/*.module.ts,frontend/src/environments/**,frontend/src/main.ts
+            -Dsonar.tests=backend/src/test/java,frontend/src
+            -Dsonar.test.inclusions=backend/src/test/java/**,frontend/src/**/*.spec.ts
             -Dsonar.java.binaries=backend/build/classes/java/main
             -Dsonar.java.test.binaries=backend/build/classes/java/test
             -Dsonar.coverage.jacoco.xmlReportPaths=backend/build/reports/jacoco/test/jacocoTestReport.xml
+            -Dsonar.javascript.lcov.reportPaths=frontend/coverage/BarHub/lcov.info
 
   docker-build:
     needs: build-and-analyze

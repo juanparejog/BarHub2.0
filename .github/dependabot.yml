@@ -21,15 +21,6 @@ updates:
         update-types: ["version-update:semver-major"]
       - dependency-name: "@angular-devkit/*"
         update-types: ["version-update:semver-major"]
-      # Karma se sustituye por Vitest en la 2.1
-      - dependency-name: "karma"
-        update-types: ["version-update:semver-major"]
-      - dependency-name: "karma-*"
-        update-types: ["version-update:semver-major"]
-      - dependency-name: "jasmine-core"
-        update-types: ["version-update:semver-major"]
-      - dependency-name: "@types/jasmine"
-        update-types: ["version-update:semver-major"]
       - dependency-name: "zone.js"
         update-types: ["version-update:semver-major"]
       - dependency-name: "rxjs"

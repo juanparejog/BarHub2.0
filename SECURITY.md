@@ -55,7 +55,7 @@ Realiza las pruebas **solo en tu propia instancia local**. No ataques servidores
 
 El único uso de `bypassSecurityTrustResourceUrl` es el mapa de la ubicación del local: el origen de la URL es fijo (`maps.google.com`) y la dirección se codifica con `encodeURIComponent`, de modo que un usuario no puede cambiar el servidor ni el protocolo del `iframe`.
 
-Las herramientas de desarrollo (Angular CLI, Karma) no forman parte de lo que se sirve a los usuarios: solo afectan al equipo que compila. Karma se sustituirá por Vitest en la 2.1.
+Las herramientas de desarrollo (Angular CLI, Vitest) no forman parte de lo que se sirve a los usuarios: solo afectan al equipo que compila. Al sustituir Karma por Vitest desapareció la cadena `socket.io`/`ws` que arrastraba, y `npm audit` del frontend queda sin vulnerabilidades conocidas.
 
 Mitigaciones en el despliegue: cabeceras `Strict-Transport-Security`, `X-Content-Type-Options`, `X-Frame-Options` y `Referrer-Policy` desde Caddy, y el actuator no accesible desde fuera de la red de Docker.
 

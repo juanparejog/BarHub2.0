@@ -110,7 +110,14 @@
               "lcov"
             ],
             "buildTarget": ":build:testing",
-            "runner": "vitest"
+            "runner": "vitest",
+            "coverageInclude": [
+              "src/app/**/*.ts"
+            ],
+            "coverageExclude": [
+              "src/app/**/*.spec.ts",
+              "src/app/**/*.module.ts"
+            ]
           }
         }
       }

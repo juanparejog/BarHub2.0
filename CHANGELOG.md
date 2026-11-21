@@ -6,6 +6,10 @@ El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y e
 
 ## [Sin publicar]
 
+### Añadido
+- Tests unitarios del frontend con Vitest: 22 tests de `ThemeService`, `RoleGuard`, `AuthInterceptor`, `DialogService` y `AppComponent`, incluido uno que comprueba que el toast no interpreta HTML y otro de regresión para la confirmación cancelada.
+- CI: el pipeline ejecuta los tests del frontend con cobertura (si uno falla, el CI falla) y SonarCloud mide la cobertura del frontend además de la del backend. El análisis pasa a la versión `2.1.0`.
+
 ### Seguridad
 - La conexión entre el backend y MariaDB va cifrada con TLS y con el certificado del servidor verificado: el driver MariaDB Connector/J 4 lo hace por defecto (`sslMode=verify-full`) y MariaDB 13 genera y valida su certificado sin configuración.
 - El usuario de la aplicación queda obligado a usar TLS (`REQUIRE SSL`): una conexión sin cifrar se rechaza. En instalaciones nuevas lo aplica `infra/docker/initdb/10-tls-obligatorio.sh`; en las existentes se aplica una vez a mano.
@@ -13,7 +17,8 @@ El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y e
 ### Cambiado
 - Frontend: Angular 14 a **22**, versión a versión con `ng update` y sus migraciones oficiales (control flow `@if`/`@for`, `standalone: false` en los componentes de módulos, `ChangeDetectionStrategy.Eager` para conservar la detección de cambios anterior, `withXhr` en el cliente HTTP). TypeScript 4.8 a 6.0, zone.js 0.11 a 0.16 y Node 18 a 24 en Docker y en el CI. Cada salto se verificó con el build de producción y con capturas automáticas de las 36 pantallas en los dos temas.
 - Frontend: el build pasa del builder `browser` (Webpack) al builder `application` (esbuild): compila en unos 15 segundos en lugar de 30 a 55. La salida pasa a `dist/barhub/browser`, y el Dockerfile copia desde ahí.
-- Frontend: `pdfmake` y sus fuentes (cerca de 2 MB) se cargan solo al generar el ticket, con `import()` dinámico, en lugar de en el arranque.
+- Frontend: `pdfmake` y sus fuentes (cerca de 2 MB) se cargan solo al generar el ticket, con `import()` dinámico, en lugar de en el arranque. El bundle inicial baja de 2,80 MB a 1,13 MB (de 795 kB a 218 kB comprimido) y ya cumple el presupuesto de 2 MB.
+- Frontend: los tests pasan de Karma y Jasmine (con Chrome) a Vitest con jsdom (sin navegador), con la migración oficial de Angular. Se retiran 166 paquetes, entre ellos la cadena `socket.io`/`ws` de Karma, y `npm audit` queda sin vulnerabilidades. `src/test.ts`, `karma.conf.js` y `src/polyfills.ts` sobran (los polyfills se declaran directamente como `zone.js`).
 - Frontend: `tsconfig.json` sin las opciones que TypeScript 6 declara obsoletas: `baseUrl` pasa a `paths` (los imports `src/...` siguen igual), fuera `downlevelIteration` y `moduleResolution` pasa a `bundler`.
 - Frontend: se quitan los `overrides` de `package.json`, que parcheaban las herramientas de Angular 14; con las versiones nuevas sobran. Dependabot pasa de 53 alertas abiertas a 1.
 - Caddy: la regla que cachea un año los JS y CSS con hash reconoce los nombres de esbuild (`main-VMWQ63FG.js`).
@@ -38,6 +43,7 @@ El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y e
 
 
 ### Corregido
+- `AuthInterceptor`: ante un 401 (sesión caducada) redirigía a `/login`, una ruta que no existe, en lugar de a `/auth/login`, y no borraba `user` del almacenamiento, de modo que `isLoggedIn()` seguía devolviendo `true`.
 - `index.html`: el idioma del documento pasa de `en` a `es`, para que los lectores de pantalla lean el contenido en español, y se cierra la etiqueta `</html>`, que estaba incompleta.
 - `solicitarConfirmacion`: si se cancelaba una confirmación, su acción quedaba enganchada al botón Aceptar y se ejecutaba también en la siguiente.
 

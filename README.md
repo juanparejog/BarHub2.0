@@ -125,7 +125,7 @@ He intentado tratar la seguridad como parte del desarrollo y no como algo que se
 | **Snyk** | Dependencias del frontend | 29 incidencias | 25 (reanálisis del 15-nov-2026, antes de migrar a Angular 22), 24 de Angular 14 sin soporte |
 | **Trivy** | Dockerfiles | 1 HIGH y 2 LOW | 0 (usuario no root y `HEALTHCHECK`) |
 
-> El Quality Gate de SonarCloud se evalúa sobre el código nuevo de cada versión (`sonar.projectVersion`) y está superado desde la 2.0.3: la cobertura se mide en el backend con JaCoCo y los avisos que quedan están revisados. El frontend todavía no tiene tests con cobertura; llegarán en la 2.1, ya sobre Angular 22.
+> El Quality Gate de SonarCloud se evalúa sobre el código nuevo de cada versión (`sonar.projectVersion`) y está superado desde la 2.0.3: la cobertura se mide en el backend con JaCoCo y los avisos que quedan están revisados. Desde la 2.1 el frontend también tiene tests (Vitest) y su cobertura se envía a SonarCloud, de modo que el código nuevo del frontend tiene que cumplir el mismo 80 % que el backend.
 
 > [!IMPORTANT]
 > Los avisos de Spring Framework 6.2, Spring Security 6.5 y Angular 14 solo tenían corrección migrando de versión mayor. En la 2.1 el backend ya está en Spring Boot 4.2 (Spring Framework 7 y Spring Security 7) y el frontend en Angular 22: Dependabot ha pasado de 53 alertas abiertas a 1. Falta repetir los análisis de Snyk con las versiones nuevas, que es la siguiente auditoría de la [hoja de ruta](#estado-del-proyecto).
