@@ -6,7 +6,8 @@ COPY . .
 RUN npm run build -- --configuration=production
 
 FROM caddy:2-alpine
-COPY --from=builder /app/dist/barhub/. /usr/share/caddy/
+# El builder application de Angular deja la web en dist/barhub/browser
+COPY --from=builder /app/dist/barhub/browser/. /usr/share/caddy/
 COPY Caddyfile /etc/caddy/Caddyfile
 
 RUN addgroup -S barhub && adduser -S barhub -G barhub \

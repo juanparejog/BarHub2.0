@@ -1,12 +1,8 @@
 import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
-import * as pdfMake from 'pdfmake/build/pdfmake';
-import * as pdfFonts from 'pdfmake/build/vfs_fonts';
 import { loadStripe, Stripe, StripeElements } from '@stripe/stripe-js';
 import { PedidoService } from '../../admin/pages/pedidos/services/pedido';
 import { AuthService } from '../../auth/auth.service';
-
-(pdfMake as any).addVirtualFileSystem(pdfFonts);
 
 export type TipoPedido = 'MESA' | 'DOMICILIO' | 'RECOGER';
 
@@ -300,6 +296,26 @@ export class ConfirmarPedidoComponent implements OnInit {
       }
     };
 
-    (pdfMake as any).createPdf(docDefinition).download(`ticket_BarHub_BH-${pedidoId}.pdf`);
+    void this.descargarPdf(docDefinition, `ticket_BarHub_BH-${pedidoId}.pdf`);
+  }
+
+  /**
+   * pdfmake y sus fuentes pesan cerca de 2 MB: se cargan solo al generar el ticket, no al abrir la web.
+   * Son modulos CommonJS; con el builder de esbuild el contenido llega en `default`.
+   */
+  private async descargarPdf(docDefinition: unknown, nombreArchivo: string): Promise<void> {
+    try {
+      const [moduloPdf, moduloFuentes] = await Promise.all([
+        import('pdfmake/build/pdfmake'),
+        import('pdfmake/build/vfs_fonts')
+      ]);
+      const pdfMake: any = (moduloPdf as any).default ?? moduloPdf;
+      const fuentes: any = (moduloFuentes as any).default ?? moduloFuentes;
+      pdfMake.addVirtualFileSystem(fuentes);
+      pdfMake.createPdf(docDefinition).download(nombreArchivo);
+    } catch (error) {
+      console.error('No se pudo generar el ticket en PDF', error);
+      this.showToastMessage('No se pudo generar el ticket en PDF', 'error');
+    }
   }
 }
