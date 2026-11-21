@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { FormBuilder, FormGroup } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { switchMap } from "rxjs";
@@ -8,6 +8,7 @@ import { Producto } from "../interface/producto";
 @Component({
     selector: 'app-editar-productos',
     templateUrl: './editar-producto.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class EditarProductoComponent implements OnInit {

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { PedidoService } from '../pedidos/services/pedido';
 import { MesaService } from '../mesas/services/mesa';
 import { DetallesService } from '../detalles_pedidos/services/detalle';
@@ -8,6 +8,7 @@ import { Pedido } from '../pedidos/interface/pedido';
     selector: 'app-bienvenida',
     templateUrl: './bienvenida.component.html',
     styleUrls: ['./bienvenida.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class BienvenidaComponent implements OnInit {

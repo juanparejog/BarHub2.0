@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { AuthService } from '../../auth/auth.service';
@@ -21,6 +21,7 @@ interface ProductoSeleccionado {
     selector: 'app-carta',
     templateUrl: './carta.component.html',
     styleUrls: ['./carta.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class CartaComponent implements OnInit {

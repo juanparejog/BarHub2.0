@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CajaService } from './services/caja.service';
 import { Caja } from './interface/caja';
@@ -7,6 +7,7 @@ import { DialogService } from 'src/app/main/services/shared/services/dialog.serv
 @Component({
     selector: 'app-gestionar-caja',
     templateUrl: './gestionar-caja.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class GestionarCajaComponent implements OnInit {

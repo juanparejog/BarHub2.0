@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { MesaService } from '../services/mesa';
 import { Mesa } from '../interface/mesa';
 import { DialogService } from 'src/app/main/services/shared/services/dialog.service';
@@ -6,6 +6,7 @@ import { DialogService } from 'src/app/main/services/shared/services/dialog.serv
 @Component({
     selector: 'app-gestionar-mesa',
     templateUrl: './gestionar-mesa.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class GestionarMesaComponent implements OnInit {

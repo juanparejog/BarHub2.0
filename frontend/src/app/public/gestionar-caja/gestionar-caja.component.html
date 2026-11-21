@@ -126,14 +126,14 @@
               <span class="form-label fw-medium d-block">Descuadre / Diferencia Estimada</span>
               <div class="form-control fw-bold"
                  [ngClass]="{
-                   'text-success bg-success-subtle': diferenciaCalculada === 0 && formCierre.get('efectivoReal')?.value !== null,
+                   'text-success bg-success-subtle': diferenciaCalculada === 0 && $safeNavigationMigration(formCierre.get('efectivoReal')?.value) !== null,
                    'text-danger bg-danger-subtle': diferenciaCalculada < 0,
                    'text-warning bg-warning-subtle': diferenciaCalculada > 0
                  }">
-                @if (formCierre.get('efectivoReal')?.value === null) {
+                @if ($safeNavigationMigration(formCierre.get('efectivoReal')?.value) === null) {
                   <span class="text-muted fw-normal">Introduce el conteo...</span>
                 }
-                @if (formCierre.get('efectivoReal')?.value !== null) {
+                @if ($safeNavigationMigration(formCierre.get('efectivoReal')?.value) !== null) {
                   <span>
                     {{ diferenciaCalculada | currency:'EUR' }}
                     @if (diferenciaCalculada === 0) {

@@ -1,4 +1,4 @@
-import { Component, OnInit, ElementRef, ViewChild } from '@angular/core';
+import { Component, OnInit, ElementRef, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { forkJoin } from 'rxjs';
 
 import { PedidoService } from '../services/pedido';
@@ -12,6 +12,7 @@ declare var bootstrap: any;
 @Component({
     selector: 'app-gestionar-pedido',
     templateUrl: './gestionar-pedido.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class GestionarPedidoComponent implements OnInit {

@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { AppRoutingModule } from './app-routing.module';
 import { UicomponentsModule } from './uicomponents/uicomponents.module';
-import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi, withXhr } from '@angular/common/http';
 import { AuthInterceptor } from './auth/auth.interceptor';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { CartaComponent } from './public/carta/carta.component';
@@ -47,6 +47,6 @@ import { PerfilComponent } from './public/perfil/perfil.component';
         ReactiveFormsModule,
         SharedModule], providers: [
         { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
-        provideHttpClient(withInterceptorsFromDi())
+        provideHttpClient(withXhr(), withInterceptorsFromDi())
     ] })
 export class AppModule { }

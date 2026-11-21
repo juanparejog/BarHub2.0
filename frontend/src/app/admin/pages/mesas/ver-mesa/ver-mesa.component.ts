@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { switchMap } from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
 import { Mesa } from '../interface/mesa';
@@ -7,6 +7,7 @@ import { MesaService } from '../services/mesa';
 @Component({
     selector: 'app-ver-mesa',
     templateUrl: './ver-mesa.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class VerMesaComponent implements OnInit {

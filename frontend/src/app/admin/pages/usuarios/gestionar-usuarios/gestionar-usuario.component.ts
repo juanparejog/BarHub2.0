@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { UsuarioService } from '../services/usuario';
 import { Usuario } from '../interface/usuario';
 import { DialogService } from 'src/app/main/services/shared/services/dialog.service';
@@ -6,6 +6,7 @@ import { DialogService } from 'src/app/main/services/shared/services/dialog.serv
 @Component({
     selector: 'app-gestionar-usuario',
     templateUrl: './gestionar-usuario.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class GestionarUsuarioComponent implements OnInit {

@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { Subject, timer, of } from 'rxjs';
 import { switchMap, takeUntil, catchError } from 'rxjs/operators';
 import { PedidoService } from '../services/pedido';
@@ -8,6 +8,7 @@ import { Pedido } from '../interface/pedido';
     selector: 'app-seguimiento-pedidos',
     templateUrl: './seguimiento-pedidos.component.html',
     styleUrls: ['./seguimiento-pedidos.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class SeguimientoPedidosComponent implements OnInit, OnDestroy {

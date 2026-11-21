@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { DetallesService } from '../services/detalle';
 import { DetallesPedido } from '../interface/detalle';
 import { DialogService } from 'src/app/main/services/shared/services/dialog.service';
@@ -11,6 +11,7 @@ type SortableColumn = 'id_pedido' | 'producto' | 'cantidad' | 'precio_unitario';
 @Component({
     selector: 'app-gestionar-detalle',
     templateUrl: './gestionar-detalle.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class GestionarDetalleComponent implements OnInit {

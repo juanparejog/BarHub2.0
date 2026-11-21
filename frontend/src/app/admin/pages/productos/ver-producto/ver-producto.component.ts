@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { switchMap } from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
 import { Producto } from '../interface/producto';
@@ -7,6 +7,7 @@ import { ProductoService } from '../services/producto';
 @Component({
     selector: 'app-ver-producto',
     templateUrl: './ver-producto.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class VerProductoComponent implements OnInit {

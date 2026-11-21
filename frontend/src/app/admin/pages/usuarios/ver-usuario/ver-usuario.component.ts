@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { switchMap } from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
 import { Usuario } from '../interface/usuario';
@@ -7,6 +7,7 @@ import { UsuarioService } from '../services/usuario';
 @Component({
     selector: 'app-ver-usuario',
     templateUrl: './ver-usuario.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class VerUsuarioComponent implements OnInit {

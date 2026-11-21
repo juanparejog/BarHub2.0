@@ -181,7 +181,7 @@
   [mostrar]="mostrarModalEliminar"
   [titulo]="'Eliminar Detalle de Pedido'"
   [mensaje]="'¿Estás seguro de que deseas borrar este detalle del pedido? Esta acción no se puede deshacer.'"
-  [nombreElemento]="detalleAEliminar?.producto?.nombre ? ('Detalle de ' + detalleAEliminar?.producto?.nombre + ' (Pedido #' + detalleAEliminar?.id_pedido + ')') : ('Detalle #' + detalleAEliminar?.id)"
+  [nombreElemento]="detalleAEliminar?.producto?.nombre ? ('Detalle de ' + $safeNavigationMigration(detalleAEliminar?.producto?.nombre) + ' (Pedido #' + $safeNavigationMigration(detalleAEliminar?.id_pedido) + ')') : ('Detalle #' + $safeNavigationMigration(detalleAEliminar?.id))"
   (alConfirmar)="confirmarEliminacion()"
   (alCancelar)="cerrarModal()">
 </app-modal-confirmar-eliminar>

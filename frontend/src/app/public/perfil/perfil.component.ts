@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { UsuarioService } from '../../admin/pages/usuarios/services/usuario';
@@ -8,6 +8,7 @@ import { Usuario } from '../../admin/pages/usuarios/interface/usuario';
     selector: 'app-perfil',
     templateUrl: './perfil.component.html',
     styleUrls: ['./perfil.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class PerfilComponent implements OnInit {

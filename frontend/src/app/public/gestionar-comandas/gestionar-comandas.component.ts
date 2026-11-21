@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { Subject, timer } from 'rxjs';
 import { switchMap, takeUntil } from 'rxjs/operators';
 import { DetallesService } from '../../admin/pages/detalles_pedidos/services/detalle';
@@ -14,6 +14,7 @@ export interface EstadoOpcion {
     selector: 'app-gestionar-comandas',
     templateUrl: './gestionar-comandas.component.html',
     styleUrls: ['./gestionar-comandas.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class GestionarComandasComponent implements OnInit, OnDestroy {

@@ -1,6 +1,6 @@
 import { AuthService } from '../auth.service';
 import { Router } from '@angular/router';
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { catchError, of } from 'rxjs';
 import { environment } from '../../../environments/environment';
@@ -9,6 +9,7 @@ import { environment } from '../../../environments/environment';
     selector: 'app-register',
     templateUrl: './register.component.html',
     styleUrls: ['./register.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class RegisterComponent {

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { MesaService } from '../../admin/pages/mesas/services/mesa';
 import { Mesa } from '../../admin/pages/mesas/interface/mesa';
 
@@ -6,6 +6,7 @@ import { Mesa } from '../../admin/pages/mesas/interface/mesa';
     selector: 'app-gestionar-mesas-empleado',
     templateUrl: './gestionar-mesas-empleado.component.html',
     styleUrls: ['./gestionar-mesas-empleado.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class GestionarMesasEmpleadoComponent implements OnInit {

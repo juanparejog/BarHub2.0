@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { switchMap } from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
 import { UsuarioService } from "../../usuarios/services/usuario";
@@ -9,6 +9,7 @@ import { PedidoService } from '../services/pedido';
 @Component({
     selector: 'app-ver-pedido',
     templateUrl: './ver-pedido.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class VerPedidoComponent implements OnInit {

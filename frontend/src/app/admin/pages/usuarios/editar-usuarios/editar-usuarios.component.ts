@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { switchMap } from "rxjs";
@@ -14,6 +14,7 @@ function minimoUnRolValidator(control: AbstractControl): ValidationErrors | null
 @Component({
     selector: 'app-editar-usuario',
     templateUrl: './editar-usuario.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class EditarUsuarioComponent implements OnInit {

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import * as pdfMake from 'pdfmake/build/pdfmake';
 import * as pdfFonts from 'pdfmake/build/vfs_fonts';
@@ -32,6 +32,7 @@ interface PedidoTemporal {
     selector: 'app-confirmar-pedido',
     templateUrl: './confirmar-pedido.component.html',
     styleUrls: ['./confirmar-pedido.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class ConfirmarPedidoComponent implements OnInit {

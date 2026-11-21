@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { FormBuilder, FormGroup } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { DetallesService } from '../services/detalle';
@@ -10,6 +10,7 @@ import { forkJoin } from 'rxjs';
 @Component({
     selector: 'app-editar-detalle',
     templateUrl: './editar-detalle.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class EditarDetalleComponent implements OnInit {

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { ProductoService } from '../services/producto';
 import { Producto } from '../interface/producto';
 import { DialogService } from 'src/app/main/services/shared/services/dialog.service';
@@ -6,6 +6,7 @@ import { DialogService } from 'src/app/main/services/shared/services/dialog.serv
 @Component({
     selector: 'app-gestionar-producto',
     templateUrl: './gestionar-producto.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class GestionarProductoComponent implements OnInit {

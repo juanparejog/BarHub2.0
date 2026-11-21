@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { switchMap, forkJoin } from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
 import { PedidoService } from "../../pedidos/services/pedido";
@@ -9,6 +9,7 @@ import { DetallesService } from '../services/detalle';
 @Component({
     selector: 'app-ver-detalle',
     templateUrl: './ver-detalle.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class VerDetalleComponent implements OnInit {

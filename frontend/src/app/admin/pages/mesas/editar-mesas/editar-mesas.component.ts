@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { FormBuilder, FormGroup } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { switchMap } from "rxjs";
@@ -8,6 +8,7 @@ import { Mesa } from "../interface/mesa";
 @Component({
     selector: 'app-editar-mesa',
     templateUrl: './editar-mesa.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class EditarMesaComponent implements OnInit {

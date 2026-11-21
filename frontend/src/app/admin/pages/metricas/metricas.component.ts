@@ -1,4 +1,4 @@
-import { Component, OnInit, ElementRef, ViewChild, OnDestroy } from '@angular/core';
+import { Component, OnInit, ElementRef, ViewChild, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { forkJoin } from 'rxjs';
 import { PedidoService } from '../pedidos/services/pedido';
 import { DetallesService } from '../detalles_pedidos/services/detalle';
@@ -17,6 +17,7 @@ export interface ProductoRanking {
 @Component({
     selector: 'app-metricas',
     templateUrl: './metricas.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class MetricasComponent implements OnInit, OnDestroy {

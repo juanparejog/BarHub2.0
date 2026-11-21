@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { PedidoService } from "../services/pedido";
@@ -9,6 +9,7 @@ import { MesaService } from "../../mesas/services/mesa";
 @Component({
     selector: 'app-editar-pedido',
     templateUrl: './editar-pedido.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class EditarPedidoComponent implements OnInit {

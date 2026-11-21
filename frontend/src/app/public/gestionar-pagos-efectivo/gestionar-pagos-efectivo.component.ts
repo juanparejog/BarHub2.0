@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { PedidoService } from '../services/pedido';
 import { Pedido } from '../../public/interface/pedido';
 
@@ -6,6 +6,7 @@ import { Pedido } from '../../public/interface/pedido';
     selector: 'app-gestionar-pagos-efectivo',
     templateUrl: './gestionar-pagos-efectivo.component.html',
     styleUrls: ['./gestionar-pagos-efectivo.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class GestionarPagosEfectivoComponent implements OnInit {
