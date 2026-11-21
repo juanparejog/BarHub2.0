@@ -5,7 +5,7 @@ import { catchError } from 'rxjs/operators';
 import { Router } from '@angular/router';
 
 // Todo lo que se guarda al iniciar sesion: si el token caduca se borra entero
-const CLAVES_SESION = ['token', 'roles', 'username', 'usuarioId', 'id', 'imagen'];
+const CLAVES_SESION = ['token', 'roles', 'user', 'username', 'usuarioId', 'id', 'imagen'];
 
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
@@ -28,7 +28,7 @@ export class AuthInterceptor implements HttpInterceptor {
       catchError((error: HttpErrorResponse) => {
         if (error.status === 401) {
           CLAVES_SESION.forEach(k => localStorage.removeItem(k));
-          void this.router.navigate(['/login']);
+          void this.router.navigate(['/auth/login']);
         }
         return throwError(() => error);
       })
