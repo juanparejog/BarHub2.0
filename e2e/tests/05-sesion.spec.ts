@@ -53,4 +53,36 @@ test.describe('Sesión con token de acceso corto y renovación', () => {
     const conToken = await page.request.get('/api/usuarios/', { headers: { Authorization: `Bearer ${acceso}` } });
     expect(conToken.status()).toBe(401);
   });
+
+  /** Simula que el usuario lleva sin tocar nada hasta {@code restanteMs} antes del cierre por inactividad. */
+  async function inactivoHastaFaltar(page: import('@playwright/test').Page, restanteMs: number): Promise<void> {
+    await page.evaluate((restante) => {
+      const { inactividadMs } = JSON.parse(localStorage.getItem('sesion') ?? '{}');
+      localStorage.setItem('sesionInteraccion', String(Date.now() - inactividadMs + restante));
+    }, restanteMs);
+  }
+
+  test('avisa antes de cerrar por inactividad y "Seguir conectado" mantiene la sesión', async ({ page }) => {
+    await iniciarSesion(page, ADMIN.usuario, ADMIN.clave);
+    await inactivoHastaFaltar(page, 60_000);
+
+    const aviso = page.getByRole('alertdialog', { name: '¿Sigues ahí?' });
+    await expect(aviso).toBeVisible();
+    await expect(aviso).toContainText(/0:5\d|1:00/);
+
+    const renovacion = page.waitForResponse(r => r.url().endsWith('/api/auth/refresh'));
+    await aviso.getByRole('button', { name: 'Seguir conectado' }).click();
+    expect((await renovacion).status()).toBe(200);
+    await expect(aviso).toBeHidden();
+  });
+
+  test('si nadie responde al aviso, la sesión se cierra también en el servidor', async ({ page, context }) => {
+    await iniciarSesion(page, ADMIN.usuario, ADMIN.clave);
+    await inactivoHastaFaltar(page, 3_000);
+
+    await expect(page.getByRole('alertdialog', { name: '¿Sigues ahí?' })).toBeVisible();
+    await expect(page).toHaveURL(/\/auth\/login\?sesion=caducada$/, { timeout: 15_000 });
+    await expect(page.getByText('Tu sesión ha caducado. Vuelve a iniciar sesión.')).toBeVisible();
+    await expect.poll(async () => (await context.cookies()).some(c => c.name === COOKIE)).toBe(false);
+  });
 });

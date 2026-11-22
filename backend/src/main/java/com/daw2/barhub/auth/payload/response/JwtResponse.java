@@ -12,6 +12,10 @@ public class JwtResponse {
   private final String username;
   private final String email;
   private final List<String> roles;
+  /** Final de la sesion por su duracion maxima (milisegundos desde 1970), para el aviso del frontend. */
+  private Long sesionCaducaEn;
+  /** Inactividad maxima de la sesion, en segundos. */
+  private Long sesionInactividadSegundos;
 
   public JwtResponse(String accessToken, Long id, String username, String email, List<String> roles) {
     this.token = accessToken;

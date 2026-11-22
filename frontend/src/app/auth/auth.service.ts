@@ -4,6 +4,7 @@ import { Observable, BehaviorSubject } from 'rxjs';
 import { JwtHelperService } from '@auth0/angular-jwt'; 
 import { Router } from '@angular/router';
 import { environment } from '../../environments/environment';
+import { RespuestaSesion, guardarLimitesSesion } from './sesion-limites';
 
 @Injectable({
   providedIn: 'root'
@@ -27,7 +28,7 @@ export class AuthService {
     this.limpiarSesion();
     return new Observable(observer => {
       // withCredentials: el backend entrega la cookie HttpOnly de renovacion
-      this.http.post<{ token: string }>(`${this.apiUrl}/login`, credentials, { withCredentials: true }).subscribe({
+      this.http.post<RespuestaSesion>(`${this.apiUrl}/login`, credentials, { withCredentials: true }).subscribe({
         next: (res) => {
           if (!res.token) {
             observer.error('El servidor no devolvió un token');
@@ -35,6 +36,7 @@ export class AuthService {
           }
   
           localStorage.setItem(this.tokenKey, res.token);
+          guardarLimitesSesion(res, true);
           
           try {
             const decodedToken = this.jwtHelper.decodeToken(res.token);
@@ -69,11 +71,16 @@ export class AuthService {
     return this.http.post(`${this.apiUrl}/register`, data);
   }
 
-  logout(): void {
+  /** Con motivo 'caducada' lleva al login con el aviso de sesion caducada; si no, a la portada. */
+  logout(motivo?: 'caducada'): void {
     // Cierra la sesion en el servidor: dejan de valer la cookie de renovacion y el token de acceso
     this.http.post(`${this.apiUrl}/logout`, null, { withCredentials: true }).subscribe({ error: () => undefined });
     this.limpiarSesion();
-    void this.router.navigate(['/']);
+    if (motivo === 'caducada') {
+      void this.router.navigate(['/auth/login'], { queryParams: { sesion: 'caducada' } });
+    } else {
+      void this.router.navigate(['/']);
+    }
   }
 
   private limpiarSesion(): void {

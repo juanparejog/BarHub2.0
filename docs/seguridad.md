@@ -58,6 +58,7 @@ flowchart LR
 
 - **Un único interceptor HTTP** en el frontend (`auth.interceptor.ts`): añade el token, renueva al recibir un 401 y repite la petición sin que el usuario lo note (varias peticiones caducadas comparten una sola renovación). Si la sesión ya no se puede renovar, lleva al login con el aviso de sesión caducada.
 - **Cerrar sesión** revoca la sesión en el servidor (`POST /api/auth/logout`) y borra la cookie.
+- **Avisos antes del cierre** (`SesionAvisoService`): dos minutos antes del cierre por inactividad aparece "¿Sigues ahí?" con cuenta atrás. "Seguir conectado" renueva la sesión; sin respuesta, se cierra también en el servidor y el login muestra el aviso. Cinco minutos antes de la duración máxima se avisa de la hora de cierre, que no se puede alargar. La inactividad se mide por la interacción del usuario y se comparte entre pestañas. Si el usuario está activo en una pantalla que no hace peticiones (leyendo o rellenando un formulario), la sesión se renueva en segundo plano para que el servidor no la cierre mientras tanto.
 - **Control por roles** (`role_admin`, `role_cliente`, `role_empleado`) en dos capas:
   - **Backend:** barrera real, con Spring Security y `UserDetailsImpl`.
   - **Frontend:** `auth.guard.ts`, `role.guard.ts` y `auth.interceptor.ts`, que mejoran la experiencia pero **no sustituyen** al backend.
@@ -126,6 +127,6 @@ Resultado de la última ejecución (22 de noviembre de 2026): 53 OK y 0 fallos, 
 | Verificación de correo | No implementada: el registro no envía ni exige confirmación por correo |
 | Límite de intentos | El login bloquea 15 minutos tras 5 fallos seguidos de un mismo usuario (desde la 2.0.1); el bloqueo es por usuario y no por IP, y la creación de pedidos sigue sin límite |
 | Token de acceso en `localStorage` | El token de acceso (15 min) sigue en `localStorage`; el de renovación ya no es accesible desde JavaScript. La CSP estricta de la 2.1 reduce el riesgo de XSS que podría leerlo |
-| Actividad en pantallas que se refrescan solas | Las pantallas con refresco automático (seguimiento, comandas) cuentan como actividad: un monitor de cocina abierto no caduca por inactividad, aunque sí al llegar a la duración máxima |
+| Pantallas que se refrescan solas | El cierre por inactividad lo decide la interacción del usuario, no las peticiones automáticas: un monitor de comandas que nadie toca durante 30 minutos pide confirmación y, sin respuesta, se cierra |
 | Uptime Kuma | Publicado en el puerto 3001; ver mejoras en [infraestructura.md](infraestructura.md#13-mejoras-recomendadas) |
 | Dependencias sin parche compatible | `jaxb-core` 4.0.9 (XXE, no explotable: BarHub no lee XML de fuera) y `jakarta.validation-api` 3.1.1 (baja, corrección solo en una versión preliminar). Queda 1 alerta de Dependabot por revisar |

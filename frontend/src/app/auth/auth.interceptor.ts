@@ -6,9 +6,11 @@ import { Observable, throwError } from 'rxjs';
 import { catchError, finalize, map, shareReplay, switchMap } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import { environment } from '../../environments/environment';
+import { CLAVE_CONTACTO, CLAVE_INTERACCION, CLAVE_LIMITES, RespuestaSesion, guardarLimitesSesion } from './sesion-limites';
 
 // Todo lo que se guarda al iniciar sesion: si la sesion caduca se borra entero
-const CLAVES_SESION = ['token', 'roles', 'user', 'username', 'usuarioId', 'id', 'imagen'];
+const CLAVES_SESION = ['token', 'roles', 'user', 'username', 'usuarioId', 'id', 'imagen',
+  CLAVE_LIMITES, CLAVE_INTERACCION, CLAVE_CONTACTO];
 
 // En estas rutas un 401 no es un token caducado: login con credenciales malas, renovacion fallida...
 const RUTAS_SIN_RENOVACION = ['/auth/login', '/auth/signup', '/auth/refresh', '/auth/logout'];
@@ -67,10 +69,11 @@ export class AuthInterceptor implements HttpInterceptor {
   private renovar(): Observable<string> {
     if (!this.renovacion$) {
       this.renovacion$ = this.httpSinInterceptores
-        .post<{ token: string }>(`${environment.urlBackendSpring}/auth/refresh`, null, { withCredentials: true })
+        .post<RespuestaSesion>(`${environment.urlBackendSpring}/auth/refresh`, null, { withCredentials: true })
         .pipe(
           map(respuesta => {
             localStorage.setItem('token', respuesta.token);
+            guardarLimitesSesion(respuesta, false);
             return respuesta.token;
           }),
           finalize(() => (this.renovacion$ = null)),

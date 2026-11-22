@@ -12,6 +12,7 @@ import com.daw2.barhub.auth.repository.RoleRepository;
 import com.daw2.barhub.auth.repository.UserRepository;
 import com.daw2.barhub.auth.services.LoginAttemptService;
 import com.daw2.barhub.auth.services.UserDetailsImpl;
+import com.daw2.barhub.auth.sesion.Sesion;
 import com.daw2.barhub.auth.sesion.SesionInvalidaException;
 import com.daw2.barhub.auth.sesion.SesionProperties;
 import com.daw2.barhub.auth.sesion.SesionService;
@@ -102,7 +103,7 @@ public class AuthController {
 
     return ResponseEntity.ok()
             .header(HttpHeaders.SET_COOKIE, cookieRenovacion(nueva.tokenRenovacion(), nueva.sesion().getCaducaEn()).toString())
-            .body(respuesta(jwt, userDetails));
+            .body(respuesta(jwt, userDetails, nueva.sesion()));
   }
 
   /**
@@ -123,7 +124,7 @@ public class AuthController {
         ok.header(HttpHeaders.SET_COOKIE,
                 cookieRenovacion(renovacion.tokenRenovacion(), renovacion.sesion().getCaducaEn()).toString());
       }
-      return ok.body(respuesta(jwt, userDetails));
+      return ok.body(respuesta(jwt, userDetails, renovacion.sesion()));
     } catch (SesionInvalidaException e) {
       return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
               .header(HttpHeaders.SET_COOKIE, cookieBorrada().toString())
@@ -146,9 +147,12 @@ public class AuthController {
             .collect(Collectors.toList());
   }
 
-  private static JwtResponse respuesta(String jwt, UserDetailsImpl userDetails) {
-    return new JwtResponse(jwt, userDetails.getId(), userDetails.getUsername(), userDetails.getEmail(),
-            roles(userDetails));
+  private static JwtResponse respuesta(String jwt, UserDetailsImpl userDetails, Sesion sesion) {
+    JwtResponse respuesta = new JwtResponse(jwt, userDetails.getId(), userDetails.getUsername(),
+            userDetails.getEmail(), roles(userDetails));
+    respuesta.setSesionCaducaEn(sesion.getCaducaEn().toEpochMilli());
+    respuesta.setSesionInactividadSegundos(sesion.getInactividadSegundos());
+    return respuesta;
   }
 
   private String leerCookie(HttpServletRequest request) {

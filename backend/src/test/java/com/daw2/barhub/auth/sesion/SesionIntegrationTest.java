@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.hamcrest.Matchers.containsString;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -101,7 +102,10 @@ class SesionIntegrationTest {
                 .andExpect(header().string(HttpHeaders.SET_COOKIE, containsString("HttpOnly")))
                 .andExpect(header().string(HttpHeaders.SET_COOKIE, containsString("Secure")))
                 .andExpect(header().string(HttpHeaders.SET_COOKIE, containsString("SameSite=Strict")))
-                .andExpect(header().string(HttpHeaders.SET_COOKIE, containsString("Path=/api/auth")));
+                .andExpect(header().string(HttpHeaders.SET_COOKIE, containsString("Path=/api/auth")))
+                // limites del cliente para el aviso del frontend: 1 hora de inactividad
+                .andExpect(jsonPath("$.sesionInactividadSegundos").value(3600))
+                .andExpect(jsonPath("$.sesionCaducaEn").isNumber());
     }
 
     @Test
