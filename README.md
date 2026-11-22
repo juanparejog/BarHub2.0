@@ -162,15 +162,15 @@ Además de las auditorías estáticas, he probado el backend en ejecución (inst
 
 ```mermaid
 flowchart LR
-    A["Push"] --> B["GitHub Actions"]
-    B --> C["SonarCloud<br/>análisis estático"]
-    B --> D["Instalación<br/>y build"]
-    D --> E["Imagen Docker<br/>multi-stage"]
-    C -.->|Quality Gate| E
+    A["Push"] --> B["Build y tests<br/>(Vitest y JUnit)"]
+    B --> C["SonarCloud<br/>Quality Gate"]
+    A --> D["Tests E2E<br/>(Playwright con Docker Compose)"]
+    C --> E["Imagen Docker<br/>multi-stage"]
+    D --> E
     E --> F["Docker Hub"]
 ```
 
-El pipeline compila el frontend, ejecuta los tests del backend con cobertura (JaCoCo), lo analiza todo en SonarCloud y publica la imagen en Docker Hub.
+El pipeline compila el frontend, ejecuta sus tests (Vitest) y los del backend (JUnit), con cobertura de los dos, y lo analiza todo en SonarCloud. En paralelo levanta la aplicación completa con Docker Compose y la recorre con Playwright: registro, pedido con ticket en PDF, comandas, caja y panel de administración ([`e2e/`](./e2e)). La imagen solo se publica en Docker Hub si pasa todo.
 
 <details>
 <summary><b>Prácticas de seguridad aplicadas</b></summary>
@@ -304,6 +304,7 @@ BarHub2.0/
 │   └── CODEOWNERS       Revisión de pipeline, infra y bastionado
 ├── backend/             API REST (Spring Boot)
 ├── frontend/            Aplicación web (Angular)
+├── e2e/                 Tests de extremo a extremo (Playwright)
 ├── infra/
 │   ├── caddy/           Caddyfile (proxy inverso y HTTPS)
 │   ├── docker/          docker-compose.yml y .env.example

@@ -23,7 +23,8 @@ export class AuthService {
   constructor(private readonly http: HttpClient, private readonly router: Router) {}
 
   login(credentials: { username: string; password: string }): Observable<{ token: string }> {
-    this.logout();
+    // Sin navegar: si las credenciales fallan, el aviso tiene que verse en el mismo formulario
+    this.limpiarSesion();
     return new Observable(observer => {
       this.http.post<{ token: string }>(`${this.apiUrl}/login`, credentials).subscribe({
         next: (res) => {
@@ -68,10 +69,14 @@ export class AuthService {
   }
 
   logout(): void {
+    this.limpiarSesion();
+    void this.router.navigate(['/']);
+  }
+
+  private limpiarSesion(): void {
     localStorage.clear();
     this.rolesSubject.next([]);
     this.isAuthenticatedSubject.next(false);
-    void this.router.navigate(['/']);
   }
 
   isAuthenticated(): boolean {

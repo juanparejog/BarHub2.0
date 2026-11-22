@@ -45,7 +45,7 @@ Versiones y decisiones de la migración a Angular 22 (versión 2.1):
 | Detección de cambios | `ChangeDetectionStrategy.Eager` en todos los componentes: la migración de la 22 conserva así el comportamiento de antes |
 | Plantillas | Parte de las plantillas ya usa el control flow nuevo (`@if`, `@for`) |
 | Ticket en PDF | `pdfmake` se carga con `import()` dinámico solo al generar el ticket: el bundle inicial bajó de 2,80 MB a 1,13 MB |
-| Tests | Vitest con jsdom (sin navegador), desde el builder `@angular/build:unit-test`; se ejecutan en el CI y su cobertura va a SonarCloud |
+| Tests | Vitest con jsdom (sin navegador), desde el builder `@angular/build:unit-test`; se ejecutan en el CI y su cobertura va a SonarCloud. Los recorridos completos en navegador están en [`e2e/`](../e2e/README.md) (Playwright) |
 
 Tests unitarios actuales:
 

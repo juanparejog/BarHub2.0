@@ -46,6 +46,9 @@ backend/logs/
 # 3. Frontend (Angular / Node / npm)
 # ------------------------------------------
 frontend/node_modules/
+e2e/node_modules/
+e2e/test-results/
+e2e/playwright-report/
 frontend/dist/
 frontend/tmp/
 frontend/out-tsc/

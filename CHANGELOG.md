@@ -7,6 +7,8 @@ El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y e
 ## [Sin publicar]
 
 ### Añadido
+- Tests E2E con Playwright (`e2e/`): 11 tests que recorren la aplicación completa en Chromium. Cubren la portada y la carta, el acceso denegado a visitantes y clientes, el login incorrecto, el registro, un pedido para recoger con su ticket en PDF y su seguimiento, la comanda y su cambio de estado, la caja con su arqueo y el panel de administración. Fallan también si la página lanza un error de JavaScript, y no dependen de servicios de terceros.
+- CI: job `e2e` que levanta MariaDB, backend, frontend y Caddy con Docker Compose y claves aleatorias, y ejecuta los tests E2E. La imagen solo se publica en Docker Hub si pasan; si fallan, el informe de Playwright queda como artefacto. Dependabot vigila también las dependencias de `e2e/`.
 - Tests unitarios del frontend con Vitest: 22 tests de `ThemeService`, `RoleGuard`, `AuthInterceptor`, `DialogService` y `AppComponent`, incluido uno que comprueba que el toast no interpreta HTML y otro de regresión para la confirmación cancelada.
 - CI: el pipeline ejecuta los tests del frontend con cobertura (si uno falla, el CI falla) y SonarCloud mide la cobertura del frontend además de la del backend. El análisis pasa a la versión `2.1.0`.
 
@@ -18,6 +20,7 @@ El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y e
 - El usuario de la aplicación queda obligado a usar TLS (`REQUIRE SSL`): una conexión sin cifrar se rechaza. En instalaciones nuevas lo aplica `infra/docker/initdb/10-tls-obligatorio.sh`; en las existentes se aplica una vez a mano.
 
 ### Cambiado
+- Documentación: la sección de CI/CD de `infraestructura.md` describe el pipeline actual (estaba desfasada), y el README incluye los tests E2E.
 - SonarCloud: revisión tras las migraciones ([auditorias.md](docs/auditorias.md)). `main.ts` arranca con `platformBrowser` en lugar de `platformBrowserDynamic`, obsoleto en Angular 22, y se usa `replaceAll` en el seguimiento de pedidos. Los 60 avisos de movimiento reducido (`css:S9440`) se excluyen del análisis porque la regla global de `styles.css` ya cubre todos los componentes; los dos avisos que no se pueden corregir quedan aceptados con su motivo.
 - Backend: `spring.jpa.open-in-view` desactivado. La sesión de Hibernate ya no queda abierta hasta que se escribe la respuesta: los detalles de los pedidos (con su producto) y los roles de los usuarios se cargan en la misma consulta con `@EntityGraph`, en lugar de con una consulta extra por pedido o usuario al convertir a DTO. La actualización de un pedido lee y guarda en la misma transacción, y `PUT /seguimientos/{id}` devuelve el pedido como DTO en lugar de la entidad. Un test de integración sin transacción recorre los nueve endpoints afectados.
 - Frontend: Angular 14 a **22**, versión a versión con `ng update` y sus migraciones oficiales (control flow `@if`/`@for`, `standalone: false` en los componentes de módulos, `ChangeDetectionStrategy.Eager` para conservar la detección de cambios anterior, `withXhr` en el cliente HTTP). TypeScript 4.8 a 6.0, zone.js 0.11 a 0.16 y Node 18 a 24 en Docker y en el CI. Cada salto se verificó con el build de producción y con capturas automáticas de las 36 pantallas en los dos temas.
@@ -49,6 +52,7 @@ El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y e
 
 
 ### Corregido
+- Login: con credenciales incorrectas no se veía ningún aviso. `AuthService.login()` navegaba a la portada antes de enviar la petición y, al llegar el 401, el interceptor volvía a abrir un login nuevo y vacío, así que el mensaje se quedaba en el formulario anterior. Pasaba lo mismo con el aviso del bloqueo por intentos fallidos (429). Ahora el login limpia la sesión sin navegar y el interceptor no trata el 401 de `/auth/login` como una sesión caducada. Lo detectaron los tests E2E.
 - Caja: no tener una caja abierta devolvía un 500 con la traza en el log cada vez que un empleado entraba en la pantalla; ahora `GET /caja/actual` responde 204 sin contenido. Abrir con otra caja abierta o cerrar sin ninguna respondía 500 y el empleado veía un mensaje genérico; ahora responde 409 con el motivo. Con tests del controlador y del servicio del frontend.
 - `AuthInterceptor`: ante un 401 (sesión caducada) redirigía a `/login`, una ruta que no existe, en lugar de a `/auth/login`, y no borraba `user` del almacenamiento, de modo que `isLoggedIn()` seguía devolviendo `true`.
 - `index.html`: el idioma del documento pasa de `en` a `es`, para que los lectores de pantalla lean el contenido en español, y se cierra la etiqueta `</html>`, que estaba incompleta.

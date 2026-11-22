@@ -415,44 +415,48 @@ docker compose ps                          # los contenedores siguen sanos
 
 ## 11. CI/CD con GitHub Actions
 
-Pipeline del frontend: calidad → compilación → imagen Docker → publicación.
+El workflow `.github/workflows/ci-cd.yml` se ejecuta en cada push y pull request a `main` y tiene tres jobs.
 
 ```mermaid
 flowchart LR
-    A[Push / PR] --> B[npm install]
-    B --> C[Build Angular]
-    C --> D[SonarCloud]
-    D -- "Quality Gate OK" --> E[Build imagen Docker]
-    E --> F["Login Docker Hub<br/>(PAT)"]
-    F --> G[Push imagen]
+    A[Push / PR] --> B["build-and-analyze<br/>build, Vitest, JUnit"]
+    B --> C[SonarCloud]
+    A --> D["e2e<br/>Docker Compose + Playwright"]
+    C --> E["docker-build<br/>(solo en main)"]
+    D --> E
+    E --> F[Docker Hub]
 ```
 
-> **Estado:** el pipeline cubre el frontend y SonarCloud analiza el repositorio en cada push (primer análisis completo el 15 de noviembre de 2026). El pipeline del backend está pendiente.
+| Job | Qué hace |
+| :--- | :--- |
+| `build-and-analyze` | `npm ci --ignore-scripts` y build de producción del frontend; tests del frontend con cobertura (Vitest); tests del backend con cobertura (JUnit y JaCoCo, Java 21); análisis de SonarCloud con las dos coberturas |
+| `e2e` | Genera claves aleatorias en un `.env` temporal, levanta MariaDB, backend, frontend y Caddy con `docker compose` y los datos de demostración, espera a que la API sirva la carta y ejecuta los tests de Playwright ([`e2e/README.md`](../e2e/README.md)). Si fallan, sube el informe con capturas y trazas como artefacto durante 7 días |
+| `docker-build` | Solo en `main`, y solo si los dos anteriores terminan bien: construye la imagen del frontend y la publica en Docker Hub |
 
 ### 11.1. Análisis estático continuo (SonarCloud)
 
-- **Migración a la nube** desde una instancia local de SonarQube, centralizando calidad y seguridad en cada ciclo.
-- **Integración del proyecto:** repositorio vinculado a la organización, con su *Project Key* único.
-- **Resolución de conflictos:** se desactivó el **Análisis Automático** en SonarCloud para evitar colisiones con el escáner del CI.
-- **Base del código nuevo:** el análisis declara `sonar.projectVersion=2.0.0` y SonarCloud usa «Previous version», de modo que el Quality Gate evalúa el código posterior a esa versión. La cobertura global (0 %) y la duplicación global (1,7 %) siguen visibles en Overall Code.
-- **Endurecimiento del workflow:** acciones fijadas por SHA, permisos mínimos (`contents: read`), `npm ci --ignore-scripts` y análisis omitido en los PR de Dependabot, que no reciben los secretos del repositorio.
+- **Integración:** el escáner se ejecuta desde el CI; el análisis automático de SonarCloud está desactivado para que no choquen.
+- **Código nuevo:** el análisis declara `sonar.projectVersion` (ahora `2.1.0`) y SonarCloud usa «Previous version», de modo que el Quality Gate evalúa el código posterior a esa versión. Los valores globales siguen visibles en Overall Code.
+- **Cobertura:** JaCoCo en el backend y lcov de Vitest en el frontend. Los tests (JUnit, `*.spec.ts` y `e2e/`) se declaran como tests y no cuentan como código fuente.
+- **Exclusión justificada:** la regla `css:S9440` (movimiento reducido) no se aplica a los CSS de componentes, porque la regla global de `styles.css` ya los cubre ([auditorias.md](auditorias.md)).
 
-### 11.2. Dependencias y compilación
+### 11.2. Endurecimiento del workflow
 
-- `npm install` en el runner para procesar limpiamente las librerías.
-- Ajuste de las restricciones de tamaño en la compilación de producción para que el empaquetado termine correctamente.
+- Acciones fijadas por SHA de commit y permisos mínimos (`contents: read`).
+- `npm ci --ignore-scripts`: versiones exactas del `package-lock.json` y sin scripts de instalación. Los tests se lanzan con `npm test` y no con `npx`, que podría descargar un paquete sin versión fijada.
+- El job E2E no usa ningún secreto: sus claves son aleatorias y se generan en cada ejecución, y la del administrador se enmascara en los logs.
+- El análisis de SonarCloud se omite en los PR de Dependabot, que no reciben los secretos del repositorio.
 
 ### 11.3. Contenedores y registro (Docker Hub)
 
-- Empaquetado multi-etapa con Node.js y Caddy.
-- Autenticación con *secrets* de GitHub mediante un **PAT de Docker Hub** con permisos *Read & Write*.
-- La imagen se sube **solo si se superan los controles de calidad**.
+- Imagen del frontend multi-etapa: Node.js 24 compila y Caddy sirve la web con un usuario sin privilegios.
+- Autenticación con un **PAT de Docker Hub** guardado como secreto de GitHub.
 
 | Secreto de GitHub | Uso |
 | :--- | :--- |
 | `SONAR_TOKEN` | Autenticación con SonarCloud |
-| `DOCKERHUB_USERNAME` | Usuario de Docker Hub |
-| `DOCKERHUB_TOKEN` | PAT con permisos Read & Write |
+| `DOCKER_HUB_USERNAME` | Usuario de Docker Hub |
+| `DOCKER_HUB_TOKEN` | PAT con permisos de lectura y escritura |
 
 ## 12. SOC y monitorización
 

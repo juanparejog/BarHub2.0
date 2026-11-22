@@ -1,0 +1,15 @@
+{
+  "name": "barhub-e2e",
+  "private": true,
+  "description": "Tests de extremo a extremo de BarHub con Playwright, contra la aplicacion completa (Caddy, frontend, backend y MariaDB)",
+  "scripts": {
+    "test": "playwright test",
+    "informe": "playwright show-report",
+    "navegador": "playwright install chromium",
+    "navegador:ci": "playwright install --with-deps chromium"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.65.1",
+    "@types/node": "26.6.6"
+  }
+}

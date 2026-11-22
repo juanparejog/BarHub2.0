@@ -26,7 +26,9 @@ export class AuthInterceptor implements HttpInterceptor {
 
     return next.handle(authReq).pipe(
       catchError((error: HttpErrorResponse) => {
-        if (error.status === 401) {
+        // En /auth/login un 401 son credenciales incorrectas, no una sesion caducada:
+        // el formulario muestra el aviso y no hay que redirigir
+        if (error.status === 401 && !req.url.endsWith('/auth/login')) {
           CLAVES_SESION.forEach(k => localStorage.removeItem(k));
           void this.router.navigate(['/auth/login']);
         }

@@ -61,6 +61,15 @@ describe('AuthInterceptor', () => {
     expect(navigate).toHaveBeenCalledWith(['/auth/login']);
   });
 
+  it('un 401 del propio login no redirige: son credenciales incorrectas', () => {
+    let estado = 0;
+    http.post('/api/auth/login', { username: 'ana', password: 'mala' }).subscribe({ error: err => (estado = err.status) });
+    backend.expectOne('/api/auth/login').flush(null, { status: 401, statusText: 'Unauthorized' });
+
+    expect(estado).toBe(401);
+    expect(navigate).not.toHaveBeenCalled();
+  });
+
   it('ante otros errores conserva la sesión', () => {
     localStorage.setItem('token', 'valido');
     http.get('/api/pedidos').subscribe({ error: () => undefined });

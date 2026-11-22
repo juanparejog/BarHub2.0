@@ -63,10 +63,10 @@ jobs:
             -Dsonar.projectKey=juanparejog_BarHub2.0
             -Dsonar.projectVersion=2.1.0
             -Dsonar.sources=.
-            -Dsonar.exclusions=backend/build/**,backend/src/test/**,backend/src/main/resources/demo/**,frontend/src/**/*.spec.ts
+            -Dsonar.exclusions=backend/build/**,backend/src/test/**,backend/src/main/resources/demo/**,frontend/src/**/*.spec.ts,e2e/**
             -Dsonar.coverage.exclusions=seguridad/**,frontend/src/**/*.module.ts,frontend/src/environments/**,frontend/src/main.ts
-            -Dsonar.tests=backend/src/test/java,frontend/src
-            -Dsonar.test.inclusions=backend/src/test/java/**,frontend/src/**/*.spec.ts
+            -Dsonar.tests=backend/src/test/java,frontend/src,e2e
+            -Dsonar.test.inclusions=backend/src/test/java/**,frontend/src/**/*.spec.ts,e2e/tests/**/*.ts,e2e/*.ts
             -Dsonar.java.binaries=backend/build/classes/java/main
             -Dsonar.java.test.binaries=backend/build/classes/java/test
             -Dsonar.coverage.jacoco.xmlReportPaths=backend/build/reports/jacoco/test/jacocoTestReport.xml
@@ -75,8 +75,81 @@ jobs:
             -Dsonar.issue.ignore.multicriteria.movimiento.ruleKey=css:S9440
             -Dsonar.issue.ignore.multicriteria.movimiento.resourceKey=frontend/src/app/**/*.css
 
+  e2e:
+    # La aplicacion completa (MariaDB, backend, frontend y Caddy) levantada con Docker Compose
+    # y recorrida con Playwright como lo haria un usuario
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Variables de entorno de la prueba
+        # Claves aleatorias en cada ejecucion: no hace falta ningun secreto del repositorio
+        run: |
+          clave() { openssl rand -hex 32; }
+          admin="$(clave)"
+          echo "::add-mask::$admin"
+          {
+            echo "MYSQL_ROOT_PASSWORD=$(clave)"
+            echo "DB_DATABASE=barhub_e2e"
+            echo "DB_USERNAME=barhub"
+            echo "DB_PASSWORD=$(clave)"
+            echo "JWT_SECRET=$(clave)$(clave)"
+            echo "APP_SEED_DEMO=true"
+            echo "APP_SEED_ADMIN_USERNAME=admin"
+            echo "APP_SEED_ADMIN_PASSWORD=$admin"
+          } > infra/docker/.env
+          echo "E2E_ADMIN_PASSWORD=$admin" >> "$GITHUB_ENV"
+
+      - name: Arrancar BarHub
+        run: docker compose -f infra/docker/docker-compose.yml up -d --build mysql backend frontend caddy
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24'
+          cache: 'npm'
+          cache-dependency-path: 'e2e/package-lock.json'
+
+      - name: Instalar Playwright
+        working-directory: e2e
+        run: |
+          npm ci --ignore-scripts
+          npm run navegador:ci
+
+      - name: Esperar a que la API sirva la carta
+        run: |
+          for intento in $(seq 1 60); do
+            if curl -fsS http://localhost/api/productos/ | grep -q '"nombre"'; then
+              echo "API lista"
+              exit 0
+            fi
+            sleep 5
+          done
+          echo "La API no responde tras 5 minutos"
+          exit 1
+
+      - name: Tests E2E
+        working-directory: e2e
+        run: npm test
+
+      - name: Logs del backend
+        if: failure()
+        run: docker compose -f infra/docker/docker-compose.yml logs backend --tail 300
+
+      - name: Informe de Playwright
+        if: failure()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: informe-e2e
+          path: |
+            e2e/playwright-report/
+            e2e/test-results/
+          retention-days: 7
+
   docker-build:
-    needs: build-and-analyze
+    # La imagen solo se publica si pasan el analisis y los tests E2E
+    needs: [build-and-analyze, e2e]
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
 
