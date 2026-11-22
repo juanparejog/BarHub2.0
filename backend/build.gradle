@@ -44,7 +44,7 @@ dependencies {
     // Gson en lugar de Jackson: jjwt-jackson usa Jackson 2, y Spring Boot 4 trae Jackson 3
     implementation 'io.jsonwebtoken:jjwt-gson:0.13.0'
 
-    implementation 'com.stripe:stripe-java:24.7.0'
+    implementation 'com.stripe:stripe-java:34.2.0'
 
     // Connector/J 4: TLS por defecto con verificacion completa (sslMode=verify-full). Con MariaDB 11.4 o
     // superior el certificado autogenerado del servidor se valida durante el login, sin configurar nada.
