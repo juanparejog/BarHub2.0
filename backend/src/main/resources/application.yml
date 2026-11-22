@@ -18,6 +18,9 @@ spring:
     password: ${DB_PASSWORD}
     driverClassName: org.mariadb.jdbc.Driver
   jpa:
+    # Sin sesion de Hibernate abierta durante toda la peticion: las relaciones perezosas se cargan
+    # en el repositorio o en el servicio (con @EntityGraph o @Transactional), no al serializar.
+    open-in-view: false
     defer-datasource-initialization: true
     hibernate:
       ddl-auto: update

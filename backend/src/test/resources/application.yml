@@ -13,6 +13,8 @@ spring:
     password:
     driverClassName: org.h2.Driver
   jpa:
+    # Igual que en produccion, para que los tests detecten una carga perezosa fuera de transaccion
+    open-in-view: false
     hibernate:
       ddl-auto: create-drop
     properties:

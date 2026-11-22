@@ -17,6 +17,7 @@ El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y e
 - El usuario de la aplicación queda obligado a usar TLS (`REQUIRE SSL`): una conexión sin cifrar se rechaza. En instalaciones nuevas lo aplica `infra/docker/initdb/10-tls-obligatorio.sh`; en las existentes se aplica una vez a mano.
 
 ### Cambiado
+- Backend: `spring.jpa.open-in-view` desactivado. La sesión de Hibernate ya no queda abierta hasta que se escribe la respuesta: los detalles de los pedidos (con su producto) y los roles de los usuarios se cargan en la misma consulta con `@EntityGraph`, en lugar de con una consulta extra por pedido o usuario al convertir a DTO. La actualización de un pedido lee y guarda en la misma transacción, y `PUT /seguimientos/{id}` devuelve el pedido como DTO en lugar de la entidad. Un test de integración sin transacción recorre los nueve endpoints afectados.
 - Frontend: Angular 14 a **22**, versión a versión con `ng update` y sus migraciones oficiales (control flow `@if`/`@for`, `standalone: false` en los componentes de módulos, `ChangeDetectionStrategy.Eager` para conservar la detección de cambios anterior, `withXhr` en el cliente HTTP). TypeScript 4.8 a 6.0, zone.js 0.11 a 0.16 y Node 18 a 24 en Docker y en el CI. Cada salto se verificó con el build de producción y con capturas automáticas de las 36 pantallas en los dos temas.
 - Frontend: el build pasa del builder `browser` (Webpack) al builder `application` (esbuild): compila en unos 15 segundos en lugar de 30 a 55. La salida pasa a `dist/barhub/browser`, y el Dockerfile copia desde ahí.
 - Frontend: `pdfmake` y sus fuentes (cerca de 2 MB) se cargan solo al generar el ticket, con `import()` dinámico, en lugar de en el arranque. El bundle inicial baja de 2,80 MB a 1,13 MB (de 795 kB a 218 kB comprimido) y ya cumple el presupuesto de 2 MB.
@@ -45,6 +46,7 @@ El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y e
 
 
 ### Corregido
+- Caja: no tener una caja abierta devolvía un 500 con la traza en el log cada vez que un empleado entraba en la pantalla; ahora `GET /caja/actual` responde 204 sin contenido. Abrir con otra caja abierta o cerrar sin ninguna respondía 500 y el empleado veía un mensaje genérico; ahora responde 409 con el motivo. Con tests del controlador y del servicio del frontend.
 - `AuthInterceptor`: ante un 401 (sesión caducada) redirigía a `/login`, una ruta que no existe, en lugar de a `/auth/login`, y no borraba `user` del almacenamiento, de modo que `isLoggedIn()` seguía devolviendo `true`.
 - `index.html`: el idioma del documento pasa de `en` a `es`, para que los lectores de pantalla lean el contenido en español, y se cierra la etiqueta `</html>`, que estaba incompleta.
 - `solicitarConfirmacion`: si se cancelaba una confirmación, su acción quedaba enganchada al botón Aceptar y se ejecutaba también en la siguiente.

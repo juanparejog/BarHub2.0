@@ -2,6 +2,7 @@ package com.daw2.barhub.auth.repository;
 
 import com.daw2.barhub.auth.models.User;
 import com.daw2.barhub.model.entity.Pedido;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -12,6 +13,15 @@ import java.util.Optional;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
+  // UsuarioDto.from lee los roles en el controlador, ya fuera de la transaccion
+  @Override
+  @EntityGraph(attributePaths = "roles")
+  List<User> findAll();
+
+  @Override
+  @EntityGraph(attributePaths = "roles")
+  Optional<User> findById(Long id);
+
   Optional<User> findByUsername(String username);
 
   Boolean existsByUsername(String username);

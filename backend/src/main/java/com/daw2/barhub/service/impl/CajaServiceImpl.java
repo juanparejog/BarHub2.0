@@ -18,6 +18,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -29,11 +30,9 @@ public class CajaServiceImpl implements CajaService {
 
     @Override
     @Transactional(readOnly = true)
-    public CajaDto obtenerCajaActual() {
-        Caja caja = cajaRepository.findFirstByEstadoOrderByFechaAperturaDesc(EstadoCaja.ABIERTA)
-                .orElseThrow(() -> new RuntimeException("No hay ninguna caja abierta actualmente"));
-
-        return mapToDTO(caja);
+    public Optional<CajaDto> obtenerCajaActual() {
+        return cajaRepository.findFirstByEstadoOrderByFechaAperturaDesc(EstadoCaja.ABIERTA)
+                .map(this::mapToDTO);
     }
 
     @Override

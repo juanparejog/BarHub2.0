@@ -69,6 +69,7 @@ public class PedidoServiceImpl implements PedidoService {
     }
 
     @Override
+    @Transactional
     public Pedido update(long id, Pedido entity) {
         Pedido pedidoExistente = pedidoRepository.findById(id);
 
@@ -207,6 +208,7 @@ public class PedidoServiceImpl implements PedidoService {
     }
 
     @Override
+    @Transactional
     public Pedido updateFromDto(long id, PedidoDto pedidoDto) {
         Pedido pedidoExistente = pedidoRepository.findById(id);
 

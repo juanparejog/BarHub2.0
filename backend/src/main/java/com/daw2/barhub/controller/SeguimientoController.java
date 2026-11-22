@@ -59,7 +59,7 @@ public class SeguimientoController {
         try {
             Pedido pedidoActualizado = pedidoService.update(id, pedido);
             if (pedidoActualizado != null) {
-                return ResponseEntity.status(HttpStatus.OK).body(pedidoActualizado);
+                return ResponseEntity.status(HttpStatus.OK).body(PedidoDto.from(pedidoActualizado));
             } else {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ErrorDto.from("Pedido no encontrado."));
             }

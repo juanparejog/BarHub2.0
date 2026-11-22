@@ -46,6 +46,8 @@ flowchart TB
 | **Repositorios** | Acceso a datos |
 | **Modelo / `model/enums`** | Entidades y enumerados (estados, tipos de pedido, categorías) |
 
+`spring.jpa.open-in-view` está desactivado: la sesión de Hibernate termina con la transacción del servicio, no con la petición. Por eso los controladores solo convierten a DTO lo que ya está cargado, y las relaciones perezosas que necesita la respuesta se piden en el repositorio con `@EntityGraph` (detalles y productos de los pedidos, roles de los usuarios) o se leen dentro de un método `@Transactional`. Si un endpoint nuevo recorre una relación sin cargarla, falla con `LazyInitializationException`; `CargaPerezosaIntegrationTest` lo comprueba sin transacción en el test, que ocultaría el fallo.
+
 ## 3. API REST
 
 ### 3.1. Autenticación · `/auth`

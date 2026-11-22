@@ -5,9 +5,11 @@ import com.daw2.barhub.model.dto.CajaDto;
 import com.daw2.barhub.model.dto.CierreCajaDto;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface CajaService {
-    CajaDto obtenerCajaActual();
+    /** La caja abierta, o vacio si no hay ninguna (es un estado normal, no un error). */
+    Optional<CajaDto> obtenerCajaActual();
     CajaDto abrirCaja(AperturaCajaDto dto, String username);
     CajaDto cerrarCaja(CierreCajaDto dto, String username);
     List<CajaDto> obtenerHistorial();

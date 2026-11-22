@@ -22,6 +22,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
@@ -74,11 +75,11 @@ class CajaServiceImplTest {
     // ---------- obtener ----------
 
     @Test
-    void cajaActualSinCajaAbiertaFalla() {
+    void cajaActualSinCajaAbiertaDevuelveVacio() {
         when(cajaRepository.findFirstByEstadoOrderByFechaAperturaDesc(EstadoCaja.ABIERTA))
                 .thenReturn(Optional.empty());
 
-        assertThrows(RuntimeException.class, () -> servicio.obtenerCajaActual());
+        assertTrue(servicio.obtenerCajaActual().isEmpty());
     }
 
     @Test
@@ -88,7 +89,7 @@ class CajaServiceImplTest {
         when(cajaRepository.findFirstByEstadoOrderByFechaAperturaDesc(EstadoCaja.ABIERTA))
                 .thenReturn(Optional.of(caja));
 
-        CajaDto dto = servicio.obtenerCajaActual();
+        CajaDto dto = servicio.obtenerCajaActual().orElseThrow();
 
         assertEquals(0, new BigDecimal("140.00").compareTo(dto.getEfectivoEsperado()));
         assertEquals(EstadoCaja.ABIERTA, dto.getEstado());
