@@ -189,4 +189,4 @@ Tras la auditoría de SonarQube se aplicó este plan (detalle en [auditorias.md]
 - Respuestas de error genéricas: el cliente no recibe detalles internos y la causa queda solo en el log del servidor.
 - Validación de entrada con Bean Validation (`@Valid`) en los DTO, para rechazar datos incorrectos con un `400` en lugar de fallar al guardar.
 - Denegación por defecto y `@PreAuthorize` en las operaciones de escritura (ver sección 4).
-- Pruebas dinámicas de la API en ejecución, con sus resultados en [evidencias/](evidencias/seguridad-2026-11-14.md).
+- Pruebas dinámicas de la API en ejecución, con sus resultados en [evidencias/](evidencias/seguridad-2026-11-22.md).

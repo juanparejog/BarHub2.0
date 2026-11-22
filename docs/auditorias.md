@@ -10,7 +10,7 @@ Resultados de las auditorías de seguridad y calidad realizadas sobre BarHub 2.0
 | **SonarQube** | Calidad, fiabilidad y mantenibilidad | PASSED |  PASSED |
 | **SonarCloud** (CI, 15-nov-2026) | Calidad en el repositorio completo | Seguridad C, fiabilidad C | Seguridad A, fiabilidad A, mantenibilidad A; Quality Gate superado sobre el código nuevo |
 | **Trivy** | Configuración de Dockerfiles | 1 LOW → 0 | 1 HIGH + 1 LOW → 0 |
-| **Pruebas dinámicas** | Control de acceso, subidas y errores | 0 fallos (fuerza bruta pendiente) | Comprobado en navegador |
+| **Pruebas dinámicas** (22-nov-2026, versión 2.1) | Control de acceso, IDOR, precios, tokens, fuerza bruta y errores | 53 OK, 0 fallos | Comprobado en navegador |
 
 ## Índice
 
@@ -79,7 +79,7 @@ Estos avisos no se han analizado uno a uno para decidir si son explotables en es
 - `jjwt` 0.13.0 con Gson en lugar de Jackson 2, que deja de estar en el classpath.
 - `mariadb-java-client` 4.0.0: conexión con TLS y certificado verificado por defecto, y TLS obligatorio para el usuario de la aplicación ([evidencia](evidencias/tls-mariadb-2026-11-20.md)).
 - Verificación: los 176 tests del backend pasan, y las capturas automáticas de las 36 pantallas en los dos temas salen idénticas antes y después, de modo que la API devuelve los mismos datos.
-- Pendiente: repetir las pruebas dinámicas con la versión nueva.
+- Pruebas dinámicas con la versión nueva: 53 OK y 0 fallos ([informe](evidencias/seguridad-2026-11-22.md)).
 
 #### Reanálisis del 21 de noviembre de 2026 (versión 2.1)
 
@@ -279,7 +279,7 @@ Tras añadir usuarios sin privilegios en las imágenes multi-etapa y directivas 
 
 ## 4. Pruebas dinámicas
 
-Además de las herramientas estáticas, se probó la API en ejecución con un script propio contra una instancia local, repetido tras cada cambio del backend. El script no se versiona; los resultados sí, en [`evidencias/`](evidencias/seguridad-2026-11-15.md).
+Además de las herramientas estáticas, se probó la API en ejecución con un script propio contra una instancia local, repetido tras cada cambio del backend. Desde la 2.1 el script ataca a través de Caddy (`/api`), como en producción, y crea sus propios usuarios de prueba. El script no se versiona; los resultados sí, en [`evidencias/`](evidencias/seguridad-2026-11-22.md).
 
 | Ámbito | Qué se comprueba |
 | :--- | :--- |
@@ -289,9 +289,11 @@ Además de las herramientas estáticas, se probó la API en ejecución con un sc
 | Manipulación de precios | El total se recalcula en el servidor |
 | Subida de archivos | Extensión, tipo declarado, firma real, tamaño máximo y nombre aleatorio |
 | Errores | Respuestas genéricas; el detalle queda en el log |
-| Fuerza bruta en el login | Pendiente: 30 intentos fallidos seguidos no provocan bloqueo |
+| Fuerza bruta en el login | 401 en los 5 primeros fallos y 429 con `Retry-After` después; la contraseña correcta no entra durante el bloqueo |
+| Tokens | Firma alterada y `alg=none` rechazados; caducidad de 4 horas |
+| Exposición | El actuator no responde desde fuera y las cabeceras de seguridad de Caddy están presentes |
 
-Resultado de la última ejecución (15 de noviembre de 2026, con Spring Boot 3.5.16): **0 fallos**. Informes: [seguridad-2026-11-15](evidencias/seguridad-2026-11-15.md), [seguridad-2026-11-14](evidencias/seguridad-2026-11-14.md) y [subidas-y-errores](evidencias/subidas-y-errores.md).
+Resultado de la última ejecución (22 de noviembre de 2026, con Spring Boot 4.2 y Angular 22): **53 OK, 0 fallos**. Informes: [seguridad-2026-11-22](evidencias/seguridad-2026-11-22.md), [seguridad-2026-11-15](evidencias/seguridad-2026-11-15.md), [seguridad-2026-11-14](evidencias/seguridad-2026-11-14.md) y [subidas-y-errores](evidencias/subidas-y-errores.md).
 
 ---
 

@@ -83,7 +83,7 @@ flowchart LR
 | 8 | Reutilizar el QR de otra mesa | Manipulación | `token_qr` por mesa | Pendiente de verificar, sin rotación |
 | 9 | Dependencias vulnerables | Varias | Snyk y SonarCloud; versiones de seguridad fijadas | Parcial: 2 avisos en el backend sin parche publicado y no explotables en BarHub; 0 en el frontend (ver [auditorias.md](auditorias.md)) |
 | 10 | Escape de contenedor o escalada | Elevación | Usuario no root, imágenes multi-etapa | Aplicada |
-| 11 | Fuerza bruta en el login | Suplantación | Límite de intentos | Pendiente: 30 intentos fallidos seguidos no provocan bloqueo |
+| 11 | Fuerza bruta en el login | Suplantación | Bloqueo de 15 minutos tras 5 fallos (429 con `Retry-After`) | Mitigado y comprobado en las pruebas dinámicas; falta el bloqueo por IP (2.1) |
 | 12 | Cambio de contraseña con una sesión robada | Suplantación | Exigir la contraseña actual | Pendiente |
 | 13 | Saturación de la API | Denegación de servicio | Límite de peticiones en Caddy o backend | Pendiente |
 | 14 | Descuadre o fraude en caja | Repudio | Registro de usuario de apertura y cierre, `diferencia` y `observaciones` | Aplicada |
@@ -96,12 +96,13 @@ Ataques físicos al local, ingeniería social contra el personal y seguridad del
 
 La API en ejecución se probó con un script propio contra una instancia local y se repitió tras cada cambio del backend. El script no se versiona; los resultados sí:
 
+- [Pruebas de seguridad (22 de noviembre de 2026, con Spring Boot 4.2 y Angular 22, a través de Caddy)](evidencias/seguridad-2026-11-22.md)
 - [Conexión cifrada con MariaDB (20 de noviembre de 2026, con Spring Boot 4.2 y Connector/J 4)](evidencias/tls-mariadb-2026-11-20.md)
 - [Pruebas de seguridad (15 de noviembre de 2026, con Spring Boot 3.5.16)](evidencias/seguridad-2026-11-15.md)
 - [Pruebas de seguridad (14 de noviembre de 2026)](evidencias/seguridad-2026-11-14.md)
 - [Subidas de archivos y errores](evidencias/subidas-y-errores.md)
 
-Resultado de la última ejecución (15 de noviembre de 2026): 0 fallos. La fuerza bruta en el login figura como pendiente.
+Resultado de la última ejecución (22 de noviembre de 2026): 53 OK y 0 fallos, incluida la fuerza bruta en el login, que el 15 de noviembre figuraba como pendiente.
 
 ## 5. Pendientes y limitaciones conocidas
 

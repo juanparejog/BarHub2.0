@@ -156,7 +156,7 @@ Además de las auditorías estáticas, he probado el backend en ejecución (inst
 | JWT | Firma alterada y `alg=none` rechazados | Verificado |
 | Subidas | Extensión, tipo, firma del fichero, tamaño y ruta | Verificado |
 | Errores | Respuestas genéricas y `404` en recursos inexistentes | Verificado |
-| Fuerza bruta en el login | Bloqueo tras 5 intentos fallidos (429 con `Retry-After`), cubierto por tests | Implementado; falta repetir la prueba dinámica |
+| Fuerza bruta en el login | Bloqueo tras 5 intentos fallidos (429 con `Retry-After`), cubierto por tests | Verificado ([prueba dinámica](docs/evidencias/seguridad-2026-11-22.md)) |
 
 ### Pipeline CI/CD
 
