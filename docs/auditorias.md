@@ -8,7 +8,7 @@ Resultados de las auditorías de seguridad y calidad realizadas sobre BarHub 2.0
 | :--- | :--- | :---: | :---: |
 | **Snyk** (reanálisis 21-nov-2026, versión 2.1) | Vulnerabilidades en dependencias | 136 → 2 incidencias (ninguna crítica, ninguna explotable) | 29 → 0 incidencias |
 | **SonarQube** | Calidad, fiabilidad y mantenibilidad | PASSED |  PASSED |
-| **SonarCloud** (CI, 15-nov-2026) | Calidad en el repositorio completo | Seguridad C, fiabilidad C | Seguridad A, fiabilidad A, mantenibilidad A; Quality Gate superado sobre el código nuevo |
+| **SonarCloud** (CI, revisión 22-nov-2026, versión 2.1) | Calidad en el repositorio completo | Seguridad C (2 avisos del workflow), 67 incidencias abiertas | Seguridad A, fiabilidad A, mantenibilidad A; 0 incidencias abiertas (2 aceptadas con su motivo); Quality Gate superado sobre el código nuevo |
 | **Trivy** | Configuración de Dockerfiles | 1 LOW → 0 | 1 HIGH + 1 LOW → 0 |
 | **Pruebas dinámicas** (22-nov-2026, versión 2.1) | Control de acceso, IDOR, precios, tokens, fuerza bruta y errores | 53 OK, 0 fallos | Comprobado en navegador |
 
@@ -247,6 +247,29 @@ El 15 de noviembre de 2026 se ejecutó el primer análisis completo del reposito
 - Cobertura global del 0 %: todavía no se envían informes de tests a SonarCloud. Es la deuda principal de esta auditoría.
 
 **Quality Gate.** En el primer análisis el gate falló sobre el código nuevo (seguridad B, cobertura 0 % y duplicación del 10,9 %), porque todo el código reciente contaba como nuevo. Tras las correcciones se declaró `sonar.projectVersion=2.0.0` y se usa «Previous version» como definición de código nuevo, así que el gate evalúa el código posterior a la versión 2.0.0. Esta decisión no oculta nada: los valores globales de la tabla anterior siguen visibles en Overall Code.
+
+#### Revisión del 22 de noviembre de 2026 (versión 2.1)
+
+Tras las migraciones a Spring Boot 4, Java 21 y Angular 22, y con la cobertura del frontend ya enviada, el código nuevo se mide desde `sonar.projectVersion=2.1.0`. El Quality Gate falló por una sola condición: seguridad C en el código nuevo.
+
+| Área | Antes de la revisión | Después |
+| :--- | :---: | :---: |
+| Vulnerabilidades | 2 (C) | **0 (A)** |
+| Bugs | 0 (A) | 0 (A) |
+| Incidencias de mantenibilidad | 65 (A) | 0 abiertas, 2 aceptadas (A) |
+| Security hotspots sin revisar | 0 | 0 |
+| Cobertura del código nuevo | 100 % | 100 % |
+| Cobertura global | 24,6 % | 24,6 % |
+| Duplicación | 1,7 % | 1,7 % |
+
+| Regla | Avisos | Decisión |
+| :--- | :---: | :--- |
+| `githubactions:S6505` y `S8543` | 2 | **Corregido.** El paso de tests del CI usaba `npx ng test`, que puede descargar e instalar un paquete sin versión fijada si no lo encuentra. Pasa a `npm test`, que solo ejecuta el Angular CLI instalado por `npm ci` con la versión del `package-lock.json`. |
+| `typescript:S1874` | 2 | **Corregido.** `platformBrowserDynamic` está obsoleto en Angular 22. El build es AOT, así que basta con `platformBrowser`, y sobra la dependencia `@angular/platform-browser-dynamic`. |
+| `typescript:S7781` | 1 | **Corregido.** `replace(/_/g, ' ')` pasa a `replaceAll('_', ' ')`. |
+| `css:S9440` | 60 | **Cubierto por la regla global y excluido del análisis.** La regla exige un `@media (prefers-reduced-motion: reduce)` en el mismo archivo que la animación. `frontend/src/styles.css` ya lo tiene para `*`, `*::before` y `*::after`, y los estilos globales no se encapsulan, así que se aplica a todos los componentes. La prueba de que la regla solo mira el archivo: `login.component.css` tiene la misma animación que `register.component.css` y no tiene aviso, porque repite ese bloque. Se usa `0.01ms` y no `none` porque dos pantallas parten de `opacity: 0` y quedarían invisibles. La exclusión está en el workflow (`sonar.issue.ignore.multicriteria`), limitada a esta regla y a los CSS de `frontend/src/app`. |
+| `java:S2143` | 1 | **Aceptado.** `JwtUtils` calcula las fechas con `java.time.Instant`, pero JJWT 0.13 solo acepta `java.util.Date` en `issuedAt` y `expiration`, así que la conversión con `Date.from` es inevitable. |
+| `java:S9438` | 1 | **Falso positivo.** Pide hacer `final` el campo `detalles` de `PedidoDto`, pero Lombok (`@Data`) genera su setter y se usa al convertir pedidos a DTO y al leer el JSON. Con `final` no compilaría. |
 
 ## 3. Trivy
 

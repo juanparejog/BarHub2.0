@@ -159,7 +159,7 @@ export class SeguimientoPedidosComponent implements OnInit, OnDestroy {
       const estado = (p.estado || '').toString();
       const antes = this.estadosPrevios.get(p.id);
       if (!this.primeraCargaEstados && antes !== undefined && antes !== estado) {
-        mensajes.push(`Pedido ${p.id}: ahora ${estado.replace(/_/g, ' ').toLowerCase()}`);
+        mensajes.push(`Pedido ${p.id}: ahora ${estado.replaceAll('_', ' ').toLowerCase()}`);
       }
       this.estadosPrevios.set(p.id, estado);
     }

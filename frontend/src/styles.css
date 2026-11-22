@@ -402,7 +402,9 @@ html[data-bs-theme="dark"] .badge.bg-warning-subtle.text-warning {
   --bs-warning-rgb: 252, 211, 77;
 }
 
-/* Respeta la preferencia del sistema de reducir el movimiento */
+/* Respeta la preferencia del sistema de reducir el movimiento en toda la aplicacion: los estilos
+   globales no se encapsulan, asi que cubre las animaciones y transiciones de todos los componentes.
+   Con 0.01ms (y no "none") los elementos que entran desde opacity: 0 terminan visibles. */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

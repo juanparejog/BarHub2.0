@@ -11,12 +11,14 @@ El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y e
 - CI: el pipeline ejecuta los tests del frontend con cobertura (si uno falla, el CI falla) y SonarCloud mide la cobertura del frontend además de la del backend. El análisis pasa a la versión `2.1.0`.
 
 ### Seguridad
+- CI: los tests del frontend se lanzan con `npm test` en lugar de `npx ng test`, que podía descargar un paquete sin versión fijada. Era la causa de la nota C de seguridad en SonarCloud, que vuelve a A con el Quality Gate superado.
 - La conexión entre el backend y MariaDB va cifrada con TLS y con el certificado del servidor verificado: el driver MariaDB Connector/J 4 lo hace por defecto (`sslMode=verify-full`) y MariaDB 13 genera y valida su certificado sin configuración.
 - Pruebas dinámicas con la versión nueva, a través de Caddy: 53 OK y 0 fallos. Quedan comprobados el bloqueo del login (antes pendiente), que un cliente no puede leer, modificar ni borrar el pedido de otro, el recálculo del precio en el servidor, el actuator cerrado desde fuera y las cabeceras de seguridad ([evidencia](docs/evidencias/seguridad-2026-11-22.md)).
 - Reanálisis de Snyk con las versiones nuevas: backend de 29 incidencias a 2 (ninguna crítica ni explotable, sin parche publicado) y frontend de 25 a 0. ASM, que solo usa JaCoCo para el informe de cobertura, pasa de la 9.8 a la 9.11.1 (cinco avisos medios), y `objenesis`, que solo usan los tests, de la 3.3 a la 3.6. El aviso XXE de `jaxb-core` se acepta con su justificación en `SECURITY.md`.
 - El usuario de la aplicación queda obligado a usar TLS (`REQUIRE SSL`): una conexión sin cifrar se rechaza. En instalaciones nuevas lo aplica `infra/docker/initdb/10-tls-obligatorio.sh`; en las existentes se aplica una vez a mano.
 
 ### Cambiado
+- SonarCloud: revisión tras las migraciones ([auditorias.md](docs/auditorias.md)). `main.ts` arranca con `platformBrowser` en lugar de `platformBrowserDynamic`, obsoleto en Angular 22, y se usa `replaceAll` en el seguimiento de pedidos. Los 60 avisos de movimiento reducido (`css:S9440`) se excluyen del análisis porque la regla global de `styles.css` ya cubre todos los componentes; los dos avisos que no se pueden corregir quedan aceptados con su motivo.
 - Backend: `spring.jpa.open-in-view` desactivado. La sesión de Hibernate ya no queda abierta hasta que se escribe la respuesta: los detalles de los pedidos (con su producto) y los roles de los usuarios se cargan en la misma consulta con `@EntityGraph`, en lugar de con una consulta extra por pedido o usuario al convertir a DTO. La actualización de un pedido lee y guarda en la misma transacción, y `PUT /seguimientos/{id}` devuelve el pedido como DTO en lugar de la entidad. Un test de integración sin transacción recorre los nueve endpoints afectados.
 - Frontend: Angular 14 a **22**, versión a versión con `ng update` y sus migraciones oficiales (control flow `@if`/`@for`, `standalone: false` en los componentes de módulos, `ChangeDetectionStrategy.Eager` para conservar la detección de cambios anterior, `withXhr` en el cliente HTTP). TypeScript 4.8 a 6.0, zone.js 0.11 a 0.16 y Node 18 a 24 en Docker y en el CI. Cada salto se verificó con el build de producción y con capturas automáticas de las 36 pantallas en los dos temas.
 - Frontend: el build pasa del builder `browser` (Webpack) al builder `application` (esbuild): compila en unos 15 segundos en lugar de 30 a 55. La salida pasa a `dist/barhub/browser`, y el Dockerfile copia desde ahí.
@@ -42,6 +44,7 @@ El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y e
 - Dependabot: deja de ignorar las versiones mayores de Spring Boot.
 
 ### Eliminado
+- Frontend: `@angular/platform-browser-dynamic`, que solo usaba `main.ts` y sobra con el build AOT.
 - Frontend: dependencias que no se usaban o estaban duplicadas, como paso previo a la migración de Angular: `@angular/material` y `@angular/cdk` (solo se cargaba su CSS `indigo-pink`), `@angular/animations` y `BrowserAnimationsModule` (no había animaciones), `@zxing/ngx-scanner` (sin uso), jQuery y el Popper suelto (ya va dentro de `bootstrap.bundle`).
 
 

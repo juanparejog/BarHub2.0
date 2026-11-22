@@ -13,8 +13,9 @@ export class CajaService {
 
   constructor(private readonly http: HttpClient) { }
 
-  obtenerCajaActual(): Observable<Caja> {
-    return this.http.get<Caja>(`${this.URL_CAJA}/actual`);
+  /** La caja abierta, o null si no hay ninguna (el backend responde 204 sin cuerpo). */
+  obtenerCajaActual(): Observable<Caja | null> {
+    return this.http.get<Caja | null>(`${this.URL_CAJA}/actual`);
   }
 
   abrirCaja(dto: AperturaCajaDTO): Observable<Caja> {

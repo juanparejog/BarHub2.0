@@ -31,7 +31,7 @@ Archivos de la raíz `frontend/`:
 npm ci --legacy-peer-deps   # igual que en el CI y en Docker; alguna dependencia aún declara versiones antiguas de Angular
 npm start
 npm test                              # tests unitarios con Vitest
-npx ng test --watch=false --coverage  # con cobertura (coverage/BarHub/lcov.info, el que lee SonarCloud)
+npm test -- --watch=false --coverage  # con cobertura (coverage/BarHub/lcov.info, el que lee SonarCloud)
 ```
 
 Versiones y decisiones de la migración a Angular 22 (versión 2.1):

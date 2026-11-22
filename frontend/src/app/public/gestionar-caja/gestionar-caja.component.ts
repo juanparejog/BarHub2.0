@@ -53,7 +53,7 @@ export class GestionarCajaComponent implements OnInit {
         this.cargando = false;
       },
       error: () => {
-        // Si responde con error/404, significa que no hay ninguna caja abierta
+        // Sin caja abierta el backend responde 204 (caja = null, rama next); aqui solo llegan errores reales
         this.cajaActual = null;
         this.cargando = false;
       }

@@ -33,7 +33,8 @@ jobs:
       - name: Tests del frontend con cobertura
         run: |
           cd frontend
-          npx ng test --watch=false --coverage
+          # npm test usa el Angular CLI ya instalado por npm ci; npx podria descargar otro
+          npm test -- --watch=false --coverage
           # SonarCloud lee las rutas del informe desde la raiz del repo
           sed -i 's#^SF:src/#SF:frontend/src/#' coverage/BarHub/lcov.info
 
@@ -54,6 +55,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        # css:S9440 (movimiento reducido) solo busca el @media en el mismo archivo, pero la regla
+        # global de frontend/src/styles.css ya lo aplica a todos los componentes (ver docs/auditorias.md)
         with:
           args: >
             -Dsonar.organization=juanparejog
@@ -68,6 +71,9 @@ jobs:
             -Dsonar.java.test.binaries=backend/build/classes/java/test
             -Dsonar.coverage.jacoco.xmlReportPaths=backend/build/reports/jacoco/test/jacocoTestReport.xml
             -Dsonar.javascript.lcov.reportPaths=frontend/coverage/BarHub/lcov.info
+            -Dsonar.issue.ignore.multicriteria=movimiento
+            -Dsonar.issue.ignore.multicriteria.movimiento.ruleKey=css:S9440
+            -Dsonar.issue.ignore.multicriteria.movimiento.resourceKey=frontend/src/app/**/*.css
 
   docker-build:
     needs: build-and-analyze
