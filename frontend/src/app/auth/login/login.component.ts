@@ -1,6 +1,6 @@
 import { Component, ChangeDetectionStrategy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { AuthService } from '../auth.service';
+import { AuthService, esDesafio } from '../auth.service';
 import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
@@ -78,20 +78,14 @@ export class LoginComponent implements OnInit {
   
     this.pendienteConfirmar = false;
     this.authService.login(credentials).subscribe({
-      next: (res: any) => {
-        localStorage.setItem('token', res.token);
-      
-        const payload = JSON.parse(atob(res.token.split('.')[1]));
-
-        localStorage.setItem('roles', JSON.stringify(payload.roles));
-        localStorage.setItem('username', payload.username || payload.sub);
-        
-        const userId = payload.id || payload.userId || res.id;
-        if (userId) {
-          localStorage.setItem('usuarioId', userId.toString());
+      next: res => {
+        if (esDesafio(res)) {
+          // Falta el segundo paso: el desafio viaja en el estado del historial, no en la URL
+          void this.router.navigate(['/auth/2fa'], {
+            state: { desafio: res.desafio, configurar: res.configurar, usuario: credentials.username }
+          });
+          return;
         }
-
-
         void this.router.navigate(['/carta']);
       },
       error: (err) => {

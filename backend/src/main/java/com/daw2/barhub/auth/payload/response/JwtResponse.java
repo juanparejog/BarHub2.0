@@ -16,6 +16,10 @@ public class JwtResponse {
   private Long sesionCaducaEn;
   /** Inactividad maxima de la sesion, en segundos. */
   private Long sesionInactividadSegundos;
+  /** Solo al activar la verificacion en dos pasos: los codigos de recuperacion, que no se vuelven a mostrar. */
+  private List<String> codigosRecuperacion;
+  /** Solo al entrar con un codigo de recuperacion: cuantos le quedan sin usar. */
+  private Integer codigosRecuperacionRestantes;
 
   public JwtResponse(String accessToken, Long id, String username, String email, List<String> roles) {
     this.token = accessToken;

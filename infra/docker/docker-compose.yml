@@ -34,6 +34,8 @@ services:
       - APP_CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS:-http://localhost:4200}
       - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD:?Falta_DB_PASSWORD}
       - JWT_SECRET=${JWT_SECRET:?Falta_JWT_SECRET}
+      # Verificacion en dos pasos: clave para cifrar los secretos TOTP (vacia: se deriva de JWT_SECRET)
+      - APP_TOTP_CLAVE=${APP_TOTP_CLAVE:-}
       - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY:-}
       - APP_UPLOAD_USUARIOS=/data/uploads/usuarios/
       - APP_UPLOAD_PRODUCTOS=/data/uploads/productos/

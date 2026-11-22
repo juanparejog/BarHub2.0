@@ -57,7 +57,10 @@ Las rutas se muestran como las ve el backend. Desde fuera, Caddy las publica baj
 | Método | Endpoint | Descripción |
 | :--- | :--- | :--- |
 | `POST` | `/auth/signup` | Registro de nuevos usuarios (clientes o personal) |
-| `POST` | `/auth/login` | Inicio de sesión: token de acceso JWT (15 min) en el cuerpo y cookie `HttpOnly` de renovación; `403 EMAIL_NO_VERIFICADO` si falta confirmar el correo |
+| `POST` | `/auth/login` | Inicio de sesión: token de acceso JWT (15 min) en el cuerpo y cookie `HttpOnly` de renovación; `403 EMAIL_NO_VERIFICADO` si falta confirmar el correo. Si la cuenta usa (o su rol exige) la verificación en dos pasos, responde `{requiere2fa, configurar, desafio}` sin token |
+| `POST` | `/auth/2fa/verificar` | Segundo paso con el desafío y el código de la app o uno de recuperación; abre la sesión como el login (`401 CODIGO_INCORRECTO` o `DESAFIO_CADUCADO`) |
+| `POST` | `/auth/2fa/configurar` | Para quien aún no la tiene: secreto nuevo (clave Base32 y URI `otpauth://` para el QR) |
+| `POST` | `/auth/2fa/activar` | Activa la verificación con el primer código de la app, abre la sesión y devuelve los 10 códigos de recuperación |
 | `POST` | `/auth/refresh` | Token de acceso nuevo a partir de la cookie, que se rota; `401` si la sesión está cerrada o caducada |
 | `POST` | `/auth/logout` | Cierra la sesión en el servidor y borra la cookie (`204`) |
 | `POST` | `/auth/verificar` | Confirma el correo con el token del enlace (`400` si no vale o ha caducado) |

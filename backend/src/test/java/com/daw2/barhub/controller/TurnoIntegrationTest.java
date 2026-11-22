@@ -1,5 +1,6 @@
 package com.daw2.barhub.controller;
 
+import com.daw2.barhub.auth.dosfactores.LoginDePrueba;
 import com.daw2.barhub.auth.models.Role;
 import com.daw2.barhub.auth.models.RoleEnum;
 import com.daw2.barhub.auth.models.User;
@@ -11,7 +12,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
-import org.springframework.http.MediaType;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
@@ -19,7 +19,6 @@ import org.springframework.transaction.annotation.Transactional;
 import tools.jackson.databind.ObjectMapper;
 
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -49,8 +48,11 @@ class TurnoIntegrationTest {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    private LoginDePrueba login;
+
     @BeforeEach
     void crearUsuarios() {
+        login = new LoginDePrueba(mvc, mapper);
         crear("turno_emp", RoleEnum.ROLE_EMPLEADO);
         crear("turno_admin", RoleEnum.ROLE_ADMIN);
         crear("turno_cli", RoleEnum.ROLE_CLIENTE);
@@ -74,12 +76,9 @@ class TurnoIntegrationTest {
                 .build());
     }
 
+    /** Login completo; el empleado y el administrador pasan por la verificacion en dos pasos. */
     private String token(String username) throws Exception {
-        String cuerpo = mvc.perform(post("/auth/login").contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"username\":\"%s\",\"password\":\"%s\"}".formatted(username, CLAVE)))
-                .andExpect(status().isOk())
-                .andReturn().getResponse().getContentAsString();
-        return "Bearer " + mapper.readValue(cuerpo, Map.class).get("token");
+        return "Bearer " + login.token(username, CLAVE);
     }
 
     @Test

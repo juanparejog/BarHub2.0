@@ -12,8 +12,10 @@ import { CLAVE_CONTACTO, CLAVE_INTERACCION, CLAVE_LIMITES, RespuestaSesion, guar
 const CLAVES_SESION = ['token', 'roles', 'user', 'username', 'usuarioId', 'id', 'imagen',
   CLAVE_LIMITES, CLAVE_INTERACCION, CLAVE_CONTACTO];
 
-// En estas rutas un 401 no es un token caducado: login con credenciales malas, renovacion fallida...
-const RUTAS_SIN_RENOVACION = ['/auth/login', '/auth/signup', '/auth/refresh', '/auth/logout'];
+// En estas rutas un 401 no es un token caducado: login con credenciales malas, codigo del segundo
+// paso incorrecto, renovacion fallida...
+const RUTAS_SIN_RENOVACION = ['/auth/login', '/auth/signup', '/auth/refresh', '/auth/logout',
+  '/auth/2fa/verificar', '/auth/2fa/configurar', '/auth/2fa/activar'];
 
 /**
  * Unico interceptor HTTP de la aplicacion:

@@ -96,6 +96,7 @@ jobs:
             echo "DB_USERNAME=barhub"
             echo "DB_PASSWORD=$(clave)"
             echo "JWT_SECRET=$(clave)$(clave)"
+            echo "APP_TOTP_CLAVE=$(clave)"
             echo "APP_SEED_DEMO=true"
             echo "APP_SEED_ADMIN_USERNAME=admin"
             echo "APP_SEED_ADMIN_PASSWORD=$admin"

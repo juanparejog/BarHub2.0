@@ -66,6 +66,15 @@ app:
   url-publica: ${APP_URL_PUBLICA:http://localhost}
   correo:
     remitente: ${APP_CORREO_REMITENTE:BarHub <no-responder@barhub.local>}
+  # Verificacion en dos pasos con una app de autenticacion (TOTP)
+  dos-factores:
+    # Roles que no pueden entrar sin ella; para el resto es opcional
+    obligatorio: admin,empleado
+    # Nombre con el que aparece la cuenta en la app
+    emisor: BarHub
+    # Clave para cifrar los secretos TOTP y firmar los codigos de recuperacion. Si se deja vacia se
+    # deriva de JWT_SECRET; si cambia, quien tenga el 2FA activado tendra que configurarlo otra vez
+    clave: ${APP_TOTP_CLAVE:}
   sesion:
     # Cookie HttpOnly con el token de renovacion. La ruta es la que ve el navegador: con Caddy, /api/auth;
     # con ng serve contra el backend directo (http://localhost:8080) hay que usar /auth

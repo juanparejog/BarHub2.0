@@ -1,0 +1,57 @@
+.dos-factores {
+  max-width: 460px;
+}
+
+.dos-factores .pasos {
+  text-align: left;
+  padding-left: 1.25rem;
+  margin: 1rem 0;
+}
+
+.dos-factores .pasos li {
+  margin-bottom: 0.75rem;
+}
+
+.dos-factores .qr {
+  display: block;
+  margin: 0.75rem auto 0;
+  background: #fff;
+  padding: 8px;
+  border-radius: 8px;
+}
+
+.dos-factores .secreto {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 0.95rem;
+  letter-spacing: 0.05em;
+  word-break: break-all;
+  user-select: all;
+}
+
+.dos-factores .codigo {
+  font-family: var(--bs-font-monospace, monospace);
+  font-size: 1.25rem;
+  letter-spacing: 0.15em;
+  text-align: center;
+}
+
+.dos-factores .codigos {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.5rem;
+  list-style: none;
+  padding: 0;
+  margin: 1rem 0 0;
+}
+
+.dos-factores .codigos code {
+  font-size: 1rem;
+  letter-spacing: 0.05em;
+}
+
+@media (max-width: 400px) {
+  .dos-factores .codigos {
+    grid-template-columns: 1fr;
+  }
+}

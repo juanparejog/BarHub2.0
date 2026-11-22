@@ -135,13 +135,15 @@ He intentado tratar la seguridad como parte del desarrollo y no como algo que se
 
 - Contraseñas con hash en la base de datos. Sesión con token de acceso JWT de 15 minutos y token de renovación rotatorio en una cookie `HttpOnly` y `SameSite=Strict`, con detección de reutilización. La sesión vive en el servidor: cerrar sesión la revoca al momento, y cada rol tiene su límite de inactividad y de duración (administrador 15 min / 8 h, empleado 30 min / 10 h, cliente 1 h / 12 h).
 - Bloqueo temporal del inicio de sesión, por usuario y por IP: 5 intentos fallidos seguidos de un mismo usuario bloquean esa cuenta 15 minutos, y 20 fallos desde una misma IP (aunque sean contra cuentas distintas) bloquean esa IP 15 minutos. Responde 429 con `Retry-After`. También cuentan los usuarios que no existen, para no revelar cuáles existen.
+- Verificación en dos pasos con una app de autenticación (TOTP, RFC 6238), obligatoria para el administrador y los empleados: la configuran en su primer inicio de sesión escaneando un código QR y no reciben ningún token hasta escribir el código del móvil. Un código no se acepta dos veces, los códigos incorrectos cuentan para el bloqueo del login y hay 10 códigos de recuperación de un solo uso para entrar sin el móvil. El secreto se guarda cifrado con AES-256-GCM y de los códigos de recuperación solo su HMAC.
 - Para cambiar la propia contraseña hay que indicar la actual.
 
 **Limitaciones conocidas** (decisiones asumidas en esta versión):
 
 - El contador de intentos vive en la memoria del backend: se reinicia al reiniciar el servicio y no se comparte entre varias instancias. Con una sola instancia es suficiente; para escalar habría que moverlo a Redis o a la base de datos.
 - El bloqueo por usuario permite que alguien bloquee a propósito la cuenta de otra persona durante 15 minutos (desde cualquier IP). Es el precio de frenar a quien prueba claves contra una cuenta desde muchas IP; el bloqueo por IP cubre el caso contrario.
-- Los tokens no se pueden revocar antes de caducar (por ejemplo, al cambiar la contraseña): siguen siendo válidos hasta las 4 horas.
+- La primera configuración de la verificación en dos pasos la hace quien conoce la contraseña: el administrador y cada empleado tienen que activarla en cuanto tengan su cuenta. Una vez activa, cambiarla exige quitarla antes (ver *Arranque en local*).
+- Los login a medias (contraseña correcta, falta el código) se guardan en memoria durante 5 minutos: si el backend se reinicia, hay que volver a escribir la contraseña.
 
 ### Pruebas de seguridad dinámicas
 
@@ -291,6 +293,15 @@ docker compose up -d --build
 Los secretos nunca se versionan: el `docker-compose.yml` los lee del `.env`. Todas las variables necesarias están descritas en [`.env.example`](./infra/docker/.env.example) y el despliegue se explica con más detalle en [`infra/README.md`](./infra/README.md).
 
 En local la aplicación se sirve en `http://localhost`. Para cargar datos de demostración (productos, mesas y un administrador), pon `APP_SEED_DEMO=true` y una contraseña en `APP_SEED_ADMIN_PASSWORD` dentro del `.env`. Un cliente se obtiene registrándose en la propia aplicación y abriendo el enlace del correo de confirmación, que en local llega a **Mailpit** (`http://localhost:8025`, solo desde el propio equipo): captura todos los correos y no entrega ninguno. Un empleado se crea desde Administración, Gestionar Usuarios.
+
+El administrador y los empleados configuran la verificación en dos pasos en su primer inicio de sesión, con una app de autenticación en el móvil (Google Authenticator, Microsoft Authenticator, Aegis...). Si alguien pierde el móvil y también los códigos de recuperación, se le quita desde la base de datos y la vuelve a configurar en su siguiente login (cambia `admin` por su usuario):
+
+```sql
+DELETE FROM codigos_recuperacion WHERE id_user = (SELECT id FROM users WHERE username = 'admin');
+DELETE FROM segundo_factor WHERE id_user = (SELECT id FROM users WHERE username = 'admin');
+```
+
+El secreto de cada usuario se cifra con `APP_TOTP_CLAVE` (o, si no se define, con una clave derivada de `JWT_SECRET`). Si esa clave cambia, los códigos dejan de valer y hay que quitarla igual a quien la tuviera activada.
 
 ---
 

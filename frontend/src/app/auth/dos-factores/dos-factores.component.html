@@ -1,0 +1,102 @@
+<div class="cuenta-correo dos-factores">
+  @switch (paso) {
+    @case ('verificar') {
+      <h2>Verificación en dos pasos</h2>
+      @if (usarRecuperacion) {
+        <p class="text-muted">Escribe uno de los códigos de recuperación que guardaste al activarla. Cada código sirve una sola vez.</p>
+      } @else {
+        <p class="text-muted">Abre tu app de autenticación y escribe el código de 6 dígitos de BarHub.</p>
+      }
+      <ng-container *ngTemplateOutlet="formulario"></ng-container>
+      <button type="button" class="btn btn-link btn-sm mt-2" (click)="alternarRecuperacion()">
+        {{ usarRecuperacion ? 'Usar el código de la app' : '¿No tienes el móvil? Usa un código de recuperación' }}
+      </button>
+    }
+
+    @case ('configurar') {
+      <h2>Activa la verificación en dos pasos</h2>
+      <p class="text-muted">Para proteger las cuentas del personal, además de la contraseña te pediremos un código que genera tu móvil.</p>
+      <ol class="pasos">
+        <li>Instala una app de autenticación, por ejemplo Google Authenticator, Microsoft Authenticator o Aegis.</li>
+        <li>
+          Escanea este código QR con la app:
+          @if (qr) {
+            <img class="qr" [src]="qr" width="208" height="208" alt="Código QR para añadir BarHub a la app de autenticación">
+          }
+          <span class="d-block small text-muted mt-2">¿No puedes escanearlo? Escribe esta clave en la app:</span>
+          <code class="secreto" data-testid="secreto-totp">{{ secretoAgrupado }}</code>
+        </li>
+        <li>Escribe el código de 6 dígitos que muestra la app.</li>
+      </ol>
+      <ng-container *ngTemplateOutlet="formulario"></ng-container>
+    }
+
+    @case ('codigos') {
+      <h2>Guarda tus códigos de recuperación</h2>
+      <p class="text-muted">Si pierdes el móvil, cada uno de estos códigos te deja entrar una sola vez. Guárdalos en un lugar seguro: no los volveremos a mostrar.</p>
+      <ul class="codigos" aria-label="Códigos de recuperación">
+        @for (codigo of codigosRecuperacion; track codigo) {
+          <li><code>{{ codigo }}</code></li>
+        }
+      </ul>
+      <div class="acciones">
+        <button type="button" class="btn btn-outline-secondary" (click)="descargarCodigos()">Descargar</button>
+        <button type="button" class="btn btn-outline-secondary" (click)="copiarCodigos()">{{ copiados ? 'Copiados' : 'Copiar' }}</button>
+      </div>
+      <div class="form-check mt-3 text-start">
+        <input class="form-check-input" type="checkbox" id="codigosGuardados" [checked]="codigosGuardados"
+          (change)="codigosGuardados = !codigosGuardados">
+        <label class="form-check-label" for="codigosGuardados">He guardado los códigos en un lugar seguro</label>
+      </div>
+      <div class="acciones">
+        <button type="button" class="btn btn-primary" [disabled]="!codigosGuardados" (click)="continuar()">Continuar</button>
+      </div>
+    }
+
+    @case ('recuperacionUsada') {
+      <h2>Has entrado con un código de recuperación</h2>
+      @if (restantes > 0) {
+        <p>Te {{ restantes === 1 ? 'queda 1 código' : 'quedan ' + restantes + ' códigos' }} de recuperación sin usar.</p>
+      } @else {
+        <p class="text-danger" role="alert">Ya no te quedan códigos de recuperación.</p>
+      }
+      <p class="text-muted">Si has perdido el acceso a la app de autenticación, pide al administrador que restablezca tu verificación en dos pasos.</p>
+      <div class="acciones">
+        <button type="button" class="btn btn-primary" (click)="continuar()">Continuar</button>
+      </div>
+    }
+
+    @case ('caducado') {
+      <h2>Verificación en dos pasos</h2>
+      <p class="text-danger" role="alert">{{ mensajeCaducado }}</p>
+      <div class="acciones">
+        <a class="btn btn-primary" routerLink="/auth/login">Iniciar sesión</a>
+      </div>
+    }
+
+    @default {
+      <p class="text-muted" role="status">Cargando…</p>
+    }
+  }
+</div>
+
+<ng-template #formulario>
+  <form [formGroup]="form" (ngSubmit)="enviar()" novalidate>
+    <label for="codigo2fa" class="form-label">{{ usarRecuperacion ? 'Código de recuperación' : 'Código de verificación' }}</label>
+    @if (usarRecuperacion) {
+      <input id="codigo2fa" class="form-control codigo" formControlName="codigo" autocomplete="off"
+        autocapitalize="characters" spellcheck="false" maxlength="11" placeholder="XXXXX-XXXXX"
+        [attr.aria-invalid]="!!error">
+    } @else {
+      <input id="codigo2fa" class="form-control codigo" formControlName="codigo" autocomplete="one-time-code"
+        inputmode="numeric" maxlength="7" placeholder="123456" [attr.aria-invalid]="!!error">
+    }
+    @if (error) {
+      <div class="text-danger mt-2" role="alert">{{ error }}</div>
+    }
+    <div class="acciones">
+      <button type="submit" class="btn btn-primary" [disabled]="enviando">{{ paso === 'configurar' ? 'Activar' : 'Verificar' }}</button>
+    </div>
+  </form>
+  <a class="small" routerLink="/auth/login">Volver al inicio de sesión</a>
+</ng-template>

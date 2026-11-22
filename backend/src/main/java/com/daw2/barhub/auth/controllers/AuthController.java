@@ -2,6 +2,8 @@ package com.daw2.barhub.auth.controllers;
 
 import com.daw2.barhub.auth.correo.CuentaCorreoService;
 import com.daw2.barhub.auth.correo.TokenCorreoInvalidoException;
+import com.daw2.barhub.auth.dosfactores.DesafioService;
+import com.daw2.barhub.auth.dosfactores.DosFactoresService;
 import com.daw2.barhub.auth.jwt.JwtUtils;
 import com.daw2.barhub.auth.models.Role;
 import com.daw2.barhub.auth.models.RoleEnum;
@@ -22,6 +24,7 @@ import com.daw2.barhub.model.dto.ErrorDto;
 import com.daw2.barhub.service.TurnoService;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -34,7 +37,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.WebUtils;
@@ -82,8 +84,18 @@ public class AuthController {
   @Autowired
   CuentaCorreoService cuentaCorreoService;
 
+  @Autowired
+  DosFactoresService dosFactores;
+
+  @Autowired
+  DesafioService desafios;
+
   /** Codigo del 403 de un login correcto con el correo sin confirmar (el frontend ofrece reenviarlo). */
   public static final String CODIGO_CORREO_SIN_CONFIRMAR = "EMAIL_NO_VERIFICADO";
+  /** Codigo del 401 del segundo paso con un codigo que no es correcto. */
+  public static final String CODIGO_INCORRECTO = "CODIGO_INCORRECTO";
+  /** Codigo del 401 del segundo paso cuando el desafio ya no vale: hay que volver a escribir la contrasena. */
+  public static final String CODIGO_DESAFIO_CADUCADO = "DESAFIO_CADUCADO";
 
   public record TokenRequest(@NotBlank String token) {
   }
@@ -97,6 +109,22 @@ public class AuthController {
   public record RestablecerRequest(@NotBlank String token, @NotBlank String password) {
   }
 
+  public record DesafioRequest(@NotBlank String desafio) {
+  }
+
+  public record CodigoRequest(@NotBlank String desafio, @NotBlank @Size(max = 20) String codigo) {
+  }
+
+  /**
+   * Respuesta de un login con la contrasena correcta al que le falta el segundo paso. Con
+   * {@code configurar} el rol del usuario la exige y aun no la ha activado.
+   */
+  public record DesafioResponse(boolean requiere2fa, boolean configurar, String desafio, long caducaEnSegundos) {
+  }
+
+  public record ConfiguracionResponse(String secreto, String uri) {
+  }
+
   @PostMapping("/login")
   public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest, HttpServletRequest request) {
 
@@ -104,11 +132,7 @@ public class AuthController {
     String ip = ipCliente(request);
     long espera = loginAttemptService.segundosRestantes(usuario, ip);
     if (espera > 0) {
-      long minutos = (espera + 59) / 60;
-      return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
-              .header("Retry-After", String.valueOf(espera))
-              .body(new MessageResponse("Demasiados intentos fallidos. Vuelve a intentarlo en "
-                      + minutos + (minutos == 1 ? " minuto." : " minutos.")));
+      return demasiadosIntentos(espera);
     }
 
     Authentication authentication;
@@ -120,7 +144,6 @@ public class AuthController {
       loginAttemptService.registrarFallo(usuario, ip);
       throw e;
     }
-    loginAttemptService.registrarExito(usuario);
 
     UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
     // La clave es correcta, pero la cuenta no se puede usar hasta confirmar el correo
@@ -128,20 +151,131 @@ public class AuthController {
             .map(cuenta -> !cuenta.correoVerificado())
             .orElse(false);
     if (sinConfirmar) {
+      loginAttemptService.registrarExito(usuario);
       return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ErrorDto(CODIGO_CORREO_SIN_CONFIRMAR,
               "Confirma tu correo antes de iniciar sesión: te enviamos un enlace al registrarte."));
     }
-    SecurityContextHolder.getContext().setAuthentication(authentication);
 
+    boolean conDosFactores = dosFactores.activo(userDetails.getId());
+    if (conDosFactores || dosFactores.obligatorio(roles(userDetails))) {
+      // Falta el segundo paso. El contador de fallos no se limpia hasta terminarlo: asi los codigos
+      // incorrectos suman para el bloqueo y repetir la contrasena no da intentos nuevos
+      DesafioService.Proposito proposito = conDosFactores
+              ? DesafioService.Proposito.VERIFICAR : DesafioService.Proposito.CONFIGURAR;
+      String desafio = desafios.crear(userDetails.getId(), usuario, proposito);
+      return ResponseEntity.ok(new DesafioResponse(true, !conDosFactores, desafio, DesafioService.DURACION.toSeconds()));
+    }
+
+    loginAttemptService.registrarExito(usuario);
+    return completarLogin(userDetails, request);
+  }
+
+  /** Segundo paso con el codigo de la app de autenticacion o un codigo de recuperacion. */
+  @PostMapping("/2fa/verificar")
+  public ResponseEntity<?> verificarDosFactores(@Valid @RequestBody CodigoRequest peticion, HttpServletRequest request) {
+    DesafioService.Desafio desafio = desafios.consultar(peticion.desafio(), DesafioService.Proposito.VERIFICAR).orElse(null);
+    if (desafio == null) {
+      return desafioCaducado();
+    }
+    String ip = ipCliente(request);
+    long espera = loginAttemptService.segundosRestantes(desafio.usuario(), ip);
+    if (espera > 0) {
+      desafios.consumir(peticion.desafio());
+      return demasiadosIntentos(espera);
+    }
+
+    DosFactoresService.Verificacion verificacion = dosFactores.verificar(desafio.usuarioId(), peticion.codigo());
+    if (!verificacion.valida()) {
+      return codigoIncorrecto(peticion.desafio(), desafio, ip);
+    }
+    desafios.consumir(peticion.desafio());
+    loginAttemptService.registrarExito(desafio.usuario());
+    ResponseEntity<?> respuesta = completarLogin(desafio.usuarioId(), request);
+    if (verificacion.conCodigoRecuperacion() && respuesta.getBody() instanceof JwtResponse sesion) {
+      sesion.setCodigosRecuperacionRestantes(verificacion.codigosRestantes());
+    }
+    return respuesta;
+  }
+
+  /** Primer paso de la configuracion obligatoria: secreto nuevo para la app (clave y URI del QR). */
+  @PostMapping("/2fa/configurar")
+  public ResponseEntity<?> configurarDosFactores(@Valid @RequestBody DesafioRequest peticion) {
+    DesafioService.Desafio desafio = desafios.consultar(peticion.desafio(), DesafioService.Proposito.CONFIGURAR).orElse(null);
+    User usuario = desafio == null ? null : userRepository.findById(desafio.usuarioId()).orElse(null);
+    if (usuario == null) {
+      return desafioCaducado();
+    }
+    DosFactoresService.Configuracion configuracion = dosFactores.prepararConfiguracion(usuario.getId(), usuario.getUsername());
+    return ResponseEntity.ok(new ConfiguracionResponse(configuracion.secreto(), configuracion.uri()));
+  }
+
+  /** Activa la configuracion con el primer codigo de la app y termina el login con los codigos de recuperacion. */
+  @PostMapping("/2fa/activar")
+  public ResponseEntity<?> activarDosFactores(@Valid @RequestBody CodigoRequest peticion, HttpServletRequest request) {
+    DesafioService.Desafio desafio = desafios.consultar(peticion.desafio(), DesafioService.Proposito.CONFIGURAR).orElse(null);
+    if (desafio == null) {
+      return desafioCaducado();
+    }
+    String ip = ipCliente(request);
+    long espera = loginAttemptService.segundosRestantes(desafio.usuario(), ip);
+    if (espera > 0) {
+      desafios.consumir(peticion.desafio());
+      return demasiadosIntentos(espera);
+    }
+
+    Optional<List<String>> codigos = dosFactores.activar(desafio.usuarioId(), peticion.codigo());
+    if (codigos.isEmpty()) {
+      return codigoIncorrecto(peticion.desafio(), desafio, ip);
+    }
+    desafios.consumir(peticion.desafio());
+    loginAttemptService.registrarExito(desafio.usuario());
+    ResponseEntity<?> respuesta = completarLogin(desafio.usuarioId(), request);
+    if (respuesta.getBody() instanceof JwtResponse sesion) {
+      sesion.setCodigosRecuperacion(codigos.get());
+    }
+    return respuesta;
+  }
+
+  /** Abre la sesion: turno del empleado, sesion en el servidor, token de acceso y cookie de renovacion. */
+  private ResponseEntity<?> completarLogin(UserDetailsImpl userDetails, HttpServletRequest request) {
     // El turno va antes que la sesion nueva: asi un turno viejo sin sesiones abiertas se cierra primero
     turnoService.abrirSiCorresponde(userDetails.getId(), userDetails.getUsername(), roles(userDetails));
     SesionService.NuevaSesion nueva = sesionService.abrir(userDetails.getId(), roles(userDetails),
-            ip, request.getHeader(HttpHeaders.USER_AGENT));
-    String jwt = jwtUtils.generateJwtToken(authentication, nueva.sesion().getId());
+            ipCliente(request), request.getHeader(HttpHeaders.USER_AGENT));
+    String jwt = jwtUtils.generarTokenAcceso(userDetails, nueva.sesion().getId());
 
     return ResponseEntity.ok()
             .header(HttpHeaders.SET_COOKIE, cookieRenovacion(nueva.tokenRenovacion(), nueva.sesion().getCaducaEn()).toString())
             .body(respuesta(jwt, userDetails, nueva.sesion()));
+  }
+
+  private ResponseEntity<?> completarLogin(Long usuarioId, HttpServletRequest request) {
+    return userRepository.findById(usuarioId)
+            .<ResponseEntity<?>>map(usuario -> completarLogin(UserDetailsImpl.build(usuario), request))
+            .orElseGet(AuthController::desafioCaducado);
+  }
+
+  private ResponseEntity<?> codigoIncorrecto(String token, DesafioService.Desafio desafio, String ip) {
+    loginAttemptService.registrarFallo(desafio.usuario(), ip);
+    if (!desafios.registrarFallo(token)) {
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ErrorDto(CODIGO_DESAFIO_CADUCADO,
+              "Demasiados códigos incorrectos. Vuelve a iniciar sesión."));
+    }
+    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ErrorDto(CODIGO_INCORRECTO,
+            "Código incorrecto. Comprueba que la hora del móvil es la correcta y vuelve a intentarlo."));
+  }
+
+  private static ResponseEntity<?> desafioCaducado() {
+    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ErrorDto(CODIGO_DESAFIO_CADUCADO,
+            "Ha pasado demasiado tiempo. Vuelve a iniciar sesión."));
+  }
+
+  private static ResponseEntity<?> demasiadosIntentos(long espera) {
+    long minutos = (espera + 59) / 60;
+    return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+            .header("Retry-After", String.valueOf(espera))
+            .body(new MessageResponse("Demasiados intentos fallidos. Vuelve a intentarlo en "
+                    + minutos + (minutos == 1 ? " minuto." : " minutos.")));
   }
 
   /**
