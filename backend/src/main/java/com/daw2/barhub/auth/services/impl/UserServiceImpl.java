@@ -81,6 +81,8 @@ public class UserServiceImpl implements UserService {
         // Siempre un usuario nuevo: un id en la peticion no puede sobrescribir otra cuenta
         user.setId(null);
         user.setPassword(passwordEncoder.encode(usuarioDto.getPassword()));
+        // El administrador da de alta al personal con un correo conocido: no hace falta confirmarlo
+        user.setEmailVerificado(true);
 
         Set<Role> roles;
         if (usuarioDto.getRoles() != null && !usuarioDto.getRoles().isEmpty()) {

@@ -6,6 +6,20 @@
     (closed)="showToast = false">
   </app-toast>
 
+  @if (registrado) {
+    <div class="registro-confirmar" role="status">
+      <h2>Revisa tu correo</h2>
+      <p>
+        Te hemos enviado un correo a <strong>{{ correoEnviadoA }}</strong> con un enlace para confirmar tu cuenta.
+        Ábrelo para poder iniciar sesión; caduca en 24 horas.
+      </p>
+      <p class="text-muted">¿No te llega? Mira en la carpeta de correo no deseado o pide otro.</p>
+      <div class="d-flex flex-wrap gap-2 justify-content-center">
+        <button type="button" class="btn btn-outline-secondary" (click)="reenviarCorreo()">Reenviar correo</button>
+        <a class="btn btn-primary" routerLink="/auth/login">Ir al inicio de sesión</a>
+      </div>
+    </div>
+  } @else {
   <h2>Registro</h2>
   <form #registerForm="ngForm" (ngSubmit)="onSubmit()">
 
@@ -173,4 +187,5 @@
 
     <button type="submit" [disabled]="registerForm.invalid || form.password !== confirmPassword || !aceptaPoliticas"> Registrarse </button>
   </form>
+  }
 </div>

@@ -62,6 +62,10 @@ jwt:
   jwtExpirationMs: 900000
 
 app:
+  # URL con la que el usuario abre la web: la usan los enlaces de los correos
+  url-publica: ${APP_URL_PUBLICA:http://localhost}
+  correo:
+    remitente: ${APP_CORREO_REMITENTE:BarHub <no-responder@barhub.local>}
   sesion:
     # Cookie HttpOnly con el token de renovacion. La ruta es la que ve el navegador: con Caddy, /api/auth;
     # con ng serve contra el backend directo (http://localhost:8080) hay que usar /auth

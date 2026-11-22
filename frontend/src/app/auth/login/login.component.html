@@ -31,4 +31,13 @@
     </label>
     <button type="submit">Login</button>
   </form>
+  @if (pendienteConfirmar) {
+    <div class="login-confirmar" role="status">
+      <p>Tu cuenta está pendiente de confirmar. Busca el correo que te enviamos o pide otro.</p>
+      <button type="button" class="btn btn-outline-secondary" (click)="reenviarConfirmacion()">
+        Reenviar correo de confirmación
+      </button>
+    </div>
+  }
+  <p class="login-olvido"><a routerLink="/auth/recuperar">¿Has olvidado tu contraseña?</a></p>
 </div>

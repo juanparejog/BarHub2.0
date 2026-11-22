@@ -15,6 +15,7 @@ import java.time.Instant;
 import java.util.Base64;
 import java.util.Collection;
 import java.util.HexFormat;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -34,6 +35,7 @@ public class SesionService {
 
     public static final String MOTIVO_CIERRE = "CIERRE";
     public static final String MOTIVO_REUTILIZACION = "REUTILIZACION";
+    public static final String MOTIVO_CAMBIO_CLAVE = "CAMBIO_CLAVE";
 
     /** La actividad se apunta como mucho una vez por minuto, para no escribir en cada peticion. */
     static final Duration INTERVALO_ACTIVIDAD = Duration.ofMinutes(1);
@@ -141,6 +143,15 @@ public class SesionService {
                 .or(() -> repositorio.findByTokenAnteriorHash(huella))
                 .filter(s -> s.getRevocadaEn() == null)
                 .ifPresent(s -> revocar(s, reloj.instant(), MOTIVO_CIERRE));
+    }
+
+    /** Cierra todas las sesiones abiertas de un usuario (por ejemplo, al restablecer la contrasena). */
+    @Transactional
+    public int cerrarTodas(Long usuarioId) {
+        Instant ahora = reloj.instant();
+        List<Sesion> abiertas = repositorio.findByUsuarioIdAndRevocadaEnIsNull(usuarioId);
+        abiertas.forEach(s -> revocar(s, ahora, MOTIVO_CAMBIO_CLAVE));
+        return abiertas.size();
     }
 
     @Scheduled(cron = "${app.sesion.limpieza-cron:0 15 4 * * *}")

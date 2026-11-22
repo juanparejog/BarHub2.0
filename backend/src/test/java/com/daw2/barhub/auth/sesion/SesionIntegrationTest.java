@@ -60,6 +60,10 @@ class SesionIntegrationTest {
                         {"username":"%s","email":"%s@example.com","password":"%s","nombre":"Prueba","apellido1":"Tests"}
                         """.formatted(USUARIO, USUARIO, CLAVE)))
                 .andExpect(status().isOk());
+        // como si hubiera abierto el enlace del correo de confirmacion
+        var usuario = userRepository.findByUsername(USUARIO).orElseThrow();
+        usuario.setEmailVerificado(true);
+        userRepository.save(usuario);
     }
 
     @AfterEach

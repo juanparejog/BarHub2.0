@@ -107,7 +107,7 @@ flowchart LR
 | **Backend** | Java 21, Spring Boot 4.2, Spring Security 7, JWT (jjwt 0.13), Gradle |
 | **Frontend** | Angular 22 (build con esbuild), TypeScript 6, Bootstrap 5.3, Bootstrap Icons |
 | **Base de datos** | MariaDB |
-| **Infraestructura** | Docker (multi-stage), Docker Compose, Caddy, DuckDNS, Uptime Kuma |
+| **Infraestructura** | Docker (multi-stage), Docker Compose, Caddy, DuckDNS, Uptime Kuma, Mailpit (correo en local) |
 | **Calidad y seguridad** | SonarQube / SonarCloud, Snyk, Trivy, GitHub Actions, Dependabot |
 
 ---
@@ -290,7 +290,7 @@ docker compose up -d --build
 
 Los secretos nunca se versionan: el `docker-compose.yml` los lee del `.env`. Todas las variables necesarias están descritas en [`.env.example`](./infra/docker/.env.example) y el despliegue se explica con más detalle en [`infra/README.md`](./infra/README.md).
 
-En local la aplicación se sirve en `http://localhost`. Para cargar datos de demostración (productos, mesas y un administrador), pon `APP_SEED_DEMO=true` y una contraseña en `APP_SEED_ADMIN_PASSWORD` dentro del `.env`. Un cliente se obtiene registrándose en la propia aplicación, y un empleado asignando el rol desde Administración, Gestionar Usuarios.
+En local la aplicación se sirve en `http://localhost`. Para cargar datos de demostración (productos, mesas y un administrador), pon `APP_SEED_DEMO=true` y una contraseña en `APP_SEED_ADMIN_PASSWORD` dentro del `.env`. Un cliente se obtiene registrándose en la propia aplicación y abriendo el enlace del correo de confirmación, que en local llega a **Mailpit** (`http://localhost:8025`, solo desde el propio equipo): captura todos los correos y no entrega ninguno. Un empleado se crea desde Administración, Gestionar Usuarios.
 
 ---
 

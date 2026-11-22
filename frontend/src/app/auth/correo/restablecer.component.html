@@ -1,0 +1,37 @@
+<div class="cuenta-correo">
+  <h2>Nueva contraseña</h2>
+  @if (enlaceIncompleto) {
+    <p class="text-danger" role="alert">El enlace está incompleto. Ábrelo de nuevo desde el correo o pide otro.</p>
+    <div class="acciones">
+      <a class="btn btn-primary" routerLink="/auth/recuperar">Pedir otro enlace</a>
+    </div>
+  } @else if (cambiada) {
+    <p class="text-success fw-semibold" role="status">{{ mensaje }}</p>
+    <p class="text-muted">Por seguridad, se han cerrado todas tus sesiones abiertas.</p>
+    <div class="acciones">
+      <a class="btn btn-primary" routerLink="/auth/login">Iniciar sesión</a>
+    </div>
+  } @else {
+    <form [formGroup]="form" (ngSubmit)="cambiar()" novalidate>
+      <label for="nuevaClave" class="form-label">Contraseña nueva</label>
+      <input id="nuevaClave" type="password" class="form-control" formControlName="password" autocomplete="new-password"
+        [attr.aria-invalid]="form.controls.password.invalid && form.controls.password.touched">
+      @if (form.controls.password.invalid && form.controls.password.touched) {
+        <div class="text-danger small mt-1">Entre 8 y 40 caracteres, con al menos una minúscula, una mayúscula y un número.</div>
+      }
+      <label for="repetirClave" class="form-label mt-3">Repite la contraseña</label>
+      <input id="repetirClave" type="password" class="form-control" formControlName="repetir" autocomplete="new-password"
+        [attr.aria-invalid]="noCoinciden">
+      @if (noCoinciden) {
+        <div class="text-danger small mt-1">Las contraseñas no coinciden.</div>
+      }
+      @if (error) {
+        <div class="text-danger mt-2" role="alert">{{ error }}</div>
+        <a class="small" routerLink="/auth/recuperar">Pedir otro enlace</a>
+      }
+      <div class="acciones">
+        <button type="submit" class="btn btn-primary" [disabled]="guardando">Cambiar contraseña</button>
+      </div>
+    </form>
+  }
+</div>

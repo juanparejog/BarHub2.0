@@ -1,5 +1,7 @@
 package com.daw2.barhub.auth.controllers;
 
+import com.daw2.barhub.auth.correo.CuentaCorreoService;
+import com.daw2.barhub.auth.correo.TokenCorreoInvalidoException;
 import com.daw2.barhub.auth.jwt.JwtUtils;
 import com.daw2.barhub.auth.models.Role;
 import com.daw2.barhub.auth.models.RoleEnum;
@@ -16,7 +18,10 @@ import com.daw2.barhub.auth.sesion.Sesion;
 import com.daw2.barhub.auth.sesion.SesionInvalidaException;
 import com.daw2.barhub.auth.sesion.SesionProperties;
 import com.daw2.barhub.auth.sesion.SesionService;
+import com.daw2.barhub.model.dto.ErrorDto;
 import com.daw2.barhub.service.TurnoService;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -74,6 +79,24 @@ public class AuthController {
   @Autowired
   TurnoService turnoService;
 
+  @Autowired
+  CuentaCorreoService cuentaCorreoService;
+
+  /** Codigo del 403 de un login correcto con el correo sin confirmar (el frontend ofrece reenviarlo). */
+  public static final String CODIGO_CORREO_SIN_CONFIRMAR = "EMAIL_NO_VERIFICADO";
+
+  public record TokenRequest(@NotBlank String token) {
+  }
+
+  public record ReenvioRequest(@NotBlank String usuario) {
+  }
+
+  public record RecuperacionRequest(@NotBlank @Email String email) {
+  }
+
+  public record RestablecerRequest(@NotBlank String token, @NotBlank String password) {
+  }
+
   @PostMapping("/login")
   public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest, HttpServletRequest request) {
 
@@ -99,8 +122,16 @@ public class AuthController {
     }
     loginAttemptService.registrarExito(usuario);
 
-    SecurityContextHolder.getContext().setAuthentication(authentication);
     UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+    // La clave es correcta, pero la cuenta no se puede usar hasta confirmar el correo
+    boolean sinConfirmar = userRepository.findById(userDetails.getId())
+            .map(cuenta -> !cuenta.correoVerificado())
+            .orElse(false);
+    if (sinConfirmar) {
+      return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ErrorDto(CODIGO_CORREO_SIN_CONFIRMAR,
+              "Confirma tu correo antes de iniciar sesión: te enviamos un enlace al registrarte."));
+    }
+    SecurityContextHolder.getContext().setAuthentication(authentication);
 
     // El turno va antes que la sesion nueva: asi un turno viejo sin sesiones abiertas se cierra primero
     turnoService.abrirSiCorresponde(userDetails.getId(), userDetails.getUsername(), roles(userDetails));
@@ -218,7 +249,48 @@ public class AuthController {
               .orElseThrow(() -> new IllegalStateException("Rol ROLE_CLIENTE no encontrado en la BD."));
           user.setRoles(new HashSet<>(List.of(clienteRole)));
 
+          user.setEmailVerificado(false);
           userRepository.save(user);
-          return ResponseEntity.ok(new MessageResponse("Usuario registrado correctamente."));
+          cuentaCorreoService.enviarConfirmacion(user);
+          return ResponseEntity.ok(new MessageResponse(
+                  "Te hemos enviado un correo para confirmar tu cuenta. Ábrelo para poder iniciar sesión."));
         }
+
+  /** Confirma el correo con el enlace recibido al registrarse. */
+  @PostMapping("/verificar")
+  public ResponseEntity<MessageResponse> confirmarCorreo(@Valid @RequestBody TokenRequest peticion) {
+    try {
+      cuentaCorreoService.confirmar(peticion.token());
+      return ResponseEntity.ok(new MessageResponse("Correo confirmado. Ya puedes iniciar sesión."));
+    } catch (TokenCorreoInvalidoException e) {
+      return ResponseEntity.badRequest().body(new MessageResponse(e.getMessage()));
+    }
+  }
+
+  /** Vuelve a enviar el correo de confirmacion. Responde lo mismo exista o no la cuenta. */
+  @PostMapping("/reenviar-verificacion")
+  public ResponseEntity<MessageResponse> reenviarConfirmacion(@Valid @RequestBody ReenvioRequest peticion) {
+    cuentaCorreoService.reenviarConfirmacion(peticion.usuario());
+    return ResponseEntity.ok(new MessageResponse(
+            "Si la cuenta existe y falta confirmarla, te hemos enviado un correo nuevo."));
+  }
+
+  /** "He olvidado mi contrasena". Responde lo mismo exista o no una cuenta con ese correo. */
+  @PostMapping("/recuperar")
+  public ResponseEntity<MessageResponse> recuperar(@Valid @RequestBody RecuperacionRequest peticion) {
+    cuentaCorreoService.solicitarRecuperacion(peticion.email());
+    return ResponseEntity.ok(new MessageResponse(
+            "Si hay una cuenta con ese correo, te hemos enviado un enlace para elegir una contraseña nueva."));
+  }
+
+  /** Nueva contrasena con el enlace del correo; cierra todas las sesiones abiertas de la cuenta. */
+  @PostMapping("/restablecer")
+  public ResponseEntity<MessageResponse> restablecer(@Valid @RequestBody RestablecerRequest peticion) {
+    try {
+      cuentaCorreoService.restablecer(peticion.token(), peticion.password());
+      return ResponseEntity.ok(new MessageResponse("Contraseña cambiada. Ya puedes iniciar sesión."));
+    } catch (TokenCorreoInvalidoException | IllegalArgumentException e) {
+      return ResponseEntity.badRequest().body(new MessageResponse(e.getMessage()));
+    }
+  }
 }

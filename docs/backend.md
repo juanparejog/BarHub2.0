@@ -57,9 +57,13 @@ Las rutas se muestran como las ve el backend. Desde fuera, Caddy las publica baj
 | Método | Endpoint | Descripción |
 | :--- | :--- | :--- |
 | `POST` | `/auth/signup` | Registro de nuevos usuarios (clientes o personal) |
-| `POST` | `/auth/login` | Inicio de sesión: token de acceso JWT (15 min) en el cuerpo y cookie `HttpOnly` de renovación |
+| `POST` | `/auth/login` | Inicio de sesión: token de acceso JWT (15 min) en el cuerpo y cookie `HttpOnly` de renovación; `403 EMAIL_NO_VERIFICADO` si falta confirmar el correo |
 | `POST` | `/auth/refresh` | Token de acceso nuevo a partir de la cookie, que se rota; `401` si la sesión está cerrada o caducada |
 | `POST` | `/auth/logout` | Cierra la sesión en el servidor y borra la cookie (`204`) |
+| `POST` | `/auth/verificar` | Confirma el correo con el token del enlace (`400` si no vale o ha caducado) |
+| `POST` | `/auth/reenviar-verificacion` | Vuelve a enviar el correo de confirmación (respuesta genérica) |
+| `POST` | `/auth/recuperar` | Envía el enlace para restablecer la contraseña (respuesta genérica) |
+| `POST` | `/auth/restablecer` | Contraseña nueva con el token del enlace; cierra todas las sesiones de la cuenta |
 
 ### 3.2. Mesas · `/mesas`
 

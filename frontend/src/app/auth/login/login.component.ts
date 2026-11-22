@@ -45,7 +45,20 @@ export class LoginComponent implements OnInit {
     }
   }
 
+  /** Login correcto pero sin confirmar el correo: se ofrece reenviar el enlace. */
+  pendienteConfirmar = false;
+
+  reenviarConfirmacion(): void {
+    this.authService.reenviarConfirmacion(this.form.value.username).subscribe({
+      next: res => this.showToastMessage(res.message, 'success', 6000),
+      error: () => this.showToastMessage('No se pudo reenviar el correo. Inténtalo más tarde.', 'error')
+    });
+  }
+
   private mensajeDeError(err: any): string {
+    if (err?.status === 403 && err.error?.code === 'EMAIL_NO_VERIFICADO') {
+      return err.error.message;
+    }
     if (err?.status === 429) {
       return err.error?.message ?? 'Demasiados intentos fallidos. Vuelve a intentarlo más tarde.';
     }
@@ -63,6 +76,7 @@ export class LoginComponent implements OnInit {
       password: this.form.value.password
     };
   
+    this.pendienteConfirmar = false;
     this.authService.login(credentials).subscribe({
       next: (res: any) => {
         localStorage.setItem('token', res.token);
@@ -81,8 +95,9 @@ export class LoginComponent implements OnInit {
         void this.router.navigate(['/carta']);
       },
       error: (err) => {
-        console.error('Error de login:', err);
-        this.showToastMessage(this.mensajeDeError(err), 'error', err?.status === 429 ? 8000 : 3000);
+        this.pendienteConfirmar = err?.status === 403 && err.error?.code === 'EMAIL_NO_VERIFICADO';
+        const duracion = err?.status === 429 || this.pendienteConfirmar ? 8000 : 3000;
+        this.showToastMessage(this.mensajeDeError(err), 'error', duracion);
       }
     });
   }

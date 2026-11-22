@@ -64,10 +64,14 @@ class AuthIntegrationTest {
                 """.formatted(username, password);
     }
 
+    /** Registro y, como si hubiera abierto el enlace del correo, cuenta confirmada (ver CorreoIntegrationTest). */
     private void registrar(String username, String email, String password) throws Exception {
         mvc.perform(post("/auth/signup").contentType(MediaType.APPLICATION_JSON)
                         .content(registro(username, email, password)))
                 .andExpect(status().isOk());
+        User usuario = userRepository.findByUsername(username).orElseThrow();
+        usuario.setEmailVerificado(true);
+        userRepository.save(usuario);
     }
 
     private String iniciarSesion(String username, String password) throws Exception {

@@ -40,6 +40,14 @@ services:
       - APP_SEED_DEMO=${APP_SEED_DEMO:-false}
       - APP_SEED_ADMIN_USERNAME=${APP_SEED_ADMIN_USERNAME:-admin}
       - APP_SEED_ADMIN_PASSWORD=${APP_SEED_ADMIN_PASSWORD:-}
+      # Correo: por defecto Mailpit (local). En produccion, el SMTP real con MAIL_HOST, MAIL_PORT,
+      # MAIL_USERNAME y MAIL_PASSWORD (y MAIL_STARTTLS=true)
+      - SPRING_MAIL_HOST=${MAIL_HOST:-mailpit}
+      - SPRING_MAIL_PORT=${MAIL_PORT:-1025}
+      - SPRING_MAIL_USERNAME=${MAIL_USERNAME:-}
+      - SPRING_MAIL_PASSWORD=${MAIL_PASSWORD:-}
+      - SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE=${MAIL_STARTTLS:-false}
+      - APP_URL_PUBLICA=${SITE_ADDRESS:-http://localhost}
     volumes:
       - uploads_usuarios:/data/uploads/usuarios
       - uploads_productos:/data/uploads/productos
@@ -87,6 +95,17 @@ services:
       - LOG_FILE=false
     volumes:
       - ../duckdns:/config
+    networks:
+      - barhub-net
+
+  mailpit:
+    # Solo para desarrollo y pruebas: captura todos los correos y no entrega ninguno.
+    # Bandeja en http://localhost:8025 (solo desde el propio equipo)
+    image: axllent/mailpit:v1.33.1
+    container_name: barhub-mailpit
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8025:8025"
     networks:
       - barhub-net
 

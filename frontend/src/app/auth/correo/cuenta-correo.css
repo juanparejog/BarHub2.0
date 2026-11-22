@@ -1,0 +1,21 @@
+.cuenta-correo {
+  background: var(--card-bg);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px var(--shadow-color);
+  padding: 40px 32px;
+  max-width: 420px;
+  margin: 80px auto;
+  text-align: center;
+}
+
+.cuenta-correo form {
+  text-align: left;
+}
+
+.cuenta-correo .acciones {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+}

@@ -133,4 +133,24 @@ export class AuthService {
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     return user.nombre || user.username || '';
   }
+
+  /** Confirma la cuenta con el token del enlace del correo. */
+  confirmarCorreo(token: string): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${this.apiUrl}/verificar`, { token });
+  }
+
+  /** Vuelve a enviar el correo de confirmacion (por nombre de usuario o email). */
+  reenviarConfirmacion(usuario: string): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${this.apiUrl}/reenviar-verificacion`, { usuario });
+  }
+
+  /** "He olvidado mi contrasena": envia el enlace si hay una cuenta con ese correo. */
+  solicitarRecuperacion(email: string): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${this.apiUrl}/recuperar`, { email });
+  }
+
+  /** Nueva contrasena con el token del enlace del correo. */
+  restablecerContrasena(token: string, password: string): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${this.apiUrl}/restablecer`, { token, password });
+  }
 }

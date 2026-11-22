@@ -99,6 +99,17 @@ public class User {
   @Column(columnDefinition = "TEXT")
   private String imagen;
 
+  /**
+   * false mientras el cliente no confirme su correo. Las cuentas anteriores a la verificacion por
+   * correo (null) y las que crea un administrador cuentan como confirmadas.
+   */
+  @Column(name = "email_verificado")
+  private Boolean emailVerificado;
+
+  public boolean correoVerificado() {
+    return !Boolean.FALSE.equals(emailVerificado);
+  }
+
   @ManyToMany(fetch = FetchType.LAZY)
   @JoinTable(name = "user_roles",
           joinColumns = @JoinColumn(name = "user_id"),

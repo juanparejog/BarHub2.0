@@ -1,5 +1,4 @@
 import { AuthService } from '../auth.service';
-import { Router } from '@angular/router';
 import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { catchError, of } from 'rxjs';
@@ -32,6 +31,9 @@ export class RegisterComponent {
   showPassword = false;
   showConfirmPassword = false;
   showToast = false;
+  /** Tras registrarse: se muestra el aviso de confirmar el correo en lugar del formulario. */
+  registrado = false;
+  correoEnviadoA = '';
   toastMessage = '';
   toastType: 'success' | 'error' | 'info' = 'info';
 
@@ -44,8 +46,7 @@ export class RegisterComponent {
 
   constructor(
     private readonly http: HttpClient,
-    private readonly authService: AuthService,
-    private readonly router: Router
+    private readonly authService: AuthService
   ) {}
 
   onSubmit(): void {
@@ -76,18 +77,9 @@ export class RegisterComponent {
       .subscribe({
         next: (res) => {
           if (res) {
-            this.showToastMessage('Registro exitoso', 'success');
-            this.authService.login({
-              username: this.form.username,
-              password: this.form.password
-            }).subscribe({
-              next: () => {
-                void this.router.navigate(['/carta']);
-              },
-              error: () => {
-                this.showToastMessage('Error al iniciar sesión automáticamente');
-              }
-            });
+            // La cuenta no se puede usar hasta abrir el enlace del correo
+            this.correoEnviadoA = this.form.email;
+            this.registrado = true;
           }
         },
         error: (err) => {
@@ -97,5 +89,12 @@ export class RegisterComponent {
           }
         }
       });
-  }    
+  }
+
+  reenviarCorreo(): void {
+    this.authService.reenviarConfirmacion(this.form.username).subscribe({
+      next: res => this.showToastMessage(res.message, 'success'),
+      error: () => this.showToastMessage('No se pudo reenviar el correo. Inténtalo más tarde.')
+    });
+  }
 }

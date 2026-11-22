@@ -17,6 +17,8 @@ public interface SesionRepository extends JpaRepository<Sesion, String> {
 
     List<Sesion> findByUsuarioIdAndCreadaGreaterThanEqual(Long usuarioId, Instant desde);
 
+    List<Sesion> findByUsuarioIdAndRevocadaEnIsNull(Long usuarioId);
+
     @Modifying
     @Query("delete from Sesion s where s.caducaEn < :limite or s.revocadaEn < :limite")
     int borrarAnterioresA(@Param("limite") Instant limite);

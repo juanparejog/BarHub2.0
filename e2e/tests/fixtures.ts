@@ -1,4 +1,4 @@
-import { test as base, expect, type Page } from '@playwright/test';
+import { test as base, expect, type APIRequestContext, type Page } from '@playwright/test';
 
 /** Administrador creado por DemoDataSeeder (APP_SEED_ADMIN_USERNAME y APP_SEED_ADMIN_PASSWORD). */
 export const ADMIN = {
@@ -67,4 +67,52 @@ export async function avisoAlVisitar(page: Page, ruta: string): Promise<string> 
   await page.goto(ruta);
   await expect.poll(() => mensaje).not.toBe('');
   return mensaje;
+}
+
+/** Bandeja de Mailpit, que captura los correos del backend en local y en el CI. */
+const MAILPIT = process.env.E2E_MAILPIT_URL ?? 'http://localhost:8025';
+
+/**
+ * Enlace del ultimo correo recibido por {@code email} que lleve a {@code ruta}
+ * ('verificar' o 'restablecer'), como ruta relativa lista para page.goto(). El correo se envia en
+ * segundo plano, asi que se espera a que llegue.
+ */
+export async function enlaceDelCorreo(request: APIRequestContext, email: string, ruta: string): Promise<string> {
+  const patron = new RegExp(`/auth/${ruta}#token=[\\w-]+`);
+  let enlace: string | undefined;
+  await expect.poll(async () => {
+    const busqueda = await request.get(`${MAILPIT}/api/v1/search`, { params: { query: `to:"${email}"` } });
+    if (!busqueda.ok()) {
+      return undefined;
+    }
+    for (const resumen of (await busqueda.json()).messages ?? []) {
+      const mensaje = await (await request.get(`${MAILPIT}/api/v1/message/${resumen.ID}`)).json();
+      const encontrado = patron.exec(mensaje.Text ?? '');
+      if (encontrado) {
+        enlace = encontrado[0];
+        return enlace;
+      }
+    }
+    return undefined;
+  }, { message: `correo con /auth/${ruta} para ${email} en Mailpit`, timeout: 20_000 }).toBeDefined();
+  return enlace!;
+}
+
+/** Registra un cliente desde el formulario y confirma su correo con el enlace de Mailpit. */
+export async function registrarYConfirmar(
+  page: Page, request: APIRequestContext, cliente: { usuario: string; clave: string; email: string }
+): Promise<void> {
+  await page.goto('/auth/register');
+  await page.getByPlaceholder('Usuario', { exact: true }).fill(cliente.usuario);
+  await page.getByPlaceholder('Nombre', { exact: true }).fill('Prueba');
+  await page.getByPlaceholder('Primer apellido', { exact: true }).fill('E2E');
+  await page.getByPlaceholder('Correo electrónico', { exact: true }).fill(cliente.email);
+  await page.getByPlaceholder('Contraseña', { exact: true }).fill(cliente.clave);
+  await page.getByPlaceholder('Repite tu contraseña', { exact: true }).fill(cliente.clave);
+  await page.locator('input[name="politicas"]').check();
+  await page.getByRole('button', { name: 'Registrarse' }).click();
+  await expect(page.getByRole('heading', { name: 'Revisa tu correo' })).toBeVisible();
+
+  await page.goto(await enlaceDelCorreo(request, cliente.email, 'verificar'));
+  await expect(page.getByText('Correo confirmado. Ya puedes iniciar sesión.')).toBeVisible();
 }
