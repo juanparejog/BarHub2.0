@@ -1,4 +1,4 @@
-import { test, expect, ADMIN, iniciarSesion, filasConDatos } from './fixtures';
+import { test, expect, ADMIN, iniciarSesion, filasConDatos, darDeAltaEmpleado } from './fixtures';
 
 /**
  * Registro de jornada: el administrador da de alta a un empleado desde el panel, el empleado
@@ -11,22 +11,12 @@ const empleado = { usuario: `emp_${sufijo}`, clave: `Turno${sufijo}A1` };
 
 test('el administrador da de alta a un empleado desde el panel', async ({ page }) => {
   await iniciarSesion(page, ADMIN.usuario, ADMIN.clave);
-  await page.goto('/admin/crear-usuario');
-
-  await page.locator('#username').fill(empleado.usuario);
-  await page.locator('#email').fill(`${empleado.usuario}@barhub.test`);
-  await page.locator('#password').fill(empleado.clave);
-  await page.getByLabel('EMPLEADO').check();
-  await page.locator('#nombre').fill('Lucía');
-  await page.locator('#apellido1').fill('E2E');
-  await page.getByRole('button', { name: 'Crear Usuario' }).click();
-
-  await expect(page).toHaveURL(/\/admin\/gestionar-usuarios$/);
-  await expect(filasConDatos(page).filter({ hasText: empleado.usuario })).toBeVisible();
+  await darDeAltaEmpleado(page, empleado);
 });
 
 test('el empleado entra con la contraseña que le puso el administrador y termina su turno', async ({ page }) => {
-  // Si la contraseña se hubiera guardado en claro, este login fallaría
+  // Si la contraseña se hubiera guardado en claro, este login fallaría. Es su primer login: antes
+  // de entrar configura la verificación en dos pasos (iniciarSesion lo hace como lo haría con su app)
   await iniciarSesion(page, empleado.usuario, empleado.clave);
 
   await page.locator('app-menu').getByRole('link', { name: /^Avatar/ }).click();
