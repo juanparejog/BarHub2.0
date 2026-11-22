@@ -36,6 +36,14 @@ export const test = base.extend<{ erroresPagina: string[] }>({
 
 export { expect };
 
+/**
+ * Filas con datos de las tablas de gestion. Mientras carga, o si no hay datos, la tabla muestra una
+ * sola celda con el aviso ("No hay usuarios...") que tambien es una fila: esa no cuenta.
+ */
+export function filasConDatos(page: Page) {
+  return page.locator('table.crud-table tbody tr:has(td + td)');
+}
+
 export async function iniciarSesion(page: Page, usuario: string, clave: string): Promise<void> {
   await page.goto('/auth/login');
   await page.locator('input[formcontrolname="username"]').fill(usuario);

@@ -8,6 +8,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -46,10 +47,10 @@ class AuthControllerBloqueoTest {
         when(authenticationManager.authenticate(any())).thenThrow(new BadCredentialsException("mal"));
 
         for (int i = 0; i < LoginAttemptService.MAX_INTENTOS; i++) {
-            assertThrows(BadCredentialsException.class, () -> controller.authenticateUser(peticion("juan")));
+            assertThrows(BadCredentialsException.class, () -> controller.authenticateUser(peticion("juan"), new MockHttpServletRequest()));
         }
 
-        ResponseEntity<?> respuesta = controller.authenticateUser(peticion("juan"));
+        ResponseEntity<?> respuesta = controller.authenticateUser(peticion("juan"), new MockHttpServletRequest());
         assertEquals(429, respuesta.getStatusCode().value());
         assertEquals("900", respuesta.getHeaders().getFirst("Retry-After"));
         // el sexto intento ni siquiera llega al gestor de autenticacion
@@ -61,8 +62,8 @@ class AuthControllerBloqueoTest {
         when(authenticationManager.authenticate(any())).thenThrow(new BadCredentialsException("mal"));
 
         for (int i = 0; i < LoginAttemptService.MAX_INTENTOS; i++) {
-            assertThrows(BadCredentialsException.class, () -> controller.authenticateUser(peticion("juan")));
+            assertThrows(BadCredentialsException.class, () -> controller.authenticateUser(peticion("juan"), new MockHttpServletRequest()));
         }
-        assertThrows(BadCredentialsException.class, () -> controller.authenticateUser(peticion("maria")));
+        assertThrows(BadCredentialsException.class, () -> controller.authenticateUser(peticion("maria"), new MockHttpServletRequest()));
     }
 }

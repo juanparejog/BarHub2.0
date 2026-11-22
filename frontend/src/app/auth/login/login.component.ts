@@ -1,7 +1,7 @@
-import { Component, ChangeDetectionStrategy } from '@angular/core';
+import { Component, ChangeDetectionStrategy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AuthService } from '../auth.service';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
     selector: 'app-login',
@@ -10,7 +10,7 @@ import { Router } from '@angular/router';
     changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit {
   form: FormGroup;
   errorMessage: string = '';
   showPassword = false;
@@ -29,12 +29,20 @@ export class LoginComponent {
   constructor(
     private readonly fb: FormBuilder,
     private readonly authService: AuthService,
-    private readonly router: Router
+    private readonly router: Router,
+    private readonly route: ActivatedRoute
   ) {
     this.form = this.fb.group({
       username: ['', Validators.required],
       password: ['', Validators.required]
     });
+  }
+
+  ngOnInit(): void {
+    // El interceptor manda aqui con ?sesion=caducada cuando la sesion ya no se puede renovar
+    if (this.route.snapshot.queryParamMap.get('sesion') === 'caducada') {
+      this.showToastMessage('Tu sesión ha caducado. Vuelve a iniciar sesión.', 'info', 6000);
+    }
   }
 
   private mensajeDeError(err: any): string {

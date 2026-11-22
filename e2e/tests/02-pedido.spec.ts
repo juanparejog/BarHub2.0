@@ -1,4 +1,4 @@
-import { test, expect, ADMIN, iniciarSesion, avisoAlVisitar } from './fixtures';
+import { test, expect, ADMIN, iniciarSesion, avisoAlVisitar, filasConDatos } from './fixtures';
 
 /**
  * Recorrido completo de un pedido: un cliente nuevo se registra, pide para recoger y descarga
@@ -91,5 +91,5 @@ test('el administrador ve los pedidos con su detalle en la gestión de pedidos',
   await iniciarSesion(page, ADMIN.usuario, ADMIN.clave);
   await page.goto('/admin/gestionar-pedidos');
   await expect(page.getByRole('heading', { name: 'Gestión de Pedidos' })).toBeVisible();
-  await expect(page.locator('table.crud-table tbody tr').first()).toBeVisible();
+  await expect(filasConDatos(page).first()).toBeVisible();
 });

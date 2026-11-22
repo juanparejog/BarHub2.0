@@ -25,10 +25,15 @@ public class JwtUtils {
   @Value("${jwt.jwtExpirationMs}")
   private int jwtExpirationMs;
 
-  public String generateJwtToken(Authentication authentication) {
+  /** Claim con el id de la sesion del servidor a la que pertenece el token. */
+  public static final String CLAIM_SESION = "sid";
 
-    UserDetailsImpl userPrincipal = (UserDetailsImpl) authentication.getPrincipal();
+  public String generateJwtToken(Authentication authentication, String sesionId) {
+    return generarTokenAcceso((UserDetailsImpl) authentication.getPrincipal(), sesionId);
+  }
 
+  /** Token de acceso de corta duracion (jwt.jwtExpirationMs), ligado a una sesion abierta. */
+  public String generarTokenAcceso(UserDetailsImpl userPrincipal, String sesionId) {
     List<String> roles = userPrincipal.getAuthorities().stream()
             .map(item -> item.getAuthority())
             .collect(Collectors.toList());
@@ -40,6 +45,7 @@ public class JwtUtils {
             .subject(userPrincipal.getUsername())
             .claim("id", userPrincipal.getId())
             .claim("roles", roles)
+            .claim(CLAIM_SESION, sesionId)
             .issuedAt(Date.from(now))
             .expiration(Date.from(expiration))
             .signWith(key())
@@ -51,8 +57,15 @@ public class JwtUtils {
   }
 
   public String getUserNameFromJwtToken(String token) {
-    return Jwts.parser().verifyWith(key()).build()
-            .parseSignedClaims(token).getPayload().getSubject();
+    return leer(token).getSubject();
+  }
+
+  public String getSesionIdFromJwtToken(String token) {
+    return leer(token).get(CLAIM_SESION, String.class);
+  }
+
+  private Claims leer(String token) {
+    return Jwts.parser().verifyWith(key()).build().parseSignedClaims(token).getPayload();
   }
 
   public boolean validateJwtToken(String authToken) {

@@ -57,7 +57,9 @@ Las rutas se muestran como las ve el backend. Desde fuera, Caddy las publica baj
 | Método | Endpoint | Descripción |
 | :--- | :--- | :--- |
 | `POST` | `/auth/signup` | Registro de nuevos usuarios (clientes o personal) |
-| `POST` | `/auth/login` | Inicio de sesión y generación del token JWT |
+| `POST` | `/auth/login` | Inicio de sesión: token de acceso JWT (15 min) en el cuerpo y cookie `HttpOnly` de renovación |
+| `POST` | `/auth/refresh` | Token de acceso nuevo a partir de la cookie, que se rota; `401` si la sesión está cerrada o caducada |
+| `POST` | `/auth/logout` | Cierra la sesión en el servidor y borra la cookie (`204`) |
 
 ### 3.2. Mesas · `/mesas`
 

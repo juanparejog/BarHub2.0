@@ -1,4 +1,4 @@
-import { test, expect, ADMIN, iniciarSesion } from './fixtures';
+import { test, expect, ADMIN, iniciarSesion, filasConDatos } from './fixtures';
 
 test('panel de administración, listados y métricas', async ({ page }) => {
   await iniciarSesion(page, ADMIN.usuario, ADMIN.clave);
@@ -13,10 +13,10 @@ test('panel de administración, listados y métricas', async ({ page }) => {
   for (const [ruta, titulo] of listados) {
     await page.goto(ruta);
     await expect(page.getByRole('heading', { name: titulo, exact: true })).toBeVisible();
-    await expect(page.locator('table.crud-table tbody tr').first()).toBeVisible();
+    await expect(filasConDatos(page).first()).toBeVisible();
   }
   // Los roles llegan con el usuario (carga perezosa resuelta en el backend)
-  await expect(page.locator('table.crud-table tbody tr', { hasText: ADMIN.usuario }).first()).toBeVisible();
+  await expect(filasConDatos(page).filter({ hasText: ADMIN.usuario }).first()).toBeVisible();
 
   await page.goto('/admin/metricas');
   await expect(page.getByRole('heading', { name: /Panel de Métricas/ })).toBeVisible();

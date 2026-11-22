@@ -55,4 +55,28 @@ file:
 
 jwt:
   jwtSecret: ${JWT_SECRET}
-  jwtExpirationMs: 14400000
+  # Token de acceso: 15 minutos. La sesion continua con el token de renovacion (app.sesion)
+  jwtExpirationMs: 900000
+
+app:
+  sesion:
+    # Cookie HttpOnly con el token de renovacion. La ruta es la que ve el navegador: con Caddy, /api/auth;
+    # con ng serve contra el backend directo (http://localhost:8080) hay que usar /auth
+    cookie:
+      nombre: barhub_refresh
+      ruta: ${APP_SESION_COOKIE_RUTA:/api/auth}
+      segura: ${APP_SESION_COOKIE_SEGURA:true}
+    # Margen para que dos pestanas renueven a la vez con el mismo token sin que cuente como robo
+    gracia-rotacion: 30s
+    # Limites por rol: inactividad maxima y duracion maxima de la sesion aunque haya actividad.
+    # Con varios roles se aplica el mas estricto
+    roles:
+      admin:
+        inactividad: 15m
+        maximo: 8h
+      empleado:
+        inactividad: 30m
+        maximo: 10h
+      cliente:
+        inactividad: 1h
+        maximo: 12h

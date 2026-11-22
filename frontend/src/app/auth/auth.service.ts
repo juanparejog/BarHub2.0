@@ -26,7 +26,8 @@ export class AuthService {
     // Sin navegar: si las credenciales fallan, el aviso tiene que verse en el mismo formulario
     this.limpiarSesion();
     return new Observable(observer => {
-      this.http.post<{ token: string }>(`${this.apiUrl}/login`, credentials).subscribe({
+      // withCredentials: el backend entrega la cookie HttpOnly de renovacion
+      this.http.post<{ token: string }>(`${this.apiUrl}/login`, credentials, { withCredentials: true }).subscribe({
         next: (res) => {
           if (!res.token) {
             observer.error('El servidor no devolvió un token');
@@ -69,6 +70,8 @@ export class AuthService {
   }
 
   logout(): void {
+    // Cierra la sesion en el servidor: dejan de valer la cookie de renovacion y el token de acceso
+    this.http.post(`${this.apiUrl}/logout`, null, { withCredentials: true }).subscribe({ error: () => undefined });
     this.limpiarSesion();
     void this.router.navigate(['/']);
   }

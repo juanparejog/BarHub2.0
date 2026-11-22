@@ -43,7 +43,40 @@ describe('AuthInterceptor', () => {
     peticion.flush([]);
   });
 
-  it('ante un 401 borra toda la sesión y manda al login', () => {
+  it('ante un 401 renueva el token con la cookie y repite la petición', () => {
+    localStorage.setItem('token', 'caducado');
+    let respuesta: unknown;
+    http.get('/api/pedidos').subscribe(r => (respuesta = r));
+
+    backend.expectOne('/api/pedidos').flush(null, { status: 401, statusText: 'Unauthorized' });
+    const renovacion = backend.expectOne(r => r.url.endsWith('/auth/refresh'));
+    expect(renovacion.request.method).toBe('POST');
+    expect(renovacion.request.withCredentials).toBe(true);
+    renovacion.flush({ token: 'nuevo' });
+
+    const repetida = backend.expectOne('/api/pedidos');
+    expect(repetida.request.headers.get('Authorization')).toBe('Bearer nuevo');
+    repetida.flush([{ id: 1 }]);
+
+    expect(respuesta).toEqual([{ id: 1 }]);
+    expect(localStorage.getItem('token')).toBe('nuevo');
+    expect(navigate).not.toHaveBeenCalled();
+  });
+
+  it('varias peticiones caducadas a la vez comparten una sola renovación', () => {
+    localStorage.setItem('token', 'caducado');
+    http.get('/api/pedidos').subscribe();
+    http.get('/api/mesas').subscribe();
+
+    backend.expectOne('/api/pedidos').flush(null, { status: 401, statusText: 'Unauthorized' });
+    backend.expectOne('/api/mesas').flush(null, { status: 401, statusText: 'Unauthorized' });
+    backend.expectOne(r => r.url.endsWith('/auth/refresh')).flush({ token: 'nuevo' });
+
+    backend.expectOne('/api/pedidos').flush([]);
+    backend.expectOne('/api/mesas').flush([]);
+  });
+
+  it('si la renovación falla borra toda la sesión y manda al login con el aviso', () => {
     localStorage.setItem('token', 'caducado');
     localStorage.setItem('roles', '["ROLE_CLIENTE"]');
     localStorage.setItem('user', '{"id":7,"username":"ana"}');
@@ -52,12 +85,21 @@ describe('AuthInterceptor', () => {
     let estado = 0;
     http.get('/api/pedidos').subscribe({ error: err => (estado = err.status) });
     backend.expectOne('/api/pedidos').flush(null, { status: 401, statusText: 'Unauthorized' });
+    backend.expectOne(r => r.url.endsWith('/auth/refresh')).flush(null, { status: 401, statusText: 'Unauthorized' });
 
     expect(estado).toBe(401);
     expect(localStorage.getItem('token')).toBeNull();
     expect(localStorage.getItem('roles')).toBeNull();
     expect(localStorage.getItem('user')).toBeNull();
     expect(localStorage.getItem('theme')).toBe('dark');
+    expect(navigate).toHaveBeenCalledWith(['/auth/login'], { queryParams: { sesion: 'caducada' } });
+  });
+
+  it('sin sesión iniciada un 401 no intenta renovar', () => {
+    http.get('/api/pedidos').subscribe({ error: () => undefined });
+    backend.expectOne('/api/pedidos').flush(null, { status: 401, statusText: 'Unauthorized' });
+
+    backend.expectNone(r => r.url.endsWith('/auth/refresh'));
     expect(navigate).toHaveBeenCalledWith(['/auth/login']);
   });
 
@@ -67,6 +109,15 @@ describe('AuthInterceptor', () => {
     backend.expectOne('/api/auth/login').flush(null, { status: 401, statusText: 'Unauthorized' });
 
     expect(estado).toBe(401);
+    expect(navigate).not.toHaveBeenCalled();
+  });
+
+  it('un 401 de la propia renovación no vuelve a renovar', () => {
+    localStorage.setItem('token', 'caducado');
+    http.post('/api/auth/refresh', null).subscribe({ error: () => undefined });
+    backend.expectOne('/api/auth/refresh').flush(null, { status: 401, statusText: 'Unauthorized' });
+
+    backend.expectNone(r => r.url.endsWith('/auth/refresh'));
     expect(navigate).not.toHaveBeenCalled();
   });
 

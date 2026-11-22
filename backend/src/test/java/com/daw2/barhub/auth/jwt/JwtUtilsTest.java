@@ -20,6 +20,7 @@ class JwtUtilsTest {
 
     private static final String SECRETO = "clave-de-pruebas-solo-para-tests-0123456789-abcdefghij";
     private static final String OTRO_SECRETO = "otra-clave-distinta-solo-para-tests-9876543210-zyxwvutsrq";
+    private static final String SESION = "3f2c8a9e-0000-4000-8000-000000000001";
 
     private JwtUtils jwtUtils;
 
@@ -43,19 +44,19 @@ class JwtUtilsTest {
 
     @Test
     void tokenGeneradoEsValido() {
-        String token = jwtUtils.generateJwtToken(autenticacion("ROLE_CLIENTE"));
+        String token = jwtUtils.generateJwtToken(autenticacion("ROLE_CLIENTE"), SESION);
         assertTrue(jwtUtils.validateJwtToken(token));
     }
 
     @Test
     void tokenContieneElNombreDeUsuario() {
-        String token = jwtUtils.generateJwtToken(autenticacion("ROLE_CLIENTE"));
+        String token = jwtUtils.generateJwtToken(autenticacion("ROLE_CLIENTE"), SESION);
         assertEquals("juan", jwtUtils.getUserNameFromJwtToken(token));
     }
 
     @Test
     void tokenContieneIdYRoles() {
-        String token = jwtUtils.generateJwtToken(autenticacion("ROLE_EMPLEADO"));
+        String token = jwtUtils.generateJwtToken(autenticacion("ROLE_EMPLEADO"), SESION);
         var claims = Jwts.parser().verifyWith(Keys.hmacShaKeyFor(SECRETO.getBytes())).build()
                 .parseSignedClaims(token).getPayload();
         // Number: Gson lee los numeros como Double y Jackson como Integer; el valor es el mismo
@@ -64,15 +65,21 @@ class JwtUtilsTest {
     }
 
     @Test
+    void tokenLlevaLaSesionDelServidor() {
+        String token = jwtUtils.generateJwtToken(autenticacion("ROLE_ADMIN"), SESION);
+        assertEquals(SESION, jwtUtils.getSesionIdFromJwtToken(token));
+    }
+
+    @Test
     void tokenCaducadoNoEsValido() {
         JwtUtils caducado = crear(SECRETO, -1_000);
-        String token = caducado.generateJwtToken(autenticacion("ROLE_CLIENTE"));
+        String token = caducado.generateJwtToken(autenticacion("ROLE_CLIENTE"), SESION);
         assertFalse(jwtUtils.validateJwtToken(token));
     }
 
     @Test
     void tokenFirmadoConOtraClaveNoEsValido() {
-        String token = crear(OTRO_SECRETO, 60_000).generateJwtToken(autenticacion("ROLE_ADMIN"));
+        String token = crear(OTRO_SECRETO, 60_000).generateJwtToken(autenticacion("ROLE_ADMIN"), SESION);
         assertFalse(jwtUtils.validateJwtToken(token));
     }
 

@@ -133,7 +133,7 @@ He intentado tratar la seguridad como parte del desarrollo y no como algo que se
 <!-- autenticacion -->
 ### Autenticación y sesiones
 
-- Contraseñas con hash en la base de datos y sesión mediante token JWT sin estado, que caduca a las 4 horas.
+- Contraseñas con hash en la base de datos. Sesión con token de acceso JWT de 15 minutos y token de renovación rotatorio en una cookie `HttpOnly` y `SameSite=Strict`, con detección de reutilización. La sesión vive en el servidor: cerrar sesión la revoca al momento, y cada rol tiene su límite de inactividad y de duración (administrador 15 min / 8 h, empleado 30 min / 10 h, cliente 1 h / 12 h).
 - Bloqueo temporal del inicio de sesión: 5 intentos fallidos seguidos de un mismo usuario bloquean el acceso 15 minutos (respuesta 429 con `Retry-After`). También cuentan los usuarios que no existen, para no revelar cuáles existen.
 - Para cambiar la propia contraseña hay que indicar la actual.
 

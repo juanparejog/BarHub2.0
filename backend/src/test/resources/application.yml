@@ -27,4 +27,4 @@ stripe:
 
 jwt:
   jwtSecret: clave-de-pruebas-solo-para-tests-0123456789-abcdefghij
-  jwtExpirationMs: 86400000
+  jwtExpirationMs: 900000
