@@ -11,6 +11,7 @@ Tests con [Playwright](https://playwright.dev) que recorren BarHub como un usuar
 | `03-caja.spec.ts` | El personal abre la caja y la cierra con su arqueo |
 | `04-admin.spec.ts` | Panel de administración, listados de productos y usuarios (con sus roles) y métricas |
 | `05-sesion.spec.ts` | La cookie de renovación es `HttpOnly` y `SameSite=Strict`; con el token de acceso caducado la sesión se renueva sola; si ya no se puede renovar, el login avisa; cerrar sesión revoca la cookie y el token en el servidor; el aviso de inactividad aparece con su cuenta atrás, "Seguir conectado" renueva y, sin respuesta, la sesión se cierra |
+| `06-turno.spec.ts` | El administrador da de alta a un empleado desde el panel; el empleado entra con esa contraseña y termina su turno desde el menú; el administrador lo ve en el registro de jornada |
 
 En todos los tests se comprueba además que la página no lanza errores de JavaScript sin capturar. Solo se permiten peticiones a la propia aplicación: Stripe, Google Maps y Google Fonts se bloquean para que el resultado no dependa de servicios de terceros.
 

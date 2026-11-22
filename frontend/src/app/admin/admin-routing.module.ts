@@ -32,6 +32,7 @@ import { VerUsuarioComponent } from './pages/usuarios/ver-usuario/ver-usuario.co
 
 // Rutas Metricas
 import { MetricasComponent } from './pages/metricas/metricas.component';
+import { RegistroJornadaComponent } from './pages/registro-jornada/registro-jornada.component';
 
 const routes: Routes = [
   {
@@ -73,6 +74,7 @@ const routes: Routes = [
 
       // Metricas
       { path: 'metricas', component: MetricasComponent },
+      { path: 'registro-jornada', component: RegistroJornadaComponent },
 
       { path: '**', redirectTo: '' }
     ]

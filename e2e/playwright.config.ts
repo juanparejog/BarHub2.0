@@ -8,6 +8,8 @@ const enCi = !!process.env.CI;
  */
 export default defineConfig({
   testDir: './tests',
+  // Espera a que la API responda (justo despues de docker compose up aun esta arrancando)
+  globalSetup: './global-setup.ts',
   // Comparten base de datos (pedidos, caja): uno detras de otro y en orden de archivo
   fullyParallel: false,
   workers: 1,

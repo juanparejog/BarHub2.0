@@ -1,5 +1,8 @@
 server:
   port: 8080
+  # Detras de Caddy: la IP del cliente sale de X-Forwarded-For, que Tomcat solo acepta de proxies
+  # de la red interna (Docker). La usan el bloqueo de login por IP y el registro de sesiones
+  forward-headers-strategy: native
 
 stripe:
   secret-key: ${STRIPE_SECRET_KEY}

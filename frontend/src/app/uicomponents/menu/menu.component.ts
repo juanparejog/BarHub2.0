@@ -1,7 +1,8 @@
-import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { AuthService } from 'src/app/auth/auth.service';
 import { ThemeService } from 'src/app/services/theme.service';
+import { TurnoService } from 'src/app/services/turno.service';
 
 @Component({
     selector: 'app-menu',
@@ -13,6 +14,7 @@ import { ThemeService } from 'src/app/services/theme.service';
 export class MenuComponent implements OnInit {
   roles$ = this.authService.roles$;
   isDarkMode$!: Observable<boolean>;
+  private readonly turnoService = inject(TurnoService);
   
   constructor(
     public authService: AuthService,
@@ -55,6 +57,15 @@ export class MenuComponent implements OnInit {
     localStorage.removeItem('token');
 
     this.authService.logout();
+  }
+
+  get esEmpleado(): boolean {
+    return this.authService.hasRole(['ROLE_EMPLEADO']);
+  }
+
+  /** Registra la salida del turno (con confirmacion) y cierra la sesion. */
+  terminarTurno(): void {
+    this.turnoService.pedirFinDeTurno();
   }
 
   get isAdmin(): boolean {

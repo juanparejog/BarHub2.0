@@ -71,14 +71,32 @@ public class UsuarioController {
         }
     }
 
+    /** Alta desde el panel: datos en la parte "usuario" (JSON) y foto opcional en "file", como al editar. */
     @PreAuthorize("hasRole('ADMIN')")
-    @PostMapping("/")
-    public ResponseEntity<?> create(@RequestBody UsuarioDto usuarioDto) {
+    @PostMapping(value = "/", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
+    public ResponseEntity<?> create(
+            @RequestPart("usuario") UsuarioDto usuarioDto,
+            @RequestPart(value = "file", required = false) MultipartFile file) {
+        Path subido = null;
         try {
+            String error = validarPerfil(usuarioDto, true);
+            if (error != null) {
+                return ResponseEntity.badRequest().body(ErrorDto.from(error));
+            }
             User usuarioGuardado = userService.crearUsuario(usuarioDto);
+            if (file != null && !file.isEmpty()) {
+                String nombreImagen = guardarImagenEnDisco(file, usuarioGuardado.getId());
+                subido = carpeta().resolve(nombreImagen);
+                usuarioGuardado.setImagen(nombreImagen);
+                usuarioGuardado = userService.save(usuarioGuardado);
+            }
             return ResponseEntity.status(HttpStatus.CREATED).body(UsuarioDto.from(usuarioGuardado));
+        } catch (IllegalArgumentException e) {
+            borrarFichero(subido);
+            return ResponseEntity.badRequest().body(ErrorDto.from(e.getMessage()));
         } catch (Exception e) {
             log.error("Error al crear usuario", e);
+            borrarFichero(subido);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(ErrorDto.from("Error al crear usuario"));
         }

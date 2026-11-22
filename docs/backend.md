@@ -98,6 +98,16 @@ El listado y la creación se sirven en `/productos/` (con barra final).
 | `POST` | `/caja/abrir` | Abre turno registrando el monto inicial |
 | `POST` | `/caja/cerrar` | Cierra turno calculando ventas en efectivo y tarjeta, efectivo real y descuadre |
 
+### 3.5.1. Registro de jornada · `/turnos`
+
+El turno de un empleado empieza al iniciar sesión. Termina con «Terminar turno» o, si no lo pulsa, cuando ya no le queda ninguna sesión abierta: una tarea cada 5 minutos lo cierra con la hora de su última actividad real, no con la caducidad de la sesión.
+
+| Método | Endpoint | Quién | Descripción |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/turnos/actual` | Empleado o admin | Su turno en curso, o `204` si no tiene |
+| `POST` | `/turnos/terminar` | Empleado o admin | Registra la salida ahora; `409` si no hay turno abierto |
+| `GET` | `/turnos?desde=AAAA-MM-DD&hasta=AAAA-MM-DD` | Admin | Turnos del rango (por defecto, los últimos 7 días; como mucho un año) |
+
 ### 3.6. Subida de imágenes (productos y perfiles)
 
 | Control | Detalle |

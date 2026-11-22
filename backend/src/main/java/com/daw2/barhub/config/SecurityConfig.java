@@ -83,6 +83,10 @@ public class SecurityConfig {
                         .requestMatchers("/seguimientos/**").hasAnyRole(ROL_EMPLEADO, ROL_ADMIN)
                         .requestMatchers("/pedidos/**", "/detalles_pedidos/**", "/caja/**").hasAnyRole(ROL_EMPLEADO, ROL_ADMIN)
 
+                        // --- REGISTRO DE JORNADA: cada empleado su turno; el listado completo, solo admins ---
+                        .requestMatchers(HttpMethod.GET, "/turnos").hasRole(ROL_ADMIN)
+                        .requestMatchers("/turnos/actual", "/turnos/terminar").hasAnyRole(ROL_EMPLEADO, ROL_ADMIN)
+
                         // --- ADMINS ---
                         .requestMatchers("/productos/**", "/mesas/**").hasRole(ROL_ADMIN) 
                         .requestMatchers("/usuarios/**", "/roles/**").hasRole(ROL_ADMIN)

@@ -125,4 +125,59 @@ class LoginAttemptServiceTest {
         servicio.registrarFallo(null);
         assertFalse(servicio.estaBloqueado(null));
     }
+
+    // ---------- bloqueo por IP ----------
+
+    private void fallarDesde(String ip, int veces) {
+        for (int i = 0; i < veces; i++) {
+            servicio.registrarFallo("usuario" + i, ip);
+        }
+    }
+
+    @Test
+    void probarMuchasCuentasDesdeUnaIpLaBloquea() {
+        fallarDesde("203.0.113.7", LoginAttemptService.MAX_INTENTOS_IP - 1);
+        assertEquals(0, servicio.segundosRestantes("otra", "203.0.113.7"));
+
+        fallarDesde("203.0.113.7", 1);
+        assertEquals(15 * 60, servicio.segundosRestantes("otra", "203.0.113.7"));
+        // ninguna cuenta concreta llega a bloquearse: es la IP
+        assertFalse(servicio.estaBloqueado("usuario0"));
+    }
+
+    @Test
+    void elBloqueoDeUnaIpNoAfectaAOtras() {
+        fallarDesde("203.0.113.7", LoginAttemptService.MAX_INTENTOS_IP);
+        assertEquals(0, servicio.segundosRestantes("juan", "198.51.100.4"));
+    }
+
+    @Test
+    void elBloqueoDelUsuarioSeAplicaDesdeCualquierIp() {
+        for (int i = 0; i < LoginAttemptService.MAX_INTENTOS; i++) {
+            servicio.registrarFallo("juan", "10.0.0." + i);
+        }
+        assertTrue(servicio.segundosRestantes("juan", "192.0.2.50") > 0);
+    }
+
+    @Test
+    void unLoginCorrectoNoLimpiaElContadorDeLaIp() {
+        fallarDesde("203.0.113.7", LoginAttemptService.MAX_INTENTOS_IP - 1);
+        servicio.registrarExito("cuenta-valida");
+        fallarDesde("203.0.113.7", 1);
+        assertTrue(servicio.segundosRestantes("cualquiera", "203.0.113.7") > 0);
+    }
+
+    @Test
+    void elBloqueoDeLaIpSeLevantaPasadoElTiempo() {
+        fallarDesde("203.0.113.7", LoginAttemptService.MAX_INTENTOS_IP);
+        reloj.avanzar(Duration.ofMinutes(16));
+        assertEquals(0, servicio.segundosRestantes("juan", "203.0.113.7"));
+    }
+
+    @Test
+    void sinIpSoloCuentaElUsuario() {
+        servicio.registrarFallo("juan", null);
+        servicio.registrarFallo("juan", " ");
+        assertEquals(0, servicio.segundosRestantes("pedro", null));
+    }
 }

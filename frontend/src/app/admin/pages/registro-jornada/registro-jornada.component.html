@@ -1,0 +1,75 @@
+<div class="crud-container">
+  <div class="crud-header mb-4">
+    <h1 class="crud-title">Registro de jornada</h1>
+    <p class="text-muted mb-0">
+      Entradas y salidas del personal. El turno empieza al iniciar sesión y termina con «Terminar turno»;
+      si el empleado no lo pulsa, se cierra solo en su última actividad.
+    </p>
+  </div>
+
+  <form class="d-flex flex-wrap align-items-end gap-3 mb-4" (ngSubmit)="cargar()">
+    <div>
+      <label for="jornadaDesde" class="form-label">Desde</label>
+      <input id="jornadaDesde" type="date" class="form-control" name="desde" [(ngModel)]="desde" required>
+    </div>
+    <div>
+      <label for="jornadaHasta" class="form-label">Hasta</label>
+      <input id="jornadaHasta" type="date" class="form-control" name="hasta" [(ngModel)]="hasta" required>
+    </div>
+    <button type="submit" class="btn-crud-primary" [disabled]="cargando">Consultar</button>
+  </form>
+
+  @if (error) {
+    <div class="alert alert-danger" role="alert">{{ error }}</div>
+  }
+
+  @if (resumen.length > 0) {
+    <div class="d-flex flex-wrap gap-2 mb-3" aria-label="Horas por empleado">
+      @for (empleado of resumen; track empleado.username) {
+        <span class="badge bg-body-tertiary text-body border fs-6 fw-normal resumen-empleado">
+          <strong>{{ empleado.username }}</strong>: {{ duracion(empleado.minutos) }}
+          en {{ empleado.turnos }} {{ empleado.turnos === 1 ? 'turno' : 'turnos' }}
+        </span>
+      }
+    </div>
+  }
+
+  <div class="crud-card">
+    <div class="table-responsive">
+      <table class="crud-table mb-0">
+        <thead>
+          <tr>
+            <th scope="col" class="ps-4">Empleado</th>
+            <th scope="col">Fecha</th>
+            <th scope="col">Entrada</th>
+            <th scope="col">Salida</th>
+            <th scope="col">Duración</th>
+            <th scope="col">Estado</th>
+          </tr>
+        </thead>
+        @if (turnos.length > 0) {
+          <tbody>
+            @for (turno of turnos; track turno.id) {
+              <tr>
+                <td class="ps-4 fw-semibold">{{ turno.username }}</td>
+                <td>{{ fecha(turno.entrada) }}</td>
+                <td>{{ hora(turno.entrada) }}</td>
+                <td>{{ turno.salida !== null ? hora(turno.salida) : '—' }}</td>
+                <td>{{ duracion(turno.duracionMinutos) }}</td>
+                <td>{{ estado(turno) }}</td>
+              </tr>
+            }
+          </tbody>
+        } @else {
+          <tbody>
+            <tr>
+              <td colspan="6" class="text-center py-5 text-muted">
+                {{ cargando ? 'Cargando…' : 'No hay turnos en estas fechas.' }}
+              </td>
+            </tr>
+          </tbody>
+        }
+      </table>
+    </div>
+  </div>
+</div>

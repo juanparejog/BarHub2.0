@@ -16,6 +16,7 @@ import com.daw2.barhub.auth.sesion.Sesion;
 import com.daw2.barhub.auth.sesion.SesionInvalidaException;
 import com.daw2.barhub.auth.sesion.SesionProperties;
 import com.daw2.barhub.auth.sesion.SesionService;
+import com.daw2.barhub.service.TurnoService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -70,11 +71,15 @@ public class AuthController {
   @Autowired
   Clock reloj;
 
+  @Autowired
+  TurnoService turnoService;
+
   @PostMapping("/login")
   public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest, HttpServletRequest request) {
 
     String usuario = loginRequest.getUsername();
-    long espera = loginAttemptService.segundosRestantes(usuario);
+    String ip = ipCliente(request);
+    long espera = loginAttemptService.segundosRestantes(usuario, ip);
     if (espera > 0) {
       long minutos = (espera + 59) / 60;
       return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
@@ -89,7 +94,7 @@ public class AuthController {
               new UsernamePasswordAuthenticationToken(usuario, loginRequest.getPassword()));
     } catch (BadCredentialsException e) {
       // tambien se cuentan los usuarios que no existen: asi no se revela cuales existen
-      loginAttemptService.registrarFallo(usuario);
+      loginAttemptService.registrarFallo(usuario, ip);
       throw e;
     }
     loginAttemptService.registrarExito(usuario);
@@ -97,8 +102,10 @@ public class AuthController {
     SecurityContextHolder.getContext().setAuthentication(authentication);
     UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 
+    // El turno va antes que la sesion nueva: asi un turno viejo sin sesiones abiertas se cierra primero
+    turnoService.abrirSiCorresponde(userDetails.getId(), userDetails.getUsername(), roles(userDetails));
     SesionService.NuevaSesion nueva = sesionService.abrir(userDetails.getId(), roles(userDetails),
-            ipCliente(request), request.getHeader(HttpHeaders.USER_AGENT));
+            ip, request.getHeader(HttpHeaders.USER_AGENT));
     String jwt = jwtUtils.generateJwtToken(authentication, nueva.sesion().getId());
 
     return ResponseEntity.ok()
@@ -179,12 +186,12 @@ public class AuthController {
             .path(config.ruta());
   }
 
-  /** Solo informativo (se guarda con la sesion). Detras de Caddy, la IP real llega en X-Forwarded-For. */
+  /**
+   * IP del cliente. Detras de Caddy la resuelve Tomcat a partir de X-Forwarded-For
+   * (server.forward-headers-strategy: native), y solo si la peticion llega desde un proxy de la red
+   * interna: desde fuera no se puede falsificar la cabecera para esquivar el bloqueo por IP.
+   */
   private static String ipCliente(HttpServletRequest request) {
-    String reenviada = request.getHeader("X-Forwarded-For");
-    if (reenviada != null && !reenviada.isBlank()) {
-      return reenviada.split(",")[0].trim();
-    }
     return request.getRemoteAddr();
   }
 

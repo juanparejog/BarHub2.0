@@ -44,7 +44,7 @@ class LoginAttemptServiceLimpiezaTest {
     }
 
     private static int registros(LoginAttemptService servicio) {
-        return ((Map<?, ?>) ReflectionTestUtils.getField(servicio, "registros")).size();
+        return ((Map<?, ?>) ReflectionTestUtils.getField(servicio, "porUsuario")).size();
     }
 
     private static void fallosDeUsuariosDistintos(LoginAttemptService servicio, int cuantos) {

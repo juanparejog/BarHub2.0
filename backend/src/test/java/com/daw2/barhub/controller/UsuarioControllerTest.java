@@ -3,6 +3,7 @@ package com.daw2.barhub.controller;
 import com.daw2.barhub.auth.models.TipoVivienda;
 import com.daw2.barhub.auth.models.User;
 import com.daw2.barhub.auth.services.UserService;
+import com.daw2.barhub.model.dto.ErrorDto;
 import com.daw2.barhub.model.dto.UsuarioDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -34,6 +35,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -130,13 +132,39 @@ class UsuarioControllerTest {
     @Test
     void create_devuelve_201() {
         when(userService.crearUsuario(any(UsuarioDto.class))).thenReturn(juan);
-        assertEquals(201, controller.create(datos()).getStatusCode().value());
+        assertEquals(201, controller.create(datos(), null).getStatusCode().value());
+    }
+
+    @Test
+    void create_con_foto_la_guarda_con_el_usuario() {
+        permitirGuardar();
+        when(userService.crearUsuario(any(UsuarioDto.class))).thenReturn(juan);
+        MockMultipartFile foto = imagen("foto.png", "image/png", cabeceraPng());
+
+        assertEquals(201, controller.create(datos(), foto).getStatusCode().value());
+        assertTrue(juan.getImagen() != null && Files.exists(carpeta.resolve(juan.getImagen())));
+    }
+
+    @Test
+    void create_con_datos_no_validos_da_400_sin_llegar_al_servicio() {
+        UsuarioDto sinNombre = new UsuarioDto();
+        assertEquals(400, controller.create(sinNombre, null).getStatusCode().value());
+        verify(userService, never()).crearUsuario(any(UsuarioDto.class));
+    }
+
+    @Test
+    void create_con_usuario_repetido_da_400_con_el_motivo() {
+        when(userService.crearUsuario(any(UsuarioDto.class)))
+                .thenThrow(new IllegalArgumentException("Ese nombre de usuario ya existe"));
+        ResponseEntity<?> respuesta = controller.create(datos(), null);
+        assertEquals(400, respuesta.getStatusCode().value());
+        assertEquals("Ese nombre de usuario ya existe", ((ErrorDto) respuesta.getBody()).getMessage());
     }
 
     @Test
     void create_responde_500_si_falla() {
         when(userService.crearUsuario(any(UsuarioDto.class))).thenThrow(new RuntimeException("boom"));
-        assertEquals(500, controller.create(datos()).getStatusCode().value());
+        assertEquals(500, controller.create(datos(), null).getStatusCode().value());
     }
 
     @Test

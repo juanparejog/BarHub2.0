@@ -8,9 +8,11 @@ import com.daw2.barhub.auth.repository.UserRepository;
 import com.daw2.barhub.auth.services.UserService;
 import com.daw2.barhub.model.dto.UsuarioDto;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -22,6 +24,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private RoleRepository roleRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Autowired
     public UserServiceImpl(UserRepository userRepository) {
@@ -52,16 +57,42 @@ public class UserServiceImpl implements UserService {
         userRepository.deleteById(id);
     }
 
+    /**
+     * Alta de un usuario por un administrador. La contrasena se guarda con BCrypt, como en el registro;
+     * sin roles, el usuario es cliente. Lanza IllegalArgumentException si faltan datos o ya existen.
+     */
+    @Transactional
     public User crearUsuario(UsuarioDto usuarioDto) {
-        User user = usuarioDto.to();
-
-        if (usuarioDto.getRoles() != null && !usuarioDto.getRoles().isEmpty()) {
-            Set<Role> roles = usuarioDto.getRoles().stream()
-                    .map(roleName -> roleRepository.findByName(RoleEnum.valueOf(roleName.getNombre()))
-                            .orElseThrow(() -> new RuntimeException("Rol no encontrado: " + roleName)))
-                    .collect(Collectors.toSet());
-            user.setRoles(roles);
+        if (usuarioDto.getUsername() == null || usuarioDto.getUsername().isBlank()) {
+            throw new IllegalArgumentException("El nombre de usuario es obligatorio");
         }
+        if (usuarioDto.getPassword() == null || usuarioDto.getPassword().isBlank()) {
+            throw new IllegalArgumentException("La contraseña es obligatoria");
+        }
+        if (Boolean.TRUE.equals(userRepository.existsByUsername(usuarioDto.getUsername()))) {
+            throw new IllegalArgumentException("Ese nombre de usuario ya existe");
+        }
+        if (usuarioDto.getEmail() != null && !usuarioDto.getEmail().isBlank()
+                && Boolean.TRUE.equals(userRepository.existsByEmail(usuarioDto.getEmail()))) {
+            throw new IllegalArgumentException("Ese email ya está en uso");
+        }
+
+        User user = usuarioDto.to();
+        // Siempre un usuario nuevo: un id en la peticion no puede sobrescribir otra cuenta
+        user.setId(null);
+        user.setPassword(passwordEncoder.encode(usuarioDto.getPassword()));
+
+        Set<Role> roles;
+        if (usuarioDto.getRoles() != null && !usuarioDto.getRoles().isEmpty()) {
+            roles = usuarioDto.getRoles().stream()
+                    .map(rol -> roleRepository.findByName(RoleEnum.valueOf(rol.getNombre()))
+                            .orElseThrow(() -> new IllegalArgumentException("Rol no encontrado: " + rol.getNombre())))
+                    .collect(Collectors.toSet());
+        } else {
+            roles = Set.of(roleRepository.findByName(RoleEnum.ROLE_CLIENTE)
+                    .orElseThrow(() -> new IllegalStateException("Rol ROLE_CLIENTE no encontrado")));
+        }
+        user.setRoles(new HashSet<>(roles));
 
         return userRepository.save(user);
     }
