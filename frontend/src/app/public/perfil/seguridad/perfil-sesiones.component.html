@@ -1,0 +1,42 @@
+<div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-1">
+  <h3 class="h6 fw-bold mb-0"><i class="bi bi-laptop text-indigo me-2" aria-hidden="true"></i>Sesiones abiertas</h3>
+  @if (hayOtras()) {
+    <button type="button" class="btn btn-outline-danger btn-sm" (click)="cerrarLasDemas()">Cerrar todas las demás</button>
+  }
+</div>
+<p class="text-muted font-size-14 mb-2">Si no reconoces alguna, ciérrala y cambia tu contraseña.</p>
+
+@if (sesiones(); as lista) {
+  <ul class="list-unstyled mb-0" aria-label="Sesiones abiertas">
+    @for (sesion of lista; track sesion.id) {
+      <li class="sesion-item">
+        <i class="bi sesion-icono" [class.bi-phone]="esMovil(sesion.agente)" [class.bi-laptop]="!esMovil(sesion.agente)" aria-hidden="true"></i>
+        <div class="flex-grow-1 min-w-0">
+          <div class="fw-semibold">
+            {{ describir(sesion.agente) }}
+            @if (sesion.actual) {
+              <span class="badge rounded-pill text-bg-primary ms-1">Este navegador</span>
+            }
+          </div>
+          <div class="text-muted small">
+            {{ sesion.ip || 'IP desconocida' }} · última actividad {{ haceCuanto(sesion.ultimaActividad) }}
+            · iniciada el {{ fechaHora(sesion.creada) }}
+          </div>
+        </div>
+        @if (!sesion.actual) {
+          <button type="button" class="btn btn-outline-secondary btn-sm" (click)="cerrar(sesion)"
+            [attr.aria-label]="'Cerrar la sesión de ' + describir(sesion.agente)">Cerrar</button>
+        }
+      </li>
+    }
+  </ul>
+} @else if (!error()) {
+  <p class="text-muted font-size-14" role="status">Cargando…</p>
+}
+
+@if (error()) {
+  <div class="alert alert-danger custom-alert mt-3 mb-0" role="alert">{{ error() }}</div>
+}
+@if (aviso()) {
+  <div class="alert alert-success custom-alert mt-3 mb-0" role="status">{{ aviso() }}</div>
+}

@@ -19,7 +19,6 @@ import { SharedModule } from './shared/shared.module';
 import { AppComponent } from './app.component';
 import { HomeComponent } from './public/home/home.component';
 import { FooterComponent } from './shared/footer/footer.component';
-import { PerfilComponent } from './public/perfil/perfil.component';
 import { AvisoSesionComponent } from './shared/aviso-sesion/aviso-sesion.component';
 import { ReautenticacionComponent } from './shared/reautenticacion/reautenticacion.component';
 
@@ -36,8 +35,7 @@ import { ReautenticacionComponent } from './shared/reautenticacion/reautenticaci
         HomeComponent,
         FooterComponent,
         PoliticaPrivacidadComponent,
-        TerminosCondicionesComponent,
-        PerfilComponent
+        TerminosCondicionesComponent
     ],
     exports: [
         CartaComponent

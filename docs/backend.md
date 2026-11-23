@@ -61,6 +61,12 @@ Las rutas se muestran como las ve el backend. Desde fuera, Caddy las publica baj
 | `POST` | `/auth/2fa/verificar` | Segundo paso con el desafío y el código de la app o uno de recuperación; abre la sesión como el login (`401 CODIGO_INCORRECTO` o `DESAFIO_CADUCADO`) |
 | `POST` | `/auth/2fa/configurar` | Para quien aún no la tiene: secreto nuevo (clave Base32 y URI `otpauth://` para el QR) |
 | `POST` | `/auth/2fa/activar` | Activa la verificación con el primer código de la app, abre la sesión y devuelve los 10 códigos de recuperación |
+| `GET` | `/perfil/seguridad` | Con sesión: correo verificado, estado de la verificación en dos pasos (activa, obligatoria, códigos restantes) y fecha de alta |
+| `PUT` | `/perfil/password` | Cambia la propia contraseña con la actual y cierra las demás sesiones |
+| `POST` | `/perfil/dos-factores/configurar`, `/perfil/dos-factores/activar` | Activa la verificación en dos pasos desde el perfil (activar exige reautenticación) |
+| `POST` | `/perfil/dos-factores/codigos` | Genera 10 códigos de recuperación nuevos y anula los anteriores (reautenticación) |
+| `DELETE` | `/perfil/dos-factores` | La desactiva, si su rol no la exige (reautenticación) |
+| `GET` / `DELETE` | `/perfil/sesiones`, `/perfil/sesiones/{id}` | Sus sesiones abiertas; cerrar una o todas las demás |
 | `POST` | `/auth/reautenticar` | Con sesión: confirma de nuevo la identidad (código de la app o, sin 2FA, contraseña) para las acciones críticas de los 5 minutos siguientes; `400 CODIGO_INCORRECTO` si no vale |
 | `POST` | `/auth/refresh` | Token de acceso nuevo a partir de la cookie, que se rota; `401` si la sesión está cerrada o caducada |
 | `POST` | `/auth/logout` | Cierra la sesión en el servidor y borra la cookie (`204`) |

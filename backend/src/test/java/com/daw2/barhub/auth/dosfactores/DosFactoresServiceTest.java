@@ -275,6 +275,20 @@ class DosFactoresServiceTest {
     }
 
     @Test
+    void regenerarLosCodigosAnulaLosAnteriores() {
+        assertTrue(servicio.regenerarCodigos(USUARIO).isEmpty(), "sin la verificacion activada no hay codigos");
+
+        List<String> primeros = activarApp(servicio.prepararConfiguracion(USUARIO, "ana"));
+        servicio.verificar(USUARIO, primeros.get(0));
+        assertEquals(9, servicio.codigosRestantes(USUARIO));
+
+        List<String> nuevos = servicio.regenerarCodigos(USUARIO).orElseThrow();
+        assertEquals(DosFactoresService.NUM_CODIGOS, servicio.codigosRestantes(USUARIO));
+        assertFalse(servicio.verificar(USUARIO, primeros.get(1)).valida());
+        assertTrue(servicio.verificar(USUARIO, nuevos.get(0)).valida());
+    }
+
+    @Test
     void elRolDecideSiEsObligatoria() {
         assertTrue(servicio.obligatorio(List.of("ROLE_ADMIN")));
         assertTrue(servicio.obligatorio(List.of("ROLE_EMPLEADO")));

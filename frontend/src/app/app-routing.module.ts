@@ -15,6 +15,9 @@ import { SeguimientoPedidosComponent } from './public/seguimiento-pedidos/seguim
 import { PoliticaPrivacidadComponent } from './public/politica-privacidad/politica-privacidad.component';
 import { TerminosCondicionesComponent } from './public/terminos-condiciones/terminos-condiciones.component';
 import { PerfilComponent } from './public/perfil/perfil.component';
+import { PerfilDatosComponent } from './public/perfil/datos/perfil-datos.component';
+import { PerfilDireccionComponent } from './public/perfil/direccion/perfil-direccion.component';
+import { PerfilSeguridadComponent } from './public/perfil/seguridad/perfil-seguridad.component';
 
 const routes: Routes = [
   // Ruta por defecto
@@ -37,7 +40,15 @@ const routes: Routes = [
   { path: 'contacto', component: ContactoComponent },
   { path: 'politica-privacidad', component: PoliticaPrivacidadComponent },
   { path: 'terminos-condiciones', component: TerminosCondicionesComponent },
-  { path: 'perfil', component: PerfilComponent },
+  {
+    path: 'perfil', component: PerfilComponent,
+    children: [
+      { path: '', pathMatch: 'full', redirectTo: 'datos' },
+      { path: 'datos', component: PerfilDatosComponent },
+      { path: 'direccion', component: PerfilDireccionComponent },
+      { path: 'seguridad', component: PerfilSeguridadComponent }
+    ]
+  },
 
   // Rutas Empleados / Personal
   { 

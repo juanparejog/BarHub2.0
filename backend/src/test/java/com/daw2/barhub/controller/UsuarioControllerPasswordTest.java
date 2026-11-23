@@ -2,6 +2,7 @@ package com.daw2.barhub.controller;
 
 import com.daw2.barhub.auth.models.User;
 import com.daw2.barhub.auth.services.UserService;
+import com.daw2.barhub.auth.sesion.SesionService;
 import com.daw2.barhub.model.dto.UsuarioDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -22,6 +23,9 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -34,6 +38,9 @@ class UsuarioControllerPasswordTest {
     @Mock
     private UserService userService;
 
+    @Mock
+    private SesionService sesionService;
+
     private final PasswordEncoder encoder = new BCryptPasswordEncoder(4);
     private UsuarioController controller;
     private User juan;
@@ -42,6 +49,7 @@ class UsuarioControllerPasswordTest {
     void preparar() {
         controller = new UsuarioController(userService);
         ReflectionTestUtils.setField(controller, "passwordEncoder", encoder);
+        ReflectionTestUtils.setField(controller, "sesionService", sesionService);
 
         juan = new User();
         juan.setId(1L);
@@ -106,6 +114,7 @@ class UsuarioControllerPasswordTest {
         ResponseEntity<?> r = actualizar(cambio(null, null), como("juan", "ROLE_CLIENTE"));
         assertEquals(200, r.getStatusCode().value());
         assertTrue(encoder.matches(CLAVE_VIEJA, juan.getPassword()));
+        verify(sesionService, never()).cerrarOtras(anyLong(), any(), any());
     }
 
     @Test
@@ -114,6 +123,8 @@ class UsuarioControllerPasswordTest {
         ResponseEntity<?> r = actualizar(cambio("nuevaClave2", null), como("admin", "ROLE_ADMIN"));
         assertEquals(200, r.getStatusCode().value());
         assertTrue(encoder.matches("nuevaClave2", juan.getPassword()));
+        // si su cuenta estaba comprometida, las sesiones abiertas con la clave vieja se cierran todas
+        verify(sesionService).cerrarOtras(eq(1L), isNull(), eq(SesionService.MOTIVO_CAMBIO_CLAVE));
     }
 
     @Test

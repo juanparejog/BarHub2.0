@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -42,7 +43,8 @@ public class ReautenticacionInterceptor implements HandlerInterceptor {
         }
         RequiereReautenticacion anotacion = metodo.getMethodAnnotation(RequiereReautenticacion.class);
         Authentication autenticacion = SecurityContextHolder.getContext().getAuthentication();
-        if (anotacion == null || !esAdministrador(autenticacion)) {
+        if (anotacion == null || !autenticado(autenticacion)
+                || (!anotacion.paraTodos() && !esAdministrador(autenticacion))) {
             return true;
         }
         Long usuarioId = autenticacion.getPrincipal() instanceof UserDetailsImpl usuario ? usuario.getId() : null;
@@ -65,9 +67,14 @@ public class ReautenticacionInterceptor implements HandlerInterceptor {
         return false;
     }
 
-    private static boolean esAdministrador(Authentication autenticacion) {
+    /** Sin sesion (anonimo) no hay nada que comprobar aqui: la seguridad de la ruta responde 401. */
+    private static boolean autenticado(Authentication autenticacion) {
         return autenticacion != null && autenticacion.isAuthenticated()
-                && autenticacion.getAuthorities().stream().anyMatch(a -> "ROLE_ADMIN".equals(a.getAuthority()));
+                && !(autenticacion instanceof AnonymousAuthenticationToken);
+    }
+
+    private static boolean esAdministrador(Authentication autenticacion) {
+        return autenticacion.getAuthorities().stream().anyMatch(a -> "ROLE_ADMIN".equals(a.getAuthority()));
     }
 
     private static Long idDeLaRuta(HttpServletRequest request) {

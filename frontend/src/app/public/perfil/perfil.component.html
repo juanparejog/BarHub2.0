@@ -1,280 +1,110 @@
 <div class="crud-container perfil-container py-4">
   <div class="row justify-content-center">
-    <div class="col-lg-9">
+    <div class="col-xl-10">
 
-      <div class="crud-card p-4 p-md-5 animate-fade-in shadow-lg border-0 rounded-4">
+      <!-- Cabecera: foto, nombre y estado de la cuenta -->
+      <header class="crud-card perfil-cabecera p-4 mb-3 animate-fade-in shadow-sm border-0 rounded-4">
+        <div class="d-flex flex-wrap align-items-center gap-3">
+          <button type="button" class="avatar-wrapper position-relative p-0 border-0 bg-transparent"
+            (click)="abrirModalImagen()" title="Cambiar la foto de perfil" aria-label="Cambiar la foto de perfil">
+            <img [src]="urlFoto()" (error)="fotoPorDefecto($event)"
+              class="rounded-circle shadow-sm border border-2 border-primary object-fit-cover avatar" alt="">
+            <span class="avatar-overlay rounded-circle d-flex align-items-center justify-content-center text-white">
+              <i class="bi bi-camera-fill fs-5" aria-hidden="true"></i>
+            </span>
+          </button>
 
-        <!-- Cabecera con Avatar Interactivo -->
-        <div class="crud-header align-items-center">
-          <div class="d-flex align-items-center gap-3">
-
-            <div class="avatar-wrapper position-relative cursor-pointer"
-              (click)="abrirModalImagen()"
-              (keydown.enter)="abrirModalImagen()"
-              title="Haz clic para cambiar tu foto de perfil">
-              <img [src]="imagenPreview || getImagenPerfilUrl()"
-                (error)="onImageError($event)"
-                class="rounded-circle shadow-sm border border-2 border-primary object-fit-cover"
-                style="width: 75px; height: 75px;"
-                alt="Avatar de Usuario">
-              <div class="avatar-overlay rounded-circle d-flex align-items-center justify-content-center text-white">
-                <i class="bi bi-camera-fill fs-5"></i>
-              </div>
-            </div>
-
-            <div>
-              <h2 class="crud-title mb-1">Mi Perfil</h2>
-              <p class="text-muted font-size-14 mb-0">Gestiona tus datos personales y tu ubicación predeterminada</p>
-            </div>
+          <div class="flex-grow-1 min-w-0">
+            <h1 class="crud-title h3 mb-1 text-truncate">{{ nombreCompleto() || 'Mi perfil' }}</h1>
+            @if (perfil.usuario(); as usuario) {
+              <p class="text-muted font-size-14 mb-2">
+                &#64;{{ usuario.username }}
+                @for (rol of roles(); track rol) {
+                  <span class="badge rounded-pill text-bg-light border ms-1">{{ rol }}</span>
+                }
+                @if (miembroDesde()) {
+                  <span class="ms-2 text-nowrap">· Miembro desde {{ miembroDesde() }}</span>
+                }
+              </p>
+            }
+            @if (perfil.seguridad(); as estado) {
+              <ul class="list-inline mb-0 estado-cuenta" aria-label="Estado de la cuenta">
+                <li class="list-inline-item">
+                  @if (estado.correoVerificado) {
+                    <span class="chip chip-ok"><i class="bi bi-envelope-check" aria-hidden="true"></i> Correo verificado</span>
+                  } @else {
+                    <span class="chip chip-aviso"><i class="bi bi-envelope-exclamation" aria-hidden="true"></i> Correo sin verificar</span>
+                  }
+                </li>
+                <li class="list-inline-item">
+                  @if (estado.dosFactoresActiva) {
+                    <span class="chip chip-ok"><i class="bi bi-shield-check" aria-hidden="true"></i> Verificación en dos pasos activa</span>
+                  } @else {
+                    <a class="chip chip-aviso text-decoration-none" routerLink="seguridad">
+                      <i class="bi bi-shield-exclamation" aria-hidden="true"></i> Verificación en dos pasos desactivada
+                    </a>
+                  }
+                </li>
+              </ul>
+            }
           </div>
         </div>
+      </header>
 
-        <!-- Alertas dinámicas -->
-        @if (mensajeExito) {
-          <div class="alert alert-success alert-dismissible fade show custom-alert shadow-sm" role="alert">
-            <i class="bi bi-check-circle-fill me-2"></i> {{ mensajeExito }}
-          </div>
-        }
-        @if (mensajeError) {
-          <div class="alert alert-danger alert-dismissible fade show custom-alert shadow-sm" role="alert">
-            <i class="bi bi-exclamation-triangle-fill me-2"></i> {{ mensajeError }}
-          </div>
-        }
+      @if (perfil.error()) {
+        <div class="alert alert-danger custom-alert shadow-sm" role="alert">
+          <i class="bi bi-exclamation-triangle-fill me-2" aria-hidden="true"></i>{{ perfil.error() }}
+        </div>
+      }
 
-        <form [formGroup]="perfilForm" (ngSubmit)="guardarPerfil()">
+      <div class="perfil-cuerpo">
+        <nav class="perfil-pestanas" aria-label="Secciones del perfil">
+          @for (pestana of pestanas; track pestana.ruta) {
+            <a class="perfil-pestana" [routerLink]="pestana.ruta" routerLinkActive="activa"
+              ariaCurrentWhenActive="page">
+              <i class="bi {{ pestana.icono }}" aria-hidden="true"></i>
+              <span>{{ pestana.titulo }}</span>
+            </a>
+          }
+        </nav>
 
-          <!-- SECCIÓN 1: DATOS DE CUENTA Y PERSONALES -->
-          <h5 class="text-slate-800 fw-bold mb-3"><i class="bi bi-shield-lock text-indigo me-2"></i>Datos de Cuenta y Personales</h5>
-          <div class="row g-3 mb-4">
-
-            <div class="col-md-6">
-              <label for="username" class="form-label font-size-14 fw-semibold text-slate-800">Nombre de usuario <span class="text-rose">*</span></label>
-              <div class="input-group">
-                <span class="input-group-text bg-body-tertiary border-end-0"><i class="bi bi-at"></i></span>
-                <input type="text" id="username" class="form-control search-input border-start-0 ps-0" formControlName="username"
-                  [class.is-invalid]="perfilForm.get('username')?.invalid && perfilForm.get('username')?.touched" [attr.aria-invalid]="perfilForm.get('username')?.invalid && perfilForm.get('username')?.touched" [attr.aria-describedby]="(perfilForm.get('username')?.invalid && perfilForm.get('username')?.touched) ? 'perfil-username-error' : null">
-                <div class="invalid-feedback" id="perfil-username-error">El nombre de usuario es obligatorio.</div>
-              </div>
-            </div>
-
-            <div class="col-md-6">
-              <label for="email" class="form-label font-size-14 fw-semibold text-slate-800">Correo electrónico <span class="text-rose">*</span></label>
-              <div class="input-group">
-                <span class="input-group-text bg-body-tertiary border-end-0"><i class="bi bi-envelope"></i></span>
-                <input type="email" id="email" class="form-control search-input border-start-0 ps-0" formControlName="email"
-                  [class.is-invalid]="perfilForm.get('email')?.invalid && perfilForm.get('email')?.touched" [attr.aria-invalid]="perfilForm.get('email')?.invalid && perfilForm.get('email')?.touched" [attr.aria-describedby]="(perfilForm.get('email')?.invalid && perfilForm.get('email')?.touched) ? 'perfil-email-error' : null">
-                <div class="invalid-feedback" id="perfil-email-error">Introduce un correo válido.</div>
-              </div>
-            </div>
-
-            <div class="col-md-4">
-              <label for="nombre" class="form-label font-size-14 fw-semibold text-slate-800">Nombre <span class="text-rose">*</span></label>
-              <input type="text" id="nombre" class="form-control search-input" formControlName="nombre" placeholder="Nombre"
-                [class.is-invalid]="perfilForm.get('nombre')?.invalid && perfilForm.get('nombre')?.touched" [attr.aria-invalid]="perfilForm.get('nombre')?.invalid && perfilForm.get('nombre')?.touched" [attr.aria-describedby]="(perfilForm.get('nombre')?.invalid && perfilForm.get('nombre')?.touched) ? 'perfil-nombre-error' : null">
-              <div class="invalid-feedback" id="perfil-nombre-error">Obligatorio.</div>
-            </div>
-
-            <div class="col-md-4">
-              <label for="apellido1" class="form-label font-size-14 fw-semibold text-slate-800">Primer Apellido <span class="text-rose">*</span></label>
-              <input type="text" id="apellido1" class="form-control search-input" formControlName="apellido1" placeholder="Apellido"
-                [class.is-invalid]="perfilForm.get('apellido1')?.invalid && perfilForm.get('apellido1')?.touched" [attr.aria-invalid]="perfilForm.get('apellido1')?.invalid && perfilForm.get('apellido1')?.touched" [attr.aria-describedby]="(perfilForm.get('apellido1')?.invalid && perfilForm.get('apellido1')?.touched) ? 'perfil-apellido1-error' : null">
-              <div class="invalid-feedback" id="perfil-apellido1-error">Obligatorio.</div>
-            </div>
-
-            <div class="col-md-4">
-              <label for="apellido2" class="form-label font-size-14 fw-semibold text-slate-800">Segundo Apellido</label>
-              <input type="text" id="apellido2" class="form-control search-input" formControlName="apellido2" placeholder="Apellido">
-            </div>
-
-          </div>
-
-          <hr class="mb-4 opacity-25">
-
-          <!-- SECCIÓN 2: DIRECCIÓN Y ENTREGA -->
-          <h5 class="text-slate-800 fw-bold mb-3"><i class="bi bi-geo-alt-fill text-indigo me-2"></i>Dirección de Entrega Predeterminada</h5>
-          <div class="row g-3">
-
-            <div class="col-md-6">
-              <label for="telefono" class="form-label font-size-14 fw-semibold text-slate-800">Teléfono de contacto <span class="text-rose">*</span></label>
-              <div class="input-group">
-                <span class="input-group-text bg-body-tertiary border-end-0"><i class="bi bi-telephone"></i></span>
-                <input type="tel" id="telefono" class="form-control search-input border-start-0 ps-0" formControlName="telefono" placeholder="Ej. 600123456"
-                  [class.is-invalid]="perfilForm.get('telefono')?.invalid && perfilForm.get('telefono')?.touched" [attr.aria-invalid]="perfilForm.get('telefono')?.invalid && perfilForm.get('telefono')?.touched" [attr.aria-describedby]="(perfilForm.get('telefono')?.invalid && perfilForm.get('telefono')?.touched) ? 'perfil-telefono-error' : null">
-                <div class="invalid-feedback" id="perfil-telefono-error">Mínimo 9 dígitos.</div>
-              </div>
-            </div>
-
-            <div class="col-md-6">
-              <label for="codigoPostal" class="form-label font-size-14 fw-semibold text-slate-800">Código Postal <span class="text-rose">*</span></label>
-              <div class="input-group">
-                <span class="input-group-text bg-body-tertiary border-end-0"><i class="bi bi-mailbox"></i></span>
-                <input type="text" id="codigoPostal" class="form-control search-input border-start-0 ps-0" formControlName="codigoPostal" placeholder="Codigo Postal"
-                  [class.is-invalid]="perfilForm.get('codigoPostal')?.invalid && perfilForm.get('codigoPostal')?.touched" [attr.aria-invalid]="perfilForm.get('codigoPostal')?.invalid && perfilForm.get('codigoPostal')?.touched" [attr.aria-describedby]="(perfilForm.get('codigoPostal')?.invalid && perfilForm.get('codigoPostal')?.touched) ? 'perfil-codigoPostal-error' : null">
-                <div class="invalid-feedback" id="perfil-codigoPostal-error">5 dígitos.</div>
-              </div>
-            </div>
-
-            <div class="col-12">
-              <label for="calle" class="form-label font-size-14 fw-semibold text-slate-800">Calle / Avenida / Vía <span class="text-rose">*</span></label>
-              <div class="input-group">
-                <span class="input-group-text bg-body-tertiary border-end-0"><i class="bi bi-house"></i></span>
-                <input type="text" id="calle" class="form-control search-input border-start-0 ps-0" formControlName="calle" placeholder="Calle"
-                  [class.is-invalid]="perfilForm.get('calle')?.invalid && perfilForm.get('calle')?.touched" [attr.aria-invalid]="perfilForm.get('calle')?.invalid && perfilForm.get('calle')?.touched" [attr.aria-describedby]="(perfilForm.get('calle')?.invalid && perfilForm.get('calle')?.touched) ? 'perfil-calle-error' : null">
-                <div class="invalid-feedback" id="perfil-calle-error">La calle es obligatoria.</div>
-              </div>
-            </div>
-
-            <!-- Selector de Tipo de Vivienda -->
-            <div class="col-12 mt-3">
-              <span class="form-label font-size-14 fw-semibold text-slate-800 mb-2">Tipo de Inmueble</span>
-              <div class="row g-3">
-                <div class="col-md-4">
-                  <label class="tipo-vivienda-card" [class.active]="perfilForm.get('tipoVivienda')?.value === 'piso'">
-                    <input class="form-check-input d-none" type="radio" formControlName="tipoVivienda" value="piso">
-                    <div class="card-content">
-                      <div class="icon-box"><i class="bi bi-building"></i></div>
-                      <span class="fw-semibold font-size-14">Piso / Edificio</span>
-                      <small class="text-muted">Portal, piso y puerta</small>
-                    </div>
-                  </label>
-                </div>
-
-                <div class="col-md-4">
-                  <label class="tipo-vivienda-card" [class.active]="perfilForm.get('tipoVivienda')?.value === 'urbanizacion'">
-                    <input class="form-check-input d-none" type="radio" formControlName="tipoVivienda" value="urbanizacion">
-                    <div class="card-content">
-                      <div class="icon-box"><i class="bi bi-houses"></i></div>
-                      <span class="fw-semibold font-size-14">Urbanización</span>
-                      <small class="text-muted">Bloque y chalet</small>
-                    </div>
-                  </label>
-                </div>
-
-                <div class="col-md-4">
-                  <label class="tipo-vivienda-card" [class.active]="perfilForm.get('tipoVivienda')?.value === 'casa'">
-                    <input class="form-check-input d-none" type="radio" formControlName="tipoVivienda" value="casa">
-                    <div class="card-content">
-                      <div class="icon-box"><i class="bi bi-house-door"></i></div>
-                      <span class="fw-semibold font-size-14">Casa Unifamiliar</span>
-                      <small class="text-muted">Número de puerta</small>
-                    </div>
-                  </label>
-                </div>
-              </div>
-            </div>
-
-            <!-- CAMPOS DINÁMICOS -->
-            @if (perfilForm.get('tipoVivienda')?.value === 'piso') {
-              <div class="col-md-4">
-                <label for="portalNum" class="form-label font-size-14 fw-semibold">Nº Portal <span class="text-rose">*</span></label>
-                <input type="text" id="portalNum" class="form-control search-input" formControlName="portalNum" placeholder="Portal">
-              </div>
-              <div class="col-md-4">
-                <label for="pisoNum" class="form-label font-size-14 fw-semibold">Planta / Piso <span class="text-rose">*</span></label>
-                <input type="text" id="pisoNum" class="form-control search-input" formControlName="pisoNum" placeholder="Piso">
-              </div>
-              <div class="col-md-4">
-                <label for="puerta" class="form-label font-size-14 fw-semibold">Puerta / Letra <span class="text-rose">*</span></label>
-                <input type="text" id="puerta" class="form-control search-input" formControlName="puerta" placeholder="Puerta">
-              </div>
-            }
-
-            @if (perfilForm.get('tipoVivienda')?.value === 'urbanizacion') {
-              <div class="col-md-6">
-                <label for="urbanizacionNombre" class="form-label font-size-14 fw-semibold">Nombre Urbanización / Bloque <span class="text-rose">*</span></label>
-                <input type="text" id="urbanizacionNombre" class="form-control search-input" formControlName="urbanizacionNombre" placeholder="Nombre">
-              </div>
-              <div class="col-md-6">
-                <label for="casaNumUrb" class="form-label font-size-14 fw-semibold">Nº Puerta / Chalet <span class="text-rose">*</span></label>
-                <input type="text" id="casaNumUrb" class="form-control search-input" formControlName="casaNum" placeholder="Puerta">
-              </div>
-            }
-
-            @if (perfilForm.get('tipoVivienda')?.value === 'casa') {
-              <div class="col-12">
-                <label for="casaNum" class="form-label font-size-14 fw-semibold">Número de la Casa <span class="text-rose">*</span></label>
-                <input type="text" id="casaNum" class="form-control search-input" formControlName="casaNum" placeholder="Puerta">
-              </div>
-            }
-
-            <div class="col-12 mt-3">
-              <label for="instruccionesEntrega" class="form-label font-size-14 fw-semibold text-slate-800">Instrucciones para el repartidor</label>
-              <textarea id="instruccionesEntrega" class="form-control search-input h-auto" formControlName="instruccionesEntrega" rows="3"></textarea>
-            </div>
-
-          </div>
-
-          <hr class="my-4 opacity-25">
-
-          <!-- SECCIÓN 3: CAMBIAR CONTRASEÑA (opcional) -->
-          <h5 class="text-slate-800 fw-bold mb-1"><i class="bi bi-key text-indigo me-2"></i>Cambiar contraseña</h5>
-          <p class="text-muted font-size-14 mb-3">Déjalo en blanco si no quieres cambiarla.</p>
-          <div class="row g-3" [formGroup]="passwordForm">
-            <div class="col-md-4">
-              <label for="passwordActual" class="form-label font-size-14 fw-semibold text-slate-800">Contraseña actual</label>
-              <input type="password" id="passwordActual" class="form-control search-input" formControlName="passwordActual" autocomplete="current-password">
-            </div>
-            <div class="col-md-4">
-              <label for="passwordNueva" class="form-label font-size-14 fw-semibold text-slate-800">Nueva contraseña</label>
-              <input type="password" id="passwordNueva" class="form-control search-input" formControlName="passwordNueva" autocomplete="new-password" placeholder="Entre 6 y 40 caracteres">
-            </div>
-            <div class="col-md-4">
-              <label for="passwordRepetir" class="form-label font-size-14 fw-semibold text-slate-800">Repite la nueva contraseña</label>
-              <input type="password" id="passwordRepetir" class="form-control search-input" formControlName="passwordRepetir" autocomplete="new-password">
-            </div>
-          </div>
-
-          <div class="d-flex justify-content-end mt-5">
-            <button type="submit" class="btn-crud-primary px-4 py-2 shadow-sm">
-              <i class="bi bi-save me-2"></i> Guardar Cambios
-            </button>
-          </div>
-
-        </form>
-
+        <section class="crud-card perfil-panel p-4 p-md-5 shadow-sm border-0 rounded-4">
+          <router-outlet></router-outlet>
+        </section>
       </div>
 
     </div>
   </div>
 </div>
 
-<!-- ================= MODAL DRAG & DROP PARA CAMBIAR FOTO ================= -->
-@if (mostrarModalImagen) {
-  <div class="modal-backdrop-custom d-flex align-items-center justify-content-center">
-    <div class="crud-card p-4 shadow-lg animate-fade-in" style="width: 100%; max-width: 480px; z-index: 1050;">
+<!-- Cambiar la foto: se guarda al pulsar «Guardar foto» -->
+@if (mostrarModalImagen()) {
+  <div class="modal-backdrop-custom d-flex align-items-center justify-content-center" (keydown.escape)="cerrarModalImagen()">
+    <div class="crud-card p-4 shadow-lg animate-fade-in modal-foto" role="dialog" aria-modal="true" aria-labelledby="tituloFoto">
       <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
-        <h5 class="fw-bold m-0 text-slate-800"><i class="bi bi-image text-indigo me-2"></i>Cambiar Foto de Perfil</h5>
-        <button type="button" class="btn-close" (click)="cerrarModalImagen()"></button>
+        <h2 id="tituloFoto" class="h5 fw-bold m-0"><i class="bi bi-image text-indigo me-2" aria-hidden="true"></i>Cambiar foto de perfil</h2>
+        <button type="button" class="btn-close" (click)="cerrarModalImagen()" aria-label="Cerrar"></button>
       </div>
-      <!-- Zona Drag & Drop -->
-      <div class="drop-zone text-center p-4 my-3"
-        [class.drag-over]="isDragging"
-        (dragover)="onDragOver($event)"
-        (dragleave)="onDragLeave($event)"
-        (drop)="onDrop($event)"
-        (click)="fileInput.click()"
-        (keydown.enter)="fileInput.click()">
-        @if (!imagenPreview) {
-          <div>
-            <i class="bi bi-cloud-arrow-up fs-1 text-indigo mb-2"></i>
-            <p class="mb-1 fw-semibold text-slate-800">Arrastra y suelta tu imagen aquí</p>
-            <p class="text-muted font-size-14 mb-3">o haz clic para explorar archivos</p>
-            <span class="btn-crud-secondary btn-sm">Seleccionar Archivo</span>
-          </div>
+      <button type="button" class="drop-zone w-100 text-center p-4 my-3" [class.drag-over]="arrastrando()"
+        (dragover)="alArrastrar($event, true)" (dragleave)="alArrastrar($event, false)" (drop)="alSoltar($event)"
+        (click)="selectorFoto.click()">
+        @if (vistaPrevia(); as previa) {
+          <img [src]="previa" class="rounded-circle shadow border object-fit-cover mb-2 vista-previa" alt="Vista previa de la foto nueva">
+          <span class="d-block text-success font-size-14 fw-semibold"><i class="bi bi-check-circle me-1" aria-hidden="true"></i>Lista para guardar</span>
+        } @else {
+          <i class="bi bi-cloud-arrow-up fs-1 text-indigo mb-2" aria-hidden="true"></i>
+          <span class="d-block mb-1 fw-semibold">Arrastra tu foto aquí</span>
+          <span class="d-block text-muted font-size-14">o haz clic para elegir un archivo</span>
         }
-        @if (imagenPreview) {
-          <div class="position-relative">
-            <img [src]="imagenPreview" class="rounded-circle shadow border object-fit-cover mb-2" style="width: 100px; height: 100px;" alt="Vista previa">
-            <p class="text-success font-size-14 fw-semibold mb-0"><i class="bi bi-check-circle me-1"></i> Imagen lista para guardar</p>
-            <small class="text-muted">Se guardará como: <strong>{{ perfilForm.get('username')?.value }}.jpg</strong></small>
-          </div>
-        }
-        <input #fileInput id="fileInput" type="file" class="d-none" accept="image/*" (change)="onFileSelected($event)" aria-label="Seleccionar archivo de imagen">
-      </div>
+      </button>
+      <input #selectorFoto type="file" class="d-none" accept="image/*" (change)="alSeleccionar($event)" aria-label="Elegir foto de perfil">
+      @if (errorFoto()) {
+        <div class="text-danger font-size-14" role="alert">{{ errorFoto() }}</div>
+      }
       <div class="d-flex justify-content-end gap-2 mt-4">
         <button type="button" class="btn-crud-secondary" (click)="cerrarModalImagen()">Cancelar</button>
-        <button type="button" class="btn-crud-primary" [disabled]="!archivoSeleccionado" (click)="guardarNuevaImagen()">
-          <i class="bi bi-upload me-1"></i> Aplicar Imagen
+        <button type="button" class="btn-crud-primary" [disabled]="!vistaPrevia() || subiendoFoto()" (click)="guardarFoto()">
+          <i class="bi bi-upload me-1" aria-hidden="true"></i>Guardar foto
         </button>
       </div>
     </div>

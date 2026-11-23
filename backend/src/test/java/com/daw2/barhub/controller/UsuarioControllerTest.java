@@ -296,13 +296,24 @@ class UsuarioControllerTest {
     // ---------- actualizar: datos ----------
 
     @Test
-    void un_cliente_no_puede_cambiar_su_username() {
+    void un_cliente_no_puede_cambiar_su_username_ni_su_correo() {
         permitirGuardar();
+        String correoAntes = juan.getEmail();
         UsuarioDto d = datos();
         d.setUsername("otro-nombre");
-        d.setEmail("juan@correo.es");
+        d.setEmail("otro@correo.es");
         assertEquals(200, actualizarComoJuan(d).getStatusCode().value());
         assertEquals("juan", juan.getUsername());
+        // el correo se cambia con un enlace de confirmacion, no desde el perfil
+        assertEquals(correoAntes, juan.getEmail());
+    }
+
+    @Test
+    void un_admin_si_puede_cambiar_el_correo_de_un_usuario() {
+        permitirGuardar();
+        UsuarioDto d = datos();
+        d.setEmail("juan@correo.es");
+        assertEquals(200, actualizar(d, null, como("admin", "ROLE_ADMIN")).getStatusCode().value());
         assertEquals("juan@correo.es", juan.getEmail());
     }
 

@@ -34,23 +34,7 @@
     @case ('codigos') {
       <h2>Guarda tus códigos de recuperación</h2>
       <p class="text-muted">Si pierdes el móvil, cada uno de estos códigos te deja entrar una sola vez. Guárdalos en un lugar seguro: no los volveremos a mostrar.</p>
-      <ul class="codigos" aria-label="Códigos de recuperación">
-        @for (codigo of codigosRecuperacion; track codigo) {
-          <li><code>{{ codigo }}</code></li>
-        }
-      </ul>
-      <div class="acciones">
-        <button type="button" class="btn btn-outline-secondary" (click)="descargarCodigos()">Descargar</button>
-        <button type="button" class="btn btn-outline-secondary" (click)="copiarCodigos()">{{ copiados ? 'Copiados' : 'Copiar' }}</button>
-      </div>
-      <div class="form-check mt-3 text-start">
-        <input class="form-check-input" type="checkbox" id="codigosGuardados" [checked]="codigosGuardados"
-          (change)="codigosGuardados = !codigosGuardados">
-        <label class="form-check-label" for="codigosGuardados">He guardado los códigos en un lugar seguro</label>
-      </div>
-      <div class="acciones">
-        <button type="button" class="btn btn-primary" [disabled]="!codigosGuardados" (click)="continuar()">Continuar</button>
-      </div>
+      <app-codigos-recuperacion [codigos]="codigosRecuperacion" [usuario]="usuario" (terminado)="continuar()" />
     }
 
     @case ('recuperacionUsada') {
@@ -60,7 +44,7 @@
       } @else {
         <p class="text-danger" role="alert">Ya no te quedan códigos de recuperación.</p>
       }
-      <p class="text-muted">Si has perdido el acceso a la app de autenticación, pide al administrador que restablezca tu verificación en dos pasos.</p>
+      <p class="text-muted">Puedes generar códigos nuevos en <a routerLink="/perfil/seguridad">Mi perfil, pestaña Seguridad</a>. Si has perdido el acceso a la app de autenticación y eres del personal, pide al administrador que restablezca tu verificación en dos pasos.</p>
       <div class="acciones">
         <button type="button" class="btn btn-primary" (click)="continuar()">Continuar</button>
       </div>

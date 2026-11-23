@@ -74,6 +74,8 @@ public class SecurityConfig {
 
                         .requestMatchers(HttpMethod.GET, "/usuarios/{id:\\d+}").authenticated()
                         .requestMatchers(HttpMethod.PUT, "/usuarios/{id:\\d+}").authenticated()
+                        // Seguridad de la propia cuenta: siempre sobre el usuario del token
+                        .requestMatchers("/perfil/**").authenticated()
 
                         // --- PERMITIR CREACIÓN DE PEDIDOS ---
                         .requestMatchers(HttpMethod.POST, "/pedidos").permitAll()

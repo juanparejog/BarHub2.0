@@ -4,6 +4,7 @@ import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { Router, RouterLink } from '@angular/router';
 import { AuthService, SesionAbierta } from '../auth.service';
 import { CodigoQrService } from './codigo-qr.service';
+import { CodigosRecuperacionComponent } from '../../shared/codigos-recuperacion/codigos-recuperacion.component';
 
 /** Lo que el login deja en el estado del historial al navegar aqui. */
 interface EstadoDesafio {
@@ -23,7 +24,7 @@ type Paso = 'cargando' | 'verificar' | 'configurar' | 'codigos' | 'recuperacionU
 @Component({
   selector: 'app-dos-factores',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink, NgTemplateOutlet],
+  imports: [ReactiveFormsModule, RouterLink, NgTemplateOutlet, CodigosRecuperacionComponent],
   templateUrl: './dos-factores.component.html',
   styleUrls: ['../correo/cuenta-correo.css', './dos-factores.component.css'],
   changeDetection: ChangeDetectionStrategy.Eager
@@ -43,12 +44,10 @@ export class DosFactoresComponent implements OnInit {
   secreto = '';
   qr = '';
   codigosRecuperacion: string[] = [];
-  codigosGuardados = false;
   restantes = 0;
   enviando = false;
   error = '';
   mensajeCaducado = '';
-  copiados = false;
   private desafio = '';
 
   ngOnInit(): void {
@@ -106,28 +105,6 @@ export class DosFactoresComponent implements OnInit {
 
   continuar(): void {
     void this.router.navigate(['/carta']);
-  }
-
-  descargarCodigos(): void {
-    const texto = [
-      'BarHub - códigos de recuperación' + (this.usuario ? ` de ${this.usuario}` : ''),
-      '',
-      'Cada código sirve una sola vez para entrar si no tienes la app de autenticación.',
-      '',
-      ...this.codigosRecuperacion
-    ].join('\n');
-    const enlace = document.createElement('a');
-    enlace.href = URL.createObjectURL(new Blob([texto + '\n'], { type: 'text/plain;charset=utf-8' }));
-    enlace.download = 'barhub-codigos-recuperacion.txt';
-    enlace.click();
-    URL.revokeObjectURL(enlace.href);
-  }
-
-  copiarCodigos(): void {
-    navigator.clipboard?.writeText(this.codigosRecuperacion.join('\n')).then(() => {
-      this.copiados = true;
-      this.cdr.markForCheck();
-    }, () => undefined);
   }
 
   private empezarConfiguracion(): void {

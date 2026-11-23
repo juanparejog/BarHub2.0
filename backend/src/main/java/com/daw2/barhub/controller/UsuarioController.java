@@ -4,6 +4,8 @@ import com.daw2.barhub.auth.dosfactores.DosFactoresService;
 import com.daw2.barhub.auth.reautenticacion.RequiereReautenticacion;
 import com.daw2.barhub.auth.services.UserService;
 import com.daw2.barhub.auth.sesion.SesionService;
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.RequestContextHolder;
 import com.daw2.barhub.model.dto.ErrorDto;
 import com.daw2.barhub.model.dto.UsuarioDto;
 import com.daw2.barhub.auth.models.User;
@@ -170,6 +172,13 @@ public class UsuarioController {
 
             User usuarioActualizado = userService.save(usuarioExistente);
 
+            // Con la contrasena cambiada, las sesiones abiertas con la anterior se cierran: todas si
+            // el administrador se la cambia a otro; si la cambia el propio usuario, menos esta
+            if (hayPassword(usuarioDto)) {
+                boolean propia = usuarioExistente.getUsername().equals(auth.getName());
+                sesionService.cerrarOtras(id, propia ? sesionActual() : null, SesionService.MOTIVO_CAMBIO_CLAVE);
+            }
+
             // La foto anterior ya no se usa: se borra para no dejar ficheros huerfanos
             if (subido != null && imagenAnterior != null && !imagenAnterior.equals(usuarioActualizado.getImagen())) {
                 borrarImagen(imagenAnterior);
@@ -288,11 +297,13 @@ public class UsuarioController {
     }
 
     private void aplicarDatosPerfil(User u, UsuarioDto d, boolean admin) {
-        // Solo un admin puede cambiar el username y los roles
+        // Solo un admin puede cambiar el username, el correo y los roles. El usuario cambia su
+        // correo con un enlace de confirmacion, no aqui: si no, una sesion robada bastaria para
+        // quedarse con la cuenta (pidiendo la recuperacion de la contrasena al correo nuevo)
         if (admin && d.getUsername() != null && !d.getUsername().isBlank()) {
             u.setUsername(d.getUsername());
         }
-        if (d.getEmail() != null && !d.getEmail().isBlank()) {
+        if (admin && d.getEmail() != null && !d.getEmail().isBlank()) {
             u.setEmail(d.getEmail());
         }
         u.setNombre(d.getNombre());
@@ -319,6 +330,13 @@ public class UsuarioController {
                 .collect(Collectors.toSet());
         u.getRoles().clear();
         u.getRoles().addAll(persistidos);
+    }
+
+    /** Id de la sesion de esta peticion (lo pone AuthTokenFilter); null fuera de una peticion. */
+    private static String sesionActual() {
+        RequestAttributes atributos = RequestContextHolder.getRequestAttributes();
+        return atributos == null ? null
+                : (String) atributos.getAttribute(SesionService.ATRIBUTO_SESION, RequestAttributes.SCOPE_REQUEST);
     }
 
     private Path carpeta() {

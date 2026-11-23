@@ -93,6 +93,25 @@ public class DosFactoresService {
         return estabaActiva;
     }
 
+    /** Codigos de recuperacion sin usar. */
+    @Transactional(readOnly = true)
+    public int codigosRestantes(Long usuarioId) {
+        return (int) codigos.countByUsuarioIdAndUsadoEnIsNull(usuarioId);
+    }
+
+    /**
+     * Sustituye los codigos de recuperacion por {@value #NUM_CODIGOS} nuevos (los anteriores dejan de
+     * valer). Vacio si no tiene la verificacion activada.
+     */
+    @Transactional
+    public Optional<List<String>> regenerarCodigos(Long usuarioId) {
+        if (!activo(usuarioId)) {
+            return Optional.empty();
+        }
+        log.info("Códigos de recuperación nuevos para el usuario {}", usuarioId);
+        return Optional.of(generarCodigos(usuarioId, reloj.instant()));
+    }
+
     /**
      * Solo el codigo de la app, sin codigos de recuperacion: para reautenticarse ya dentro de la
      * sesion, donde no tiene sentido gastar uno de ellos.

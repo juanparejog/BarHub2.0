@@ -35,23 +35,3 @@
   letter-spacing: 0.15em;
   text-align: center;
 }
-
-.dos-factores .codigos {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.5rem;
-  list-style: none;
-  padding: 0;
-  margin: 1rem 0 0;
-}
-
-.dos-factores .codigos code {
-  font-size: 1rem;
-  letter-spacing: 0.05em;
-}
-
-@media (max-width: 400px) {
-  .dos-factores .codigos {
-    grid-template-columns: 1fr;
-  }
-}

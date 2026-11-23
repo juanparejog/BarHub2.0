@@ -21,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
@@ -49,6 +50,9 @@ class SesionServiceTest {
                 .thenAnswer(i -> Optional.ofNullable(guardadas.get(i.<String>getArgument(0))));
         lenient().when(repositorio.findByTokenHash(anyString())).thenAnswer(i -> guardadas.values().stream()
                 .filter(s -> i.getArgument(0).equals(s.getTokenHash())).findFirst());
+        lenient().when(repositorio.findByUsuarioIdAndRevocadaEnIsNull(anyLong())).thenAnswer(i -> guardadas.values().stream()
+                .filter(s -> s.getUsuarioId().equals(i.getArgument(0)) && s.getRevocadaEn() == null)
+                .toList());
         lenient().when(repositorio.findByTokenAnteriorHash(anyString())).thenAnswer(i -> guardadas.values().stream()
                 .filter(s -> i.getArgument(0).equals(s.getTokenAnteriorHash())).findFirst());
 
@@ -181,6 +185,47 @@ class SesionServiceTest {
         assertFalse(servicio.registrarActividad(nueva.sesion().getId(), 99L));
         assertFalse(servicio.registrarActividad("no-existe", USUARIO));
         assertFalse(servicio.registrarActividad(null, USUARIO));
+    }
+
+    // ---------- sesiones desde el perfil ----------
+
+    @Test
+    void lasAbiertasNoIncluyenLasCerradasNiLasCaducadasYVanDeMasAMenosReciente() {
+        String primera = abrirCliente().sesion().getId();
+        reloj.avanzar(Duration.ofMinutes(1));
+        String segunda = abrirCliente().sesion().getId();
+        String cerrada = abrirCliente().sesion().getId();
+        servicio.cerrarDe(cerrada, USUARIO);
+
+        assertEquals(java.util.List.of(segunda, primera),
+                servicio.abiertas(USUARIO).stream().map(Sesion::getId).toList());
+        reloj.avanzar(Duration.ofHours(2));
+        assertTrue(servicio.abiertas(USUARIO).isEmpty(), "pasada la inactividad maxima ya no estan abiertas");
+    }
+
+    @Test
+    void cadaUnoSoloCierraSusPropiasSesiones() {
+        String id = abrirCliente().sesion().getId();
+
+        assertFalse(servicio.cerrarDe(id, 99L));
+        assertFalse(servicio.cerrarDe("no-existe", USUARIO));
+        assertTrue(servicio.cerrarDe(id, USUARIO));
+        assertEquals(SesionService.MOTIVO_USUARIO, guardadas.get(id).getMotivoRevocacion());
+        assertFalse(servicio.cerrarDe(id, USUARIO), "ya estaba cerrada");
+    }
+
+    @Test
+    void cerrarLasDemasRespetaLaActual() {
+        String actual = abrirCliente().sesion().getId();
+        String otra = abrirCliente().sesion().getId();
+        String tercera = abrirCliente().sesion().getId();
+
+        assertEquals(2, servicio.cerrarOtras(USUARIO, actual, SesionService.MOTIVO_USUARIO));
+        assertNull(guardadas.get(actual).getRevocadaEn());
+        assertNotNull(guardadas.get(otra).getRevocadaEn());
+        assertNotNull(guardadas.get(tercera).getRevocadaEn());
+        // sin sesion actual (fuera de una peticion) se cierran todas
+        assertEquals(1, servicio.cerrarOtras(USUARIO, null, SesionService.MOTIVO_CAMBIO_CLAVE));
     }
 
     // ---------- reautenticacion (acciones criticas) ----------

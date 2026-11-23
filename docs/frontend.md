@@ -119,7 +119,7 @@ sequenceDiagram
 | `carta` | Menú de productos | Cliente |
 | `confirmar-pedido` | Revisión y confirmación del pedido | Cliente |
 | `seguimiento-pedidos` | Estado actual del pedido | Cliente |
-| `perfil` | Datos del perfil | Cliente |
+| `perfil` | Mi perfil: cabecera con foto y estado de la cuenta, y pestañas como rutas hijas (`datos`, `direccion`, `seguridad`). `PerfilService` (proveído en el componente) comparte el perfil entre la cabecera y las pestañas | Todos con sesión |
 | `contacto` | Formulario e información de contacto | Todos |
 | `politica-privacidad`, `terminos-condiciones` | Páginas legales | Todos |
 | `gestionar-comandas` | Comandas con actualización automática | Empleado |

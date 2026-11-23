@@ -1,0 +1,27 @@
+.codigos {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.5rem;
+  list-style: none;
+  padding: 0;
+  margin: 1rem 0 0;
+}
+
+.codigos code {
+  font-size: 1rem;
+  letter-spacing: 0.05em;
+}
+
+.acciones-codigos {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+@media (max-width: 400px) {
+  .codigos {
+    grid-template-columns: 1fr;
+  }
+}

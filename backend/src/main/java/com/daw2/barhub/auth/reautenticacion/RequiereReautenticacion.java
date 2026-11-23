@@ -11,7 +11,9 @@ import java.lang.annotation.Target;
  * sesion (al iniciarla o con POST /auth/reautenticar). Si no, responde 403 REAUTENTICACION_REQUERIDA
  * y el frontend pide el codigo y repite la peticion. Lo comprueba ReautenticacionInterceptor.
  *
- * <p>Solo se aplica a administradores: para el resto de roles decide la seguridad de la ruta.
+ * <p>Por defecto solo se aplica a administradores: para el resto de roles decide la seguridad de la
+ * ruta. Con {@link #paraTodos()} se exige a cualquier usuario (acciones sobre su propia seguridad,
+ * como activar o quitar la verificacion en dos pasos).
  */
 @Documented
 @Target(ElementType.METHOD)
@@ -20,4 +22,7 @@ public @interface RequiereReautenticacion {
 
     /** Con true solo se exige si la accion es sobre otro usuario (el {id} de la ruta no es el suyo). */
     boolean soloSobreOtroUsuario() default false;
+
+    /** Con true se exige a cualquier usuario con sesion, no solo a los administradores. */
+    boolean paraTodos() default false;
 }

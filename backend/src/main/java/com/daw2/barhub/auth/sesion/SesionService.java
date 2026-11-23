@@ -37,6 +37,8 @@ public class SesionService {
     public static final String MOTIVO_REUTILIZACION = "REUTILIZACION";
     public static final String MOTIVO_CAMBIO_CLAVE = "CAMBIO_CLAVE";
     public static final String MOTIVO_DOS_FACTORES = "DOS_FACTORES";
+    /** El propio usuario la cierra desde su perfil (pestana Seguridad). */
+    public static final String MOTIVO_USUARIO = "CERRADA_USUARIO";
 
     /** Atributo de la peticion con el id de la sesion del token de acceso (lo pone AuthTokenFilter). */
     public static final String ATRIBUTO_SESION = SesionService.class.getName() + ".sesion";
@@ -163,6 +165,43 @@ public class SesionService {
         List<Sesion> abiertas = repositorio.findByUsuarioIdAndRevocadaEnIsNull(usuarioId);
         abiertas.forEach(s -> revocar(s, ahora, motivo));
         return abiertas.size();
+    }
+
+    /** Sesiones abiertas de un usuario (sin revocar y sin caducar), la mas reciente primero. */
+    @Transactional(readOnly = true)
+    public List<Sesion> abiertas(Long usuarioId) {
+        Instant ahora = reloj.instant();
+        return repositorio.findByUsuarioIdAndRevocadaEnIsNull(usuarioId).stream()
+                .filter(s -> s.vigente(ahora))
+                .sorted(java.util.Comparator.comparing(Sesion::getUltimaActividad).reversed())
+                .toList();
+    }
+
+    /** Cierra una sesion del propio usuario. Devuelve false si no existe, no es suya o ya estaba cerrada. */
+    @Transactional
+    public boolean cerrarDe(String sesionId, Long usuarioId) {
+        if (sesionId == null || usuarioId == null) {
+            return false;
+        }
+        Instant ahora = reloj.instant();
+        return repositorio.findById(sesionId)
+                .filter(s -> usuarioId.equals(s.getUsuarioId()) && s.getRevocadaEn() == null)
+                .map(s -> {
+                    revocar(s, ahora, MOTIVO_USUARIO);
+                    return true;
+                })
+                .orElse(false);
+    }
+
+    /** Cierra todas las sesiones del usuario menos {@code actual} (si es null, todas). */
+    @Transactional
+    public int cerrarOtras(Long usuarioId, String actual, String motivo) {
+        Instant ahora = reloj.instant();
+        List<Sesion> otras = repositorio.findByUsuarioIdAndRevocadaEnIsNull(usuarioId).stream()
+                .filter(s -> !s.getId().equals(actual))
+                .toList();
+        otras.forEach(s -> revocar(s, ahora, motivo));
+        return otras.size();
     }
 
     /** Apunta que el usuario acaba de reautenticarse en esta sesion. Devuelve el instante, o null si la sesion no vale. */

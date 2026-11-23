@@ -180,7 +180,9 @@ Cada pedido muestra su número, la modalidad (por ejemplo, «En mesa · Mesa 1»
 
 ## 7. Perfil de usuario
 
-La sección **Mi Perfil** permite gestionar los datos personales y la ubicación predeterminada.
+La sección **Mi Perfil** se organiza en una cabecera y varias pestañas. La cabecera muestra la foto (al pulsarla se cambia), el nombre, el rol, la fecha de alta y el estado de la cuenta: si el correo está verificado y si la verificación en dos pasos está activa. Cada pestaña tiene su propia dirección (`/perfil/datos`, `/perfil/direccion`, `/perfil/seguridad`) y su propio botón de guardar, así que un error en una no impide guardar otra. En el móvil, las pestañas se muestran en una fila que se desliza.
+
+> Las capturas son de la versión anterior del perfil, de una sola página.
 
 <p align="center">
   <img src="../img/productos/perfil1.png" alt="Perfil de usuario" width="420">
@@ -189,13 +191,17 @@ La sección **Mi Perfil** permite gestionar los datos personales y la ubicación
 </p>
 <p align="center"><em>Perfil de usuario (izquierda) y ventana de cambio de foto (derecha).</em></p>
 
-| Bloque | Contenido |
+| Pestaña | Contenido |
 | :--- | :--- |
-| **Datos de cuenta y personales** | Usuario, correo, nombre y apellidos |
-| **Dirección de entrega predeterminada** | Teléfono, código postal, calle, tipo de vivienda, portal, planta, puerta y notas de entrega |
-| **Foto de perfil** | Se modifica con **Seleccionar archivo** y **Aplicar Imagen**. Formatos JPG, PNG o WebP, máximo 5 MB; si el archivo no es una imagen real, se rechaza |
+| **Datos personales** | Nombre y apellidos (se guardan con **Guardar datos**). El usuario y el correo se muestran, pero no se cambian aquí |
+| **Dirección de entrega** | Teléfono, código postal, calle, tipo de inmueble (piso, urbanización o casa, cada uno con sus campos) e instrucciones para el repartidor (**Guardar dirección**) |
+| **Seguridad** | Cambiar la contraseña (pide la actual y cierra las sesiones abiertas en otros navegadores); activar la verificación en dos pasos con una app de autenticación, generar códigos de recuperación nuevos o desactivarla (solo los clientes: para el personal es obligatoria); y la lista de **sesiones abiertas** (navegador, IP, última actividad) con **Cerrar** y **Cerrar todas las demás** |
 
-Los cambios se confirman con **Guardar Cambios**. Estos datos se reutilizan en los pedidos para recoger y a domicilio mediante los botones **Usar mi teléfono** y **Usar mis datos**.
+**Foto de perfil**: se pulsa la foto de la cabecera, se arrastra o elige el archivo y se guarda con **Guardar foto**. Formatos JPG, PNG o WebP, máximo 5 MB; si el archivo no es una imagen real, se rechaza.
+
+Activar o desactivar la verificación en dos pasos y generar códigos nuevos son acciones protegidas: si han pasado más de 5 minutos desde que se inició sesión, se pide antes la contraseña (o el código de la app, si ya está activada).
+
+Los datos de las dos primeras pestañas se reutilizan en los pedidos para recoger y a domicilio mediante los botones **Usar mi teléfono** y **Usar mis datos**.
 
 ## 8. Modo oscuro
 
