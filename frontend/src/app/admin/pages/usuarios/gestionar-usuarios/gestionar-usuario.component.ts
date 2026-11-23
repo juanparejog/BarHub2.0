@@ -136,6 +136,33 @@ export class GestionarUsuarioComponent implements OnInit {
     this.mostrarModalEliminar = true;
   }
 
+  /** El administrador no puede quitarse la suya desde el listado. */
+  esUsuarioActual(usuario: Usuario): boolean {
+    return usuario.id != null && String(usuario.id) === localStorage.getItem('usuarioId');
+  }
+
+  restablecerDosFactores(usuario: Usuario): void {
+    if (!usuario.id) return;
+    const id = usuario.id;
+    this.dialogService.solicitarConfirmacion(
+      `${usuario.username} tendrá que configurar la verificación en dos pasos de nuevo al iniciar sesión, ` +
+      'y se cerrarán todas sus sesiones abiertas. Hazlo solo si ha perdido el acceso a su app de autenticación.',
+      'Restablecer verificación en dos pasos',
+      () => this.usuarioService.restablecerDosFactores(id).subscribe({
+        next: () => {
+          this.dialogService.mostrarToast(`Verificación en dos pasos de ${usuario.username} restablecida`);
+          this.cargarUsuarios();
+        },
+        error: (err) => {
+          // Si se cancela la confirmación del código no hace falta otro aviso
+          if (err?.error?.code !== 'REAUTENTICACION_REQUERIDA') {
+            this.dialogService.mostrarToast(err?.error?.message ?? 'No se pudo restablecer la verificación en dos pasos');
+          }
+        }
+      })
+    );
+  }
+
   confirmarEliminacion(): void {
     if (!this.usuarioAEliminar?.id) return;
 

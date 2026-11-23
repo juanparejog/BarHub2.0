@@ -96,6 +96,8 @@
               </div>
             </th>
 
+            <th class="text-center">2FA</th>
+
             <th class="text-center">Acciones</th>
           </tr>
         </thead>
@@ -152,6 +154,16 @@
                     }
                   </div>
                 </td>
+                <!-- Verificación en dos pasos -->
+                <td class="text-center">
+                  @if (usuario.dosFactores) {
+                    <span class="badge text-bg-success" title="Verificación en dos pasos activada">
+                      <i class="bi bi-shield-check" aria-hidden="true"></i> Activa
+                    </span>
+                  } @else {
+                    <span class="text-muted small">No</span>
+                  }
+                </td>
                 <!-- Acciones -->
                 <td class="text-center">
                   <div class="crud-actions">
@@ -161,6 +173,15 @@
                     <i [routerLink]="['/admin/editar-usuarios', usuario.id]"
                       class="bi bi-pencil-fill action-icon edit"
                     title="Editar"></i>
+                    @if (usuario.dosFactores && !esUsuarioActual(usuario)) {
+                      <button type="button"
+                        class="btn btn-link p-0 border-0 bg-transparent text-decoration-none"
+                        (click)="restablecerDosFactores(usuario)"
+                        title="Restablecer verificación en dos pasos"
+                        aria-label="Restablecer verificación en dos pasos">
+                        <i class="bi bi-phone-flip action-icon edit"></i>
+                      </button>
+                    }
                     <button type="button"
                       class="btn btn-link p-0 border-0 bg-transparent text-decoration-none"
                       (click)="borrarUsuario(usuario)"
@@ -176,7 +197,7 @@
         } @else {
           <tbody>
             <tr>
-              <td colspan="4" class="text-center py-5 text-muted">
+              <td colspan="5" class="text-center py-5 text-muted">
                 <i class="bi bi-people fs-1 d-block mb-2 text-secondary opacity-50"></i>
                 @if (searchTerm) {
                   <span>No se encontraron usuarios que coincidan con "<strong>{{ searchTerm }}</strong>".</span>

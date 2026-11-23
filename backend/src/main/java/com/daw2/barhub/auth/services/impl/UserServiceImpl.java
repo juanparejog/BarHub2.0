@@ -1,5 +1,6 @@
 package com.daw2.barhub.auth.services.impl;
 
+import com.daw2.barhub.auth.dosfactores.DosFactoresService;
 import com.daw2.barhub.auth.models.Role;
 import com.daw2.barhub.auth.models.RoleEnum;
 import com.daw2.barhub.auth.models.User;
@@ -29,6 +30,9 @@ public class UserServiceImpl implements UserService {
     private PasswordEncoder passwordEncoder;
 
     @Autowired
+    private DosFactoresService dosFactores;
+
+    @Autowired
     public UserServiceImpl(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
@@ -55,6 +59,8 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public void delete(Long id) {
         userRepository.deleteById(id);
+        // Sin claves ajenas hacia users: su verificacion en dos pasos se borra a mano
+        dosFactores.desactivar(id);
     }
 
     /**

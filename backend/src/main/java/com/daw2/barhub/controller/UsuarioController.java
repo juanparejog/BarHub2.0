@@ -1,6 +1,9 @@
 package com.daw2.barhub.controller;
 
+import com.daw2.barhub.auth.dosfactores.DosFactoresService;
+import com.daw2.barhub.auth.reautenticacion.RequiereReautenticacion;
 import com.daw2.barhub.auth.services.UserService;
+import com.daw2.barhub.auth.sesion.SesionService;
 import com.daw2.barhub.model.dto.ErrorDto;
 import com.daw2.barhub.model.dto.UsuarioDto;
 import com.daw2.barhub.auth.models.User;
@@ -50,6 +53,12 @@ public class UsuarioController {
     @Autowired
     private RoleRepository roleRepository;
 
+    @Autowired
+    private DosFactoresService dosFactores;
+
+    @Autowired
+    private SesionService sesionService;
+
     @Value("${app.upload.usuarios:../frontend/src/assets/images/usuarios/}")
     private String uploadDir;
 
@@ -63,7 +72,10 @@ public class UsuarioController {
     public ResponseEntity<?> index() {
         try {
             List<User> usuarios = userService.findAll();
-            return ResponseEntity.ok(UsuarioDto.from(usuarios));
+            List<UsuarioDto> dtos = UsuarioDto.from(usuarios);
+            Set<Long> conDosFactores = dosFactores.usuariosConActiva();
+            dtos.forEach(dto -> dto.setDosFactores(conDosFactores.contains(dto.getId())));
+            return ResponseEntity.ok(dtos);
         } catch (Exception e) {
             log.error("Error al obtener usuarios", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -73,6 +85,7 @@ public class UsuarioController {
 
     /** Alta desde el panel: datos en la parte "usuario" (JSON) y foto opcional en "file", como al editar. */
     @PreAuthorize("hasRole('ADMIN')")
+    @RequiereReautenticacion
     @PostMapping(value = "/", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
     public ResponseEntity<?> create(
             @RequestPart("usuario") UsuarioDto usuarioDto,
@@ -113,6 +126,8 @@ public class UsuarioController {
         return ResponseEntity.ok(UsuarioDto.from(usuario));
     }
 
+    // Editar su propio perfil no la exige; editar el de otro (datos, contrasena o roles), si
+    @RequiereReautenticacion(soloSobreOtroUsuario = true)
     @PutMapping(value = "/{id}", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
     @Transactional
     public ResponseEntity<?> update(
@@ -171,6 +186,7 @@ public class UsuarioController {
     }
 
     @PreAuthorize("hasRole('ADMIN')")
+    @RequiereReautenticacion
     @DeleteMapping("{id}")
     public ResponseEntity<?> deleteUsuario(@PathVariable Long id) {
         try {
@@ -184,6 +200,29 @@ public class UsuarioController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(ErrorDto.from("Error al eliminar usuario"));
         }
+    }
+
+    /**
+     * Quita la verificacion en dos pasos de un empleado que ha perdido el movil y sus codigos de
+     * recuperacion, y cierra sus sesiones: en su siguiente inicio de sesion la configura de nuevo.
+     * La propia no: se gestiona desde el perfil.
+     */
+    @PreAuthorize("hasRole('ADMIN')")
+    @RequiereReautenticacion
+    @DeleteMapping("{id}/dos-factores")
+    public ResponseEntity<?> restablecerDosFactores(@PathVariable Long id, Authentication auth) {
+        User usuario = userService.findById(id);
+        if (usuario == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ErrorDto.from("Usuario no encontrado"));
+        }
+        if (usuario.getUsername().equals(auth.getName())) {
+            return ResponseEntity.badRequest()
+                    .body(ErrorDto.from("Tu propia verificación en dos pasos no se puede quitar desde aquí."));
+        }
+        dosFactores.desactivar(id);
+        sesionService.cerrarTodas(id, SesionService.MOTIVO_DOS_FACTORES);
+        log.warn("{} ha restablecido la verificación en dos pasos de {}", auth.getName(), usuario.getUsername());
+        return ResponseEntity.noContent().build();
     }
 
     // ---------- auxiliares ----------

@@ -84,6 +84,9 @@ app:
       segura: ${APP_SESION_COOKIE_SEGURA:true}
     # Margen para que dos pestanas renueven a la vez con el mismo token sin que cuente como robo
     gracia-rotacion: 30s
+    # Tras iniciar sesion o confirmar el codigo de nuevo, el administrador puede hacer acciones
+    # criticas (alta, edicion y borrado de usuarios, restablecer su 2FA) durante este tiempo
+    reautenticacion: 5m
     # Limites por rol: inactividad maxima y duracion maxima de la sesion aunque haya actividad.
     # Con varios roles se aplica el mas estricto
     roles:

@@ -36,6 +36,10 @@ public class SesionService {
     public static final String MOTIVO_CIERRE = "CIERRE";
     public static final String MOTIVO_REUTILIZACION = "REUTILIZACION";
     public static final String MOTIVO_CAMBIO_CLAVE = "CAMBIO_CLAVE";
+    public static final String MOTIVO_DOS_FACTORES = "DOS_FACTORES";
+
+    /** Atributo de la peticion con el id de la sesion del token de acceso (lo pone AuthTokenFilter). */
+    public static final String ATRIBUTO_SESION = SesionService.class.getName() + ".sesion";
 
     /** La actividad se apunta como mucho una vez por minuto, para no escribir en cada peticion. */
     static final Duration INTERVALO_ACTIVIDAD = Duration.ofMinutes(1);
@@ -78,6 +82,8 @@ public class SesionService {
         sesion.setCaducaEn(ahora.plus(limite.maximo()));
         sesion.setIp(recortar(ip, 45));
         sesion.setAgente(recortar(agente, 255));
+        // Acaba de escribir la contrasena (y el codigo, si usa la verificacion en dos pasos)
+        sesion.setReautenticadaEn(ahora);
         return new NuevaSesion(repositorio.save(sesion), token);
     }
 
@@ -148,10 +154,45 @@ public class SesionService {
     /** Cierra todas las sesiones abiertas de un usuario (por ejemplo, al restablecer la contrasena). */
     @Transactional
     public int cerrarTodas(Long usuarioId) {
+        return cerrarTodas(usuarioId, MOTIVO_CAMBIO_CLAVE);
+    }
+
+    @Transactional
+    public int cerrarTodas(Long usuarioId, String motivo) {
         Instant ahora = reloj.instant();
         List<Sesion> abiertas = repositorio.findByUsuarioIdAndRevocadaEnIsNull(usuarioId);
-        abiertas.forEach(s -> revocar(s, ahora, MOTIVO_CAMBIO_CLAVE));
+        abiertas.forEach(s -> revocar(s, ahora, motivo));
         return abiertas.size();
+    }
+
+    /** Apunta que el usuario acaba de reautenticarse en esta sesion. Devuelve el instante, o null si la sesion no vale. */
+    @Transactional
+    public Instant marcarReautenticada(String sesionId, Long usuarioId) {
+        if (sesionId == null || usuarioId == null) {
+            return null;
+        }
+        Instant ahora = reloj.instant();
+        return repositorio.findById(sesionId)
+                .filter(s -> usuarioId.equals(s.getUsuarioId()) && s.vigente(ahora))
+                .map(s -> {
+                    s.setReautenticadaEn(ahora);
+                    repositorio.save(s);
+                    return ahora;
+                })
+                .orElse(null);
+    }
+
+    /** Si la sesion sigue abierta y el usuario se ha reautenticado en ella hace menos de {@code ventana}. */
+    @Transactional(readOnly = true)
+    public boolean reautenticadaDentroDe(String sesionId, Duration ventana) {
+        if (sesionId == null) {
+            return false;
+        }
+        Instant ahora = reloj.instant();
+        return repositorio.findById(sesionId)
+                .filter(s -> s.vigente(ahora) && s.getReautenticadaEn() != null)
+                .map(s -> ahora.isBefore(s.getReautenticadaEn().plus(ventana)))
+                .orElse(false);
     }
 
     @Scheduled(cron = "${app.sesion.limpieza-cron:0 15 4 * * *}")

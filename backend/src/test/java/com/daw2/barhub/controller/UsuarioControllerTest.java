@@ -1,8 +1,10 @@
 package com.daw2.barhub.controller;
 
+import com.daw2.barhub.auth.dosfactores.DosFactoresService;
 import com.daw2.barhub.auth.models.TipoVivienda;
 import com.daw2.barhub.auth.models.User;
 import com.daw2.barhub.auth.services.UserService;
+import com.daw2.barhub.auth.sesion.SesionService;
 import com.daw2.barhub.model.dto.ErrorDto;
 import com.daw2.barhub.model.dto.UsuarioDto;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,6 +29,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -45,6 +48,12 @@ class UsuarioControllerTest {
     @Mock
     private UserService userService;
 
+    @Mock
+    private DosFactoresService dosFactores;
+
+    @Mock
+    private SesionService sesionService;
+
     @TempDir
     Path carpeta;
 
@@ -57,6 +66,8 @@ class UsuarioControllerTest {
         controller = new UsuarioController(userService);
         ReflectionTestUtils.setField(controller, "passwordEncoder", encoder);
         ReflectionTestUtils.setField(controller, "uploadDir", carpeta.toString());
+        ReflectionTestUtils.setField(controller, "dosFactores", dosFactores);
+        ReflectionTestUtils.setField(controller, "sesionService", sesionService);
 
         juan = new User();
         juan.setId(1L);
@@ -121,6 +132,44 @@ class UsuarioControllerTest {
     void index_devuelve_la_lista() {
         when(userService.findAll()).thenReturn(List.of(juan));
         assertEquals(200, controller.index().getStatusCode().value());
+    }
+
+    @Test
+    void index_indica_quien_tiene_la_verificacion_en_dos_pasos() {
+        User ana = new User();
+        ana.setId(2L);
+        ana.setUsername("ana");
+        ana.setRoles(new HashSet<>());
+        when(userService.findAll()).thenReturn(List.of(juan, ana));
+        when(dosFactores.usuariosConActiva()).thenReturn(Set.of(2L));
+
+        List<?> cuerpo = (List<?>) controller.index().getBody();
+        assertEquals(Boolean.FALSE, ((UsuarioDto) cuerpo.get(0)).getDosFactores());
+        assertEquals(Boolean.TRUE, ((UsuarioDto) cuerpo.get(1)).getDosFactores());
+    }
+
+    // ---------- restablecer la verificacion en dos pasos ----------
+
+    @Test
+    void restablecer_dos_factores_la_quita_y_cierra_sus_sesiones() {
+        User ana = new User();
+        ana.setId(2L);
+        ana.setUsername("ana");
+        when(userService.findById(2L)).thenReturn(ana);
+
+        assertEquals(204, controller.restablecerDosFactores(2L, como("juan", "ROLE_ADMIN")).getStatusCode().value());
+        verify(dosFactores).desactivar(2L);
+        verify(sesionService).cerrarTodas(2L, SesionService.MOTIVO_DOS_FACTORES);
+    }
+
+    @Test
+    void restablecer_dos_factores_no_vale_para_la_propia_ni_para_un_usuario_que_no_existe() {
+        when(userService.findById(1L)).thenReturn(juan);
+        when(userService.findById(9L)).thenReturn(null);
+
+        assertEquals(400, controller.restablecerDosFactores(1L, como("juan", "ROLE_ADMIN")).getStatusCode().value());
+        assertEquals(404, controller.restablecerDosFactores(9L, como("juan", "ROLE_ADMIN")).getStatusCode().value());
+        verify(dosFactores, never()).desactivar(any());
     }
 
     @Test

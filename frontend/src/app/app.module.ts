@@ -21,6 +21,7 @@ import { HomeComponent } from './public/home/home.component';
 import { FooterComponent } from './shared/footer/footer.component';
 import { PerfilComponent } from './public/perfil/perfil.component';
 import { AvisoSesionComponent } from './shared/aviso-sesion/aviso-sesion.component';
+import { ReautenticacionComponent } from './shared/reautenticacion/reautenticacion.component';
 
 @NgModule({ declarations: [
         AppComponent,
@@ -47,7 +48,8 @@ import { AvisoSesionComponent } from './shared/aviso-sesion/aviso-sesion.compone
         FormsModule,
         ReactiveFormsModule,
         SharedModule,
-        AvisoSesionComponent], providers: [
+        AvisoSesionComponent,
+        ReautenticacionComponent], providers: [
         { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
         provideHttpClient(withXhr(), withInterceptorsFromDi())
     ] })

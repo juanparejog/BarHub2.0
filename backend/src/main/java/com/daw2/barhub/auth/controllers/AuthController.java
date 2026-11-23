@@ -4,6 +4,7 @@ import com.daw2.barhub.auth.correo.CuentaCorreoService;
 import com.daw2.barhub.auth.correo.TokenCorreoInvalidoException;
 import com.daw2.barhub.auth.dosfactores.DesafioService;
 import com.daw2.barhub.auth.dosfactores.DosFactoresService;
+import com.daw2.barhub.auth.reautenticacion.ReautenticacionService;
 import com.daw2.barhub.auth.jwt.JwtUtils;
 import com.daw2.barhub.auth.models.Role;
 import com.daw2.barhub.auth.models.RoleEnum;
@@ -90,6 +91,9 @@ public class AuthController {
   @Autowired
   DesafioService desafios;
 
+  @Autowired
+  ReautenticacionService reautenticacion;
+
   /** Codigo del 403 de un login correcto con el correo sin confirmar (el frontend ofrece reenviarlo). */
   public static final String CODIGO_CORREO_SIN_CONFIRMAR = "EMAIL_NO_VERIFICADO";
   /** Codigo del 401 del segundo paso con un codigo que no es correcto. */
@@ -123,6 +127,13 @@ public class AuthController {
   }
 
   public record ConfiguracionResponse(String secreto, String uri) {
+  }
+
+  /** Codigo de la app o, si no tiene la verificacion en dos pasos, la contrasena. */
+  public record ReautenticacionRequest(@Size(max = 20) String codigo, @Size(max = 100) String password) {
+  }
+
+  public record ReautenticacionResponse(long reautenticadaHasta) {
   }
 
   @PostMapping("/login")
@@ -234,6 +245,45 @@ public class AuthController {
       sesion.setCodigosRecuperacion(codigos.get());
     }
     return respuesta;
+  }
+
+  /**
+   * Confirma de nuevo la identidad dentro de una sesion abierta, antes de una accion critica (ver
+   * RequiereReautenticacion). Con la verificacion en dos pasos vale solo el codigo de la app; si no
+   * la tiene, la contrasena. Los fallos cuentan para el bloqueo del login, como en el segundo paso.
+   * Un codigo incorrecto responde 400 (no 401): la sesion sigue siendo valida.
+   */
+  @PostMapping("/reautenticar")
+  public ResponseEntity<?> reautenticar(@Valid @RequestBody ReautenticacionRequest peticion,
+                                        HttpServletRequest request, Authentication autenticacion) {
+    String sesion = (String) request.getAttribute(SesionService.ATRIBUTO_SESION);
+    if (sesion == null || autenticacion == null || !(autenticacion.getPrincipal() instanceof UserDetailsImpl usuario)) {
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+              .body(new MessageResponse("Tu sesión ha caducado. Vuelve a iniciar sesión."));
+    }
+    String ip = ipCliente(request);
+    long espera = loginAttemptService.segundosRestantes(usuario.getUsername(), ip);
+    if (espera > 0) {
+      return demasiadosIntentos(espera);
+    }
+
+    boolean conCodigo = reautenticacion.metodo(usuario.getId()) == ReautenticacionService.Metodo.CODIGO;
+    boolean correcto = conCodigo
+            ? dosFactores.verificarCodigoApp(usuario.getId(), peticion.codigo())
+            : peticion.password() != null && encoder.matches(peticion.password(), usuario.getPassword());
+    if (!correcto) {
+      loginAttemptService.registrarFallo(usuario.getUsername(), ip);
+      return ResponseEntity.badRequest().body(new ErrorDto(CODIGO_INCORRECTO, conCodigo
+              ? "Código incorrecto. Comprueba que la hora del móvil es la correcta y vuelve a intentarlo."
+              : "Contraseña incorrecta."));
+    }
+    loginAttemptService.registrarExito(usuario.getUsername());
+    Instant hasta = reautenticacion.confirmar(sesion, usuario.getId());
+    if (hasta == null) {
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+              .body(new MessageResponse("Tu sesión ha caducado. Vuelve a iniciar sesión."));
+    }
+    return ResponseEntity.ok(new ReautenticacionResponse(hasta.toEpochMilli()));
   }
 
   /** Abre la sesion: turno del empleado, sesion en el servidor, token de acceso y cookie de renovacion. */

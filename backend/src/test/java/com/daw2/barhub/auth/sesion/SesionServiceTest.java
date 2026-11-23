@@ -183,6 +183,42 @@ class SesionServiceTest {
         assertFalse(servicio.registrarActividad(null, USUARIO));
     }
 
+    // ---------- reautenticacion (acciones criticas) ----------
+
+    private static final Duration VENTANA = Duration.ofMinutes(5);
+
+    @Test
+    void iniciarSesionCuentaComoReautenticacionDuranteLaVentana() {
+        String id = abrirCliente().sesion().getId();
+
+        assertEquals(reloj.instant(), guardadas.get(id).getReautenticadaEn());
+        assertTrue(servicio.reautenticadaDentroDe(id, VENTANA));
+        reloj.avanzar(VENTANA);
+        assertFalse(servicio.reautenticadaDentroDe(id, VENTANA));
+    }
+
+    @Test
+    void reautenticarseAbreOtraVentanaSoloEnSuSesion() {
+        String id = abrirCliente().sesion().getId();
+        reloj.avanzar(Duration.ofMinutes(10));
+
+        assertNull(servicio.marcarReautenticada(id, 99L));
+        assertNull(servicio.marcarReautenticada("no-existe", USUARIO));
+        assertEquals(reloj.instant(), servicio.marcarReautenticada(id, USUARIO));
+        assertTrue(servicio.reautenticadaDentroDe(id, VENTANA));
+        assertFalse(servicio.reautenticadaDentroDe(null, VENTANA));
+    }
+
+    @Test
+    void unaSesionCerradaNoEstaReautenticadaNiSePuedeReautenticar() {
+        String id = abrirCliente().sesion().getId();
+        Sesion sesion = guardadas.get(id);
+        sesion.setRevocadaEn(reloj.instant());
+
+        assertFalse(servicio.reautenticadaDentroDe(id, VENTANA));
+        assertNull(servicio.marcarReautenticada(id, USUARIO));
+    }
+
     /** Reloj fijo que solo avanza cuando el test lo pide. */
     private static final class RelojManual extends Clock {
         private Instant ahora;

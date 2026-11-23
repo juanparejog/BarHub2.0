@@ -31,6 +31,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
@@ -165,11 +166,13 @@ class EscaladaPrivilegiosTest {
     }
 
     @Test
-    void controlUnAdministradorSiPuedeAsignarRoles() throws Exception {
+    void niUnAdministradorCambiaRolesSinHaberseReautenticadoEnSuSesion() throws Exception {
+        // Sin sesion de BarHub (usuario simulado, no un token real) no hay reautenticacion que valga.
+        // El caso de control con una sesion real esta en ReautenticacionIntegrationTest
         actualiza(idCliente, perfil(CLIENTE, "Prueba", conRol(rolAdmin.getId())), user("esc_admin").roles("ADMIN"))
-                .andExpect(status().isOk());
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.code").value("REAUTENTICACION_REQUERIDA"));
 
-        assertTrue(roles(deLaBaseDeDatos(idCliente)).contains(RoleEnum.ROLE_ADMIN),
-                "Caso de control: el administrador si puede cambiar roles");
+        assertFalse(roles(deLaBaseDeDatos(idCliente)).contains(RoleEnum.ROLE_ADMIN));
     }
 }

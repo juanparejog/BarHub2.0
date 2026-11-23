@@ -70,6 +70,13 @@ public class Sesion {
     @Column(length = 255)
     private String agente;
 
+    /**
+     * Ultima vez que el usuario demostro de nuevo quien es en esta sesion (al iniciarla o con
+     * POST /auth/reautenticar). Las acciones criticas la exigen reciente; ver ReautenticacionService.
+     */
+    @Column(name = "reautenticada_en")
+    private Instant reautenticadaEn;
+
     /** Abierta, sin pasar la duracion maxima y sin pasar el limite de inactividad. */
     public boolean vigente(Instant ahora) {
         return revocadaEn == null

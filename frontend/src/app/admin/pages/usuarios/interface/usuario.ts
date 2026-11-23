@@ -20,6 +20,8 @@ export interface Usuario {
     codigoPostal?: string;
     instruccionesEntrega?: string;
     imagen?: string;
+    /** Solo en el listado del administrador: si tiene la verificación en dos pasos activada. */
+    dosFactores?: boolean;
 }
   
 export interface Rol {

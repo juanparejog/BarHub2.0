@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, Injector, inject } from '@angular/core';
 import {
   HttpBackend, HttpClient, HttpErrorResponse, HttpEvent, HttpHandler, HttpInterceptor, HttpRequest
 } from '@angular/common/http';
@@ -7,6 +7,7 @@ import { catchError, finalize, map, shareReplay, switchMap } from 'rxjs/operator
 import { Router } from '@angular/router';
 import { environment } from '../../environments/environment';
 import { CLAVE_CONTACTO, CLAVE_INTERACCION, CLAVE_LIMITES, RespuestaSesion, guardarLimitesSesion } from './sesion-limites';
+import { MetodoReautenticacion, ReautenticacionService } from './reautenticacion.service';
 
 // Todo lo que se guarda al iniciar sesion: si la sesion caduca se borra entero
 const CLAVES_SESION = ['token', 'roles', 'user', 'username', 'usuarioId', 'id', 'imagen',
@@ -25,6 +26,8 @@ const RUTAS_SIN_RENOVACION = ['/auth/login', '/auth/signup', '/auth/refresh', '/
  * - si la renovacion tambien falla (sesion cerrada, inactividad o duracion maxima), borra la sesion
  *   local y lleva al login con el aviso de sesion caducada.
  * Varias peticiones que caducan a la vez comparten una sola renovacion.
+ * - si una accion critica responde 403 REAUTENTICACION_REQUERIDA, pide el codigo de la app (o la
+ *   contrasena) con ReautenticacionService y, si se confirma, repite la peticion.
  */
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
@@ -33,11 +36,29 @@ export class AuthInterceptor implements HttpInterceptor {
   // Cliente HTTP sin interceptores, para que la renovacion no vuelva a pasar por aqui
   private readonly httpSinInterceptores: HttpClient;
 
+  // Se pide al usarlo: el servicio usa HttpClient, que a su vez usa este interceptor
+  private readonly injector = inject(Injector);
+
   constructor(private readonly router: Router, httpBackend: HttpBackend) {
     this.httpSinInterceptores = new HttpClient(httpBackend);
   }
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
+    return this.conRenovacion(req, next).pipe(
+      catchError((error: HttpErrorResponse) => {
+        const metodo = this.metodoReautenticacion(error);
+        if (!metodo) {
+          return throwError(() => error);
+        }
+        return this.injector.get(ReautenticacionService).pedir(metodo).pipe(
+          switchMap(confirmada => confirmada ? this.conRenovacion(req, next) : throwError(() => error))
+        );
+      })
+    );
+  }
+
+  /** La peticion con el token; si caduca, la renueva y la repite. */
+  private conRenovacion(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     return next.handle(this.conToken(req)).pipe(
       catchError((error: HttpErrorResponse) => {
         if (error.status !== 401 || this.esRutaSinRenovacion(req.url)) {
@@ -57,6 +78,13 @@ export class AuthInterceptor implements HttpInterceptor {
         );
       })
     );
+  }
+
+  private metodoReautenticacion(error: HttpErrorResponse): MetodoReautenticacion | null {
+    if (error.status !== 403 || error.error?.code !== 'REAUTENTICACION_REQUERIDA') {
+      return null;
+    }
+    return error.error.metodo === 'password' ? 'password' : 'codigo';
   }
 
   private conToken(req: HttpRequest<any>): HttpRequest<any> {

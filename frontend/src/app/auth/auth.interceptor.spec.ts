@@ -2,9 +2,11 @@ import { HTTP_INTERCEPTORS, HttpClient, provideHttpClient, withInterceptorsFromD
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
+import { Subject } from 'rxjs';
 import { vi } from 'vitest';
 
 import { AuthInterceptor } from './auth.interceptor';
+import { ReautenticacionService } from './reautenticacion.service';
 
 describe('AuthInterceptor', () => {
   let http: HttpClient;
@@ -128,5 +130,70 @@ describe('AuthInterceptor', () => {
 
     expect(localStorage.getItem('token')).toBe('valido');
     expect(navigate).not.toHaveBeenCalled();
+  });
+});
+
+describe('AuthInterceptor: acciones que piden reautenticación', () => {
+  let http: HttpClient;
+  let backend: HttpTestingController;
+  let respuesta: Subject<boolean>;
+  const pedir = vi.fn();
+  const REQUERIDA = { code: 'REAUTENTICACION_REQUERIDA', metodo: 'codigo', message: 'Escribe el código.' };
+
+  beforeEach(() => {
+    localStorage.clear();
+    localStorage.setItem('token', 'valido');
+    respuesta = new Subject<boolean>();
+    pedir.mockReset();
+    pedir.mockReturnValue(respuesta);
+    TestBed.configureTestingModule({
+      providers: [
+        { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
+        { provide: Router, useValue: { navigate: vi.fn() } },
+        { provide: ReautenticacionService, useValue: { pedir } },
+        provideHttpClient(withInterceptorsFromDi()),
+        provideHttpClientTesting()
+      ]
+    });
+    http = TestBed.inject(HttpClient);
+    backend = TestBed.inject(HttpTestingController);
+  });
+
+  afterEach(() => backend.verify());
+
+  it('ante un 403 REAUTENTICACION_REQUERIDA pide el código y, confirmado, repite la petición', () => {
+    let resultado: unknown;
+    http.delete('/api/usuarios/7').subscribe(r => (resultado = r));
+    backend.expectOne('/api/usuarios/7').flush(REQUERIDA, { status: 403, statusText: 'Forbidden' });
+    expect(pedir).toHaveBeenCalledWith('codigo');
+
+    respuesta.next(true);
+    const repetida = backend.expectOne('/api/usuarios/7');
+    expect(repetida.request.method).toBe('DELETE');
+    expect(repetida.request.headers.get('Authorization')).toBe('Bearer valido');
+    repetida.flush({ ok: true });
+    expect(resultado).toEqual({ ok: true });
+  });
+
+  it('si se cancela, la petición falla con el 403 original y no se repite', () => {
+    let estado = 0;
+    http.delete('/api/usuarios/7').subscribe({ error: err => (estado = err.status) });
+    backend.expectOne('/api/usuarios/7').flush(REQUERIDA, { status: 403, statusText: 'Forbidden' });
+
+    respuesta.next(false);
+    backend.expectNone('/api/usuarios/7');
+    expect(estado).toBe(403);
+  });
+
+  it('sin 2FA pide la contraseña; y un 403 normal no abre nada', () => {
+    http.delete('/api/usuarios/7').subscribe({ error: () => undefined });
+    backend.expectOne('/api/usuarios/7').flush({ ...REQUERIDA, metodo: 'password' }, { status: 403, statusText: 'Forbidden' });
+    expect(pedir).toHaveBeenCalledWith('password');
+    respuesta.next(false);
+
+    pedir.mockClear();
+    http.get('/api/usuarios/').subscribe({ error: () => undefined });
+    backend.expectOne('/api/usuarios/').flush(null, { status: 403, statusText: 'Forbidden' });
+    expect(pedir).not.toHaveBeenCalled();
   });
 });

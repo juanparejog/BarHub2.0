@@ -52,6 +52,8 @@ public class AuthTokenFilter extends OncePerRequestFilter {
           authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
           SecurityContextHolder.getContext().setAuthentication(authentication);
+          // Para las acciones que exigen reautenticacion, que se guarda en la sesion
+          request.setAttribute(SesionService.ATRIBUTO_SESION, sesionId);
         }
       }
     } catch (Exception e) {

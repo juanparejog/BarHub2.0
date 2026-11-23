@@ -43,6 +43,10 @@ public class UsuarioDto {
     private String instruccionesEntrega;
     private String imagen;
 
+    /** Solo en el listado del administrador: si tiene activada la verificacion en dos pasos. */
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    private Boolean dosFactores;
+
     public static UsuarioDto from(User user) {
         UsuarioDto dto = new UsuarioDto();
         dto.setId(user.getId());

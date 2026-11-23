@@ -1,10 +1,12 @@
 import {
-  test, expect, ADMIN, iniciarSesion, darDeAltaEmpleado, codigoSinUsar, codigoTotp, cuentaTotp, guardarCuenta
+  test, expect, ADMIN, iniciarSesion, darDeAltaEmpleado, codigoSinUsar, codigoTotp, cuentaTotp, guardarCuenta,
+  filasConDatos
 } from './fixtures';
 
 /**
  * Verificación en dos pasos: un empleado nuevo no entra hasta configurar la app de autenticación;
- * después, sin el móvil, entra con un código de recuperación que solo sirve una vez.
+ * después, sin el móvil, entra con un código de recuperación que solo sirve una vez; y si lo pierde
+ * todo, el administrador se la restablece y la vuelve a configurar.
  */
 test.describe.configure({ mode: 'serial' });
 
@@ -76,4 +78,23 @@ test('sin el móvil entra con un código de recuperación, que no sirve dos vece
   await page.getByRole('button', { name: 'Verificar' }).click();
   await expect(page.getByRole('alert')).toContainText('Código incorrecto');
   expect(await page.evaluate(() => localStorage.getItem('token'))).toBeNull();
+});
+
+test('el administrador le restablece la verificación y el empleado tiene que configurarla de nuevo', async ({ page }) => {
+  await iniciarSesion(page, ADMIN.usuario, ADMIN.clave);
+  await page.goto('/admin/gestionar-usuarios');
+  const fila = filasConDatos(page).filter({ hasText: empleado.usuario });
+  await expect(fila).toContainText('Activa');
+
+  // Acaba de iniciar sesión: no se le vuelve a pedir el código para esta acción protegida
+  await fila.getByRole('button', { name: 'Restablecer verificación en dos pasos' }).click();
+  const confirmacion = page.locator('#modalConfirmar');
+  await expect(confirmacion).toContainText(empleado.usuario);
+  await confirmacion.getByRole('button', { name: 'Aceptar' }).click();
+  await expect(page.getByText(`Verificación en dos pasos de ${empleado.usuario} restablecida`)).toBeVisible();
+  await expect(fila).not.toContainText('Activa');
+  await expect(fila.getByRole('button', { name: 'Restablecer verificación en dos pasos' })).toHaveCount(0);
+
+  await escribirContrasena(page);
+  await expect(page.getByRole('heading', { name: 'Activa la verificación en dos pasos' })).toBeVisible();
 });

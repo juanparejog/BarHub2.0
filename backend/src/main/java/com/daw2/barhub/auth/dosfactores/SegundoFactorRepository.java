@@ -5,11 +5,19 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface SegundoFactorRepository extends JpaRepository<SegundoFactor, Long> {
 
     Optional<SegundoFactor> findByUsuarioId(Long usuarioId);
+
+    @Query("select s.usuarioId from SegundoFactor s where s.activo = true")
+    List<Long> usuariosConActiva();
+
+    @Modifying(flushAutomatically = true, clearAutomatically = true)
+    @Query("delete from SegundoFactor s where s.usuarioId = :usuarioId")
+    int borrarDe(@Param("usuarioId") Long usuarioId);
 
     /**
      * Apunta el paso del codigo aceptado solo si es posterior al ultimo: devuelve 0 si otra peticion

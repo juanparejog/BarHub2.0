@@ -63,6 +63,10 @@ class DosFactoresServiceTest {
             return 0;
         });
 
+        lenient().when(repoFactores.usuariosConActiva()).thenAnswer(i -> factores.values().stream()
+                .filter(SegundoFactor::isActivo).map(SegundoFactor::getUsuarioId).toList());
+        lenient().when(repoFactores.borrarDe(anyLong())).thenAnswer(i -> factores.remove(i.<Long>getArgument(0)) == null ? 0 : 1);
+
         repoCodigos = mock(CodigoRecuperacionRepository.class);
         lenient().when(repoCodigos.save(any(CodigoRecuperacion.class))).thenAnswer(i -> {
             CodigoRecuperacion c = i.getArgument(0);
@@ -240,6 +244,34 @@ class DosFactoresServiceTest {
 
         DosFactoresService conOtraClave = servicioConClave("otra-clave");
         assertFalse(conOtraClave.verificar(USUARIO, codigoActual(configuracion, 0)).valida());
+    }
+
+    @Test
+    void reautenticarseSoloAdmiteElCodigoDeLaApp() {
+        DosFactoresService.Configuracion configuracion = servicio.prepararConfiguracion(USUARIO, "ana");
+        List<String> entregados = activarApp(configuracion);
+        reloj.avanzar(Duration.ofSeconds(30));
+
+        assertFalse(servicio.verificarCodigoApp(USUARIO, entregados.get(0)));
+        assertFalse(servicio.verificarCodigoApp(USUARIO, null));
+        assertTrue(servicio.verificarCodigoApp(USUARIO, codigoActual(configuracion, 0)));
+        // tampoco se repite
+        assertFalse(servicio.verificarCodigoApp(USUARIO, codigoActual(configuracion, 0)));
+        assertFalse(servicio.verificarCodigoApp(99L, codigoActual(configuracion, 0)));
+    }
+
+    @Test
+    void desactivarlaBorraElSecretoYLosCodigosDeRecuperacion() {
+        activarApp(servicio.prepararConfiguracion(USUARIO, "ana"));
+        assertEquals(java.util.Set.of(USUARIO), servicio.usuariosConActiva());
+
+        assertTrue(servicio.desactivar(USUARIO));
+        assertFalse(servicio.activo(USUARIO));
+        assertTrue(factores.isEmpty());
+        assertTrue(codigos.isEmpty());
+        assertTrue(servicio.usuariosConActiva().isEmpty());
+        // sin nada que quitar no falla
+        assertFalse(servicio.desactivar(USUARIO));
     }
 
     @Test

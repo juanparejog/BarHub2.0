@@ -40,6 +40,11 @@ export class UsuarioService {
     return this.httpClient.delete<any>(url);
   }
 
+  /** Quita la verificación en dos pasos de un usuario (por ejemplo, si ha perdido el móvil). */
+  restablecerDosFactores(id: number): Observable<void> {
+    return this.httpClient.delete<void>(`${this.URL_USUARIOS}${id}/dos-factores`);
+  }
+
   actualizarRoles(usuarioId: number, roles: Rol[]): Observable<Rol[]> {
     return this.httpClient.put<Rol[]>(
       `${this.URL_USUARIOS}${usuarioId}/roles`,

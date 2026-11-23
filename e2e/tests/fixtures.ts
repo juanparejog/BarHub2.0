@@ -2,6 +2,7 @@ import { test as base, expect, type APIRequestContext, type Page } from '@playwr
 import { createHmac } from 'node:crypto';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
+import { comprobarClaveTotp } from '../global-setup';
 
 /** Administrador creado por DemoDataSeeder (APP_SEED_ADMIN_USERNAME y APP_SEED_ADMIN_PASSWORD). */
 export const ADMIN = {
@@ -91,7 +92,7 @@ export function guardarCuenta(usuario: string, cambios: Partial<CuentaTotp>): vo
 export function cuentaTotp(usuario: string): CuentaTotp | undefined {
   const guardada = leerCuentas()[usuario];
   const delEntorno = usuario === ADMIN.usuario ? process.env.E2E_ADMIN_TOTP_SECRET : undefined;
-  return delEntorno ? { ...guardada, secreto: delEntorno.replace(/\s/g, '') } : guardada;
+  return delEntorno ? { ...guardada, secreto: comprobarClaveTotp(delEntorno) } : guardada;
 }
 
 function base32(texto: string): Buffer {
@@ -126,7 +127,10 @@ export async function codigoSinUsar(usuario: string, secreto: string): Promise<s
   let paso = Math.floor(Date.now() / 30_000);
   if (paso <= ultimo) {
     paso = ultimo + 1;
-    await new Promise(resolve => setTimeout(resolve, paso * 30_000 - Date.now() + 500));
+    const espera = paso * 30_000 - Date.now() + 500;
+    // La espera no es culpa del test: se le suma a su tiempo maximo
+    test.info().setTimeout(test.info().timeout + espera);
+    await new Promise(resolve => setTimeout(resolve, espera));
   }
   guardarCuenta(usuario, { secreto, ultimoPaso: paso });
   return codigoTotp(secreto, paso);

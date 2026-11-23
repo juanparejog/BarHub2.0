@@ -9,10 +9,12 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.OptionalLong;
+import java.util.Set;
 
 /**
  * Verificacion en dos pasos con una app de autenticacion (TOTP) y codigos de recuperacion.
@@ -68,6 +70,40 @@ public class DosFactoresService {
 
     public boolean obligatorio(Collection<String> roles) {
         return propiedades.obligatorioPara(roles);
+    }
+
+    /** Ids de los usuarios con la verificacion activada (para el listado del administrador). */
+    @Transactional(readOnly = true)
+    public Set<Long> usuariosConActiva() {
+        return new HashSet<>(segundosFactores.usuariosConActiva());
+    }
+
+    /**
+     * Quita la verificacion en dos pasos y los codigos de recuperacion de un usuario (el
+     * administrador cuando alguien pierde el movil, o al borrar la cuenta). Si su rol la exige,
+     * la configurara de nuevo en su siguiente inicio de sesion.
+     *
+     * @return true si la tenia activada
+     */
+    @Transactional
+    public boolean desactivar(Long usuarioId) {
+        boolean estabaActiva = activo(usuarioId);
+        codigos.borrarDe(usuarioId);
+        segundosFactores.borrarDe(usuarioId);
+        return estabaActiva;
+    }
+
+    /**
+     * Solo el codigo de la app, sin codigos de recuperacion: para reautenticarse ya dentro de la
+     * sesion, donde no tiene sentido gastar uno de ellos.
+     */
+    @Transactional
+    public boolean verificarCodigoApp(Long usuarioId, String codigo) {
+        String limpio = limpiar(codigo);
+        return limpio.matches("\\d{" + Totp.DIGITOS + "}")
+                && segundosFactores.findByUsuarioId(usuarioId).filter(SegundoFactor::isActivo)
+                        .map(activo -> verificarTotp(activo, limpio).valida())
+                        .orElse(false);
     }
 
     /**
