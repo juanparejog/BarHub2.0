@@ -72,6 +72,9 @@ public class SecurityConfig {
 
                         .requestMatchers(HttpMethod.GET, "/actuator/health").permitAll()
 
+                        // Avisos de la CSP: los envia el navegador sin credenciales
+                        .requestMatchers(HttpMethod.POST, "/csp-informe").permitAll()
+
                         .requestMatchers(HttpMethod.GET, "/usuarios/{id:\\d+}").authenticated()
                         .requestMatchers(HttpMethod.PUT, "/usuarios/{id:\\d+}").authenticated()
                         // Seguridad de la propia cuenta: siempre sobre el usuario del token

@@ -40,4 +40,25 @@ test.describe('Visitante sin sesión', () => {
     await expect(page).toHaveURL(/\/auth\/login$/);
     expect(await page.evaluate(() => localStorage.getItem('token'))).toBeNull();
   });
+
+  test('la web lleva una CSP estricta y un script inyectado no se ejecuta', async ({ page, violacionesCsp }) => {
+    const respuesta = await page.goto('/home');
+    const csp = respuesta?.headers()['content-security-policy'] ?? '';
+    expect(csp).toContain("script-src 'self'");
+    expect(csp).not.toMatch(/script-src[^;]*'unsafe-(inline|eval)'/);
+    for (const directiva of ["object-src 'none'", "base-uri 'self'", "frame-ancestors 'none'", 'report-uri /api/csp-informe']) {
+      expect(csp).toContain(directiva);
+    }
+
+    // Como lo haría un XSS: un <script> metido en la página no llega a ejecutarse
+    await page.evaluate(() => {
+      const script = document.createElement('script');
+      script.textContent = 'window.__inyectado = true';
+      document.body.appendChild(script);
+    });
+    await expect.poll(() => violacionesCsp.length).toBeGreaterThan(0);
+    expect(await page.evaluate(() => (window as unknown as { __inyectado?: boolean }).__inyectado)).toBeUndefined();
+    expect(violacionesCsp[0]).toMatch(/^script-src(-elem)?: inline/);
+    violacionesCsp.length = 0;
+  });
 });

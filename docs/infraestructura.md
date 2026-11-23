@@ -531,15 +531,14 @@ Propuestas **aún no implementadas**, ordenadas por prioridad. Se irán marcando
 | Media | `healthcheck` en MariaDB y `depends_on` con `condition: service_healthy` | Evitar que el backend arranque antes que la base de datos |
 | Media | Fail2Ban (SSH y logs de Caddy) con aviso por Telegram | Pasar de análisis manual a detección y respuesta automáticas |
 | Media | Límite de peticiones en el login y en la creación de pedidos | Fuerza bruta y abuso de la API |
-| Media | Política de seguridad de contenido (CSP) en Caddy, que necesita pruebas con la aplicación | Complementa las cabeceras ya aplicadas frente a XSS |
 | Media | Endurecer contenedores: `security_opt: [no-new-privileges:true]` y `cap_drop: [ALL]` donde sea posible | Reducir lo que puede hacer un contenedor comprometido |
 | Media | Pipeline del backend y `trivy image` sobre las imágenes finales, más `gitleaks` | Cobertura completa de CI y detección de secretos |
 | Baja | Quitar DuckDNS cuando el servidor tenga IP fija | Un servicio y una credencial menos |
 | Baja | Definir el endpoint de salud del backend para Uptime Kuma | Monitorización más fiable que la comprobación de puerto |
 
-**Ya aplicadas:** `JWT_SECRET` y `STRIPE_SECRET_KEY` llegan al backend desde el entorno, las imágenes tienen la versión fijada, DuckDNS solo arranca con el perfil `prod` y Caddy envía las cabeceras de seguridad básicas (HSTS, `nosniff`, `X-Frame-Options` y `Referrer-Policy`).
+**Ya aplicadas:** `JWT_SECRET` y `STRIPE_SECRET_KEY` llegan al backend desde el entorno, las imágenes tienen la versión fijada, DuckDNS solo arranca con el perfil `prod` y Caddy envía las cabeceras de seguridad (HSTS, `nosniff`, `X-Frame-Options`, `Referrer-Policy`, `Permissions-Policy` y una CSP estricta).
 
-**Cabeceras de seguridad que Caddy aplica ya** (el dominio sale de la variable `SITE_ADDRESS`; la política CSP queda pendiente porque depende de la aplicación y requiere pruebas):
+**Cabeceras de seguridad que Caddy aplica** (el dominio sale de la variable `SITE_ADDRESS`; la CSP completa y su explicación están en `infra/caddy/Caddyfile` y en [seguridad.md](seguridad.md)):
 
 ```caddyfile
 {$SITE_ADDRESS:http://localhost} {
@@ -548,8 +547,11 @@ Propuestas **aún no implementadas**, ordenadas por prioridad. Se irán marcando
         X-Content-Type-Options "nosniff"
         X-Frame-Options "DENY"
         Referrer-Policy "strict-origin-when-cross-origin"
+        Permissions-Policy `camera=(), microphone=(), geolocation=(), payment=(self "https://js.stripe.com")`
         -Server
     }
+    # Content-Security-Policy (o -Report-Only con CSP_CABECERA): default-src 'self';
+    # script-src 'self' + Stripe; object-src 'none'; frame-ancestors 'none'; report-uri /api/csp-informe...
     # ... resto de la configuración
 }
 ```

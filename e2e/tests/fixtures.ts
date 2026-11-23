@@ -19,10 +19,28 @@ export const ADMIN = {
 /**
  * En cada test:
  * - falla si la pagina lanza un error de JavaScript no capturado (por ejemplo, una app que no arranca);
+ * - falla si algo infringe la politica de seguridad de contenido (CSP) que pone Caddy: un script
+ *   inline, un eval o un recurso de un dominio no permitido. Un test que provoca una a proposito la
+ *   comprueba y la quita de {@code violacionesCsp};
  * - solo se permiten peticiones a la propia aplicacion. Stripe, Google Maps y Google Fonts se bloquean
  *   para que el resultado no dependa de servicios de terceros.
  */
-export const test = base.extend<{ erroresPagina: string[] }>({
+export const test = base.extend<{ erroresPagina: string[]; violacionesCsp: string[] }>({
+  violacionesCsp: [
+    async ({ page }, use) => {
+      const violaciones: string[] = [];
+      await page.exposeFunction('__barhubCsp', (texto: string) => violaciones.push(texto));
+      await page.addInitScript(() => {
+        document.addEventListener('securitypolicyviolation', (e) => {
+          const avisar = (window as unknown as { __barhubCsp: (texto: string) => void }).__barhubCsp;
+          avisar(`${e.effectiveDirective}: ${e.blockedURI || 'inline'} en ${location.pathname}`);
+        });
+      });
+      await use(violaciones);
+      expect(violaciones, 'infracciones de la política de seguridad de contenido (CSP)').toEqual([]);
+    },
+    { auto: true },
+  ],
   erroresPagina: [
     async ({ page, baseURL }, use) => {
       const errores: string[] = [];

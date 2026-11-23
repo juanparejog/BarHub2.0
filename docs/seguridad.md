@@ -30,6 +30,8 @@ Resumen de las prácticas de seguridad aplicadas en BarHub 2.0 y un modelo de am
 | **Contraseñas** | Almacenadas como hash mediante el `PasswordEncoder` de Spring Security, nunca en claro | Modelo ER |
 | **Secretos** | Fuera del repositorio: variables de entorno y `.env` ignorado por git | `.env.example` |
 | **Accesibilidad** | Contrastes WCAG y etiquetas asociadas a los campos | SonarQube |
+| **Cabeceras HTTP** | Caddy añade HSTS, `nosniff`, `X-Frame-Options: DENY`, `Referrer-Policy` y `Permissions-Policy` (sin cámara, micrófono ni ubicación) | Pruebas dinámicas |
+| **CSP estricta** | `Content-Security-Policy` en Caddy: scripts solo de la propia web y de Stripe, sin `unsafe-inline` ni `unsafe-eval`; `object-src 'none'`, `base-uri 'self'`, `form-action 'self'` y `frame-ancestors 'none'`. Las infracciones llegan al log del backend (`POST /api/csp-informe`). Con `CSP_CABECERA=Content-Security-Policy-Report-Only` queda solo en modo aviso para probar cambios | E2E (fallan si algo infringe la política) y pruebas dinámicas |
 | **CI/CD** | Análisis estático con SonarCloud; credenciales en secretos de GitHub | Pipeline |
 | **Endurecimiento del pipeline** | Acciones fijadas por SHA, permisos mínimos, `npm ci --ignore-scripts`, `gradle.lockfile` y contenedor del frontend sin root | SonarCloud |
 
@@ -113,6 +115,7 @@ flowchart LR
 | 17 | Sesión olvidada abierta o robada en otro equipo | Suplantación | El usuario ve sus sesiones abiertas y las cierra desde el perfil; cambiar la contraseña cierra las demás | Verificado (tests de integración y E2E) |
 | 18 | Secuestro de la cuenta cambiando su correo con una sesión robada (y pidiendo después la recuperación de la contraseña) | Suplantación | El correo nuevo no entra hasta abrir el enlace enviado a él; aviso al correo actual con opción de cancelar; reautenticación para pedirlo | Verificado (tests de integración y E2E) |
 | 19 | Descarga o borrado de los datos de una cuenta con una sesión robada | Divulgación / Denegación de servicio | Reautenticación para descargar y para eliminar; la descarga no lleva contraseña, secretos ni tokens; aviso por correo al eliminar | Verificado (tests de integración y E2E) |
+| 20 | Script inyectado (XSS) que lee el token de acceso o actúa en nombre del usuario | Suplantación / Elevación | Angular escapa lo que pinta; CSP que solo ejecuta los scripts de la propia web y de Stripe, sin inline ni `eval`, con aviso al log de lo que bloquea | Verificado (E2E: un `<script>` inyectado no se ejecuta) |
 
 ### Fuera de alcance
 
@@ -139,7 +142,8 @@ Resultado de la última ejecución (22 de noviembre de 2026): 53 OK y 0 fallos, 
 | Límite de intentos | El login bloquea 15 minutos una cuenta tras 5 fallos seguidos y una IP tras 20 fallos contra cualquier cuenta. Los contadores viven en memoria (se pierden al reiniciar y no se comparten entre réplicas), alguien puede bloquear a propósito una cuenta ajena durante 15 minutos, y la creación de pedidos sigue sin límite |
 | Correo | En local los correos solo llegan a Mailpit. En producción hace falta un SMTP real con SPF, DKIM y DMARC en el dominio, o acabarán en la carpeta de correo no deseado. Las cuentas creadas antes de la 2.1 y las que da de alta un administrador cuentan como confirmadas |
 | Registro de jornada | Registra entradas y salidas del personal, pero no es un sistema de fichaje certificado: no guarda firma del empleado ni impide que el administrador consulte o exporte a su criterio, y la conservación durante 4 años que exige la normativa depende de las copias de seguridad de la base de datos |
-| Token de acceso en `localStorage` | El token de acceso (15 min) sigue en `localStorage`; el de renovación ya no es accesible desde JavaScript. La CSP estricta de la 2.1 reduce el riesgo de XSS que podría leerlo |
+| Token de acceso en `localStorage` | El token de acceso (15 min) sigue en `localStorage`; el de renovación ya no es accesible desde JavaScript. La CSP estricta reduce el riesgo de XSS que podría leerlo |
+| CSP | Los estilos en línea están permitidos (`style-src 'unsafe-inline'`), porque Angular inserta así los de cada componente y Bootstrap usa el atributo `style`; un estilo inyectado no ejecuta código. Google Fonts, Google Maps, Stripe y `api.qrserver.com` siguen permitidos hasta que las fuentes y los QR sean propios |
 | Pantallas que se refrescan solas | El cierre por inactividad lo decide la interacción del usuario, no las peticiones automáticas: un monitor de comandas que nadie toca durante 30 minutos pide confirmación y, sin respuesta, se cierra |
 | Uptime Kuma | Publicado en el puerto 3001; ver mejoras en [infraestructura.md](infraestructura.md#13-mejoras-recomendadas) |
 | Dependencias sin parche compatible | `jaxb-core` 4.0.9 (XXE, no explotable: BarHub no lee XML de fuera) y `jakarta.validation-api` 3.1.1 (baja, corrección solo en una versión preliminar). Queda 1 alerta de Dependabot por revisar |

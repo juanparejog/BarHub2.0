@@ -139,6 +139,12 @@ El turno de un empleado empieza al iniciar sesión. Termina con «Terminar turno
 | Ruta | Normalizada y comprobada dentro de la carpeta de destino |
 | Sustitución y borrado | La imagen anterior se elimina solo tras guardar la nueva; también al borrar el registro |
 
+### 3.7. Avisos de la política de seguridad de contenido · `/csp-informe`
+
+| Método | Ruta | Acceso | Descripción |
+| :--- | :--- | :--- | :--- |
+| `POST` | `/csp-informe` | Público | El navegador avisa de lo que ha bloqueado la CSP de Caddy (`report-uri`). Se anota en el log con el prefijo `CSP:` (directiva, recurso bloqueado, página y fichero de origen). Lee como mucho 16 KB, recorta cada campo a 200 caracteres sin saltos de línea, anota como mucho 60 avisos por minuto y responde siempre `204` |
+
 ## 4. Roles y control de acceso
 
 Se definen en la tabla `roles` (relación N:M con `users` mediante `user_roles`):

@@ -6,7 +6,7 @@ Tests con [Playwright](https://playwright.dev) que recorren BarHub como un usuar
 
 | Archivo | Recorrido |
 | :--- | :--- |
-| `01-publico.spec.ts` | Portada y menú; la carta no deja añadir productos sin indicar la modalidad; las pantallas del personal y del administrador rechazan a un visitante; un login incorrecto no inicia sesión |
+| `01-publico.spec.ts` | Portada y menú; la carta no deja añadir productos sin indicar la modalidad; las pantallas del personal y del administrador rechazan a un visitante; un login incorrecto no inicia sesión; la web lleva una CSP estricta y un `<script>` inyectado no se ejecuta |
 | `02-pedido.spec.ts` | Un cliente nuevo se registra, no puede entrar hasta abrir el enlace de confirmación que llega a Mailpit, y después pide para recoger, confirma, descarga el ticket en PDF y ve el pedido en el seguimiento; no puede entrar en las pantallas del personal; el personal ve la comanda y la marca como lista; el administrador la ve en la gestión de pedidos |
 | `03-caja.spec.ts` | El personal abre la caja y la cierra con su arqueo |
 | `04-admin.spec.ts` | Panel de administración, listados de productos y usuarios (con sus roles) y métricas |
@@ -17,7 +17,7 @@ Tests con [Playwright](https://playwright.dev) que recorren BarHub como un usuar
 | `09-perfil.spec.ts` | Mi perfil: cada pestaña tiene su URL y el botón «atrás» funciona; datos y dirección se guardan por separado; cambiar la contraseña cierra la sesión de otro navegador; se ven las sesiones abiertas y se cierran las demás; un cliente activa la verificación en dos pasos, su login la pide y la vuelve a quitar |
 | `10-privacidad.spec.ts` | Cambio de correo: el enlace llega al nuevo (Mailpit) y el aviso al anterior, la cuenta no cambia hasta abrirlo y el enlace no sirve dos veces; cancelar el cambio deja el enlace sin efecto; descargar mis datos baja un JSON sin la contraseña; eliminar la cuenta cierra la sesión y el login deja de funcionar |
 
-En todos los tests se comprueba además que la página no lanza errores de JavaScript sin capturar. Solo se permiten peticiones a la propia aplicación: Stripe, Google Maps y Google Fonts se bloquean para que el resultado no dependa de servicios de terceros.
+En todos los tests se comprueba además que la página no lanza errores de JavaScript sin capturar y que nada infringe la política de seguridad de contenido (CSP) de Caddy: un script en línea, un `eval` o un recurso de un dominio no permitido hacen fallar el test. Solo se permiten peticiones a la propia aplicación: Stripe, Google Maps y Google Fonts se bloquean para que el resultado no dependa de servicios de terceros.
 
 Los tests van uno detrás de otro (`workers: 1`) porque comparten la base de datos.
 

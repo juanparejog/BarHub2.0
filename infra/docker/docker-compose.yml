@@ -68,6 +68,7 @@ services:
     container_name: barhub-caddy
     environment:
       - SITE_ADDRESS=${SITE_ADDRESS:-http://localhost}
+      - CSP_CABECERA=${CSP_CABECERA:-Content-Security-Policy}
     restart: unless-stopped
     ports:
       - "80:80"
