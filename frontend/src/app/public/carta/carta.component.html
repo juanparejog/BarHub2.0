@@ -269,6 +269,40 @@
       </button>
     </section>
 
+    <!-- FILTRO DE ALÉRGENOS -->
+    <details class="filtro-alergenos" [open]="filtroAlergenosAbiertoAlEntrar">
+      <summary>
+        <i class="bi bi-shield-exclamation" aria-hidden="true"></i>
+        Alergias e intolerancias
+        @if (alergenosExcluidos.size > 0) {
+          <span class="badge rounded-pill text-bg-primary ms-1">{{ alergenosExcluidos.size }}</span>
+        }
+      </summary>
+      <fieldset class="mt-2">
+        <legend class="filtro-alergenos-leyenda">Ocultar los productos que lleven:</legend>
+        <div class="filtro-alergenos-opciones">
+          @for (alergeno of alergenos; track alergeno.codigo) {
+            <label class="chip-alergeno" [class.activo]="alergenosExcluidos.has(alergeno.codigo)" [title]="alergeno.nombre">
+              <input type="checkbox" class="visually-hidden-focusable-checkbox"
+                [checked]="alergenosExcluidos.has(alergeno.codigo)"
+                (change)="alternarAlergeno(alergeno.codigo)">
+              <app-alergeno-icono [codigo]="alergeno.codigo" [tamano]="40" [decorativo]="true" />
+              <span class="chip-alergeno-nombre">{{ alergeno.nombre }}</span>
+            </label>
+          }
+        </div>
+      </fieldset>
+      @if (alergenosExcluidos.size > 0) {
+        <p class="filtro-alergenos-resumen" role="status">
+          {{ ocultosPorAlergenos.total }} {{ ocultosPorAlergenos.total === 1 ? 'producto oculto' : 'productos ocultos' }}@if (ocultosPorAlergenos.sinInformacion > 0) {, {{ ocultosPorAlergenos.sinInformacion }} porque aún no tienen la información de alérgenos}.
+          <button type="button" class="btn btn-link btn-sm p-0 align-baseline" (click)="quitarFiltroAlergenos()">Quitar el filtro</button>
+        </p>
+      }
+      <p class="filtro-alergenos-aviso">
+        La información la indica el bar según la receta. Si tienes una alergia grave, confírmala con el personal antes de pedir.
+      </p>
+    </details>
+
     <!-- TARJETAS DE PRODUCTOS -->
     <section class="productos-grid">
       @for (producto of productosFiltrados; track producto; let i = $index) {
@@ -280,7 +314,7 @@
               <img [src]="getImagenUrl(producto.imagen)"
                 class="product-img"
                 [alt]="producto.nombre"
-                (error)="$any($event.target).src = 'assets/images/default.jpg'">
+                (error)="imagenNoDisponible($event)">
                 <span class="price-badge">
                   {{ producto.precio | currency:'EUR':'symbol':'1.2-2' }}
                 </span>
@@ -291,6 +325,19 @@
                   <p class="product-description">
                     {{ producto.descripcion || 'Delicioso producto recién preparado.' }}
                   </p>
+                  @if (producto.alergenos == null) {
+                    <p class="product-alergenos sin-informacion">
+                      <i class="bi bi-info-circle" aria-hidden="true"></i> {{ textoAlergenos(producto.alergenos) }}
+                    </p>
+                  } @else if (producto.alergenos.length === 0) {
+                    <p class="product-alergenos">{{ textoAlergenos(producto.alergenos) }}</p>
+                  } @else {
+                    <ul class="product-alergenos-iconos" aria-label="Alérgenos">
+                      @for (alergeno of producto.alergenos; track alergeno) {
+                        <li><app-alergeno-icono [codigo]="alergeno" [tamano]="28" /></li>
+                      }
+                    </ul>
+                  }
                 </div>
                 <div class="product-card-footer">
                   <span class="product-price">{{ producto.precio | currency:'EUR':'symbol':'1.2-2' }}</span>

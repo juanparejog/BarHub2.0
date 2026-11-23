@@ -1,3 +1,4 @@
+import { IMAGEN_PRODUCTO_POR_DEFECTO, ponerImagenPorDefecto } from '../../shared/imagen-por-defecto';
 import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
@@ -8,6 +9,10 @@ import { UsuarioService } from '../../admin/pages/usuarios/services/usuario';
 import { Mesa } from '../../admin/pages/mesas/interface/mesa';
 import { Producto } from '../../admin/pages/productos/interface/producto';
 import { Usuario } from '../../admin/pages/usuarios/interface/usuario';
+import { ALERGENOS, aptoSin, textoAlergenos } from '../../shared/alergenos/alergenos';
+
+/** Alérgenos que el visitante quiere evitar, recordados en su navegador. */
+const CLAVE_ALERGENOS = 'barhub.alergenosExcluidos';
 
 export type TipoPedido = 'MESA' | 'DOMICILIO' | 'RECOGER';
 export type TipoVivienda = 'piso' | 'casa' | 'urbanizacion';
@@ -55,6 +60,15 @@ export class CartaComponent implements OnInit {
 
   categoriaSeleccionada = 'todos';
 
+  readonly alergenos = ALERGENOS;
+  readonly textoAlergenos = textoAlergenos;
+  alergenosExcluidos = new Set<string>(leerAlergenosExcluidos());
+  /**
+   * El desplegable empieza abierto si ya había alérgenos elegidos. Solo al entrar: si siguiera al
+   * filtro, se cerraría solo al desmarcar el último mientras se usa.
+   */
+  readonly filtroAlergenosAbiertoAlEntrar = this.alergenosExcluidos.size > 0;
+
   showToast = false;
   toastMessage = '';
   toastType: 'success' | 'error' | 'info' = 'info';
@@ -88,10 +102,15 @@ export class CartaComponent implements OnInit {
 
     this.route.queryParams.subscribe(params => {
       if (params['mesa']) {
-        this.idMesa = Number(params['mesa']);
-        this.tipoPedido = 'MESA';
-        this.mesaBloqueadaPorQr = true;
-        this.showToastMessage(`Mesa #${this.idMesa} detectada por QR`, 'success');
+        const mesa = Number(params['mesa']);
+        if (Number.isInteger(mesa) && mesa > 0) {
+          this.idMesa = mesa;
+          this.tipoPedido = 'MESA';
+          this.mesaBloqueadaPorQr = true;
+          this.showToastMessage(`Mesa #${this.idMesa} detectada por QR`, 'success');
+        } else {
+          this.showToastMessage('El código QR no es válido: elige tu mesa en la lista', 'error');
+        }
       }
     });
   }
@@ -260,11 +279,12 @@ export class CartaComponent implements OnInit {
       return [];
     }
 
+    const aptos = this.productos.filter(p => aptoSin(p.alergenos, this.alergenosExcluidos));
     if (this.categoriaSeleccionada === 'todos') {
-      return this.productos;
+      return aptos;
     }
 
-    return this.productos.filter(p => {
+    return aptos.filter(p => {
       const tipoObj = (p as any).tipoProducto || (p as any).tipo || '';
       return String(tipoObj).toLowerCase().trim() === this.categoriaSeleccionada.toLowerCase().trim();
     });
@@ -345,13 +365,62 @@ export class CartaComponent implements OnInit {
     void this.router.navigate(['/confirmar-pedido']);
   }
 
+  imagenNoDisponible(evento: Event): void {
+    ponerImagenPorDefecto(evento, IMAGEN_PRODUCTO_POR_DEFECTO);
+  }
+
   getImagenUrl(nombreImagen: string | undefined): string {
     if (!nombreImagen || nombreImagen.trim() === '') {
-      return 'assets/images/default-food.jpg';
+      return IMAGEN_PRODUCTO_POR_DEFECTO;
     }
     if (nombreImagen.startsWith('assets/')) {
       return encodeURI(nombreImagen);
     }
     return `assets/images/productos/${encodeURI(nombreImagen.trim())}`;
+  }
+
+  // ---------- alérgenos ----------
+
+  alternarAlergeno(codigo: string): void {
+    const excluidos = new Set(this.alergenosExcluidos);
+    if (excluidos.has(codigo)) {
+      excluidos.delete(codigo);
+    } else {
+      excluidos.add(codigo);
+    }
+    this.alergenosExcluidos = excluidos;
+    guardarAlergenosExcluidos(excluidos);
+  }
+
+  quitarFiltroAlergenos(): void {
+    this.alergenosExcluidos = new Set();
+    guardarAlergenosExcluidos(this.alergenosExcluidos);
+  }
+
+  /** Productos que el filtro de alérgenos esconde y, de ellos, cuántos no tienen la información. */
+  get ocultosPorAlergenos(): { total: number; sinInformacion: number } {
+    if (this.alergenosExcluidos.size === 0) {
+      return { total: 0, sinInformacion: 0 };
+    }
+    const ocultos = this.productos.filter(p => !aptoSin(p.alergenos, this.alergenosExcluidos));
+    return { total: ocultos.length, sinInformacion: ocultos.filter(p => p.alergenos == null).length };
+  }
+}
+
+function leerAlergenosExcluidos(): string[] {
+  try {
+    const guardados = JSON.parse(localStorage.getItem(CLAVE_ALERGENOS) ?? '[]');
+    const validos = new Set<string>(ALERGENOS.map(a => a.codigo));
+    return Array.isArray(guardados) ? guardados.filter((c: unknown) => typeof c === 'string' && validos.has(c)) : [];
+  } catch {
+    return [];
+  }
+}
+
+function guardarAlergenosExcluidos(excluidos: ReadonlySet<string>): void {
+  try {
+    localStorage.setItem(CLAVE_ALERGENOS, JSON.stringify([...excluidos]));
+  } catch {
+    // Sin almacenamiento (modo privado): el filtro vale para esta visita
   }
 }

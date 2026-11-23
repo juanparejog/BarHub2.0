@@ -44,12 +44,13 @@
 # - scripts solo de la propia web (ni inline ni eval) y de Stripe, que carga el formulario de pago;
 # - estilos inline permitidos: Angular inserta los de cada componente en <style> y Bootstrap usa el
 #   atributo style. Un estilo inyectado no ejecuta codigo;
-# - Google Fonts (fuentes), Google Maps (mapa del local en un iframe) y api.qrserver.com (QR de mesas);
+# - Google Fonts (fuentes) y Google Maps (mapa del local en un iframe). Los QR de las mesas y de la
+#   verificacion en dos pasos se dibujan en el navegador (data:), sin servicios de fuera;
 # - nadie puede meter la web en un iframe, ni cambiar <base>, ni enviar formularios fuera;
 # - las infracciones se envian a /api/csp-informe, que las anota en el log del backend. Solo
 #   report-uri: con report-to, Chrome deja de usar report-uri y entrega los avisos tarde o nunca.
 (csp) {
-    header {$CSP_CABECERA:Content-Security-Policy} "default-src 'self'; script-src 'self' https://js.stripe.com https://*.js.stripe.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://api.qrserver.com https://*.stripe.com; connect-src 'self' https://api.stripe.com; frame-src https://js.stripe.com https://*.js.stripe.com https://hooks.stripe.com https://www.google.com https://maps.google.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; report-uri /api/csp-informe"
+    header {$CSP_CABECERA:Content-Security-Policy} "default-src 'self'; script-src 'self' https://js.stripe.com https://*.js.stripe.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://*.stripe.com; connect-src 'self' https://api.stripe.com; frame-src https://js.stripe.com https://*.js.stripe.com https://hooks.stripe.com https://www.google.com https://maps.google.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; report-uri /api/csp-informe"
 }
 
 # Direccion del sitio. En local vale http://localhost (sin HTTPS), que es el valor

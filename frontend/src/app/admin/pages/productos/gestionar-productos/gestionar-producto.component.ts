@@ -1,3 +1,4 @@
+import { IMAGEN_PRODUCTO_POR_DEFECTO, ponerImagenPorDefecto } from '../../../../shared/imagen-por-defecto';
 import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { ProductoService } from '../services/producto';
 import { Producto } from '../interface/producto';
@@ -117,8 +118,6 @@ export class GestionarProductoComponent implements OnInit {
   }
 
   onImgError(event: Event): void {
-    const imgElement = event.target as HTMLImageElement;
-    imgElement.src = 'assets/images/productos/default.jpg';
-    imgElement.onerror = null;
+    ponerImagenPorDefecto(event, IMAGEN_PRODUCTO_POR_DEFECTO);
   }
 }

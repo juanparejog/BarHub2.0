@@ -47,6 +47,8 @@ public class ProductoServiceImpl implements ProductoService {
             productoExistente.setDescripcion(entity.getDescripcion());
             productoExistente.setPrecio(entity.getPrecio());
             productoExistente.setImagen(entity.getImagen());
+            productoExistente.setTipoProducto(entity.getTipoProducto());
+            productoExistente.indicarAlergenos(entity.alergenosIndicados());
             return productoRepository.save(productoExistente);
         } else {
             return null;

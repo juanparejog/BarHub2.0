@@ -1,5 +1,6 @@
 package com.daw2.barhub.model.dto;
 
+import com.daw2.barhub.model.enums.Alergeno;
 import com.daw2.barhub.model.enums.TipoProducto;
 import com.daw2.barhub.model.entity.Producto;
 import jakarta.validation.constraints.NotBlank;
@@ -12,6 +13,7 @@ import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -36,6 +38,13 @@ public class ProductoDto {
     @NotNull
     private TipoProducto tipoProducto;
 
+    /**
+     * Alergenos que contiene, ordenados. Null: el bar aun no los ha indicado (la carta dice que se
+     * pregunte). Lista vacia: indicados, no lleva ninguno de declaracion obligatoria.
+     */
+    @Size(max = 14)
+    private List<@NotNull Alergeno> alergenos;
+
     public static ProductoDto from(Producto producto) {
         ProductoDto dto = null;
 
@@ -47,6 +56,8 @@ public class ProductoDto {
             dto.setPrecio(producto.getPrecio());
             dto.setImagen(producto.getImagen());
             dto.setTipoProducto(producto.getTipoProducto());
+            Set<Alergeno> indicados = producto.alergenosIndicados();
+            dto.setAlergenos(indicados == null ? null : new ArrayList<>(indicados));
         }
 
         return dto;
@@ -73,6 +84,7 @@ public class ProductoDto {
         producto.setPrecio(this.getPrecio());
         producto.setImagen(this.getImagen());
         producto.setTipoProducto(this.getTipoProducto());
+        producto.indicarAlergenos(this.getAlergenos());
 
         return producto;
     }

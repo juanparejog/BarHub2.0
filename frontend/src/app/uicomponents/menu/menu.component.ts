@@ -1,3 +1,4 @@
+import { IMAGEN_USUARIO_POR_DEFECTO, ponerImagenPorDefecto } from '../../shared/imagen-por-defecto';
 import { Component, OnInit, ChangeDetectionStrategy, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { AuthService } from 'src/app/auth/auth.service';
@@ -80,7 +81,7 @@ export class MenuComponent implements OnInit {
     return this.authService.hasRole(['ROLE_CLIENTE', 'ROLE_EMPLEADO', 'ROLE_ADMIN']);
   }
 
-  onImageError(event: any): void {
-    event.target.src = 'assets/images/usuarios/default.jpg';
+  onImageError(event: Event): void {
+    ponerImagenPorDefecto(event, IMAGEN_USUARIO_POR_DEFECTO);
   }
 }

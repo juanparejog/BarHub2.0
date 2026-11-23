@@ -16,6 +16,7 @@
             <th>Descripción</th>
             <th>Precio</th>
             <th>Tipo</th>
+            <th>Alérgenos</th>
             <th>Imagen</th>
           </tr>
         </thead>
@@ -25,9 +26,20 @@
             <td>{{ producto.descripcion }}</td>
             <td>{{ producto.precio | currency:'EUR' }}</td>
             <td>{{ producto.tipoProducto }}</td>
+            <td>
+              @if (producto.alergenos?.length) {
+                <span class="d-inline-flex flex-wrap gap-1" role="list" aria-label="Alérgenos">
+                  @for (alergeno of producto.alergenos; track alergeno) {
+                    <span role="listitem"><app-alergeno-icono [codigo]="alergeno" [tamano]="28" /></span>
+                  }
+                </span>
+              } @else {
+                {{ textoAlergenos(producto.alergenos) }}
+              }
+            </td>
             <td class="text-center">
-              <img [src]="producto.imagen ? 'assets/images/productos/' + producto.imagen : 'assets/images/productos/default.jpg'"
-                (error)="$any($event.target).src = 'assets/images/default.jpg'"
+              <img [src]="producto.imagen ? 'assets/images/productos/' + producto.imagen : imagenPorDefecto"
+                (error)="imagenNoDisponible($event)"
                 [alt]="producto.nombre"
                 class="img-detail-crud">
             </td>

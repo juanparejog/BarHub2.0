@@ -24,12 +24,41 @@
       <div class="mb-3">
         <label for="tipoProducto" class="form-label">Tipo:</label>
         <select id="tipoProducto" formControlName="tipoProducto" class="form-control" required>
-          <option value="bebida">Bebida</option>
-          <option value="entrante">Entrante</option>
-          <option value="tapa">Tapa</option>
-          <option value="postre">Postre</option>
+          <option value="BEBIDA">Bebida</option>
+          <option value="ENTRANTE">Entrante</option>
+          <option value="TAPA">Tapa</option>
+          <option value="POSTRE">Postre</option>
         </select>
       </div>
+
+      <fieldset class="mb-3">
+        <legend class="form-label fs-6">Alérgenos</legend>
+        <div class="form-check mb-2">
+          <input class="form-check-input" type="checkbox" id="alergenosDeclarados" formControlName="alergenosDeclarados">
+          <label class="form-check-label" for="alergenosDeclarados">
+            Información de alérgenos revisada
+          </label>
+          <div class="form-text">
+            Sin marcar, la carta dice «Alérgenos: pregunta al personal» y quien filtra por alérgenos no ve el producto.
+            Marcada y sin ningún alérgeno, dice que no lleva ninguno de declaración obligatoria.
+          </div>
+        </div>
+        @if (formulario.get('alergenosDeclarados')?.value) {
+          <div class="row row-cols-2 row-cols-md-3 g-1" role="group" aria-label="Alérgenos que contiene" formGroupName="alergenos">
+            @for (alergeno of listaAlergenos; track alergeno.codigo) {
+              <div class="col">
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" [id]="'alergeno-' + alergeno.codigo"
+                    [formControlName]="alergeno.codigo">
+                  <label class="form-check-label d-inline-flex align-items-center gap-2" [for]="'alergeno-' + alergeno.codigo">
+                    <app-alergeno-icono [codigo]="alergeno.codigo" [tamano]="24" [decorativo]="true" />{{ alergeno.nombre }}
+                  </label>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </fieldset>
 
       <!-- Zona Drag and Drop -->
       <div class="mb-3">

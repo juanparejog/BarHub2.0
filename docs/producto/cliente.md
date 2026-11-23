@@ -120,7 +120,7 @@ Con sesión iniciada, el botón **Usar mis datos** completa el formulario con la
 ### 4.5. Selección de productos
 
 1. Elegir la categoría: **Todos**, **Bebidas**, **Entrantes**, **Tapas** o **Postres**.
-2. Ajustar la cantidad de cada producto con los botones **+** y **−**.
+2. Ajustar la cantidad de cada producto con los botones **+** y **−**. Cada producto muestra sus alérgenos con iconos (un círculo de color con un dibujo por alérgeno; al pasar el ratón sale el nombre, y un lector de pantalla lo lee). Si no lleva ninguno de declaración obligatoria lo dice, y si el bar aún no los ha indicado pone «Alérgenos: pregunta al personal».
 3. Revisar el **total estimado** en la barra inferior.
 4. Pulsar **Confirmar Pedido**.
 
@@ -128,6 +128,8 @@ Con sesión iniciada, el botón **Usar mis datos** completa el formulario con la
   <img src="../img/productos/carta5.png" alt="Selección de productos y total estimado" width="620">
 </p>
 <p align="center"><em>Selección de productos y barra de total estimado.</em></p>
+
+**Alergias e intolerancias.** Encima de los productos, el desplegable **Alergias e intolerancias** muestra los 14 alérgenos de declaración obligatoria (Reglamento (UE) 1169/2011) con su icono y su nombre. Al marcar uno, queda tachado en rojo y la carta esconde los productos que lo llevan y también los que aún no tienen la información, e indica cuántos ha ocultado y por qué. **Quitar el filtro** los vuelve a mostrar. La elección se recuerda en el navegador para la próxima visita. La información la indica el bar según la receta: con una alergia grave, conviene confirmarla con el personal.
 
 ## 5. Resumen, pago y confirmación
 

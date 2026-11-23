@@ -1,3 +1,4 @@
+import { IMAGEN_USUARIO_POR_DEFECTO, ponerImagenPorDefecto } from '../../../../shared/imagen-por-defecto';
 import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { UsuarioService } from '../services/usuario';
 import { Usuario } from '../interface/usuario';
@@ -186,8 +187,6 @@ export class GestionarUsuarioComponent implements OnInit {
   }
 
   onImgError(event: Event): void {
-    const imgElement = event.target as HTMLImageElement;
-    imgElement.src = 'assets/images/usuarios/default.jpg';
-    imgElement.onerror = null;
+    ponerImagenPorDefecto(event, IMAGEN_USUARIO_POR_DEFECTO);
   }
 }

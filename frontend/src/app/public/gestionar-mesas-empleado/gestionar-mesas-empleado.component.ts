@@ -1,6 +1,7 @@
-import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { MesaService } from '../../admin/pages/mesas/services/mesa';
 import { Mesa } from '../../admin/pages/mesas/interface/mesa';
+import { CodigoQrService } from '../../auth/dos-factores/codigo-qr.service';
 
 @Component({
     selector: 'app-gestionar-mesas-empleado',
@@ -12,6 +13,9 @@ import { Mesa } from '../../admin/pages/mesas/interface/mesa';
 export class GestionarMesasEmpleadoComponent implements OnInit {
   mesas: Mesa[] = [];
   mesaSeleccionadaQr: Mesa | null = null;
+  /** Imagen del QR de la mesa abierta (se dibuja en el navegador, sin servicios de fuera). */
+  qrImagen = '';
+  qrError = false;
 
   estados = [
     { value: 'disponible', label: 'Disponible', icon: 'event_available', classBadge: 'badge-disponible' },
@@ -19,7 +23,11 @@ export class GestionarMesasEmpleadoComponent implements OnInit {
     { value: 'reservada', label: 'Reservada', icon: 'event_note', classBadge: 'badge-reservada' }
   ];
 
-  constructor(private readonly mesaService: MesaService) {}
+  constructor(
+    private readonly mesaService: MesaService,
+    private readonly codigoQr: CodigoQrService,
+    private readonly cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit() {
     this.cargarMesas();
@@ -70,14 +78,34 @@ export class GestionarMesasEmpleadoComponent implements OnInit {
 
   verQr(mesa: Mesa) {
     this.mesaSeleccionadaQr = mesa;
+    this.qrImagen = '';
+    this.qrError = false;
+    this.codigoQr.comoImagen(this.urlCarta(mesa), 320).then(imagen => {
+      if (this.mesaSeleccionadaQr === mesa) {
+        this.qrImagen = imagen;
+        this.cdr.markForCheck();
+      }
+    }, () => {
+      this.qrError = true;
+      this.cdr.markForCheck();
+    });
   }
 
   cerrarModalQr() {
     this.mesaSeleccionadaQr = null;
+    this.qrImagen = '';
   }
 
-  getUrlQr(codigoQr: string | undefined, id: number | undefined): string {
-    const mesaId = codigoQr || id || 1;
-    return `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=https://barhub.duckdns.org/carta?mesa=${mesaId}`;
+  /**
+   * La carta de esta web con la mesa puesta. Va el id de la mesa, que es lo que lee la carta: el
+   * codigo impreso (QR001...) es solo una etiqueta. La direccion sale de donde se abre la web, asi
+   * que vale igual en local que en produccion.
+   */
+  urlCarta(mesa: Mesa): string {
+    return `${location.origin}/carta?mesa=${mesa.id}`;
+  }
+
+  nombreArchivoQr(mesa: Mesa): string {
+    return `barhub-mesa-${mesa.id}-qr.png`;
   }
 }

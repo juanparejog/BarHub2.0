@@ -81,7 +81,7 @@ public class ProductoController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(ErrorDto.from("Producto no encontrado"));
         }
-        return ResponseEntity.ok(producto);
+        return ResponseEntity.ok(ProductoDto.from(producto));
     }
 
     @PreAuthorize("hasRole('ADMIN')")

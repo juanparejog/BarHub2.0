@@ -1,3 +1,4 @@
+import { AlergenoIconoComponent } from '../shared/alergenos/alergeno-icono.component';
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
@@ -47,6 +48,7 @@ import { MetricasComponent } from './pages/metricas/metricas.component';
   imports: [
     CommonModule,
     ReactiveFormsModule,
+    AlergenoIconoComponent,
     RouterModule,
     AdminRoutingModule,
     UicomponentsModule,

@@ -131,15 +131,27 @@
         </div>
         <div class="qr-modal-body">
           <div class="qr-frame">
-            <img [src]="getUrlQr(mesaSeleccionadaQr.codigoqr, mesaSeleccionadaQr.id)"
-              alt="Código QR de Mesa"
-              class="qr-image">
+            @if (qrImagen) {
+              <img [src]="qrImagen"
+                [alt]="'Código QR de la mesa ' + (mesaSeleccionadaQr.codigoqr || mesaSeleccionadaQr.id)"
+                class="qr-image" width="250" height="250">
+            } @else if (qrError) {
+              <p class="text-danger small mb-0" role="alert">No se pudo dibujar el código QR. Vuelve a intentarlo.</p>
+            } @else {
+              <p class="text-muted small mb-0" role="status">Generando el código QR…</p>
+            }
           </div>
           <p class="qr-instructions">
             Escanea este código desde el teléfono para acceder directamente a la Carta Digital asignada a esta mesa.
           </p>
+          <p class="small text-muted text-break mb-0" data-testid="url-qr">{{ urlCarta(mesaSeleccionadaQr) }}</p>
         </div>
-        <div class="qr-modal-footer">
+        <div class="qr-modal-footer d-flex gap-2 justify-content-end">
+          @if (qrImagen) {
+            <a class="btn btn-outline-primary btn-sm" [href]="qrImagen" [download]="nombreArchivoQr(mesaSeleccionadaQr)">
+              <i class="bi bi-download me-1" aria-hidden="true"></i>Descargar para imprimir
+            </a>
+          }
           <button type="button" class="btn-modal-close" (click)="cerrarModalQr()">Entendido</button>
         </div>
       </div>

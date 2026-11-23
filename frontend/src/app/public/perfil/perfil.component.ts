@@ -1,3 +1,4 @@
+import { IMAGEN_USUARIO_POR_DEFECTO, ponerImagenPorDefecto } from '../../shared/imagen-por-defecto';
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { PerfilService } from './perfil.service';
@@ -70,7 +71,7 @@ export class PerfilComponent implements OnInit {
   }
 
   fotoPorDefecto(evento: Event): void {
-    (evento.target as HTMLImageElement).src = 'assets/images/usuarios/default.jpg';
+    ponerImagenPorDefecto(evento, IMAGEN_USUARIO_POR_DEFECTO);
   }
 
   abrirModalImagen(): void {

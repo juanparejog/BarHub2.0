@@ -5,6 +5,8 @@ export interface Producto {
     precio:                 number,
     imagen:                 string,
     tipoProducto:          string,
+    /** Alérgenos que contiene; null si el bar aún no los ha indicado. */
+    alergenos?:             string[] | null,
     created_at?:            string,
     updated_at?:            string,
 }

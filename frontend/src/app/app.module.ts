@@ -1,3 +1,4 @@
+import { AlergenoIconoComponent } from './shared/alergenos/alergeno-icono.component';
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { AppRoutingModule } from './app-routing.module';
@@ -47,7 +48,8 @@ import { ReautenticacionComponent } from './shared/reautenticacion/reautenticaci
         ReactiveFormsModule,
         SharedModule,
         AvisoSesionComponent,
-        ReautenticacionComponent], providers: [
+        ReautenticacionComponent,
+        AlergenoIconoComponent], providers: [
         { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
         provideHttpClient(withXhr(), withInterceptorsFromDi())
     ] })

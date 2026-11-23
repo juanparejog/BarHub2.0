@@ -1,8 +1,10 @@
+import { IMAGEN_PRODUCTO_POR_DEFECTO, ponerImagenPorDefecto } from '../../../../shared/imagen-por-defecto';
 import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { switchMap } from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
 import { Producto } from '../interface/producto';
 import { ProductoService } from '../services/producto';
+import { textoAlergenos } from '../../../../shared/alergenos/alergenos';
 
 @Component({
     selector: 'app-ver-producto',
@@ -13,6 +15,12 @@ import { ProductoService } from '../services/producto';
 export class VerProductoComponent implements OnInit {
 
   producto!: Producto;
+  readonly textoAlergenos = textoAlergenos;
+  readonly imagenPorDefecto = IMAGEN_PRODUCTO_POR_DEFECTO;
+
+  imagenNoDisponible(evento: Event): void {
+    ponerImagenPorDefecto(evento, IMAGEN_PRODUCTO_POR_DEFECTO);
+  }
 
   constructor(
     private readonly productoService: ProductoService,

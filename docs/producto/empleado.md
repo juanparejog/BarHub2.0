@@ -49,7 +49,7 @@ Cada mesa se presenta en una tarjeta con su identificador, la sala y el estado a
 
 ### 2.3. Código QR
 
-El botón **Ver QR de Mesa** muestra el código QR asociado a cada mesa, que los clientes utilizan para realizar pedidos desde la carta. El botón **Refrescar Sala** actualiza la información.
+El botón **Ver QR de Mesa** muestra el código QR de cada mesa, que los clientes escanean para pedir desde la carta con la mesa ya elegida. Se dibuja en el propio navegador con la dirección de la web en la que se está (en local, `http://localhost`; en producción, el dominio real), y **Descargar para imprimir** lo guarda como imagen PNG. El botón **Refrescar Sala** actualiza la información.
 
 ## 3. Pagos en efectivo
 

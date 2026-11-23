@@ -4,6 +4,7 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { switchMap } from "rxjs";
 import { ProductoService } from "../services/producto";
 import { Producto } from "../interface/producto";
+import { ALERGENOS } from "../../../../shared/alergenos/alergenos";
 
 @Component({
     selector: 'app-editar-productos',
@@ -19,8 +20,13 @@ export class EditarProductoComponent implements OnInit {
     descripcion: [''],
     precio: [''],
     tipoProducto: [''],
-    imagen: ['']
+    imagen: [''],
+    // Si el bar ya ha indicado los alérgenos. Sin marcar, la carta dice que se pregunte al personal
+    alergenosDeclarados: [false],
+    alergenos: this.fb.group(Object.fromEntries(ALERGENOS.map(a => [a.codigo, false])))
   });
+
+  readonly listaAlergenos = ALERGENOS;
 
   editar: boolean = false;
   isDragging: boolean = false;
@@ -131,7 +137,12 @@ export class EditarProductoComponent implements OnInit {
       )
       .subscribe({
         next: (producto: Producto) => {
-          this.formulario.reset(producto);
+          const marcados = new Set(producto.alergenos ?? []);
+          this.formulario.reset({
+            ...producto,
+            alergenosDeclarados: producto.alergenos != null,
+            alergenos: Object.fromEntries(ALERGENOS.map(a => [a.codigo, marcados.has(a.codigo)]))
+          });
           if (producto.imagen) {
             this.previewUrl = `assets/images/productos/${producto.imagen}`;
             this.nombreArchivoRenombrado = producto.imagen;
@@ -148,8 +159,8 @@ export class EditarProductoComponent implements OnInit {
     const nombreImagenFinal = archivoFinal ? archivoFinal.name : this.formulario.value.imagen;
 
     const nuevoProducto: Producto = {
-      ...this.formulario.value,
-      id: null,
+      ...this.datosDelFormulario(),
+      id: undefined,
       imagen: nombreImagenFinal
     };
 
@@ -168,7 +179,7 @@ export class EditarProductoComponent implements OnInit {
       this.formulario.patchValue({ imagen: archivoFinal.name });
     }
 
-    const datosProducto: Producto = this.formulario.getRawValue();
+    const datosProducto: Producto = this.datosDelFormulario();
 
     this.productoService.put(datosProducto, archivoFinal).subscribe({
       next: (response) => {
@@ -177,5 +188,12 @@ export class EditarProductoComponent implements OnInit {
       },
       error: (err) => console.error('Error en la petición PUT:', err)
     });
+  }
+
+  /** El producto tal como lo espera la API: los alérgenos como lista, o null si no se han indicado. */
+  private datosDelFormulario(): Producto {
+    const { alergenosDeclarados, alergenos, ...resto } = this.formulario.getRawValue();
+    const marcados = ALERGENOS.map(a => a.codigo).filter(codigo => alergenos[codigo]);
+    return { ...resto, alergenos: alergenosDeclarados ? marcados : null };
   }
 }
