@@ -6,7 +6,9 @@ import { PerfilService } from './perfil.service';
 export const PESTANAS_PERFIL = [
   { ruta: 'datos', titulo: 'Datos personales', icono: 'bi-person' },
   { ruta: 'direccion', titulo: 'Dirección de entrega', icono: 'bi-geo-alt' },
-  { ruta: 'seguridad', titulo: 'Seguridad', icono: 'bi-shield-lock' }
+  { ruta: 'cuenta', titulo: 'Cuenta y correo', icono: 'bi-envelope' },
+  { ruta: 'seguridad', titulo: 'Seguridad', icono: 'bi-shield-lock' },
+  { ruta: 'privacidad', titulo: 'Privacidad', icono: 'bi-incognito' }
 ] as const;
 
 const NOMBRES_ROL: Record<string, string> = {

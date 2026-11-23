@@ -1,12 +1,13 @@
 import { ChangeDetectionStrategy, Component, effect, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { PerfilService } from '../perfil.service';
 
-/** Pestaña «Datos personales»: nombre y apellidos. Usuario y correo se muestran, no se editan aquí. */
+/** Pestaña «Datos personales»: nombre y apellidos. Usuario y correo se muestran; el correo se cambia en «Cuenta y correo». */
 @Component({
   selector: 'app-perfil-datos',
   standalone: true,
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, RouterLink],
   templateUrl: './perfil-datos.component.html',
   styleUrls: ['../perfil.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush

@@ -183,6 +183,11 @@ export class AuthService {
     return this.http.post<{ message: string }>(`${this.apiUrl}/verificar`, { token });
   }
 
+  /** Abre el enlace enviado al correo nuevo: desde ahora la cuenta usa ese correo. */
+  confirmarCambioCorreo(token: string): Observable<{ email: string; message: string }> {
+    return this.http.post<{ email: string; message: string }>(`${this.apiUrl}/confirmar-cambio-correo`, { token });
+  }
+
   /** Vuelve a enviar el correo de confirmacion (por nombre de usuario o email). */
   reenviarConfirmacion(usuario: string): Observable<{ message: string }> {
     return this.http.post<{ message: string }>(`${this.apiUrl}/reenviar-verificacion`, { usuario });

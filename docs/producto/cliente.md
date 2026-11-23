@@ -180,7 +180,7 @@ Cada pedido muestra su número, la modalidad (por ejemplo, «En mesa · Mesa 1»
 
 ## 7. Perfil de usuario
 
-La sección **Mi Perfil** se organiza en una cabecera y varias pestañas. La cabecera muestra la foto (al pulsarla se cambia), el nombre, el rol, la fecha de alta y el estado de la cuenta: si el correo está verificado y si la verificación en dos pasos está activa. Cada pestaña tiene su propia dirección (`/perfil/datos`, `/perfil/direccion`, `/perfil/seguridad`) y su propio botón de guardar, así que un error en una no impide guardar otra. En el móvil, las pestañas se muestran en una fila que se desliza.
+La sección **Mi Perfil** se organiza en una cabecera y varias pestañas. La cabecera muestra la foto (al pulsarla se cambia), el nombre, el rol, la fecha de alta y el estado de la cuenta: si el correo está verificado y si la verificación en dos pasos está activa. Cada pestaña tiene su propia dirección (`/perfil/datos`, `/perfil/direccion`, `/perfil/cuenta`, `/perfil/seguridad`, `/perfil/privacidad`) y su propio botón de guardar, así que un error en una no impide guardar otra. En el móvil, las pestañas se muestran en una fila que se desliza.
 
 > Las capturas son de la versión anterior del perfil, de una sola página.
 
@@ -193,13 +193,15 @@ La sección **Mi Perfil** se organiza en una cabecera y varias pestañas. La cab
 
 | Pestaña | Contenido |
 | :--- | :--- |
-| **Datos personales** | Nombre y apellidos (se guardan con **Guardar datos**). El usuario y el correo se muestran, pero no se cambian aquí |
+| **Datos personales** | Nombre y apellidos (se guardan con **Guardar datos**). El usuario y el correo se muestran; el enlace **Cambiar** lleva a la pestaña Cuenta y correo |
 | **Dirección de entrega** | Teléfono, código postal, calle, tipo de inmueble (piso, urbanización o casa, cada uno con sus campos) e instrucciones para el repartidor (**Guardar dirección**) |
+| **Cuenta y correo** | Nombre de usuario y correo, con si está verificado. **Cambiar el correo**: se escribe el nuevo y se pulsa **Enviar enlace**; llega un enlace al correo nuevo y un aviso al actual. La cuenta sigue con el correo actual hasta que se abre el enlace (caduca en 24 horas); mientras tanto se muestra el cambio pendiente con **Cancelar el cambio** |
 | **Seguridad** | Cambiar la contraseña (pide la actual y cierra las sesiones abiertas en otros navegadores); activar la verificación en dos pasos con una app de autenticación, generar códigos de recuperación nuevos o desactivarla (solo los clientes: para el personal es obligatoria); y la lista de **sesiones abiertas** (navegador, IP, última actividad) con **Cerrar** y **Cerrar todas las demás** |
+| **Privacidad** | **Descargar mis datos**: un archivo JSON con la cuenta, la dirección, los pedidos y las sesiones, sin la contraseña. **Eliminar mi cuenta** (solo clientes): se escribe el nombre de usuario para confirmar; se borran los datos personales y se cierran todas las sesiones, y los pedidos se conservan como registro de venta sin nada que identifique a la persona. No se puede deshacer, y llega un aviso al correo |
 
 **Foto de perfil**: se pulsa la foto de la cabecera, se arrastra o elige el archivo y se guarda con **Guardar foto**. Formatos JPG, PNG o WebP, máximo 5 MB; si el archivo no es una imagen real, se rechaza.
 
-Activar o desactivar la verificación en dos pasos y generar códigos nuevos son acciones protegidas: si han pasado más de 5 minutos desde que se inició sesión, se pide antes la contraseña (o el código de la app, si ya está activada).
+Cambiar el correo, descargar los datos, eliminar la cuenta, activar o desactivar la verificación en dos pasos y generar códigos nuevos son acciones protegidas: si han pasado más de 5 minutos desde que se inició sesión, se pide antes la contraseña (o el código de la app, si ya está activada).
 
 Los datos de las dos primeras pestañas se reutilizan en los pedidos para recoger y a domicilio mediante los botones **Usar mi teléfono** y **Usar mis datos**.
 

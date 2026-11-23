@@ -6,7 +6,10 @@
     <dt class="col-sm-4 text-muted fw-normal">Nombre de usuario</dt>
     <dd class="col-sm-8 fw-semibold">{{ usuario.username }}</dd>
     <dt class="col-sm-4 text-muted fw-normal">Correo electrónico</dt>
-    <dd class="col-sm-8 fw-semibold text-break mb-0">{{ usuario.email }}</dd>
+    <dd class="col-sm-8 mb-0">
+      <span class="fw-semibold text-break me-2">{{ usuario.email }}</span>
+      <a routerLink="../cuenta" class="font-size-14">Cambiar</a>
+    </dd>
   </dl>
 }
 

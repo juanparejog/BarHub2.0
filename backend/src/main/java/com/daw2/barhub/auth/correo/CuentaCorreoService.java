@@ -21,9 +21,10 @@ import java.time.Instant;
 import java.util.Base64;
 import java.util.HexFormat;
 import java.util.Optional;
+import java.util.regex.Pattern;
 
 /**
- * Confirmacion del correo al registrarse y recuperacion de la contrasena.
+ * Confirmacion del correo al registrarse, recuperacion de la contrasena y cambio de correo.
  *
  * <ul>
  *   <li>Los enlaces son de un solo uso, caducan (24 h la confirmacion, 30 min la recuperacion) y
@@ -33,6 +34,9 @@ import java.util.Optional;
  *   <li>Pedir otro correo o recuperar la contrasena responde siempre lo mismo, exista o no la
  *       cuenta, y como mucho envia un correo por minuto a cada cuenta.</li>
  *   <li>Restablecer la contrasena cierra todas las sesiones abiertas de la cuenta.</li>
+ *   <li>Un correo nuevo no se pone en la cuenta hasta abrir el enlace que llega a el; al correo
+ *       anterior se le avisa al pedirlo y al confirmarlo. Asi una sesion robada no basta para
+ *       quedarse con la cuenta pidiendo la recuperacion de la contrasena a un correo ajeno.</li>
  * </ul>
  */
 @Slf4j
@@ -42,6 +46,8 @@ public class CuentaCorreoService {
     static final Duration ESPERA_ENTRE_CORREOS = Duration.ofMinutes(1);
     static final int CLAVE_MINIMA = 6;
     static final int CLAVE_MAXIMA = 40;
+    static final int EMAIL_MAXIMO = 100;
+    private static final Pattern EMAIL_VALIDO = Pattern.compile("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$");
     private static final SecureRandom ALEATORIO = new SecureRandom();
 
     private final TokenCorreoRepository tokens;
@@ -139,6 +145,112 @@ public class CuentaCorreoService {
         log.info("Contraseña restablecida por correo para el usuario {}; sesiones cerradas: {}", usuario.getId(), cerradas);
     }
 
+    // ---------- cambio de correo ----------
+
+    /**
+     * Envia al correo nuevo el enlace para confirmarlo y avisa al actual. La cuenta sigue con el
+     * correo actual hasta que se abre el enlace.
+     *
+     * @throws IllegalArgumentException si el correo no es valido o ya es el suyo
+     * @throws CorreoEnUsoException     si otra cuenta lo usa
+     * @throws IllegalStateException    si ya pidio otro hace menos de un minuto
+     */
+    @Transactional
+    public void solicitarCambio(User usuario, String nuevo) {
+        String email = nuevo == null ? "" : nuevo.trim();
+        if (email.length() > EMAIL_MAXIMO || !EMAIL_VALIDO.matcher(email).matches()) {
+            throw new IllegalArgumentException("Escribe un correo válido.");
+        }
+        if (email.equalsIgnoreCase(usuario.getEmail())) {
+            throw new IllegalArgumentException("Ese ya es el correo de tu cuenta.");
+        }
+        if (usuarios.findByEmailIgnoreCase(email).isPresent()) {
+            throw new CorreoEnUsoException();
+        }
+        if (!puedeEnviar(usuario.getId(), TipoTokenCorreo.CAMBIO_CORREO)) {
+            throw new IllegalStateException("Espera un minuto antes de pedir otro enlace.");
+        }
+        String token = emitir(usuario.getId(), TipoTokenCorreo.CAMBIO_CORREO, email);
+        correo.enviar(email, "Confirma tu nuevo correo en BarHub", """
+                Hola %s:
+
+                Has pedido usar este correo en tu cuenta de BarHub (%s). Para confirmarlo, abre
+                este enlace:
+
+                %s/auth/confirmar-cambio-correo#token=%s
+
+                El enlace caduca en 24 horas y solo se puede usar una vez. Hasta que lo abras, tu
+                cuenta sigue con el correo anterior.
+                Si no lo has pedido tú, ignora este correo.
+                """.formatted(nombre(usuario), usuario.getUsername(), urlPublica, token));
+        correo.enviar(usuario.getEmail(), "Se ha pedido cambiar el correo de tu cuenta de BarHub", """
+                Hola %s:
+
+                Se ha pedido cambiar el correo de tu cuenta de BarHub (%s) a %s.
+                El cambio no se hará hasta que se abra el enlace que hemos enviado a esa dirección.
+
+                Si no has sido tú, entra en BarHub, cancela el cambio en Mi perfil > Cuenta y correo
+                y cambia tu contraseña en Mi perfil > Seguridad.
+                """.formatted(nombre(usuario), usuario.getUsername(), enmascarar(email)));
+        log.info("El usuario {} ha pedido cambiar su correo", usuario.getId());
+    }
+
+    /** El correo nuevo que espera confirmacion, si hay un enlace vigente. */
+    @Transactional(readOnly = true)
+    public Optional<String> cambioPendiente(Long usuarioId) {
+        Instant ahora = reloj.instant();
+        return tokens.findByUsuarioIdAndTipoAndUsadoEnIsNull(usuarioId, TipoTokenCorreo.CAMBIO_CORREO).stream()
+                .filter(t -> t.valido(ahora))
+                .map(TokenCorreo::getNuevoEmail)
+                .findFirst();
+    }
+
+    /** Anula el enlace pendiente: el correo nuevo ya no se podra confirmar con el. */
+    @Transactional
+    public void cancelarCambio(Long usuarioId) {
+        Instant ahora = reloj.instant();
+        tokens.findByUsuarioIdAndTipoAndUsadoEnIsNull(usuarioId, TipoTokenCorreo.CAMBIO_CORREO)
+                .forEach(t -> t.setUsadoEn(ahora));
+    }
+
+    /**
+     * Pone en la cuenta el correo del enlace (ya verificado: quien lo abre lo recibe) y avisa al
+     * anterior. Devuelve el correo nuevo.
+     */
+    @Transactional
+    public String confirmarCambio(String token) {
+        TokenCorreo usado = consumir(token, TipoTokenCorreo.CAMBIO_CORREO);
+        User usuario = usuarios.findById(usado.getUsuarioId()).orElseThrow(TokenCorreoInvalidoException::new);
+        String nuevo = usado.getNuevoEmail();
+        boolean ocupado = usuarios.findByEmailIgnoreCase(nuevo)
+                .filter(otro -> !otro.getId().equals(usuario.getId()))
+                .isPresent();
+        if (ocupado) {
+            throw new CorreoEnUsoException();
+        }
+        String anterior = usuario.getEmail();
+        usuario.setEmail(nuevo);
+        usuario.setEmailVerificado(true);
+        if (anterior != null && !anterior.isBlank()) {
+            correo.enviar(anterior, "El correo de tu cuenta de BarHub ha cambiado", """
+                    Hola %s:
+
+                    Desde ahora tu cuenta de BarHub (%s) usa el correo %s. A esta dirección ya no
+                    llegarán más avisos.
+
+                    Si no has sido tú, responde a este correo o contacta con el bar cuanto antes.
+                    """.formatted(nombre(usuario), usuario.getUsername(), enmascarar(nuevo)));
+        }
+        log.info("El usuario {} ha confirmado su correo nuevo", usuario.getId());
+        return nuevo;
+    }
+
+    /** «ana.lopez@gmail.com» -> «a***@gmail.com»: suficiente para reconocerlo sin escribirlo entero. */
+    static String enmascarar(String email) {
+        int arroba = email.indexOf('@');
+        return arroba <= 0 ? "***" : email.charAt(0) + "***" + email.substring(arroba);
+    }
+
     @Scheduled(cron = "${app.correo.limpieza-cron:0 30 4 * * *}")
     @Transactional
     public void borrarCaducados() {
@@ -160,8 +272,12 @@ public class CuentaCorreoService {
                 .orElse(true);
     }
 
-    /** Crea un token nuevo y anula los anteriores del mismo tipo que no se hayan usado. */
     private String emitir(Long usuarioId, TipoTokenCorreo tipo) {
+        return emitir(usuarioId, tipo, null);
+    }
+
+    /** Crea un token nuevo y anula los anteriores del mismo tipo que no se hayan usado. */
+    private String emitir(Long usuarioId, TipoTokenCorreo tipo, String nuevoEmail) {
         Instant ahora = reloj.instant();
         tokens.findByUsuarioIdAndTipoAndUsadoEnIsNull(usuarioId, tipo).forEach(t -> t.setUsadoEn(ahora));
 
@@ -175,6 +291,7 @@ public class CuentaCorreoService {
         nuevo.setTokenHash(hash(token));
         nuevo.setCreado(ahora);
         nuevo.setCaducaEn(ahora.plus(tipo.vigencia()));
+        nuevo.setNuevoEmail(nuevoEmail);
         tokens.save(nuevo);
         return token;
     }

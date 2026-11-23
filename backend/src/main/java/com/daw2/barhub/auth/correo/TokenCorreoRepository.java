@@ -17,6 +17,11 @@ public interface TokenCorreoRepository extends JpaRepository<TokenCorreo, Long> 
 
     Optional<TokenCorreo> findFirstByUsuarioIdAndTipoOrderByCreadoDesc(Long usuarioId, TipoTokenCorreo tipo);
 
+    /** Anula todos los enlaces pendientes de un usuario (al eliminar su cuenta). */
+    @Modifying
+    @Query("update TokenCorreo t set t.usadoEn = :ahora where t.usuarioId = :usuarioId and t.usadoEn is null")
+    int anularDe(@Param("usuarioId") Long usuarioId, @Param("ahora") Instant ahora);
+
     @Modifying
     @Query("delete from TokenCorreo t where t.caducaEn < :limite")
     int borrarCaducadosAntesDe(@Param("limite") Instant limite);

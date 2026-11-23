@@ -58,7 +58,7 @@ Es la segunda versión de mi TFC. Esta vez me he centrado en tres cosas: redise�
 - Pedido en mesa, a recoger o a domicilio
 - Seguimiento del pedido con actualización automática cada 5 s
 - Pago en efectivo y con tarjeta (Stripe en modo demostración, sin cargos reales)
-- Registro de usuarios y perfil por pestañas: datos personales, dirección de entrega y seguridad (contraseña, verificación en dos pasos y sesiones abiertas)
+- Registro de usuarios y perfil por pestañas: datos personales, dirección de entrega, cuenta y correo (cambio de correo con enlace de confirmación), seguridad (contraseña, verificación en dos pasos y sesiones abiertas) y privacidad (descargar mis datos y eliminar la cuenta)
 - Historial de pedidos
 
 </td>

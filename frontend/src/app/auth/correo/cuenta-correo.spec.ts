@@ -5,6 +5,7 @@ import { of, throwError } from 'rxjs';
 import { vi } from 'vitest';
 
 import { AuthService } from '../auth.service';
+import { ConfirmarCambioCorreoComponent } from './confirmar-cambio-correo.component';
 import { ConfirmarCorreoComponent } from './confirmar-correo.component';
 import { RecuperarComponent } from './recuperar.component';
 import { RestablecerComponent } from './restablecer.component';
@@ -13,7 +14,9 @@ import { tokenDelFragmento } from './token-del-enlace';
 const authService = {
   confirmarCorreo: vi.fn(),
   solicitarRecuperacion: vi.fn(),
-  restablecerContrasena: vi.fn()
+  restablecerContrasena: vi.fn(),
+  confirmarCambioCorreo: vi.fn(),
+  isAuthenticated: vi.fn()
 };
 const replaceState = vi.fn();
 
@@ -168,5 +171,39 @@ describe('RestablecerComponent', () => {
     fixture.componentInstance.form.setValue({ password: 'NuevaClave99', repetir: 'NuevaClave99' });
     fixture.componentInstance.cambiar();
     expect(fixture.componentInstance.error).toContain('No se pudo cambiar');
+  });
+});
+
+describe('ConfirmarCambioCorreoComponent', () => {
+  it('confirma el correo nuevo, quita el token de la barra y, con sesión, lleva al perfil', () => {
+    configurar('token=nuevo');
+    authService.isAuthenticated.mockReturnValue(true);
+    authService.confirmarCambioCorreo.mockReturnValue(of({ email: 'ana@nuevo.test', message: 'Listo: tu cuenta usa ahora ana@nuevo.test.' }));
+    const fixture = TestBed.createComponent(ConfirmarCambioCorreoComponent);
+    fixture.detectChanges();
+
+    expect(authService.confirmarCambioCorreo).toHaveBeenCalledWith('nuevo');
+    expect(replaceState).toHaveBeenCalledWith('/auth/pagina');
+    expect(texto(fixture.nativeElement)).toContain('tu cuenta usa ahora ana@nuevo.test');
+    expect((fixture.nativeElement as HTMLElement).querySelector('a')?.getAttribute('href')).toBe('/perfil/cuenta');
+  });
+
+  it('si otra cuenta ya usa ese correo muestra el motivo; sin sesión lleva al login', () => {
+    configurar('token=nuevo');
+    authService.confirmarCambioCorreo.mockReturnValue(throwError(() => ({ status: 409, error: { message: 'Ya hay una cuenta con ese correo.' } })));
+    const fixture = TestBed.createComponent(ConfirmarCambioCorreoComponent);
+    fixture.detectChanges();
+
+    expect(texto(fixture.nativeElement)).toContain('Ya hay una cuenta con ese correo.');
+    expect((fixture.nativeElement as HTMLElement).querySelector('a')?.getAttribute('href')).toBe('/auth/login');
+  });
+
+  it('sin token no llama al servidor', () => {
+    configurar(null);
+    const fixture = TestBed.createComponent(ConfirmarCambioCorreoComponent);
+    fixture.detectChanges();
+
+    expect(authService.confirmarCambioCorreo).not.toHaveBeenCalled();
+    expect(texto(fixture.nativeElement)).toContain('El enlace está incompleto');
   });
 });

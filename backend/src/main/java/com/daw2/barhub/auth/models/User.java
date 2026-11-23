@@ -106,6 +106,10 @@ public class User {
   @Column(name = "email_verificado")
   private Boolean emailVerificado;
 
+  /** Si el usuario elimino su cuenta: sus datos personales se borraron y no puede entrar. */
+  @Column(name = "eliminado_en")
+  private Instant eliminadoEn;
+
   public boolean correoVerificado() {
     return !Boolean.FALSE.equals(emailVerificado);
   }

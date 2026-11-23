@@ -1,0 +1,55 @@
+<h2 class="h5 fw-bold mb-1"><i class="bi bi-incognito text-indigo me-2" aria-hidden="true"></i>Privacidad</h2>
+<p class="text-muted font-size-14 mb-4">
+  Tus datos son tuyos: puedes llevártelos o borrar tu cuenta. Más detalles en la
+  <a routerLink="/politica-privacidad">política de privacidad</a>.
+</p>
+
+<section class="bloque-perfil" aria-labelledby="tituloDescarga">
+  <h3 id="tituloDescarga" class="h6 fw-bold mb-1"><i class="bi bi-download text-indigo me-2" aria-hidden="true"></i>Descargar mis datos</h3>
+  <p class="text-muted font-size-14 mb-3">
+    Un archivo JSON con tu cuenta, tu dirección de entrega, tus pedidos, tus sesiones y, si trabajas en el bar,
+    tu registro de jornada. No incluye tu contraseña ni las claves de la verificación en dos pasos.
+    Por seguridad, te pediremos confirmar que eres tú.
+  </p>
+  <button type="button" class="btn-crud-primary px-4 py-2" [disabled]="descargando()" (click)="descargar()">
+    <i class="bi bi-filetype-json me-2" aria-hidden="true"></i>Descargar mis datos
+  </button>
+  @if (errorDescarga()) {
+    <div class="alert alert-danger custom-alert mt-3 mb-0" role="alert">{{ errorDescarga() }}</div>
+  }
+</section>
+
+<section class="bloque-perfil" aria-labelledby="tituloEliminar">
+  <h3 id="tituloEliminar" class="h6 fw-bold mb-1"><i class="bi bi-person-x text-danger me-2" aria-hidden="true"></i>Eliminar mi cuenta</h3>
+  @if (esPersonal()) {
+    <p class="text-muted font-size-14 mb-0" data-testid="eliminar-personal">
+      Las cuentas del personal las da de baja el administrador desde Gestionar Usuarios.
+    </p>
+  } @else {
+    <div class="zona-peligro">
+      <p class="font-size-14 mb-2">Al eliminarla:</p>
+      <ul class="font-size-14 mb-3">
+        <li>Borramos tu nombre, tu correo, tu teléfono, tu dirección y tu foto, y cerramos todas tus sesiones.</li>
+        <li>Tus pedidos se conservan como registro de venta del bar, sin nada que te identifique.</li>
+        <li>No se puede deshacer: para volver tendrías que crear una cuenta nueva.</li>
+      </ul>
+      @if (perfil.usuario(); as usuario) {
+        <form (submit)="$event.preventDefault(); eliminar()" novalidate>
+          <label for="confirmarEliminar" class="form-label font-size-14 fw-semibold">
+            Escribe tu nombre de usuario (<strong>{{ usuario.username }}</strong>) para confirmar
+          </label>
+          <div class="d-flex flex-wrap align-items-center gap-2">
+            <input id="confirmarEliminar" class="form-control search-input campo-correo-nuevo" [formControl]="confirmacion"
+              autocomplete="off" autocapitalize="off" spellcheck="false">
+            <button type="submit" class="btn btn-danger px-4 py-2" [disabled]="!confirmado() || eliminando()">
+              <i class="bi bi-trash me-2" aria-hidden="true"></i>Eliminar mi cuenta
+            </button>
+          </div>
+        </form>
+      }
+      @if (errorEliminar()) {
+        <div class="alert alert-danger custom-alert mt-3 mb-0" role="alert">{{ errorEliminar() }}</div>
+      }
+    </div>
+  }
+</section>

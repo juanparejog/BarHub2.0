@@ -1,0 +1,29 @@
+<div class="cuenta-correo">
+  <h2>Confirmar correo nuevo</h2>
+  @switch (estado) {
+    @case ('comprobando') {
+      <p role="status">Comprobando el enlace…</p>
+    }
+    @case ('confirmado') {
+      <p class="text-success fw-semibold" role="status">{{ mensaje }}</p>
+      <div class="acciones">
+        @if (conSesion) {
+          <a class="btn btn-primary" routerLink="/perfil/cuenta">Ir a mi perfil</a>
+        } @else {
+          <a class="btn btn-primary" routerLink="/auth/login">Iniciar sesión</a>
+        }
+      </div>
+    }
+    @case ('error') {
+      <p class="text-danger" role="alert">{{ mensaje }}</p>
+      <p class="text-muted">Puedes pedir otro enlace en Mi perfil &gt; Cuenta y correo.</p>
+      <div class="acciones">
+        @if (conSesion) {
+          <a class="btn btn-outline-secondary" routerLink="/perfil/cuenta">Ir a mi perfil</a>
+        } @else {
+          <a class="btn btn-outline-secondary" routerLink="/auth/login">Ir al inicio de sesión</a>
+        }
+      </div>
+    }
+  }
+</div>

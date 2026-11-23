@@ -18,6 +18,8 @@ import { PerfilComponent } from './public/perfil/perfil.component';
 import { PerfilDatosComponent } from './public/perfil/datos/perfil-datos.component';
 import { PerfilDireccionComponent } from './public/perfil/direccion/perfil-direccion.component';
 import { PerfilSeguridadComponent } from './public/perfil/seguridad/perfil-seguridad.component';
+import { PerfilCuentaComponent } from './public/perfil/cuenta/perfil-cuenta.component';
+import { PerfilPrivacidadComponent } from './public/perfil/privacidad/perfil-privacidad.component';
 
 const routes: Routes = [
   // Ruta por defecto
@@ -46,7 +48,9 @@ const routes: Routes = [
       { path: '', pathMatch: 'full', redirectTo: 'datos' },
       { path: 'datos', component: PerfilDatosComponent },
       { path: 'direccion', component: PerfilDireccionComponent },
-      { path: 'seguridad', component: PerfilSeguridadComponent }
+      { path: 'cuenta', component: PerfilCuentaComponent },
+      { path: 'seguridad', component: PerfilSeguridadComponent },
+      { path: 'privacidad', component: PerfilPrivacidadComponent }
     ]
   },
 

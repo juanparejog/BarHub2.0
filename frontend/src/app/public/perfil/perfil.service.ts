@@ -13,6 +13,8 @@ export interface EstadoSeguridad {
   codigosRecuperacionRestantes: number;
   /** Alta de la cuenta, en milisegundos desde 1970. */
   cuentaCreada: number | null;
+  /** El correo nuevo que espera a que se abra el enlace enviado a él, o null. */
+  cambioCorreoPendiente: string | null;
 }
 
 export interface SesionAbiertaPerfil {
@@ -112,4 +114,51 @@ export class PerfilService {
   cerrarLasDemas(): Observable<number> {
     return this.http.delete<{ sesionesCerradas: number }>(`${this.url}/sesiones`).pipe(map(r => r.sesionesCerradas));
   }
+
+  // ---------- cuenta y correo ----------
+
+  /** Envía el enlace al correo nuevo; la cuenta no cambia de correo hasta que se abre. */
+  cambiarCorreo(nuevo: string): Observable<string> {
+    return this.http.post<{ pendiente: string }>(`${this.url}/correo`, { nuevo })
+      .pipe(map(r => r.pendiente), tap(() => this.cargarSeguridad()));
+  }
+
+  cancelarCambioCorreo(): Observable<void> {
+    return this.http.delete<void>(`${this.url}/correo`).pipe(tap(() => this.cargarSeguridad()));
+  }
+
+  // ---------- privacidad ----------
+
+  /**
+   * Descarga los datos de la cuenta como archivo JSON. Se piden como JSON normal (no como blob) para
+   * que, si hace falta reautenticarse, el interceptor pueda leer la respuesta 403 y pedir el código.
+   */
+  descargarDatos(): Observable<void> {
+    return this.http.get<unknown>(`${this.url}/mis-datos`).pipe(
+      map(datos => guardarComoArchivo(JSON.stringify(datos, null, 2), nombreArchivoDatos(new Date())))
+    );
+  }
+
+  /** Elimina (anonimiza) la cuenta. Después la sesión ya no vale. */
+  eliminarCuenta(): Observable<void> {
+    return this.http.delete<void>(this.url);
+  }
+}
+
+/** «barhub-mis-datos-2026-11-23.json», con la fecha local. */
+export function nombreArchivoDatos(fecha: Date): string {
+  const dos = (n: number) => String(n).padStart(2, '0');
+  return `barhub-mis-datos-${fecha.getFullYear()}-${dos(fecha.getMonth() + 1)}-${dos(fecha.getDate())}.json`;
+}
+
+function guardarComoArchivo(contenido: string, nombre: string): void {
+  const url = URL.createObjectURL(new Blob([contenido], { type: 'application/json' }));
+  const enlace = document.createElement('a');
+  enlace.href = url;
+  enlace.download = nombre;
+  document.body.appendChild(enlace);
+  enlace.click();
+  enlace.remove();
+  // Se libera después: algunos navegadores aún no han empezado la descarga al volver de click()
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
 }

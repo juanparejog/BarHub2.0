@@ -14,4 +14,7 @@ public interface TurnoRepository extends JpaRepository<Turno, Long> {
     List<Turno> findBySalidaIsNull();
 
     List<Turno> findByEntradaGreaterThanEqualAndEntradaLessThanOrderByEntradaDesc(Instant desde, Instant hasta);
+
+    /** Para que el empleado descargue su registro de jornada con el resto de sus datos. */
+    List<Turno> findByUsuarioIdOrderByEntradaDesc(Long usuarioId);
 }

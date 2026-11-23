@@ -1,5 +1,7 @@
 package com.daw2.barhub.auth.perfil;
 
+import com.daw2.barhub.auth.correo.CorreoEnUsoException;
+import com.daw2.barhub.auth.correo.CuentaCorreoService;
 import com.daw2.barhub.auth.dosfactores.DosFactoresService;
 import com.daw2.barhub.auth.models.User;
 import com.daw2.barhub.auth.reautenticacion.RequiereReautenticacion;
@@ -14,6 +16,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -33,11 +36,13 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * Seguridad de la propia cuenta, para cualquier usuario con sesion (pestana Seguridad del perfil):
- * contrasena, verificacion en dos pasos y sesiones abiertas. Siempre sobre el usuario del token,
+ * La propia cuenta, para cualquier usuario con sesion (pestanas Cuenta, Seguridad y Privacidad del
+ * perfil): correo, contrasena, verificacion en dos pasos, sesiones abiertas, descarga de los datos y
+ * eliminacion de la cuenta. Siempre sobre el usuario del token,
  * nunca sobre un id de la URL, asi que no hay forma de tocar la cuenta de otro.
  *
- * <p>Activar, quitar o regenerar la verificacion en dos pasos exige haberse reautenticado hace poco
+ * <p>Cambiar el correo, descargar los datos, eliminar la cuenta y activar, quitar o regenerar la
+ * verificacion en dos pasos exigen haberse reautenticado hace poco
  * (codigo de la app o, si aun no la tiene, contrasena): con una sesion robada no se puede ni
  * quitarla ni activarla con un movil ajeno para dejar fuera al dueno de la cuenta.
  */
@@ -51,18 +56,27 @@ public class PerfilController {
     private final UserRepository usuarios;
     private final PasswordEncoder passwordEncoder;
     private final LoginAttemptService intentos;
+    private final CuentaCorreoService cuentaCorreo;
+    private final PrivacidadService privacidad;
 
     public PerfilController(DosFactoresService dosFactores, SesionService sesiones, UserRepository usuarios,
-                            PasswordEncoder passwordEncoder, LoginAttemptService intentos) {
+                            PasswordEncoder passwordEncoder, LoginAttemptService intentos,
+                            CuentaCorreoService cuentaCorreo, PrivacidadService privacidad) {
         this.dosFactores = dosFactores;
         this.sesiones = sesiones;
         this.usuarios = usuarios;
         this.passwordEncoder = passwordEncoder;
         this.intentos = intentos;
+        this.cuentaCorreo = cuentaCorreo;
+        this.privacidad = privacidad;
     }
 
+    /** {@code cambioCorreoPendiente}: el correo nuevo que espera a que se abra el enlace, o null. */
     public record EstadoSeguridad(boolean correoVerificado, boolean dosFactoresActiva, boolean dosFactoresObligatoria,
-                                  int codigosRecuperacionRestantes, Long cuentaCreada) {
+                                  int codigosRecuperacionRestantes, Long cuentaCreada, String cambioCorreoPendiente) {
+    }
+
+    public record CambioCorreo(@NotBlank @Size(max = 150) String nuevo) {
     }
 
     public record CambioPassword(@NotBlank @Size(max = 100) String actual, @NotBlank @Size(max = 100) String nueva) {
@@ -89,7 +103,61 @@ public class PerfilController {
                 activa,
                 dosFactores.obligatorio(roles(yo)),
                 activa ? dosFactores.codigosRestantes(yo.getId()) : 0,
-                usuario.getCreatedAt() == null ? null : usuario.getCreatedAt().toEpochMilli()));
+                usuario.getCreatedAt() == null ? null : usuario.getCreatedAt().toEpochMilli(),
+                cuentaCorreo.cambioPendiente(yo.getId()).orElse(null)));
+    }
+
+    // ---------- correo ----------
+
+    /** Envia el enlace al correo nuevo; la cuenta no cambia de correo hasta que se abre. */
+    @PostMapping("/correo")
+    @RequiereReautenticacion(paraTodos = true)
+    public ResponseEntity<?> cambiarCorreo(@AuthenticationPrincipal UserDetailsImpl yo, @Valid @RequestBody CambioCorreo cambio) {
+        User usuario = usuarios.findById(yo.getId()).orElse(null);
+        if (usuario == null) {
+            return noEncontrado();
+        }
+        try {
+            cuentaCorreo.solicitarCambio(usuario, cambio.nuevo());
+            return ResponseEntity.accepted().body(Map.of("pendiente", cambio.nuevo().trim()));
+        } catch (CorreoEnUsoException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(ErrorDto.from(e.getMessage()));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(ErrorDto.from(e.getMessage()));
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body(ErrorDto.from(e.getMessage()));
+        }
+    }
+
+    /** Anula el cambio de correo pendiente. */
+    @DeleteMapping("/correo")
+    public ResponseEntity<?> cancelarCambioCorreo(@AuthenticationPrincipal UserDetailsImpl yo) {
+        cuentaCorreo.cancelarCambio(yo.getId());
+        return ResponseEntity.noContent().build();
+    }
+
+    // ---------- privacidad ----------
+
+    /** Todos los datos de la cuenta en JSON, como archivo para descargar. */
+    @GetMapping("/mis-datos")
+    @RequiereReautenticacion(paraTodos = true)
+    public ResponseEntity<Map<String, Object>> misDatos(@AuthenticationPrincipal UserDetailsImpl yo) {
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"barhub-mis-datos.json\"")
+                .header(HttpHeaders.CACHE_CONTROL, "no-store")
+                .body(privacidad.exportar(yo.getId()));
+    }
+
+    /** Elimina (anonimiza) la cuenta de un cliente y cierra todas sus sesiones. */
+    @DeleteMapping
+    @RequiereReautenticacion(paraTodos = true)
+    public ResponseEntity<?> eliminarCuenta(@AuthenticationPrincipal UserDetailsImpl yo) {
+        try {
+            privacidad.eliminarCuenta(yo.getId());
+            return ResponseEntity.noContent().build();
+        } catch (PrivacidadService.EliminacionNoPermitidaException e) {
+            return ResponseEntity.badRequest().body(ErrorDto.from(e.getMessage()));
+        }
     }
 
     // ---------- contrasena ----------

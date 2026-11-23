@@ -67,6 +67,10 @@ Las rutas se muestran como las ve el backend. Desde fuera, Caddy las publica baj
 | `POST` | `/perfil/dos-factores/codigos` | Genera 10 códigos de recuperación nuevos y anula los anteriores (reautenticación) |
 | `DELETE` | `/perfil/dos-factores` | La desactiva, si su rol no la exige (reautenticación) |
 | `GET` / `DELETE` | `/perfil/sesiones`, `/perfil/sesiones/{id}` | Sus sesiones abiertas; cerrar una o todas las demás |
+| `POST` | `/perfil/correo` | Pide cambiar el correo: envía un enlace al nuevo y un aviso al actual; la cuenta no cambia hasta abrirlo (`202`; `409` si otra cuenta lo usa, `429` si pidió otro hace menos de un minuto; reautenticación) |
+| `DELETE` | `/perfil/correo` | Cancela el cambio de correo pendiente: el enlace deja de valer |
+| `GET` | `/perfil/mis-datos` | Descarga en JSON todo lo que se guarda de la cuenta (datos, dirección, pedidos, sesiones, registro de jornada), sin contraseña ni secretos (reautenticación) |
+| `DELETE` | `/perfil` | Elimina la cuenta de un cliente: la anonimiza, conserva sus pedidos sin datos personales y cierra sus sesiones (`400` para el personal; reautenticación) |
 | `POST` | `/auth/reautenticar` | Con sesión: confirma de nuevo la identidad (código de la app o, sin 2FA, contraseña) para las acciones críticas de los 5 minutos siguientes; `400 CODIGO_INCORRECTO` si no vale |
 | `POST` | `/auth/refresh` | Token de acceso nuevo a partir de la cookie, que se rota; `401` si la sesión está cerrada o caducada |
 | `POST` | `/auth/logout` | Cierra la sesión en el servidor y borra la cookie (`204`) |
@@ -74,6 +78,7 @@ Las rutas se muestran como las ve el backend. Desde fuera, Caddy las publica baj
 | `POST` | `/auth/reenviar-verificacion` | Vuelve a enviar el correo de confirmación (respuesta genérica) |
 | `POST` | `/auth/recuperar` | Envía el enlace para restablecer la contraseña (respuesta genérica) |
 | `POST` | `/auth/restablecer` | Contraseña nueva con el token del enlace; cierra todas las sesiones de la cuenta |
+| `POST` | `/auth/confirmar-cambio-correo` | Pone en la cuenta el correo nuevo con el token del enlace (ya verificado) y avisa al anterior (`400` si no vale, `409` si otra cuenta lo ha ocupado entretanto) |
 
 ### 3.2. Mesas · `/mesas`
 

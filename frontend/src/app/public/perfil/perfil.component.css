@@ -435,3 +435,15 @@ ng-container {
   outline: 2px solid var(--bs-primary);
   outline-offset: 2px;
 }
+
+/* Pestañas Cuenta y Privacidad */
+.campo-correo-nuevo {
+  min-width: 14rem;
+  max-width: 26rem;
+}
+
+.zona-peligro {
+  border: 1px solid rgba(var(--bs-danger-rgb), 0.35);
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+}

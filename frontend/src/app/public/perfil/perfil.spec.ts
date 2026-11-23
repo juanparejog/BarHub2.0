@@ -5,12 +5,15 @@ import { of, throwError } from 'rxjs';
 import { vi } from 'vitest';
 
 import { Usuario } from '../../admin/pages/usuarios/interface/usuario';
+import { AuthService } from '../../auth/auth.service';
 import { DialogService } from '../../main/services/shared/services/dialog.service';
 import { CodigoQrService } from '../../auth/dos-factores/codigo-qr.service';
 import { PerfilDatosComponent } from './datos/perfil-datos.component';
 import { PerfilDireccionComponent } from './direccion/perfil-direccion.component';
+import { PerfilCuentaComponent } from './cuenta/perfil-cuenta.component';
 import { PerfilComponent } from './perfil.component';
-import { EstadoSeguridad, PerfilService, SesionAbiertaPerfil } from './perfil.service';
+import { EstadoSeguridad, PerfilService, SesionAbiertaPerfil, nombreArchivoDatos } from './perfil.service';
+import { PerfilPrivacidadComponent } from './privacidad/perfil-privacidad.component';
 import { PerfilDosFactoresComponent } from './seguridad/perfil-dos-factores.component';
 import { PerfilPasswordComponent } from './seguridad/perfil-password.component';
 import { PerfilSesionesComponent } from './seguridad/perfil-sesiones.component';
@@ -22,7 +25,7 @@ const ANA: Usuario = {
 };
 const SIN_2FA: EstadoSeguridad = {
   correoVerificado: true, dosFactoresActiva: false, dosFactoresObligatoria: false,
-  codigosRecuperacionRestantes: 0, cuentaCreada: Date.UTC(2026, 0, 15)
+  codigosRecuperacionRestantes: 0, cuentaCreada: Date.UTC(2026, 0, 15), cambioCorreoPendiente: null
 };
 const CODIGOS = Array.from({ length: 10 }, (_, i) => `ABCD${i}-EFGH${i}`);
 
@@ -42,23 +45,32 @@ function perfilFalso() {
     regenerarCodigos: vi.fn(),
     sesiones: vi.fn(),
     cerrarSesion: vi.fn(),
-    cerrarLasDemas: vi.fn()
+    cerrarLasDemas: vi.fn(),
+    cambiarCorreo: vi.fn(),
+    cancelarCambioCorreo: vi.fn(),
+    descargarDatos: vi.fn(),
+    eliminarCuenta: vi.fn()
   };
 }
 
 let perfil: ReturnType<typeof perfilFalso>;
 const confirmar = vi.fn((_m: string, _t: string, accion: () => void) => accion());
+const mostrarToast = vi.fn();
+const logout = vi.fn();
 
 /** Crea el componente con un PerfilService falso; {@code preparar} enseña al doble lo que debe devolver. */
 function crear<T>(componente: new (...args: any[]) => T, preparar: () => void = () => undefined) {
   perfil = perfilFalso();
   confirmar.mockClear();
+  mostrarToast.mockClear();
+  logout.mockClear();
   preparar();
   TestBed.configureTestingModule({
     providers: [
       provideRouter([]),
       { provide: PerfilService, useValue: perfil },
-      { provide: DialogService, useValue: { solicitarConfirmacion: confirmar } },
+      { provide: DialogService, useValue: { solicitarConfirmacion: confirmar, mostrarToast } },
+      { provide: AuthService, useValue: { logout } },
       { provide: CodigoQrService, useValue: { comoImagen: () => Promise.resolve('data:image/png;base64,QR') } }
     ]
   });
@@ -85,7 +97,7 @@ function boton(raiz: HTMLElement, texto: string): HTMLButtonElement {
 const texto = (raiz: HTMLElement) => raiz.textContent?.replace(/\s+/g, ' ') ?? '';
 
 describe('Perfil: cabecera y pestañas', () => {
-  it('muestra el nombre, el rol, la fecha de alta, el estado de la cuenta y las tres pestañas', () => {
+  it('muestra el nombre, el rol, la fecha de alta, el estado de la cuenta y las cinco pestañas', () => {
     const { raiz } = crear(PerfilComponent);
 
     expect(raiz.querySelector('h1')?.textContent).toContain('Ana López');
@@ -95,7 +107,7 @@ describe('Perfil: cabecera y pestañas', () => {
     expect(texto(raiz)).toContain('Correo verificado');
     expect(texto(raiz)).toContain('Verificación en dos pasos desactivada');
     const pestanas = Array.from(raiz.querySelectorAll('nav a')).map(a => a.getAttribute('href'));
-    expect(pestanas).toEqual(['/datos', '/direccion', '/seguridad']);
+    expect(pestanas).toEqual(['/datos', '/direccion', '/cuenta', '/seguridad', '/privacidad']);
     expect(perfil.cargar).toHaveBeenCalled();
   });
 });
@@ -280,5 +292,93 @@ describe('Perfil: sesiones abiertas', () => {
     expect(texto(raiz)).toContain('Hemos cerrado 1 sesión.');
     expect(raiz.querySelectorAll('li.sesion-item').length).toBe(1);
     expect(boton(raiz, 'Cerrar todas las demás')).toBeUndefined();
+  });
+});
+
+describe('Perfil: cuenta y correo', () => {
+  it('pide el cambio con el correo sin espacios y avisa de que falta abrir el enlace', () => {
+    const { fixture, raiz } = crear(PerfilCuentaComponent);
+    perfil.cambiarCorreo.mockReturnValue(of('ana@nuevo.test'));
+
+    expect(raiz.querySelector('[data-testid="correo-actual"]')?.textContent).toContain('ana@barhub.test');
+    expect(texto(raiz)).toContain('Verificado');
+    escribir(raiz, '#correoNuevo', '  ana@nuevo.test ');
+    raiz.querySelector('form')!.dispatchEvent(new Event('submit'));
+    fixture.detectChanges();
+
+    expect(perfil.cambiarCorreo).toHaveBeenCalledWith('ana@nuevo.test');
+    expect(texto(raiz)).toContain('Te hemos enviado un enlace a ana@nuevo.test');
+  });
+
+  it('un correo no válido no se envía; uno ocupado muestra el motivo', () => {
+    const { fixture, raiz } = crear(PerfilCuentaComponent);
+    perfil.cambiarCorreo.mockReturnValue(throwError(() => ({ status: 409, error: { message: 'Ya hay una cuenta con ese correo.' } })));
+
+    escribir(raiz, '#correoNuevo', 'no-es-un-correo');
+    raiz.querySelector('form')!.dispatchEvent(new Event('submit'));
+    fixture.detectChanges();
+    expect(perfil.cambiarCorreo).not.toHaveBeenCalled();
+    expect(raiz.querySelector('#correoNuevo')?.classList).toContain('is-invalid');
+
+    escribir(raiz, '#correoNuevo', 'beto@barhub.test');
+    raiz.querySelector('form')!.dispatchEvent(new Event('submit'));
+    fixture.detectChanges();
+    expect(texto(raiz)).toContain('Ya hay una cuenta con ese correo.');
+  });
+
+  it('con un cambio pendiente lo enseña y se puede cancelar', () => {
+    const { fixture, raiz } = crear(PerfilCuentaComponent);
+    perfil.seguridad.set({ ...SIN_2FA, cambioCorreoPendiente: 'ana@nuevo.test' });
+    perfil.cancelarCambioCorreo.mockReturnValue(of(undefined));
+    fixture.detectChanges();
+
+    expect(raiz.querySelector('[data-testid="cambio-pendiente"]')?.textContent).toContain('ana@nuevo.test');
+    boton(raiz, 'Cancelar el cambio').click();
+    fixture.detectChanges();
+    expect(perfil.cancelarCambioCorreo).toHaveBeenCalled();
+    expect(texto(raiz)).toContain('Cambio de correo cancelado');
+  });
+});
+
+describe('Perfil: privacidad', () => {
+  it('descarga los datos', () => {
+    const { raiz } = crear(PerfilPrivacidadComponent);
+    perfil.descargarDatos.mockReturnValue(of(undefined));
+
+    boton(raiz, 'Descargar mis datos').click();
+    expect(perfil.descargarDatos).toHaveBeenCalled();
+  });
+
+  it('un cliente elimina la cuenta tras escribir su usuario, y se cierra la sesión', () => {
+    const { fixture, raiz } = crear(PerfilPrivacidadComponent);
+    perfil.eliminarCuenta.mockReturnValue(of(undefined));
+    const eliminar = () => boton(raiz, 'Eliminar mi cuenta');
+
+    expect(eliminar().disabled).toBe(true);
+    escribir(raiz, '#confirmarEliminar', 'otra');
+    fixture.detectChanges();
+    expect(eliminar().disabled).toBe(true);
+    escribir(raiz, '#confirmarEliminar', 'ana');
+    fixture.detectChanges();
+    expect(eliminar().disabled).toBe(false);
+
+    eliminar().click();
+    fixture.detectChanges();
+    expect(perfil.eliminarCuenta).toHaveBeenCalled();
+    expect(mostrarToast).toHaveBeenCalled();
+    expect(logout).toHaveBeenCalled();
+  });
+
+  it('el personal no puede eliminar su cuenta desde aquí', () => {
+    const { fixture, raiz } = crear(PerfilPrivacidadComponent);
+    perfil.usuario.set({ ...ANA, roles: [{ id: 2, nombre: 'ROLE_EMPLEADO' }] });
+    fixture.detectChanges();
+
+    expect(raiz.querySelector('[data-testid="eliminar-personal"]')).not.toBeNull();
+    expect(raiz.querySelector('#confirmarEliminar')).toBeNull();
+  });
+
+  it('el archivo se llama con la fecha local', () => {
+    expect(nombreArchivoDatos(new Date(2026, 10, 3))).toBe('barhub-mis-datos-2026-11-03.json');
   });
 });

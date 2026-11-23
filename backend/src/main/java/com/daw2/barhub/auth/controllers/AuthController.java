@@ -1,6 +1,7 @@
 package com.daw2.barhub.auth.controllers;
 
 import com.daw2.barhub.auth.correo.CuentaCorreoService;
+import com.daw2.barhub.auth.correo.CorreoEnUsoException;
 import com.daw2.barhub.auth.correo.TokenCorreoInvalidoException;
 import com.daw2.barhub.auth.dosfactores.DesafioService;
 import com.daw2.barhub.auth.dosfactores.DosFactoresService;
@@ -448,6 +449,20 @@ public class AuthController {
       return ResponseEntity.ok(new MessageResponse("Correo confirmado. Ya puedes iniciar sesión."));
     } catch (TokenCorreoInvalidoException e) {
       return ResponseEntity.badRequest().body(new MessageResponse(e.getMessage()));
+    }
+  }
+
+  /** Abre el enlace enviado al correo nuevo: desde ahora la cuenta usa ese correo. */
+  @PostMapping("/confirmar-cambio-correo")
+  public ResponseEntity<?> confirmarCambioCorreo(@Valid @RequestBody TokenRequest peticion) {
+    try {
+      String nuevo = cuentaCorreoService.confirmarCambio(peticion.token());
+      return ResponseEntity.ok(Map.of("email", nuevo,
+              "message", "Listo: tu cuenta usa ahora " + nuevo + "."));
+    } catch (TokenCorreoInvalidoException e) {
+      return ResponseEntity.badRequest().body(new MessageResponse(e.getMessage()));
+    } catch (CorreoEnUsoException e) {
+      return ResponseEntity.status(HttpStatus.CONFLICT).body(new MessageResponse(e.getMessage()));
     }
   }
 
