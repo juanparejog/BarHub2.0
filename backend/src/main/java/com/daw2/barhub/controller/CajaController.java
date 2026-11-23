@@ -1,5 +1,7 @@
 package com.daw2.barhub.controller;
 
+import com.daw2.barhub.auditoria.AccionAuditoria;
+import com.daw2.barhub.auditoria.Auditar;
 import com.daw2.barhub.model.dto.AperturaCajaDto;
 import com.daw2.barhub.model.dto.CierreCajaDto;
 import com.daw2.barhub.model.dto.CajaDto;
@@ -31,6 +33,7 @@ public class CajaController {
 
     /** 409 si ya hay una caja abierta, con el motivo para mostrarlo al empleado. */
     @PostMapping("/abrir")
+    @Auditar(AccionAuditoria.CAJA_ABIERTA)
     public ResponseEntity<?> abrirCaja(@Valid @RequestBody AperturaCajaDto dto,
                                        Authentication authentication) {
         try {
@@ -42,6 +45,7 @@ public class CajaController {
 
     /** 409 si no hay ninguna caja abierta que cerrar. */
     @PutMapping("/cerrar")
+    @Auditar(AccionAuditoria.CAJA_CERRADA)
     public ResponseEntity<?> cerrarCaja(@Valid @RequestBody CierreCajaDto dto,
                                         Authentication authentication) {
         try {

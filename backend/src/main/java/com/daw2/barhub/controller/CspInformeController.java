@@ -120,7 +120,12 @@ public class CspInformeController {
     }
 
     private static String origen(String fichero, Object linea) {
-        return linea == null ? fichero : fichero + ":" + limpiar(String.valueOf(linea));
+        if (linea == null) {
+            return fichero;
+        }
+        String numero = limpiar(String.valueOf(linea));
+        // Un script inyectado no tiene fichero: el navegador solo da la linea
+        return "-".equals(fichero) ? "linea " + numero : fichero + ":" + numero;
     }
 
     private static String campo(Map<?, ?> mapa, String... nombres) {

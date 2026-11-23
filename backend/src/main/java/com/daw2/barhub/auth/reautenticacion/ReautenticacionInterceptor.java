@@ -1,5 +1,6 @@
 package com.daw2.barhub.auth.reautenticacion;
 
+import com.daw2.barhub.auditoria.Auditoria;
 import com.daw2.barhub.auth.services.UserDetailsImpl;
 import com.daw2.barhub.auth.sesion.SesionService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -59,6 +60,7 @@ public class ReautenticacionInterceptor implements HandlerInterceptor {
         String mensaje = metodoConfirmacion.equals("codigo")
                 ? "Para continuar, escribe el código de tu app de autenticación."
                 : "Para continuar, escribe tu contraseña.";
+        Auditoria.detalle("Falta confirmar la identidad (reautenticación)");
         response.setStatus(HttpStatus.FORBIDDEN.value());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding(StandardCharsets.UTF_8.name());

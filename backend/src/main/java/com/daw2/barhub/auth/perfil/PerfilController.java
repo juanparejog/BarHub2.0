@@ -1,5 +1,8 @@
 package com.daw2.barhub.auth.perfil;
 
+import com.daw2.barhub.auditoria.AccionAuditoria;
+import com.daw2.barhub.auditoria.Auditar;
+import com.daw2.barhub.auditoria.Auditoria;
 import com.daw2.barhub.auth.correo.CorreoEnUsoException;
 import com.daw2.barhub.auth.correo.CuentaCorreoService;
 import com.daw2.barhub.auth.dosfactores.DosFactoresService;
@@ -112,6 +115,7 @@ public class PerfilController {
     /** Envia el enlace al correo nuevo; la cuenta no cambia de correo hasta que se abre. */
     @PostMapping("/correo")
     @RequiereReautenticacion(paraTodos = true)
+    @Auditar(AccionAuditoria.CORREO_CAMBIO_PEDIDO)
     public ResponseEntity<?> cambiarCorreo(@AuthenticationPrincipal UserDetailsImpl yo, @Valid @RequestBody CambioCorreo cambio) {
         User usuario = usuarios.findById(yo.getId()).orElse(null);
         if (usuario == null) {
@@ -131,6 +135,7 @@ public class PerfilController {
 
     /** Anula el cambio de correo pendiente. */
     @DeleteMapping("/correo")
+    @Auditar(AccionAuditoria.CORREO_CAMBIO_CANCELADO)
     public ResponseEntity<?> cancelarCambioCorreo(@AuthenticationPrincipal UserDetailsImpl yo) {
         cuentaCorreo.cancelarCambio(yo.getId());
         return ResponseEntity.noContent().build();
@@ -141,6 +146,7 @@ public class PerfilController {
     /** Todos los datos de la cuenta en JSON, como archivo para descargar. */
     @GetMapping("/mis-datos")
     @RequiereReautenticacion(paraTodos = true)
+    @Auditar(AccionAuditoria.DATOS_DESCARGADOS)
     public ResponseEntity<Map<String, Object>> misDatos(@AuthenticationPrincipal UserDetailsImpl yo) {
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"barhub-mis-datos.json\"")
@@ -151,9 +157,12 @@ public class PerfilController {
     /** Elimina (anonimiza) la cuenta de un cliente y cierra todas sus sesiones. */
     @DeleteMapping
     @RequiereReautenticacion(paraTodos = true)
+    @Auditar(AccionAuditoria.CUENTA_ELIMINADA)
     public ResponseEntity<?> eliminarCuenta(@AuthenticationPrincipal UserDetailsImpl yo) {
         try {
             privacidad.eliminarCuenta(yo.getId());
+            // La entrada se guarda ya anonimizada, como las anteriores de esta cuenta
+            Auditoria.cuentaEliminada(yo.getId());
             return ResponseEntity.noContent().build();
         } catch (PrivacidadService.EliminacionNoPermitidaException e) {
             return ResponseEntity.badRequest().body(ErrorDto.from(e.getMessage()));
@@ -168,6 +177,7 @@ public class PerfilController {
      */
     @PutMapping("/password")
     @Transactional
+    @Auditar(AccionAuditoria.CONTRASENA_CAMBIADA)
     public ResponseEntity<?> cambiarPassword(@AuthenticationPrincipal UserDetailsImpl yo,
                                              @Valid @RequestBody CambioPassword cambio, HttpServletRequest request) {
         String ip = request.getRemoteAddr();
@@ -182,6 +192,7 @@ public class PerfilController {
             return noEncontrado();
         }
         if (!passwordEncoder.matches(cambio.actual(), usuario.getPassword())) {
+            Auditoria.detalle("Contraseña actual incorrecta");
             intentos.registrarFallo(yo.getUsername(), ip);
             return ResponseEntity.badRequest().body(ErrorDto.from("La contraseña actual no es correcta."));
         }
@@ -193,6 +204,7 @@ public class PerfilController {
         }
         intentos.registrarExito(yo.getUsername());
         usuario.setPassword(passwordEncoder.encode(cambio.nueva()));
+        Auditoria.detalle("Desde el perfil");
         usuarios.save(usuario);
         int cerradas = sesiones.cerrarOtras(yo.getId(), sesionActual(request), SesionService.MOTIVO_CAMBIO_CLAVE);
         log.info("El usuario {} ha cambiado su contraseña; {} sesiones cerradas", yo.getUsername(), cerradas);
@@ -214,6 +226,7 @@ public class PerfilController {
 
     @PostMapping("/dos-factores/activar")
     @RequiereReautenticacion(paraTodos = true)
+    @Auditar(AccionAuditoria.DOS_FACTORES_ACTIVADA)
     public ResponseEntity<?> activarDosFactores(@AuthenticationPrincipal UserDetailsImpl yo,
                                                 @Valid @RequestBody CodigoRequest peticion) {
         Optional<List<String>> codigos = dosFactores.activar(yo.getId(), peticion.codigo());
@@ -227,6 +240,7 @@ public class PerfilController {
     /** Solo si su rol no la exige (el personal no puede quitarsela). */
     @DeleteMapping("/dos-factores")
     @RequiereReautenticacion(paraTodos = true)
+    @Auditar(AccionAuditoria.DOS_FACTORES_DESACTIVADA)
     public ResponseEntity<?> desactivarDosFactores(@AuthenticationPrincipal UserDetailsImpl yo) {
         if (dosFactores.obligatorio(roles(yo))) {
             return ResponseEntity.badRequest().body(ErrorDto.from(
@@ -239,6 +253,7 @@ public class PerfilController {
 
     @PostMapping("/dos-factores/codigos")
     @RequiereReautenticacion(paraTodos = true)
+    @Auditar(AccionAuditoria.CODIGOS_RECUPERACION_NUEVOS)
     public ResponseEntity<?> regenerarCodigos(@AuthenticationPrincipal UserDetailsImpl yo) {
         return dosFactores.regenerarCodigos(yo.getId())
                 .<ResponseEntity<?>>map(codigos -> ResponseEntity.ok(Map.of("codigosRecuperacion", codigos)))
@@ -258,7 +273,10 @@ public class PerfilController {
 
     /** Cierra una de sus sesiones (si es la actual, equivale a cerrar sesion). */
     @DeleteMapping("/sesiones/{id}")
+    @Auditar(AccionAuditoria.SESIONES_CERRADAS)
     public ResponseEntity<?> cerrarSesion(@AuthenticationPrincipal UserDetailsImpl yo, @PathVariable String id) {
+        // El id de la sesion no se guarda en el registro
+        Auditoria.objetivo("Una sesión");
         return sesiones.cerrarDe(id, yo.getId())
                 ? ResponseEntity.noContent().build()
                 : ResponseEntity.status(HttpStatus.NOT_FOUND).body(ErrorDto.from("Sesión no encontrada"));
@@ -266,8 +284,10 @@ public class PerfilController {
 
     /** Cierra todas sus sesiones menos la de esta peticion. */
     @DeleteMapping("/sesiones")
+    @Auditar(AccionAuditoria.SESIONES_CERRADAS)
     public ResponseEntity<?> cerrarLasDemas(@AuthenticationPrincipal UserDetailsImpl yo, HttpServletRequest request) {
         int cerradas = sesiones.cerrarOtras(yo.getId(), sesionActual(request), SesionService.MOTIVO_USUARIO);
+        Auditoria.objetivo("Todas las demás (" + cerradas + ")");
         return ResponseEntity.ok(Map.of("sesionesCerradas", cerradas));
     }
 

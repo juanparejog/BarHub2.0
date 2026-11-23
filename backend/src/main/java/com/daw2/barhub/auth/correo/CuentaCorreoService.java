@@ -1,5 +1,6 @@
 package com.daw2.barhub.auth.correo;
 
+import com.daw2.barhub.auditoria.Auditoria;
 import com.daw2.barhub.auth.models.User;
 import com.daw2.barhub.auth.repository.UserRepository;
 import com.daw2.barhub.auth.services.LoginAttemptService;
@@ -137,6 +138,7 @@ public class CuentaCorreoService {
         }
         TokenCorreo usado = consumir(token, TipoTokenCorreo.RECUPERACION);
         User usuario = usuarios.findById(usado.getUsuarioId()).orElseThrow(TokenCorreoInvalidoException::new);
+        Auditoria.usuario(usuario.getId(), usuario.getUsername());
         usuario.setPassword(encoder.encode(nuevaClave));
         // Quien recibe el correo demuestra que el email es suyo
         usuario.setEmailVerificado(true);
@@ -221,6 +223,7 @@ public class CuentaCorreoService {
     public String confirmarCambio(String token) {
         TokenCorreo usado = consumir(token, TipoTokenCorreo.CAMBIO_CORREO);
         User usuario = usuarios.findById(usado.getUsuarioId()).orElseThrow(TokenCorreoInvalidoException::new);
+        Auditoria.usuario(usuario.getId(), usuario.getUsername());
         String nuevo = usado.getNuevoEmail();
         boolean ocupado = usuarios.findByEmailIgnoreCase(nuevo)
                 .filter(otro -> !otro.getId().equals(usuario.getId()))

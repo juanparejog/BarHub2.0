@@ -80,6 +80,8 @@ Es la segunda versión de mi TFC. Esta vez me he centrado en tres cosas: redise�
 - Gestión de mesas, pedidos y usuarios
 - Roles: `admin`, `empleado` y `cliente`
 - Métricas: ingresos, productos más vendidos y horas pico
+- Registro de jornada del personal
+- Registro de auditoría: quién hizo qué, cuándo y desde dónde
 
 </td>
 </tr>

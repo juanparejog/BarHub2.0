@@ -69,7 +69,7 @@ Las rutas se muestran como las ve el backend. Desde fuera, Caddy las publica baj
 | `GET` / `DELETE` | `/perfil/sesiones`, `/perfil/sesiones/{id}` | Sus sesiones abiertas; cerrar una o todas las demás |
 | `POST` | `/perfil/correo` | Pide cambiar el correo: envía un enlace al nuevo y un aviso al actual; la cuenta no cambia hasta abrirlo (`202`; `409` si otra cuenta lo usa, `429` si pidió otro hace menos de un minuto; reautenticación) |
 | `DELETE` | `/perfil/correo` | Cancela el cambio de correo pendiente: el enlace deja de valer |
-| `GET` | `/perfil/mis-datos` | Descarga en JSON todo lo que se guarda de la cuenta (datos, dirección, pedidos, sesiones, registro de jornada), sin contraseña ni secretos (reautenticación) |
+| `GET` | `/perfil/mis-datos` | Descarga en JSON todo lo que se guarda de la cuenta (datos, dirección, pedidos, sesiones, registro de jornada y sus últimas 100 entradas de auditoría), sin contraseña ni secretos (reautenticación) |
 | `DELETE` | `/perfil` | Elimina la cuenta de un cliente: la anonimiza, conserva sus pedidos sin datos personales y cierra sus sesiones (`400` para el personal; reautenticación) |
 | `POST` | `/auth/reautenticar` | Con sesión: confirma de nuevo la identidad (código de la app o, sin 2FA, contraseña) para las acciones críticas de los 5 minutos siguientes; `400 CODIGO_INCORRECTO` si no vale |
 | `POST` | `/auth/refresh` | Token de acceso nuevo a partir de la cookie, que se rota; `401` si la sesión está cerrada o caducada |
@@ -126,6 +126,14 @@ El turno de un empleado empieza al iniciar sesión. Termina con «Terminar turno
 | `GET` | `/turnos/actual` | Empleado o admin | Su turno en curso, o `204` si no tiene |
 | `POST` | `/turnos/terminar` | Empleado o admin | Registra la salida ahora; `409` si no hay turno abierto |
 | `GET` | `/turnos?desde=AAAA-MM-DD&hasta=AAAA-MM-DD` | Admin | Turnos del rango (por defecto, los últimos 7 días; como mucho un año) |
+
+### 3.5.2. Registro de auditoría · `/auditoria`
+
+Los endpoints que cambian algo importante llevan `@Auditar(AccionAuditoria.X)`. Al terminar la petición, `AuditoriaInterceptor` guarda quién (de la sesión, o el nombre escrito en un login), la acción, el resultado según la respuesta (`2xx` correcto, `429` bloqueado, otros `4xx` rechazado, `5xx` error), la IP, la petición y, si el endpoint los añade con `Auditoria.objetivo()` y `Auditoria.detalle()`, sobre quién se actuó y qué cambió. Va antes que la reautenticación, así que también queda la acción que esta para. Los `403` de Spring Security por rol se anotan como `ACCESO_DENEGADO` (`AccesoDenegadoAuditado`). Cada entrada se guarda en su propia transacción y un fallo al guardarla no afecta a la respuesta. Se borran pasados `app.auditoria.dias` (365).
+
+| Método | Endpoint | Quién | Descripción |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/auditoria?desde&hasta&usuario&accion&resultado&pagina&tamano` | Admin | Entradas del rango (por defecto, los últimos 7 días), de la más reciente a la más antigua, 50 por página (como mucho 100). `usuario` busca una parte del nombre sin distinguir mayúsculas |
 
 ### 3.6. Subida de imágenes (productos y perfiles)
 

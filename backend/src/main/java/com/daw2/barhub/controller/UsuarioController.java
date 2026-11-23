@@ -1,5 +1,8 @@
 package com.daw2.barhub.controller;
 
+import com.daw2.barhub.auditoria.AccionAuditoria;
+import com.daw2.barhub.auditoria.Auditar;
+import com.daw2.barhub.auditoria.Auditoria;
 import com.daw2.barhub.auth.dosfactores.DosFactoresService;
 import com.daw2.barhub.auth.reautenticacion.RequiereReautenticacion;
 import com.daw2.barhub.auth.services.UserService;
@@ -31,6 +34,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -88,6 +92,7 @@ public class UsuarioController {
     /** Alta desde el panel: datos en la parte "usuario" (JSON) y foto opcional en "file", como al editar. */
     @PreAuthorize("hasRole('ADMIN')")
     @RequiereReautenticacion
+    @Auditar(AccionAuditoria.USUARIO_CREADO)
     @PostMapping(value = "/", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
     public ResponseEntity<?> create(
             @RequestPart("usuario") UsuarioDto usuarioDto,
@@ -99,6 +104,8 @@ public class UsuarioController {
                 return ResponseEntity.badRequest().body(ErrorDto.from(error));
             }
             User usuarioGuardado = userService.crearUsuario(usuarioDto);
+            Auditoria.objetivo(objetivo(usuarioGuardado));
+            Auditoria.detalle("Roles: " + nombresRoles(usuarioGuardado));
             if (file != null && !file.isEmpty()) {
                 String nombreImagen = guardarImagenEnDisco(file, usuarioGuardado.getId());
                 subido = carpeta().resolve(nombreImagen);
@@ -130,6 +137,7 @@ public class UsuarioController {
 
     // Editar su propio perfil no la exige; editar el de otro (datos, contrasena o roles), si
     @RequiereReautenticacion(soloSobreOtroUsuario = true)
+    @Auditar(AccionAuditoria.USUARIO_EDITADO)
     @PutMapping(value = "/{id}", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
     @Transactional
     public ResponseEntity<?> update(
@@ -145,6 +153,8 @@ public class UsuarioController {
                         .body(ErrorDto.from("Usuario no encontrado"));
             }
             boolean admin = esAdmin(auth);
+            Auditoria.objetivo(objetivo(usuarioExistente));
+            String rolesAntes = nombresRoles(usuarioExistente);
 
             String error = validarPerfil(usuarioDto, admin);
             if (error == null) {
@@ -171,6 +181,15 @@ public class UsuarioController {
             }
 
             User usuarioActualizado = userService.save(usuarioExistente);
+            String rolesDespues = nombresRoles(usuarioActualizado);
+            List<String> cambios = new ArrayList<>();
+            if (hayPassword(usuarioDto)) {
+                cambios.add("contraseña cambiada");
+            }
+            if (!rolesAntes.equals(rolesDespues)) {
+                cambios.add("roles: " + rolesAntes + " -> " + rolesDespues);
+            }
+            Auditoria.detalle(cambios.isEmpty() ? "Datos del perfil" : String.join("; ", cambios));
 
             // Con la contrasena cambiada, las sesiones abiertas con la anterior se cierran: todas si
             // el administrador se la cambia a otro; si la cambia el propio usuario, menos esta
@@ -196,10 +215,14 @@ public class UsuarioController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @RequiereReautenticacion
+    @Auditar(AccionAuditoria.USUARIO_BORRADO)
     @DeleteMapping("{id}")
     public ResponseEntity<?> deleteUsuario(@PathVariable Long id) {
         try {
             User usuario = userService.findById(id);
+            if (usuario != null) {
+                Auditoria.objetivo(objetivo(usuario));
+            }
             String imagen = usuario != null ? usuario.getImagen() : null;
             userService.delete(id);
             borrarImagen(imagen);
@@ -218,12 +241,14 @@ public class UsuarioController {
      */
     @PreAuthorize("hasRole('ADMIN')")
     @RequiereReautenticacion
+    @Auditar(AccionAuditoria.DOS_FACTORES_RESTABLECIDA)
     @DeleteMapping("{id}/dos-factores")
     public ResponseEntity<?> restablecerDosFactores(@PathVariable Long id, Authentication auth) {
         User usuario = userService.findById(id);
         if (usuario == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ErrorDto.from("Usuario no encontrado"));
         }
+        Auditoria.objetivo(objetivo(usuario));
         if (usuario.getUsername().equals(auth.getName())) {
             return ResponseEntity.badRequest()
                     .body(ErrorDto.from("Tu propia verificación en dos pasos no se puede quitar desde aquí."));
@@ -235,6 +260,18 @@ public class UsuarioController {
     }
 
     // ---------- auxiliares ----------
+
+    /** Como aparece el usuario afectado en el registro de auditoria. */
+    private static String objetivo(User usuario) {
+        return usuario == null ? null : "usuario " + usuario.getId() + " (" + usuario.getUsername() + ")";
+    }
+
+    private static String nombresRoles(User usuario) {
+        return usuario == null || usuario.getRoles() == null ? "" : usuario.getRoles().stream()
+                .map(r -> r.getName() == null ? "?" : r.getName().name().replace("ROLE_", ""))
+                .sorted()
+                .collect(Collectors.joining(", "));
+    }
 
     private boolean esAdmin(Authentication auth) {
         return auth.getAuthorities().stream()

@@ -66,6 +66,9 @@ app:
   url-publica: ${APP_URL_PUBLICA:http://localhost}
   correo:
     remitente: ${APP_CORREO_REMITENTE:BarHub <no-responder@barhub.local>}
+  # Registro de auditoria (Admin > Auditoria): las entradas se borran pasado este tiempo
+  auditoria:
+    dias: ${APP_AUDITORIA_DIAS:365}
   # Verificacion en dos pasos con una app de autenticacion (TOTP)
   dos-factores:
     # Roles que no pueden entrar sin ella; para el resto es opcional

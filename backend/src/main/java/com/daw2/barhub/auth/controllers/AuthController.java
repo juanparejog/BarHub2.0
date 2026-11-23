@@ -1,5 +1,8 @@
 package com.daw2.barhub.auth.controllers;
 
+import com.daw2.barhub.auditoria.AccionAuditoria;
+import com.daw2.barhub.auditoria.Auditar;
+import com.daw2.barhub.auditoria.Auditoria;
 import com.daw2.barhub.auth.correo.CuentaCorreoService;
 import com.daw2.barhub.auth.correo.CorreoEnUsoException;
 import com.daw2.barhub.auth.correo.TokenCorreoInvalidoException;
@@ -138,9 +141,12 @@ public class AuthController {
   }
 
   @PostMapping("/login")
+  @Auditar(AccionAuditoria.INICIO_SESION)
   public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest, HttpServletRequest request) {
 
     String usuario = loginRequest.getUsername();
+    // Para el registro de auditoria: el nombre escrito, exista o no la cuenta
+    Auditoria.usuario(null, usuario);
     String ip = ipCliente(request);
     long espera = loginAttemptService.segundosRestantes(usuario, ip);
     if (espera > 0) {
@@ -163,6 +169,8 @@ public class AuthController {
             .map(cuenta -> !cuenta.correoVerificado())
             .orElse(false);
     if (sinConfirmar) {
+      Auditoria.usuario(userDetails.getId(), usuario);
+      Auditoria.detalle("Correo sin confirmar");
       loginAttemptService.registrarExito(usuario);
       return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ErrorDto(CODIGO_CORREO_SIN_CONFIRMAR,
               "Confirma tu correo antes de iniciar sesión: te enviamos un enlace al registrarte."));
@@ -175,6 +183,9 @@ public class AuthController {
       DesafioService.Proposito proposito = conDosFactores
               ? DesafioService.Proposito.VERIFICAR : DesafioService.Proposito.CONFIGURAR;
       String desafio = desafios.crear(userDetails.getId(), usuario, proposito);
+      Auditoria.usuario(userDetails.getId(), usuario);
+      Auditoria.detalle(conDosFactores ? "Contraseña correcta; falta el segundo paso"
+              : "Contraseña correcta; falta configurar la verificación en dos pasos");
       return ResponseEntity.ok(new DesafioResponse(true, !conDosFactores, desafio, DesafioService.DURACION.toSeconds()));
     }
 
@@ -184,11 +195,14 @@ public class AuthController {
 
   /** Segundo paso con el codigo de la app de autenticacion o un codigo de recuperacion. */
   @PostMapping("/2fa/verificar")
+  @Auditar(AccionAuditoria.SEGUNDO_PASO)
   public ResponseEntity<?> verificarDosFactores(@Valid @RequestBody CodigoRequest peticion, HttpServletRequest request) {
     DesafioService.Desafio desafio = desafios.consultar(peticion.desafio(), DesafioService.Proposito.VERIFICAR).orElse(null);
     if (desafio == null) {
+      Auditoria.detalle("Desafío caducado o inventado");
       return desafioCaducado();
     }
+    Auditoria.usuario(desafio.usuarioId(), desafio.usuario());
     String ip = ipCliente(request);
     long espera = loginAttemptService.segundosRestantes(desafio.usuario(), ip);
     if (espera > 0) {
@@ -205,6 +219,7 @@ public class AuthController {
     ResponseEntity<?> respuesta = completarLogin(desafio.usuarioId(), request);
     if (verificacion.conCodigoRecuperacion() && respuesta.getBody() instanceof JwtResponse sesion) {
       sesion.setCodigosRecuperacionRestantes(verificacion.codigosRestantes());
+      Auditoria.detalle("Con un código de recuperación (quedan " + verificacion.codigosRestantes() + ")");
     }
     return respuesta;
   }
@@ -223,11 +238,15 @@ public class AuthController {
 
   /** Activa la configuracion con el primer codigo de la app y termina el login con los codigos de recuperacion. */
   @PostMapping("/2fa/activar")
+  @Auditar(AccionAuditoria.DOS_FACTORES_ACTIVADA)
   public ResponseEntity<?> activarDosFactores(@Valid @RequestBody CodigoRequest peticion, HttpServletRequest request) {
     DesafioService.Desafio desafio = desafios.consultar(peticion.desafio(), DesafioService.Proposito.CONFIGURAR).orElse(null);
     if (desafio == null) {
+      Auditoria.detalle("Desafío caducado o inventado");
       return desafioCaducado();
     }
+    Auditoria.usuario(desafio.usuarioId(), desafio.usuario());
+    Auditoria.detalle("Configurada al iniciar sesión");
     String ip = ipCliente(request);
     long espera = loginAttemptService.segundosRestantes(desafio.usuario(), ip);
     if (espera > 0) {
@@ -255,6 +274,7 @@ public class AuthController {
    * Un codigo incorrecto responde 400 (no 401): la sesion sigue siendo valida.
    */
   @PostMapping("/reautenticar")
+  @Auditar(AccionAuditoria.REAUTENTICACION)
   public ResponseEntity<?> reautenticar(@Valid @RequestBody ReautenticacionRequest peticion,
                                         HttpServletRequest request, Authentication autenticacion) {
     String sesion = (String) request.getAttribute(SesionService.ATRIBUTO_SESION);
@@ -289,6 +309,7 @@ public class AuthController {
 
   /** Abre la sesion: turno del empleado, sesion en el servidor, token de acceso y cookie de renovacion. */
   private ResponseEntity<?> completarLogin(UserDetailsImpl userDetails, HttpServletRequest request) {
+    Auditoria.usuario(userDetails.getId(), userDetails.getUsername());
     // El turno va antes que la sesion nueva: asi un turno viejo sin sesiones abiertas se cierra primero
     turnoService.abrirSiCorresponde(userDetails.getId(), userDetails.getUsername(), roles(userDetails));
     SesionService.NuevaSesion nueva = sesionService.abrir(userDetails.getId(), roles(userDetails),
@@ -357,6 +378,7 @@ public class AuthController {
 
   /** Cierra la sesion en el servidor: dejan de valer su token de renovacion y sus tokens de acceso. */
   @PostMapping("/logout")
+  @Auditar(AccionAuditoria.CIERRE_SESION)
   public ResponseEntity<Void> cerrarSesion(HttpServletRequest request) {
     sesionService.cerrar(leerCookie(request));
     return ResponseEntity.noContent()
@@ -412,7 +434,9 @@ public class AuthController {
   }
 
         @PostMapping("/signup")
+        @Auditar(AccionAuditoria.REGISTRO)
         public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
+          Auditoria.usuario(null, signUpRequest.getUsername());
           if (userRepository.existsByUsername(signUpRequest.getUsername())) {
             return ResponseEntity.badRequest()
                 .body(new MessageResponse("Error: ¡El nombre de usuario ya está en uso!"));
@@ -436,6 +460,7 @@ public class AuthController {
 
           user.setEmailVerificado(false);
           userRepository.save(user);
+          Auditoria.usuario(user.getId(), user.getUsername());
           cuentaCorreoService.enviarConfirmacion(user);
           return ResponseEntity.ok(new MessageResponse(
                   "Te hemos enviado un correo para confirmar tu cuenta. Ábrelo para poder iniciar sesión."));
@@ -454,6 +479,7 @@ public class AuthController {
 
   /** Abre el enlace enviado al correo nuevo: desde ahora la cuenta usa ese correo. */
   @PostMapping("/confirmar-cambio-correo")
+  @Auditar(AccionAuditoria.CORREO_CAMBIADO)
   public ResponseEntity<?> confirmarCambioCorreo(@Valid @RequestBody TokenRequest peticion) {
     try {
       String nuevo = cuentaCorreoService.confirmarCambio(peticion.token());
@@ -484,6 +510,7 @@ public class AuthController {
 
   /** Nueva contrasena con el enlace del correo; cierra todas las sesiones abiertas de la cuenta. */
   @PostMapping("/restablecer")
+  @Auditar(AccionAuditoria.CONTRASENA_RESTABLECIDA)
   public ResponseEntity<MessageResponse> restablecer(@Valid @RequestBody RestablecerRequest peticion) {
     try {
       cuentaCorreoService.restablecer(peticion.token(), peticion.password());

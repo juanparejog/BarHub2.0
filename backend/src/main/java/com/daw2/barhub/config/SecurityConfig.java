@@ -1,5 +1,6 @@
 package com.daw2.barhub.config;
 
+import com.daw2.barhub.auditoria.AccesoDenegadoAuditado;
 import com.daw2.barhub.auth.jwt.AuthEntryPointJwt;
 import com.daw2.barhub.auth.jwt.AuthTokenFilter;
 import org.springframework.context.annotation.Bean;
@@ -56,11 +57,12 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http, AccesoDenegadoAuditado accesoDenegado) throws Exception {
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(AbstractHttpConfigurer::disable)
-                .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
+                .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler)
+                        .accessDeniedHandler(accesoDenegado))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
@@ -93,6 +95,7 @@ public class SecurityConfig {
                         .requestMatchers("/turnos/actual", "/turnos/terminar").hasAnyRole(ROL_EMPLEADO, ROL_ADMIN)
 
                         // --- ADMINS ---
+                        .requestMatchers("/auditoria/**").hasRole(ROL_ADMIN)
                         .requestMatchers("/productos/**", "/mesas/**").hasRole(ROL_ADMIN) 
                         .requestMatchers("/usuarios/**", "/roles/**").hasRole(ROL_ADMIN)
 

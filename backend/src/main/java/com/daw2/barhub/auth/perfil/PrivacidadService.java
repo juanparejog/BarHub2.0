@@ -1,5 +1,7 @@
 package com.daw2.barhub.auth.perfil;
 
+import com.daw2.barhub.auditoria.AuditoriaService;
+import com.daw2.barhub.auditoria.EventoAuditoria;
 import com.daw2.barhub.auth.correo.CorreoService;
 import com.daw2.barhub.auth.correo.TokenCorreoRepository;
 import com.daw2.barhub.auth.dosfactores.DosFactoresService;
@@ -65,11 +67,13 @@ public class PrivacidadService {
     private final PasswordEncoder encoder;
     private final Clock reloj;
     private final String carpetaFotos;
+    private final AuditoriaService auditoria;
 
     public PrivacidadService(UserRepository usuarios, PedidoRepository pedidos, TurnoRepository turnos,
                              SesionRepository sesionesGuardadas, SesionService sesiones, DosFactoresService dosFactores,
                              TokenCorreoRepository tokens, CorreoService correo, PasswordEncoder encoder, Clock reloj,
-                             @Value("${app.upload.usuarios:../frontend/src/assets/images/usuarios/}") String carpetaFotos) {
+                             @Value("${app.upload.usuarios:../frontend/src/assets/images/usuarios/}") String carpetaFotos,
+                             AuditoriaService auditoria) {
         this.usuarios = usuarios;
         this.pedidos = pedidos;
         this.turnos = turnos;
@@ -81,6 +85,7 @@ public class PrivacidadService {
         this.encoder = encoder;
         this.reloj = reloj;
         this.carpetaFotos = carpetaFotos;
+        this.auditoria = auditoria;
     }
 
     /** No se puede eliminar la cuenta (personal o ya eliminada). */
@@ -137,6 +142,8 @@ public class PrivacidadService {
                 .distinct().map(PrivacidadService::pedido).toList());
         datos.put("registroDeJornada", turnos.findByUsuarioIdOrderByEntradaDesc(usuarioId).stream()
                 .map(PrivacidadService::turno).toList());
+        datos.put("registroDeSeguridad", auditoria.ultimasDe(usuarioId).stream()
+                .map(PrivacidadService::eventoAuditoria).toList());
         return datos;
     }
 
@@ -182,6 +189,16 @@ public class PrivacidadService {
         return m;
     }
 
+    private static Map<String, Object> eventoAuditoria(EventoAuditoria e) {
+        Map<String, Object> m = new LinkedHashMap<>();
+        m.put("fecha", texto(e.getFecha()));
+        m.put("accion", e.getAccion().name());
+        m.put("resultado", e.getResultado().name());
+        m.put("ip", e.getIp());
+        m.put("detalle", e.getDetalle());
+        return m;
+    }
+
     private static String texto(Instant instante) {
         return instante == null ? null : instante.toString();
     }
@@ -207,6 +224,7 @@ public class PrivacidadService {
         }
         Instant ahora = reloj.instant();
         String correoAnterior = u.getEmail();
+        String usuarioAnterior = u.getUsername();
         String nombre = u.getNombre() != null && !u.getNombre().isBlank() ? u.getNombre() : u.getUsername();
         String foto = u.getImagen();
 
@@ -248,6 +266,8 @@ public class PrivacidadService {
                     s.setAgente(null);
                 });
         sesiones.cerrarTodas(usuarioId, MOTIVO_CUENTA_ELIMINADA);
+        // El registro de auditoria se queda (seguridad del sistema), pero sin su nombre ni sus IP
+        auditoria.anonimizar(usuarioId, usuarioAnterior);
         borrarFoto(foto);
 
         if (correoAnterior != null && !correoAnterior.isBlank()) {

@@ -141,6 +141,8 @@ sequenceDiagram
 | `mesas` | `gestionar-mesas`, `editar-mesas`, `ver-mesa` | Distribución y estado de mesas |
 | `usuarios` | `gestionar-usuarios`, `editar-usuarios`, `ver-usuario` | Cuentas, roles y permisos |
 | `metricas` | — | Estadísticas y rendimiento del negocio |
+| `registro-jornada` | — | Entradas, salidas y horas del personal |
+| `auditoria` | — | Registro de auditoría con filtros por fechas, usuario, acción y resultado, paginado (`AuditoriaService`) |
 
 ## 6. Componentes compartidos
 

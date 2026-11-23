@@ -75,6 +75,14 @@ class CspInformeControllerTest {
     }
 
     @Test
+    void unScriptInyectadoNoTieneFicheroYSoloSeDaLaLinea() {
+        List<CspInformeController.Infraccion> infracciones = controlador.leer(
+                "{\"csp-report\": {\"violated-directive\": \"script-src-elem\", \"blocked-uri\": \"inline\", \"line-number\": 4}}");
+
+        assertEquals("linea 4", infracciones.get(0).origen());
+    }
+
+    @Test
     void unCuerpoQueNoEsUnAvisoNoDaNada() {
         assertTrue(controlador.leer("esto no es json").isEmpty());
         assertTrue(controlador.leer("{\"otra\": 1}").isEmpty());

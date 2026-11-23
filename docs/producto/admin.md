@@ -1,6 +1,6 @@
 # Guía de uso del administrador
 
-Esta guía describe las funciones exclusivas del rol de administrador. Además de todas las vistas del cliente y del empleado, el administrador dispone del menú **Admin**, que se divide en dos paneles: **Panel de Gestión** y **Métricas**.
+Esta guía describe las funciones exclusivas del rol de administrador. Además de todas las vistas del cliente y del empleado, el administrador dispone del menú **Admin**, con el **Panel de Gestión**, las **Métricas**, el **Registro de jornada** y la **Auditoría**.
 
 ## Índice
 
@@ -9,6 +9,7 @@ Esta guía describe las funciones exclusivas del rol de administrador. Además d
 3. [Gestión de productos](#3-gestión-de-productos)
 4. [Gestión de pedidos, usuarios, mesas y detalles](#4-gestión-de-pedidos-usuarios-mesas-y-detalles)
 5. [Métricas](#5-métricas)
+6. [Auditoría](#6-auditoría)
 
 ---
 
@@ -25,6 +26,8 @@ El menú **Admin** aparece en la barra de navegación únicamente para los usuar
 | :--- | :--- |
 | **Panel de Gestión** | Consulta y mantenimiento de los datos de la base de datos mediante tablas |
 | **Métricas** | Estadísticas de negocio por periodo |
+| **Registro de jornada** | Entradas, salidas y horas del personal |
+| **Auditoría** | Quién hizo qué en la aplicación, cuándo y desde dónde |
 
 > En una instalación nueva con datos de demostración (`APP_SEED_DEMO=true`), el usuario `admin` se crea con la contraseña definida en `APP_SEED_ADMIN_PASSWORD`. Esa contraseña no está en el repositorio.
 
@@ -189,3 +192,18 @@ Gráfico circular que muestra la distribución de los pedidos entre **A domicili
 <p align="center"><em>Distribución de los pedidos por modalidad.</em></p>
 
 La pestaña **Todas las métricas** reúne los tres bloques anteriores en una única vista.
+
+## 6. Auditoría
+
+**Admin → Auditoría** (`/admin/auditoria`) muestra el registro de lo que pasa en la cuenta de cada usuario y en la gestión: sirve para investigar un problema («¿quién cambió los roles de este empleado?», «¿alguien está probando contraseñas?») y para demostrar lo que ocurrió. Las entradas no se pueden modificar ni borrar desde la aplicación y se borran solas al año.
+
+| Columna | Contenido |
+| :--- | :--- |
+| **Fecha** | Día y hora, con segundos |
+| **Usuario** | Quien hizo la acción. En un inicio de sesión fallido, el nombre que se escribió, exista o no la cuenta. En una cuenta eliminada, `eliminado-<número>` |
+| **Acción** | Inicio de sesión y su segundo paso, cierre de sesión, confirmación de identidad, registro, cambios de contraseña y de correo, verificación en dos pasos, sesiones cerradas, datos descargados, cuenta eliminada, usuarios creados, editados y borrados, apertura y cierre de caja, y **acceso denegado** (alguien con sesión intentó algo que su rol no permite) |
+| **Resultado** | **Correcto**, **Rechazado** (contraseña o código incorrectos, sin permiso, datos no válidos, falta confirmar la identidad), **Bloqueado** (demasiados intentos) o **Error** |
+| **IP** | Desde dónde se hizo |
+| **Detalle** | Sobre quién se actuó (por ejemplo, `usuario 12 (ana)`), qué cambió (por ejemplo, `roles: CLIENTE -> EMPLEADO`) y la petición (`PUT /usuarios/12`). Nunca contraseñas, códigos ni enlaces |
+
+Por defecto se ven los últimos 7 días. Se puede filtrar por fechas, por usuario (basta con una parte del nombre), por acción y por resultado; hay 50 entradas por página.

@@ -1,0 +1,115 @@
+<div class="crud-container">
+  <div class="crud-header mb-4">
+    <h1 class="crud-title">Auditoría</h1>
+    <p class="text-muted mb-0">
+      Quién hizo qué, cuándo y desde dónde: inicios de sesión, cambios de contraseña y de correo, verificación
+      en dos pasos, usuarios, caja y accesos denegados. Las entradas no se pueden cambiar y se borran solas al año.
+    </p>
+  </div>
+
+  <form class="row g-3 align-items-end mb-4" (ngSubmit)="buscar()" aria-label="Filtros del registro de auditoría">
+    <div class="col-6 col-md-2">
+      <label for="auditoriaDesde" class="form-label">Desde</label>
+      <input id="auditoriaDesde" type="date" class="form-control" name="desde" [(ngModel)]="filtro.desde" required>
+    </div>
+    <div class="col-6 col-md-2">
+      <label for="auditoriaHasta" class="form-label">Hasta</label>
+      <input id="auditoriaHasta" type="date" class="form-control" name="hasta" [(ngModel)]="filtro.hasta" required>
+    </div>
+    <div class="col-12 col-md-2">
+      <label for="auditoriaUsuario" class="form-label">Usuario</label>
+      <input id="auditoriaUsuario" type="search" class="form-control" name="usuario" [(ngModel)]="filtro.usuario"
+        maxlength="50" autocomplete="off" placeholder="Nombre o parte">
+    </div>
+    <div class="col-12 col-md-3">
+      <label for="auditoriaAccion" class="form-label">Acción</label>
+      <select id="auditoriaAccion" class="form-select" name="accion" [(ngModel)]="filtro.accion">
+        <option value="">Todas</option>
+        @for (accion of acciones; track accion[0]) {
+          <option [value]="accion[0]">{{ accion[1] }}</option>
+        }
+      </select>
+    </div>
+    <div class="col-8 col-md-2">
+      <label for="auditoriaResultado" class="form-label">Resultado</label>
+      <select id="auditoriaResultado" class="form-select" name="resultado" [(ngModel)]="filtro.resultado">
+        <option value="">Todos</option>
+        @for (resultado of resultados; track resultado[0]) {
+          <option [value]="resultado[0]">{{ resultado[1] }}</option>
+        }
+      </select>
+    </div>
+    <div class="col-4 col-md-1">
+      <button type="submit" class="btn-crud-primary w-100" [disabled]="cargando()">Buscar</button>
+    </div>
+  </form>
+
+  @if (error()) {
+    <div class="alert alert-danger" role="alert">{{ error() }}</div>
+  }
+
+  <p class="text-muted small mb-2" role="status">
+    {{ total() }} {{ total() === 1 ? 'entrada' : 'entradas' }}
+  </p>
+
+  <div class="crud-card">
+    <div class="table-responsive">
+      <table class="crud-table mb-0">
+        <thead>
+          <tr>
+            <th scope="col" class="ps-4">Fecha</th>
+            <th scope="col">Usuario</th>
+            <th scope="col">Acción</th>
+            <th scope="col">Resultado</th>
+            <th scope="col">IP</th>
+            <th scope="col">Detalle</th>
+          </tr>
+        </thead>
+        @if (eventos().length > 0) {
+          <tbody>
+            @for (evento of eventos(); track $index) {
+              <tr>
+                <td class="ps-4 text-nowrap">{{ fechaHora(evento.fecha) }}</td>
+                <td class="fw-semibold text-break">{{ evento.usuario ?? '—' }}</td>
+                <td>{{ nombreAccion(evento.accion) }}</td>
+                <td><span class="badge {{ claseResultado(evento.resultado) }}">{{ nombreResultado(evento.resultado) }}</span></td>
+                <td class="text-nowrap">{{ evento.ip ?? '—' }}</td>
+                <td class="small">
+                  @if (evento.objetivo) {
+                    <span class="d-block">{{ evento.objetivo }}</span>
+                  }
+                  @if (evento.detalle) {
+                    <span class="d-block">{{ evento.detalle }}</span>
+                  }
+                  @if (evento.peticion) {
+                    <code class="d-block text-muted">{{ evento.peticion }}</code>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        } @else {
+          <tbody>
+            <tr>
+              <td colspan="6" class="text-center py-5 text-muted">
+                {{ cargando() ? 'Cargando…' : 'No hay entradas con estos filtros.' }}
+              </td>
+            </tr>
+          </tbody>
+        }
+      </table>
+    </div>
+  </div>
+
+  @if (paginas() > 1) {
+    <nav class="d-flex justify-content-center align-items-center gap-3 mt-3" aria-label="Páginas del registro">
+      <button type="button" class="btn-crud-secondary" [disabled]="cargando() || pagina() === 0" (click)="irA(pagina() - 1)">
+        <i class="bi bi-chevron-left" aria-hidden="true"></i> Anterior
+      </button>
+      <span>Página {{ pagina() + 1 }} de {{ paginas() }}</span>
+      <button type="button" class="btn-crud-secondary" [disabled]="cargando() || pagina() >= paginas() - 1" (click)="irA(pagina() + 1)">
+        Siguiente <i class="bi bi-chevron-right" aria-hidden="true"></i>
+      </button>
+    </nav>
+  }
+</div>
