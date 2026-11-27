@@ -56,7 +56,7 @@ Es la segunda versión de mi TFC. Esta vez me he centrado en tres cosas: redise�
 
 - Carta digital interactiva por QR
 - Pedido en mesa, a recoger o a domicilio
-- Seguimiento del pedido con actualización automática cada 5 s
+- Seguimiento del pedido en tiempo real
 - Pago en efectivo y con tarjeta (Stripe en modo demostración, sin cargos reales)
 - Registro de usuarios y perfil por pestañas: datos personales, dirección de entrega, cuenta y correo (cambio de correo con enlace de confirmación), seguridad (contraseña, verificación en dos pasos y sesiones abiertas) y privacidad (descargar mis datos y eliminar la cuenta)
 - Historial de pedidos
@@ -66,7 +66,8 @@ Es la segunda versión de mi TFC. Esta vez me he centrado en tres cosas: redise�
 
 #### Personal y sala
 
-- Comandas y estado de mesas con actualización automática
+- Comandas, estado de mesas y pagos en tiempo real, con aviso sonoro opcional
+- Comanda impresa en formato ticket (impresora térmica de 80 mm) con los alérgenos
 - Confirmación de pagos en efectivo en barra y en mesa
 - Apertura y cierre de caja con arqueo
 - Control de descuadres por turno
@@ -97,7 +98,8 @@ flowchart LR
     S["Personal / Admin"] -->|HTTPS| P
     P --> F["Angular<br/>frontend"]
     P --> B["Spring Boot<br/>API REST + JWT"]
-    F -->|REST + sondeo cada 5 s| B
+    F -->|REST| B
+    B -.->|avisos en tiempo real SSE| F
     B --> D[("MariaDB")]
     B -->|pagos| T["Stripe"]
 ```

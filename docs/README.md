@@ -46,7 +46,8 @@ flowchart LR
     DB[(MariaDB)]
 
     C & E & A --> F
-    F -- "HTTP/REST (sondeo cada 5 s)" --> API
+    F -- "HTTP/REST" --> API
+    API -. "avisos en tiempo real (SSE)" .-> F
     API --> DB
 ```
 
@@ -69,7 +70,7 @@ flowchart LR
 | Frontend | Angular 22 · TypeScript 6 · build con esbuild · tests con Vitest |
 | Backend | Java 21 · Spring Boot 4.2 · Gradle · JWT (`jjwt 0.13.0`) |
 | Base de datos | MariaDB |
-| Actualización de datos | Sondeo REST cada 5 s |
+| Actualización de datos | Avisos en tiempo real (Server-Sent Events); sin conexión, sondeo REST cada 5 s |
 | Contenedores | Docker multi-etapa (Node.js + Caddy) |
 | CI/CD | GitHub Actions · SonarCloud · Docker Hub |
 | Auditoría | Snyk · SonarQube · Trivy |

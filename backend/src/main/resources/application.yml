@@ -66,6 +66,11 @@ app:
   url-publica: ${APP_URL_PUBLICA:http://localhost}
   correo:
     remitente: ${APP_CORREO_REMITENTE:BarHub <no-responder@barhub.local>}
+  # Avisos en tiempo real (Server-Sent Events): cada conexion dura como mucho esto y luego el
+  # navegador se vuelve a conectar con su token del momento
+  tiempo-real:
+    duracion: 5m
+    maximo-conexiones: 500
   # Registro de auditoria (Admin > Auditoria): las entradas se borran pasado este tiempo
   auditoria:
     dias: ${APP_AUDITORIA_DIAS:365}

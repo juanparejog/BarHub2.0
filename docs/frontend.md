@@ -155,15 +155,21 @@ sequenceDiagram
 
 ## 7. Actualización de datos en el cliente
 
-No se usa Socket.IO ni WebSocket. Las pantallas con estado cambiante (seguimiento del pedido del cliente y vistas del personal) consultan la API cada 5 segundos. Las escrituras se hacen siempre por REST.
+Las comandas, las mesas, los pagos en efectivo y el seguimiento del cliente se actualizan con los avisos del servidor (Server-Sent Events, ver [backend.md](backend.md#6-actualización-de-datos)). `TiempoRealService.recargas(canal)` devuelve un `Observable` que emite cuando hay que volver a pedir los datos; cada pantalla lo combina con su petición de siempre (`switchMap`). Las escrituras se hacen siempre por REST.
 
 | Aspecto | Detalle |
 | :--- | :--- |
-| Frecuencia | Cada 5 s |
-| Patrón | Carga inicial y refresco periódico |
-| Buenas prácticas | Cancelar la suscripción al destruir el componente (`ngOnDestroy`) para no acumular peticiones |
-| Seguimiento del cliente | Solo con sesión iniciada |
-| Alternativa futura | SSE o WebSocket, ver [backend.md](backend.md#6-actualización-de-datos) |
+| Conexión | `fetch` leyendo el cuerpo como flujo, y no `EventSource`, que no deja enviar la cabecera `Authorization`: así el token no va en la URL ni en los logs |
+| Canales | `personal` (comandas, mesas y pagos) y `mis-pedidos` (seguimiento del cliente) |
+| Cuándo recarga | Al entrar, con cada aviso de `pedido` o `mesa` (los que llegan juntos en 250 ms se agrupan), al reconectar y, por si se perdiera alguno, cada 60 s |
+| Sin conexión | Se reconecta sola esperando 1, 2, 4… hasta 30 s y, mientras tanto, recarga cada 5 s como antes. Un token caducado se renueva en la siguiente recarga, que va por `HttpClient` y su interceptor |
+| Listas | `@for` con `track` por id: una recarga no vuelve a pintar las tarjetas ni cierra lo que estaba abierto |
+| Buenas prácticas | La suscripción se cancela al salir de la pantalla (`takeUntil` en `ngOnDestroy`), lo que cierra la conexión |
+
+### Comandas: aviso sonoro e impresión
+
+- **Aviso sonoro** (`AvisoSonoroService`): dos pitidos cortos generados con Web Audio, sin ficheros de sonido, cuando entra una comanda nueva. Lo activa cada persona con el botón de la cabecera y se recuerda en el navegador (`barhub.avisoSonoroComandas`). Los navegadores solo dejan sonar después de un clic en la página, por eso al activarlo suena una vez de prueba.
+- **Imprimir comanda**: cada tarjeta tiene un botón que pinta la comanda en `.ticket-comanda` y llama a `window.print()`. Mientras se imprime, el `body` lleva `imprimiendo-comanda` y `styles.css` oculta todo lo demás (`@media print` con `:has()`) y deja el ticket a 72 mm, el ancho que imprime una térmica de 80 mm, en letra monoespaciada, negro sobre blanco. Lleva número de pedido, modalidad y ubicación, hora del pedido y de impresión, productos con cantidad, notas y alérgenos por nombre («sin indicar, consultar» si el producto no los tiene indicados). Al terminar (`afterprint`) todo vuelve a su estado. En la impresora, elegir el tamaño de papel de 80 mm y márgenes mínimos.
 
 ## 8. Estilos, temas y accesibilidad
 

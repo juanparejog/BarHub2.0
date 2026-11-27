@@ -1,5 +1,8 @@
-import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
+import { EMPTY, Subject } from 'rxjs';
+import { catchError, switchMap, takeUntil } from 'rxjs/operators';
 import { PedidoService } from '../services/pedido';
+import { TiempoRealService } from '../../services/tiempo-real.service';
 import { Pedido } from '../../public/interface/pedido';
 
 @Component({
@@ -9,7 +12,7 @@ import { Pedido } from '../../public/interface/pedido';
     changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
-export class GestionarPagosEfectivoComponent implements OnInit {
+export class GestionarPagosEfectivoComponent implements OnInit, OnDestroy {
   pedidosPendientes: Pedido[] = [];
   cargando: boolean = false;
   
@@ -17,21 +20,47 @@ export class GestionarPagosEfectivoComponent implements OnInit {
   montoEntregado: number = 0;
   cambioDevolver: number = 0;
 
-  constructor(private readonly pedidoService: PedidoService) {}
+  private readonly destroy$ = new Subject<void>();
 
+  constructor(
+    private readonly pedidoService: PedidoService,
+    private readonly tiempoReal: TiempoRealService
+  ) {}
+
+  /** Se recarga cuando entra o cambia un pedido (aviso del servidor) y, sin conexión, cada 5 s. */
   ngOnInit(): void {
-    this.cargarPedidosPendientesDePago();
+    this.cargando = true;
+    this.tiempoReal.recargas('personal').pipe(
+      switchMap(() => this.pedidoService.getPendientesEfectivo().pipe(catchError(err => {
+        console.error('Error al cargar pedidos pendientes de pago:', err);
+        this.cargando = false;
+        return EMPTY;
+      }))),
+      takeUntil(this.destroy$)
+    ).subscribe(pedidos => this.ponerPendientes(pedidos));
   }
 
-  
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  /**
+   * Pone la lista nueva. Si el pedido que se estaba cobrando ya no está (lo ha cobrado otra persona),
+   * se quita la selección para no cobrarlo dos veces.
+   */
+  private ponerPendientes(pedidos: Pedido[] | null): void {
+    this.pedidosPendientes = pedidos || [];
+    this.cargando = false;
+    const seleccionado = this.pedidoSeleccionado;
+    if (seleccionado) {
+      this.pedidoSeleccionado = this.pedidosPendientes.find(p => p.id === seleccionado.id) ?? null;
+    }
+  }
+
   cargarPedidosPendientesDePago(): void {
-    this.cargando = true;
-    
     this.pedidoService.getPendientesEfectivo().subscribe({
-      next: (pedidos) => {
-        this.pedidosPendientes = pedidos || [];
-        this.cargando = false;
-      },
+      next: (pedidos) => this.ponerPendientes(pedidos),
       error: (err) => {
         console.error('Error al cargar pedidos pendientes de pago:', err);
         this.cargando = false;

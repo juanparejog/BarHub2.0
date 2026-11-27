@@ -1,5 +1,6 @@
 package com.daw2.barhub.model.entity;
 
+import com.daw2.barhub.tiemporeal.AvisoDeCambios;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
@@ -14,6 +15,7 @@ import java.math.BigDecimal;
 @Setter
 @Data
 @Entity
+@EntityListeners(AvisoDeCambios.class)
 @Table(name="detalles_pedidos")
 public class DetallePedido {
     @Id

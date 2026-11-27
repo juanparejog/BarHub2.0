@@ -347,7 +347,7 @@ El fichero real es [`infra/caddy/Caddyfile`](../infra/caddy/Caddyfile) y es la r
 
 | Ruta | Destino |
 | :--- | :--- |
-| `/api/*` | `backend:8080`, quitando el prefijo `/api` antes de reenviar |
+| `/api/*` | `backend:8080`, quitando el prefijo `/api` antes de reenviar. Los avisos en tiempo real (`/api/eventos/*`, `text/event-stream`) pasan al momento y sin comprimir |
 | Imágenes subidas | Ruta propia definida en el mismo fichero |
 | Resto | `frontend:80` (SPA) |
 
@@ -411,7 +411,7 @@ docker compose ps                          # los contenedores siguen sanos
 | 5 | SSH como `root` | Rechazado |
 | 6 | Puerto no autorizado (p. ej. `3306`) desde fuera | Cerrado / filtrado |
 | 7 | `docker compose ps` | Los 6 contenedores en ejecución (5 en local, sin DuckDNS) |
-| 8 | Crear un pedido y verlo en comandas | El pedido aparece en unos segundos (sondeo cada 5 s) a través de Caddy |
+| 8 | Crear un pedido y verlo en comandas | El pedido aparece al momento (aviso en tiempo real) a través de Caddy |
 
 ## 11. CI/CD con GitHub Actions
 

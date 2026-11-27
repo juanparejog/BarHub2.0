@@ -1,5 +1,8 @@
-import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { EMPTY, Subject } from 'rxjs';
+import { catchError, switchMap, takeUntil } from 'rxjs/operators';
 import { MesaService } from '../../admin/pages/mesas/services/mesa';
+import { TiempoRealService } from '../../services/tiempo-real.service';
 import { Mesa } from '../../admin/pages/mesas/interface/mesa';
 import { CodigoQrService } from '../../auth/dos-factores/codigo-qr.service';
 
@@ -10,7 +13,7 @@ import { CodigoQrService } from '../../auth/dos-factores/codigo-qr.service';
     changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
-export class GestionarMesasEmpleadoComponent implements OnInit {
+export class GestionarMesasEmpleadoComponent implements OnInit, OnDestroy {
   mesas: Mesa[] = [];
   mesaSeleccionadaQr: Mesa | null = null;
   /** Imagen del QR de la mesa abierta (se dibuja en el navegador, sin servicios de fuera). */
@@ -26,11 +29,31 @@ export class GestionarMesasEmpleadoComponent implements OnInit {
   constructor(
     private readonly mesaService: MesaService,
     private readonly codigoQr: CodigoQrService,
-    private readonly cdr: ChangeDetectorRef
+    private readonly cdr: ChangeDetectorRef,
+    private readonly tiempoReal: TiempoRealService
   ) {}
 
+  private readonly destroy$ = new Subject<void>();
+
+  /** Se recarga cuando otro empleado cambia una mesa (aviso del servidor) y, sin conexión, cada 5 s. */
   ngOnInit() {
-    this.cargarMesas();
+    this.tiempoReal.recargas('personal').pipe(
+      switchMap(() => this.mesaService.get().pipe(catchError(err => {
+        console.error('Error al cargar mesas:', err);
+        return EMPTY;
+      }))),
+      takeUntil(this.destroy$)
+    ).subscribe(data => this.ponerMesas(data));
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  private ponerMesas(data: Mesa[]): void {
+    this.mesas = data.map((m) => ({ ...m, estado: String(m.estado).toLowerCase() }));
+    this.cdr.markForCheck();
   }
 
   getCountByEstado(estadoNombre: string): number {
@@ -40,20 +63,19 @@ export class GestionarMesasEmpleadoComponent implements OnInit {
 
   cargarMesas() {
     this.mesaService.get().subscribe({
-      next: (data) => (this.mesas = data.map((m) => ({ ...m, estado: String(m.estado).toLowerCase() }))),
+      next: (data) => this.ponerMesas(data),
       error: (err) => console.error('Error al cargar mesas:', err)
     });
   }
 
   setEstado(mesa: Mesa, estado: string) {
-    if (mesa.estado === estado) return;
-    const mesaActualizada = { 
-      ...mesa, 
-      estado: estado.toUpperCase()
-    };
+    if (mesa.estado === estado || mesa.id == null) return;
 
-    this.mesaService.put(mesaActualizada).subscribe({
-      next: () => (mesa.estado = estado),
+    this.mesaService.cambiarEstado(mesa.id, estado).subscribe({
+      next: () => {
+        mesa.estado = estado;
+        this.cdr.markForCheck();
+      },
       error: (err) => {
         console.error('Detalle del error del backend:', err);
         alert('Error actualizando el estado de la mesa');

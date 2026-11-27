@@ -1,7 +1,8 @@
 import { Component, OnInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
-import { Subject, timer, of } from 'rxjs';
+import { EMPTY, Subject } from 'rxjs';
 import { switchMap, takeUntil, catchError } from 'rxjs/operators';
 import { PedidoService } from '../services/pedido';
+import { TiempoRealService } from '../../services/tiempo-real.service';
 import { Pedido } from '../interface/pedido';
 
 @Component({
@@ -18,7 +19,10 @@ export class SeguimientoPedidosComponent implements OnInit, OnDestroy {
   private readonly destroy$ = new Subject<void>();
   private timers: any[] = [];
 
-  constructor(private readonly pedidoService: PedidoService) {}
+  constructor(
+    private readonly pedidoService: PedidoService,
+    private readonly tiempoReal: TiempoRealService
+  ) {}
 
   ngOnInit(): void {
     this.usuario = JSON.parse(localStorage.getItem('user') || 'null');
@@ -169,12 +173,14 @@ export class SeguimientoPedidosComponent implements OnInit, OnDestroy {
     }
   }
 
+  /** Recarga cuando el servidor avisa de un cambio en un pedido propio y, sin conexión, cada 5 s. */
   private iniciarRefrescoAutomatico() {
-    timer(0, 5000).pipe(
+    this.tiempoReal.recargas('mis-pedidos').pipe(
       switchMap(() => this.pedidoService.getMisPedidos().pipe(
         catchError(err => {
+          // Un fallo puntual no vacía la lista: se queda la última que se cargó
           console.error('Error al obtener mis pedidos:', err);
-          return of([]);
+          return EMPTY;
         })
       )),
       takeUntil(this.destroy$)

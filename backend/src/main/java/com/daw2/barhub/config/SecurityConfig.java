@@ -3,6 +3,7 @@ package com.daw2.barhub.config;
 import com.daw2.barhub.auditoria.AccesoDenegadoAuditado;
 import com.daw2.barhub.auth.jwt.AuthEntryPointJwt;
 import com.daw2.barhub.auth.jwt.AuthTokenFilter;
+import jakarta.servlet.DispatcherType;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -66,6 +67,8 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        // Fin de una respuesta asincrona (Server-Sent Events): la peticion ya se autorizo al abrirla
+                        .dispatcherTypeMatchers(DispatcherType.ASYNC).permitAll()
 
                         .requestMatchers("/error").permitAll()
 
@@ -82,6 +85,10 @@ public class SecurityConfig {
                         // Seguridad de la propia cuenta: siempre sobre el usuario del token
                         .requestMatchers("/perfil/**").authenticated()
 
+                        // --- AVISOS EN TIEMPO REAL: comandas y mesas para el personal; sus pedidos para cada cliente ---
+                        .requestMatchers(HttpMethod.GET, "/eventos/personal").hasAnyRole(ROL_EMPLEADO, ROL_ADMIN)
+                        .requestMatchers(HttpMethod.GET, "/eventos/mis-pedidos").authenticated()
+
                         // --- PERMITIR CREACIÓN DE PEDIDOS ---
                         .requestMatchers(HttpMethod.POST, "/pedidos").permitAll()
 
@@ -96,6 +103,7 @@ public class SecurityConfig {
 
                         // --- ADMINS ---
                         .requestMatchers("/auditoria/**").hasRole(ROL_ADMIN)
+                        .requestMatchers(HttpMethod.PATCH, "/mesas/{id:\\d+}/estado").hasAnyRole(ROL_EMPLEADO, ROL_ADMIN)
                         .requestMatchers("/productos/**", "/mesas/**").hasRole(ROL_ADMIN) 
                         .requestMatchers("/usuarios/**", "/roles/**").hasRole(ROL_ADMIN)
 

@@ -422,3 +422,91 @@ body.dark-theme .home-bar-carousel {
 }
 
 
+
+/* ==========================================================================
+   COMANDA IMPRESA (ticket de impresora térmica de 80 mm)
+   La pantalla de comandas pinta el ticket y pone «imprimiendo-comanda» en el
+   body mientras se imprime: se oculta todo lo demás y el ticket ocupa 72 mm,
+   que es lo que imprime una térmica de 80 mm.
+   ========================================================================== */
+
+.ticket-comanda {
+  display: none;
+}
+
+@media print {
+  body.imprimiendo-comanda *:not(:has(.ticket-comanda)):not(.ticket-comanda):not(.ticket-comanda *) {
+    display: none !important;
+  }
+
+  body.imprimiendo-comanda,
+  body.imprimiendo-comanda *:has(.ticket-comanda) {
+    margin: 0 !important;
+    padding: 0 !important;
+    min-height: 0 !important;
+    height: auto !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    background: #fff !important;
+  }
+
+  body.imprimiendo-comanda .ticket-comanda {
+    display: block;
+    width: 72mm;
+    padding: 2mm 0;
+    color: #000;
+    background: #fff;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 11pt;
+    line-height: 1.3;
+  }
+
+  .ticket-comanda p {
+    margin: 0 0 1mm;
+    color: #000;
+    overflow-wrap: anywhere;
+  }
+
+  .ticket-comanda hr {
+    border: 0;
+    border-top: 1px dashed #000;
+    margin: 2mm 0;
+    opacity: 1;
+  }
+
+  .ticket-comanda .ticket-cabecera {
+    text-align: center;
+    font-weight: 700;
+  }
+
+  .ticket-comanda .ticket-titulo {
+    text-align: center;
+    font-size: 15pt;
+    font-weight: 700;
+  }
+
+  .ticket-comanda .ticket-modalidad,
+  .ticket-comanda .ticket-producto {
+    font-size: 13pt;
+    font-weight: 700;
+  }
+
+  .ticket-comanda .ticket-linea {
+    margin-bottom: 2mm;
+    break-inside: avoid;
+  }
+
+  .ticket-comanda .ticket-nota,
+  .ticket-comanda .ticket-alergenos {
+    padding-left: 4mm;
+  }
+
+  .ticket-comanda .ticket-alergenos {
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+
+  .ticket-comanda .ticket-pie {
+    text-align: center;
+  }
+}

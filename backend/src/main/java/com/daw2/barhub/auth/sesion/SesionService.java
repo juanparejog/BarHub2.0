@@ -141,6 +141,21 @@ public class SesionService {
         return sesion.isPresent();
     }
 
+    /**
+     * Si la sesion sigue abierta, sin contarlo como actividad: lo usan las conexiones en tiempo real,
+     * que no deben mantener viva por inactividad una sesion que nadie esta usando.
+     */
+    @Transactional(readOnly = true)
+    public boolean sigueAbierta(String sesionId, Long usuarioId) {
+        if (sesionId == null || usuarioId == null) {
+            return false;
+        }
+        Instant ahora = reloj.instant();
+        return repositorio.findById(sesionId)
+                .filter(s -> usuarioId.equals(s.getUsuarioId()) && s.vigente(ahora))
+                .isPresent();
+    }
+
     @Transactional
     public void cerrar(String tokenRenovacion) {
         if (tokenRenovacion == null || tokenRenovacion.isBlank()) {

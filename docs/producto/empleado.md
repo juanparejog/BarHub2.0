@@ -26,7 +26,7 @@ La barra superior muestra las secciones habituales del cliente (**Inicio**, **Ca
 
 ## 2. Estado de las mesas
 
-La vista **Gestión de Mesas y Sala** permite supervisar la ocupación del local; la información se actualiza automáticamente cada pocos segundos.
+La vista **Gestión de Mesas y Sala** permite supervisar la ocupación del local. Se actualiza al momento: si otro compañero cambia una mesa, se ve en todas las pantallas abiertas sin recargar.
 
 <p align="center">
   <img src="../img/productos/mesas.png" alt="Gestión de mesas" width="760">
@@ -47,13 +47,15 @@ Cada mesa se presenta en una tarjeta con su identificador, la sala y el estado a
 | **Ocupada** | Hay clientes en la mesa |
 | **Reservada** | La mesa está reservada |
 
+Los empleados solo cambian el estado; crear mesas, cambiar su código o borrarlas es cosa del administrador.
+
 ### 2.3. Código QR
 
 El botón **Ver QR de Mesa** muestra el código QR de cada mesa, que los clientes escanean para pedir desde la carta con la mesa ya elegida. Se dibuja en el propio navegador con la dirección de la web en la que se está (en local, `http://localhost`; en producción, el dominio real), y **Descargar para imprimir** lo guarda como imagen PNG. El botón **Refrescar Sala** actualiza la información.
 
 ## 3. Pagos en efectivo
 
-La vista **Cobros en Efectivo** reúne los pedidos que el cliente ha decidido abonar en efectivo y que continúan pendientes de cobro.
+La vista **Cobros en Efectivo** reúne los pedidos que el cliente ha decidido abonar en efectivo y que continúan pendientes de cobro. La lista se actualiza sola: los pedidos nuevos aparecen al momento y, si otro compañero cobra el pedido que se tenía abierto, la ventana de cobro se cierra para no cobrarlo dos veces.
 
 <p align="center">
   <img src="../img/productos/pagos1.png" alt="Cobros en efectivo" width="760">
@@ -78,7 +80,7 @@ Los cobros registrados quedan incorporados a las ventas en efectivo del turno de
 
 ## 4. Comandas
 
-La **Pantalla de Comandas (KDS)** permite controlar la cocina, la sala, las recogidas y el reparto. Los nuevos pedidos aparecen sin recargar la página, con una actualización automática cada pocos segundos.
+La **Pantalla de Comandas (KDS)** permite controlar la cocina, la sala, las recogidas y el reparto. Los pedidos nuevos y los cambios de estado aparecen al momento, sin recargar la página. Si se corta la conexión, la pantalla sigue consultando cada 5 segundos y se vuelve a conectar sola.
 
 <p align="center">
   <img src="../img/productos/comandas.png" alt="Pantalla de comandas" width="760">
@@ -99,9 +101,17 @@ La **Pantalla de Comandas (KDS)** permite controlar la cocina, la sala, las reco
 
 Cada comanda indica la modalidad y el número de pedido (por ejemplo, «Mesa 1 · #4» o «A Domicilio · #6»), el estado actual, la hora, el tipo de consumo, el importe total y el listado de productos con sus cantidades.
 
+### 4.2.1. Aviso sonoro
+
+El botón **Activar aviso sonoro** de la cabecera hace que suenen dos pitidos cortos cada vez que entra una comanda nueva. Al activarlo suena una vez de prueba. Cada persona lo activa en su navegador y se recuerda para la próxima vez; vuelve a pulsarse para quitarlo.
+
+### 4.2.2. Imprimir comanda
+
+**Imprimir comanda** abre el diálogo de impresión con un ticket pensado para una impresora térmica de 80 mm: número de pedido, modalidad y mesa o dirección, hora del pedido y de impresión, productos con su cantidad, notas y los **alérgenos** de cada producto por su nombre. Si un producto aún no tiene los alérgenos indicados, el ticket pone «Alérgenos: sin indicar, consultar». En el diálogo hay que elegir la impresora de tickets, el papel de 80 mm y márgenes mínimos (o «Ninguno»).
+
 ### 4.3. Cambio de estado
 
-Los botones situados en la parte inferior de la tarjeta permiten avanzar el pedido. Cada cambio se refleja en la vista de seguimiento del cliente en pocos segundos.
+Los botones situados en la parte inferior de la tarjeta permiten avanzar el pedido. Cada cambio se refleja al momento en la vista de seguimiento del cliente.
 
 | Modalidad | Estados disponibles |
 | :--- | :--- |

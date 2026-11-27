@@ -10,6 +10,14 @@
         Pantalla de Comandas (KDS)
       </h2>
       <p class="subtitle text-muted mb-0">Control en tiempo real para cocina, sala, recogidas y reparto.</p>
+      <button
+        type="button"
+        class="btn btn-sm btn-outline-secondary mt-2 boton-aviso-sonoro"
+        [attr.aria-pressed]="avisoSonoro.activado"
+        (click)="avisoSonoro.alternar()">
+        <span class="material-icons fs-6 align-middle me-1" aria-hidden="true">{{ avisoSonoro.activado ? 'notifications_active' : 'notifications_off' }}</span>
+        {{ avisoSonoro.activado ? 'Aviso sonoro activado' : 'Activar aviso sonoro' }}
+      </button>
     </div>
 
     <!-- FILTROS Y CONTADORES -->
@@ -82,7 +90,7 @@
   <!-- PARRILLA DE COMANDAS (GRID KDS) -->
   @if (getPedidosFiltrados().length > 0) {
     <div class="row g-3 g-md-4">
-      @for (pedido of getPedidosFiltrados(); track pedido; let i = $index) {
+      @for (pedido of getPedidosFiltrados(); track pedido.id; let i = $index) {
         <div
           class="col-12 col-md-6 col-xl-4 comanda-col"
           [style.animation-delay]="(i * 0.04) + 's'">
@@ -148,6 +156,14 @@
             </div>
             <!-- FOOTER / BOTONES DINÁMICOS DE CAMBIO DE ESTADO -->
             <div class="comanda-card-footer p-3 border-top mt-auto bg-body-tertiary rounded-bottom-4">
+              <button
+                type="button"
+                class="btn btn-sm btn-outline-secondary w-100 mb-2 boton-imprimir-comanda"
+                [attr.aria-label]="'Imprimir comanda del pedido ' + pedido.id"
+                (click)="imprimir(pedido)">
+                <span class="material-icons fs-6 align-middle me-1" aria-hidden="true">print</span>
+                Imprimir comanda
+              </button>
               <div class="d-flex gap-1 flex-wrap">
                 @for (estOpt of getEstadosParaPedido(pedido); track estOpt) {
                   <button
@@ -170,3 +186,34 @@
   }
 
 </div>
+
+<!-- COMANDA IMPRESA (ticket de 80 mm). Solo se ve al imprimir: ver «imprimiendo-comanda» en styles.css -->
+@if (comandaImpresa; as c) {
+  <section class="ticket-comanda" aria-hidden="true">
+    <p class="ticket-cabecera">BarHub</p>
+    <p class="ticket-titulo">COMANDA #{{ c.id }}</p>
+    <p class="ticket-modalidad">{{ getTipoPedidoLabel(c) }}</p>
+    <p>{{ obtenerUbicacionPedido(c) }}</p>
+    <p>Pedido: {{ c.fecha | date:'dd/MM/yyyy HH:mm' }}</p>
+    <p>Impresa: {{ comandaImpresaEn | date:'HH:mm' }}</p>
+    <hr>
+    @for (det of c.detalles || []; track det) {
+      <div class="ticket-linea">
+        <p class="ticket-producto"><span class="ticket-cantidad">{{ det.cantidad }} x</span> {{ getNombreProducto(det) }}</p>
+        @if (det.notas || det.observaciones) {
+          <p class="ticket-nota">NOTA: {{ det.notas || det.observaciones }}</p>
+        }
+        @let alergenos = alergenosDe(det);
+        @if (alergenos === null) {
+          <p class="ticket-alergenos">Alérgenos: sin indicar, consultar</p>
+        } @else if (alergenos.length > 0) {
+          <p class="ticket-alergenos">Alérgenos: {{ alergenos.join(', ') }}</p>
+        }
+      </div>
+    } @empty {
+      <p>(sin productos)</p>
+    }
+    <hr>
+    <p class="ticket-pie">Estado: {{ getLabelEstado(c.estado) }}</p>
+  </section>
+}

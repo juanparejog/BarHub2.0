@@ -67,7 +67,7 @@
             <!-- LISTADO DE PEDIDOS -->
             @if (pedidosPendientes.length > 0) {
               <div class="pedidos-list d-flex flex-column gap-2">
-                @for (pedido of pedidosPendientes; track pedido) {
+                @for (pedido of pedidosPendientes; track pedido.id) {
                   <div
                     class="pedido-item-card"
                     [class.selected]="pedidoSeleccionado?.id === pedido.id"

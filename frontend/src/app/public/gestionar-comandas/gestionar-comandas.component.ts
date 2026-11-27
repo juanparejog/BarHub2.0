@@ -1,8 +1,12 @@
-import { Component, OnInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
-import { Subject, timer } from 'rxjs';
-import { switchMap, takeUntil } from 'rxjs/operators';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { EMPTY, Subject } from 'rxjs';
+import { catchError, switchMap, takeUntil } from 'rxjs/operators';
 import { DetallesService } from '../../admin/pages/detalles_pedidos/services/detalle';
 import { PedidoService } from '../../admin/pages/pedidos/services/pedido';
+import { ProductoService } from '../../admin/pages/productos/services/producto';
+import { TiempoRealService } from '../../services/tiempo-real.service';
+import { AvisoSonoroService } from '../../services/aviso-sonoro.service';
+import { nombreAlergeno } from '../../shared/alergenos/alergenos';
 
 export interface EstadoOpcion {
   value: string;
@@ -23,18 +27,40 @@ export class GestionarComandasComponent implements OnInit, OnDestroy {
   
   private readonly destroy$ = new Subject<void>();
 
+  /** Comanda que se está imprimiendo (se pinta solo en la impresión). */
+  comandaImpresa: any = null;
+  comandaImpresaEn = new Date();
+  /** Alérgenos de cada producto, para la comanda impresa. */
+  private alergenosPorProducto = new Map<number, string[] | null>();
+
   constructor(
     private readonly detalleService: DetallesService, 
-    private readonly pedidoService: PedidoService
+    private readonly pedidoService: PedidoService,
+    private readonly productoService: ProductoService,
+    private readonly tiempoReal: TiempoRealService,
+    readonly avisoSonoro: AvisoSonoroService,
+    private readonly cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
+    this.productoService.get().subscribe({
+      next: productos => {
+        this.alergenosPorProducto = new Map((productos || [])
+          .filter(p => p.id != null)
+          .map((p): [number, string[] | null] => [p.id as number, p.alergenos ?? null]));
+      },
+      error: () => undefined
+    });
     this.iniciarRefrescoAutomatico();
   }
 
+  /** Recarga al entrar una comanda o cambiar un pedido (aviso del servidor) y, sin conexión, cada 5 s. */
   iniciarRefrescoAutomatico(): void {
-    timer(0, 5000).pipe(
-      switchMap(() => this.pedidoService.get()),
+    this.tiempoReal.recargas('personal').pipe(
+      switchMap(() => this.pedidoService.get().pipe(catchError(err => {
+        console.error('Error al refrescar comandas:', err);
+        return EMPTY;
+      }))),
       takeUntil(this.destroy$)
     ).subscribe({
       next: (pedidos: any[]) => {
@@ -78,6 +104,7 @@ export class GestionarComandasComponent implements OnInit, OnDestroy {
       this.anuncioComandas = nuevos.length === 1
         ? `Nueva comanda: pedido ${nuevos[0].id}`
         : `${nuevos.length} comandas nuevas`;
+      this.avisoSonoro.sonar();
     }
     pedidos.forEach(p => this.idsPrevios.add(p.id));
     this.primeraCargaComandas = false;
@@ -88,6 +115,7 @@ export class GestionarComandasComponent implements OnInit, OnDestroy {
 
     const nombre = 
       det.producto?.nombre ||
+      det.producto_nombre ||
       det.productoNombre ||
       det.nombreProducto ||
       det.nombre_producto ||
@@ -279,8 +307,35 @@ export class GestionarComandasComponent implements OnInit, OnDestroy {
     }).length;
   }
 
+  /* ==========================================
+     IMPRESIÓN DE LA COMANDA (ticket de 80 mm)
+     ========================================== */
+
+  /** Alérgenos de una línea de la comanda, por nombre; null si el bar aún no los ha indicado. */
+  alergenosDe(det: any): string[] | null {
+    const id = det?.id_producto ?? det?.idProducto ?? det?.producto?.id;
+    const alergenos = id == null ? undefined : this.alergenosPorProducto.get(Number(id));
+    return alergenos == null ? null : alergenos.map(nombreAlergeno);
+  }
+
+  /** Imprime solo esta comanda, con el formato del ticket (ver styles.css, «imprimiendo-comanda»). */
+  imprimir(pedido: any): void {
+    this.comandaImpresa = pedido;
+    this.comandaImpresaEn = new Date();
+    // El ticket tiene que estar pintado antes de abrir el diálogo de impresión
+    this.cdr.detectChanges();
+    document.body.classList.add('imprimiendo-comanda');
+    window.addEventListener('afterprint', () => {
+      document.body.classList.remove('imprimiendo-comanda');
+      this.comandaImpresa = null;
+      this.cdr.markForCheck();
+    }, { once: true });
+    window.print();
+  }
+
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+    document.body.classList.remove('imprimiendo-comanda');
   }
 }

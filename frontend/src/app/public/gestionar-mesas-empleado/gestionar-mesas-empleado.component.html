@@ -54,7 +54,7 @@
 
   <!-- GRID DE TARJETAS DE MESAS -->
   <div class="row g-4">
-    @for (mesa of mesas; track mesa; let i = $index) {
+    @for (mesa of mesas; track mesa.id; let i = $index) {
       <div
         class="col-12 col-sm-6 col-md-4 col-xl-3 mesa-col"
         [style.animation-delay]="(i * 0.04) + 's'">

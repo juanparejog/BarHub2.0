@@ -4,6 +4,7 @@ import com.daw2.barhub.auth.models.User;
 import com.daw2.barhub.model.enums.EstadoPago;
 import com.daw2.barhub.model.enums.EstadoPedido;
 import com.daw2.barhub.model.enums.TipoPedido;
+import com.daw2.barhub.tiemporeal.AvisoDeCambios;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -25,6 +26,7 @@ import java.util.List;
 @Setter
 @Data
 @Entity
+@EntityListeners(AvisoDeCambios.class)
 @Table(name="pedidos")
 public class Pedido {
     @Id

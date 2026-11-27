@@ -1,6 +1,7 @@
 package com.daw2.barhub.model.entity;
 
 import com.daw2.barhub.model.enums.EstadoMesa;
+import com.daw2.barhub.tiemporeal.AvisoDeCambios;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -14,6 +15,7 @@ import java.time.Instant;
 @Setter
 @Data
 @Entity
+@EntityListeners(AvisoDeCambios.class)
 @Table(name="mesas")
 public class Mesa {
     @Id

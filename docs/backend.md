@@ -1,6 +1,6 @@
 # Backend
 
-El backend de BarHub 2.0 expone una **API REST** securizada con JWT. El frontend consulta los cambios de comandas, mesas y caja mediante sondeo periódico (cada 5 s); no hay canal de tiempo real.
+El backend de BarHub 2.0 expone una **API REST** securizada con JWT. Los cambios de comandas, mesas y pedidos llegan al frontend al momento por Server-Sent Events (`/eventos`); si la conexión se corta, el frontend vuelve a consultar cada 5 s.
 
 ## Índice
 
@@ -85,7 +85,8 @@ Las rutas se muestran como las ve el backend. Desde fuera, Caddy las publica baj
 | Método | Endpoint | Descripción |
 | :--- | :--- | :--- |
 | `GET` | `/mesas` | Listado de mesas y estado actual (`disponible`, `ocupada`, `reservada`) |
-| `PUT` | `/mesas/{id}` | Actualiza el estado de una mesa y su vinculación |
+| `PUT` | `/mesas/{id}` | Actualiza una mesa (código y estado). **Solo administradores** |
+| `PATCH` | `/mesas/{id}/estado` | Cambia solo el estado (`{"estado": "OCUPADA"}`). **Empleados y administradores** |
 
 ### 3.3. Productos · `/productos`
 
@@ -149,6 +150,15 @@ Los endpoints que cambian algo importante llevan `@Auditar(AccionAuditoria.X)`. 
 | Ruta | Normalizada y comprobada dentro de la carpeta de destino |
 | Sustitución y borrado | La imagen anterior se elimina solo tras guardar la nueva; también al borrar el registro |
 
+### 3.6.1. Avisos en tiempo real · `/eventos`
+
+| Método | Ruta | Acceso | Descripción |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/eventos/personal` | Empleados y administradores | Flujo `text/event-stream` con un aviso por cada cambio de un pedido, de sus líneas o de una mesa |
+| `GET` | `/eventos/mis-pedidos` | Cualquier usuario con sesión | Solo los cambios de los pedidos de ese usuario |
+
+Ver [Actualización de datos](#6-actualización-de-datos).
+
 ### 3.7. Avisos de la política de seguridad de contenido · `/csp-informe`
 
 | Método | Ruta | Acceso | Descripción |
@@ -192,39 +202,38 @@ Los pagos en efectivo quedan `pendiente` hasta que un empleado los registra (`/p
 
 ## 6. Actualización de datos
 
-El backend no emite eventos: expone endpoints REST y el frontend los consulta cada 5 segundos en las pantallas con estado cambiante (seguimiento del pedido y vistas del personal). La base de datos es la única fuente de la verdad.
+Las pantallas con estado cambiante (comandas, mesas, pagos en efectivo y el seguimiento del cliente) se actualizan con **Server-Sent Events** (paquete `tiemporeal`). El aviso solo dice qué ha cambiado (`event: pedido` o `event: mesa` y `data: {"id": 42}`); la pantalla vuelve a pedir los datos por los endpoints de siempre, que son los que comprueban los permisos. La base de datos sigue siendo la única fuente de la verdad.
 
 ```mermaid
 sequenceDiagram
     participant Cl as Cliente
-    participant API as Backend REST
+    participant API as Backend
     participant DB as MariaDB
     participant St as Empleado/Cocina
 
+    St->>API: GET /eventos/personal (queda abierta)
+    Cl->>API: GET /eventos/mis-pedidos (queda abierta)
     Cl->>API: POST /pedidos
-    API->>DB: guarda pedido y detalles
-    loop cada 5 s
-        St->>API: GET /pedidos
-        API-->>St: pedidos en curso
-    end
+    API->>DB: guarda pedido y detalles (commit)
+    API-->>St: event: pedido {"id": 42}
+    St->>API: GET /pedidos
     St->>API: PUT /pedidos/{id} (preparado)
-    API->>DB: actualiza estado
-    loop cada 5 s
-        Cl->>API: GET /pedidos/mis-pedidos
-        API-->>Cl: estado actualizado
-    end
+    API->>DB: actualiza estado (commit)
+    API-->>Cl: event: pedido {"id": 42}
+    Cl->>API: GET /pedidos/mis-pedidos
 ```
 
-El retraso máximo para ver un cambio es de unos 5 segundos. A cambio, el diseño es simple, no necesita conexiones persistentes y funciona sin configuración adicional detrás de Caddy.
+| Pieza | Detalle |
+| :--- | :--- |
+| Origen de los avisos | `AvisoDeCambios`, un `@EntityListeners` de JPA en `Pedido`, `DetallePedido` y `Mesa`, publica un `CambioEnTiempoReal` al guardar o borrar. Así sale de cualquier ruta que cambie esos datos, sin tocar cada servicio |
+| Envío | `EventosEnTiempoReal` lo recibe con `@TransactionalEventListener(phase = AFTER_COMMIT)`: un cambio que hace rollback no se avisa |
+| Canales | `PERSONAL` recibe todo; `CLIENTE` solo los pedidos cuyo dueño es ese usuario |
+| Sesión | Cada 25 s se manda un latido (comentario SSE, mantiene la conexión a través de proxies) y se comprueba que la sesión sigue abierta, sin contar como actividad. Al cerrar sesión, cambiar la contraseña, eliminar la cuenta o caducar, el servidor corta la conexión |
+| Duración y límites | Cada conexión dura como mucho `app.tiempo-real.duracion` (5 min) y el navegador se vuelve a conectar con su token del momento. 5 conexiones por usuario (se cierra la más antigua) y `app.tiempo-real.maximo-conexiones` (500) en total; por encima, `503` |
+| Hilos | `SseEmitter` usa el modo asíncrono de Spring MVC: una conexión abierta no ocupa un hilo de Tomcat. `SecurityConfig` deja pasar los despachos `ASYNC` porque la petición ya se autorizó al abrirla |
+| Caddy | `reverse_proxy` entrega cada aviso al momento con `text/event-stream`, y `encode` no comprime ese tipo (comprimido llegaría a trozos) |
 
-### Mejora futura
-
-Para evitar el sondeo se podría usar Server-Sent Events o WebSocket (Spring WebSocket con STOMP). Si se aborda, conviene:
-
-- Emitir después del commit de la transacción (`@TransactionalEventListener(phase = AFTER_COMMIT)`) para no notificar cambios que hacen rollback.
-- Enviar DTOs mínimos, nunca entidades JPA ni datos personales.
-- Segmentar por salas (personal, caja, cliente, mesa) para que un cliente no reciba pedidos ajenos.
-- Con varias réplicas haría falta un broker compartido (por ejemplo, Redis).
+Con una sola instancia del backend basta con la memoria; con varias réplicas haría falta repartir los avisos con un broker compartido (por ejemplo, Redis).
 
 ## 7. Calidad del código
 

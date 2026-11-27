@@ -56,6 +56,17 @@ export class MesaService {
   }
 
   /**
+   * Cambia solo el estado de una mesa (disponible, ocupada o reservada). Lo pueden hacer los
+   * empleados; editar el resto de la mesa (PUT) es cosa del administrador.
+   * @param id de la mesa
+   * @param estado nuevo estado, en cualquier caja
+   * @returns un observable con la mesa actualizada
+   */
+  cambiarEstado(id: number, estado: string): Observable<Mesa> {
+    return this.httpClient.patch<Mesa>(`${this.URL_MESAS}${id}/estado`, { estado: estado.toUpperCase() });
+  }
+
+  /**
    * Se realiza una petición para eliminar una mesa
    * @param mesa mesa que se va a eliminar
    * @returns un observable con la mesa eliminada

@@ -3,6 +3,7 @@ package com.daw2.barhub.controller;
 import com.daw2.barhub.model.dto.ErrorDto;
 import com.daw2.barhub.model.dto.MesaDto;
 import com.daw2.barhub.model.entity.Mesa;
+import com.daw2.barhub.model.enums.EstadoMesa;
 import com.daw2.barhub.service.impl.MesaServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,6 +60,23 @@ public class MesaController {
             log.error("Error al procesar la peticion", e);
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ErrorDto.from("Mesa no encontrada."));
         }
+    }
+
+    /** Lo que se puede cambiar desde la sala: solo el estado. Empleados y administradores (ver SecurityConfig). */
+    public record CambioEstado(EstadoMesa estado) {
+    }
+
+    @PatchMapping("{id}/estado")
+    public ResponseEntity<?> cambiarEstado(@PathVariable Long id, @RequestBody CambioEstado cambio) {
+        if (cambio == null || cambio.estado() == null) {
+            return ResponseEntity.badRequest().body(ErrorDto.from("Indica el estado: DISPONIBLE, OCUPADA o RESERVADA."));
+        }
+        Mesa mesa = mesaService.findById(id);
+        if (mesa == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ErrorDto.from("Mesa no encontrada."));
+        }
+        mesa.setEstado(cambio.estado());
+        return ResponseEntity.ok(MesaDto.from(mesaService.save(mesa)));
     }
 
     @DeleteMapping("/{id}")

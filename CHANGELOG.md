@@ -7,6 +7,11 @@ El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y e
 ## [Sin publicar]
 
 ### Añadido
+- Tiempo real con Server-Sent Events: las comandas, el estado de las mesas, los pagos en efectivo y el seguimiento del cliente se actualizan al momento, en lugar de preguntar cada 5 s. Endpoints `GET /eventos/personal` (empleados y administradores) y `GET /eventos/mis-pedidos` (solo los pedidos propios). Los avisos se envían tras el commit y solo dicen qué ha cambiado; la pantalla vuelve a pedir los datos. El frontend lee el flujo con `fetch` (el token va en la cabecera, no en la URL), agrupa los avisos que llegan juntos, se reconecta solo y, sin conexión, vuelve a preguntar cada 5 s. Las listas se pintan con `track` por id, así que una recarga ya no cierra lo que estaba abierto.
+- Aviso sonoro opcional en la pantalla de comandas (Web Audio, sin ficheros), que cada persona activa en su navegador.
+- Imprimir comanda: ticket para impresora térmica de 80 mm con número, modalidad y ubicación, horas del pedido y de impresión, productos con cantidad, notas y alérgenos por nombre («sin indicar, consultar» si faltan).
+- `PATCH /mesas/{id}/estado` para que los empleados cambien el estado de una mesa sin poder editar el resto.
+- Tests del tiempo real: integración (401 sin sesión, cliente fuera del canal del personal, cada cliente solo sus pedidos, aviso al guardar, cierre al cerrar la sesión, `PATCH` de mesas por rol), Vitest del servicio (lectura del flujo, agrupación, reconexión, respaldo), del aviso sonoro, de la impresión y de las mesas, y un E2E nuevo, `13-tiempo-real`. `pruebas_seguridad.py` añade la sección 12.
 - Alérgenos: los 14 de declaración obligatoria (Reglamento (UE) 1169/2011) en cada producto, indicados desde el formulario del administrador con la casilla «Información de alérgenos revisada». La carta los muestra con iconos propios en SVG (círculo de color y pictograma blanco, con el nombre como texto alternativo), dice «Sin alérgenos de declaración obligatoria» o, si aún no se han indicado, «Alérgenos: pregunta al personal», y tiene un filtro **Alergias e intolerancias** con los 14 iconos que esconde lo que lleva el alérgeno elegido y lo que no tiene la información (recordado en el navegador). La ficha del producto y el formulario también usan los iconos.
 - QR de las mesas propio: se dibuja en el navegador con `qrcode` (como el de la verificación en dos pasos) con la dirección de la web en la que se abre y el id de la mesa, y se puede descargar como PNG. `api.qrserver.com` sale de la CSP.
 - Tests de alérgenos y QR: integración (alta, carta ordenada, `null` frente a `[]`, edición, valor desconocido), Vitest del filtro de la carta, de los iconos, del formulario y del QR, y un E2E nuevo, `12-alergenos-qr`.
@@ -38,6 +43,7 @@ El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y e
 - CI: el pipeline ejecuta los tests del frontend con cobertura (si uno falla, el CI falla) y SonarCloud mide la cobertura del frontend además de la del backend. El análisis pasa a la versión `2.1.0`.
 
 ### Seguridad
+- Los avisos en tiempo real no abren una vía nueva a los datos: el canal del personal es solo para empleados y administradores, cada cliente recibe solo los de sus pedidos, los avisos no llevan datos personales y la conexión se corta en cuanto la sesión se cierra o caduca. Conexiones limitadas por usuario y en total.
 - Cambiar el correo, descargar los datos y eliminar la cuenta exigen reautenticación. El correo nuevo no entra en la cuenta hasta abrir el enlace enviado a él, y al actual se le avisa: con una sesión robada ya no se puede poner un correo ajeno para pedir después la recuperación de la contraseña.
 - Cambiar la contraseña cierra las sesiones abiertas con la anterior: las demás del usuario si la cambia él, y todas si se la cambia el administrador (antes seguían abiertas hasta caducar). Los fallos con la contraseña actual cuentan para el bloqueo del login.
 - Activar, quitar o regenerar la verificación en dos pasos desde el perfil exige reautenticación a cualquier usuario: con una sesión robada no se puede desactivar ni activar con un móvil ajeno.
@@ -89,6 +95,9 @@ El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y e
 
 
 ### Corregido
+- Los empleados no podían cambiar el estado de una mesa: la pantalla usaba `PUT /mesas/{id}`, que es solo del administrador, y mostraba un error. Ahora usa `PATCH /mesas/{id}/estado`.
+- La pantalla de comandas no encontraba el nombre de los productos (`producto_nombre`) y pedía las líneas de cada pedido otra vez en cada recarga.
+- El seguimiento del cliente vaciaba la lista si una recarga fallaba; ahora se queda la última cargada.
 - El QR de las mesas llevaba a `https://barhub.duckdns.org/carta?mesa=QR001`: un dominio fijo y la etiqueta de la mesa en lugar de su id, que la carta no sabía leer. Ahora lleva a la propia web con el id, y la carta avisa si un QR no es válido.
 - Al editar un producto no se guardaba el cambio de tipo (bebida, tapa...), y el formulario de alta enviaba el tipo en minúsculas, que la API no acepta.
 - `GET /productos/{id}` devolvía la entidad en lugar del DTO.

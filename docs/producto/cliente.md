@@ -164,7 +164,7 @@ Al finalizar se genera un **ticket simplificado** con el número de pedido, la f
 
 ## 6. Seguimiento del pedido
 
-Los usuarios con sesión iniciada disponen de la opción **Sigue tu pedido**, que muestra el estado de sus comandas. Los cambios de estado los realizan los empleados y se reflejan sin recargar la página, con una actualización automática cada pocos segundos.
+Los usuarios con sesión iniciada disponen de la opción **Sigue tu pedido**, que muestra el estado de sus comandas. Los cambios de estado los realizan los empleados y se ven al momento, sin recargar la página. Solo llegan los avisos de los pedidos propios.
 
 | Fase | Significado |
 | :--- | :--- |
