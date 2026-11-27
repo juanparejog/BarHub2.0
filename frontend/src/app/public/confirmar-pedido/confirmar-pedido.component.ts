@@ -1,12 +1,20 @@
 import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
-import { loadStripe, Stripe, StripeElements } from '@stripe/stripe-js';
+import { firstValueFrom } from 'rxjs';
+import type { Stripe, StripeCardElement, StripeElements } from '@stripe/stripe-js';
 import { PedidoService } from '../../admin/pages/pedidos/services/pedido';
+import { type ConfiguracionPago, type LineaPago, PagoService } from './pago.service';
 import { AuthService } from '../../auth/auth.service';
 import { IdiomaService } from '../../shared/i18n/idioma.service';
 import { type ProductoTraducible, nombreDe } from '../../shared/i18n/producto-idioma';
 
 export type TipoPedido = 'MESA' | 'DOMICILIO' | 'RECOGER';
+
+/**
+ * Pago ya cobrado cuyo pedido aún no se ha creado (por ejemplo, si se corta la conexión justo después):
+ * al volver a intentarlo se usa este pago en vez de cobrar otra vez, si el carrito es el mismo.
+ */
+const PAGO_PENDIENTE = 'barhub.pagoPendiente';
 
 interface ProductoSeleccionado {
   producto: ProductoTraducible & {
@@ -36,8 +44,10 @@ interface PedidoTemporal {
 export class ConfirmarPedidoComponent implements OnInit {
   stripe: Stripe | null = null;
   elements: StripeElements | null = null;
-  card: any = null;
+  card: StripeCardElement | null = null;
   cardErrors: string = '';
+  configuracionPago: ConfiguracionPago | null = null;
+  procesando = false;
 
   pedidoTemporal: PedidoTemporal | null = null;
   metodoPago: string = 'efectivo';
@@ -50,7 +60,8 @@ export class ConfirmarPedidoComponent implements OnInit {
     private readonly pedidoService: PedidoService,
     private readonly authService: AuthService,
     private readonly router: Router,
-    private readonly idiomas: IdiomaService
+    private readonly idiomas: IdiomaService,
+    private readonly pagos: PagoService
   ) {}
 
   ngOnInit() {
@@ -62,15 +73,15 @@ export class ConfirmarPedidoComponent implements OnInit {
       return;
     }
 
-    void this.inicializarStripe();
+    // Si el servidor no tiene claves de Stripe, solo se ofrece el efectivo
+    this.pagos.configuracion().subscribe({
+      next: configuracion => this.configuracionPago = configuracion,
+      error: () => this.configuracionPago = { tarjeta: false, clavePublica: null, pruebas: true }
+    });
   }
 
-  private async inicializarStripe() {
-    try {
-      this.stripe = await loadStripe('pk_test_51RT97qBUQAvN9BbikjitAkEoXkIGMcEcHSVaaCQuceIjZcooPc28iPNKzjrkpw5WwWkm0MG98aezvb4cD6mj4jXq00exCzBE2s');
-    } catch (error) {
-      console.error('Error initializing Stripe:', error);
-    }
+  get tarjetaDisponible(): boolean {
+    return !!this.configuracionPago?.tarjeta && !!this.configuracionPago.clavePublica;
   }
 
   showToastMessage(message: string, type: 'success' | 'error' | 'info' = 'info') {
@@ -88,42 +99,132 @@ export class ConfirmarPedidoComponent implements OnInit {
     );
   }
 
-  onTarjetaSelected() {
-    if (this.metodoPago === 'tarjeta' && this.stripe && !this.card) {
-      setTimeout(() => {
-        // Los textos y errores de Stripe, en el idioma elegido
-        this.elements = this.stripe!.elements({ locale: this.idiomas.idioma() });
-        this.card = this.elements.create('card', {
-          style: {
-            base: {
-              fontSize: '16px',
-              color: '#0A2342',
-              '::placeholder': { color: '#7DA7D9' }
-            }
-          }
-        });
-        this.card.mount('#card-element');
-        this.card.on('change', (event: any) => {
-          this.cardErrors = event.error?.message || '';
-        });
-      }, 50);
+  async onTarjetaSelected(): Promise<void> {
+    if (this.metodoPago !== 'tarjeta' || !this.tarjetaDisponible || this.card) {
+      return;
     }
+    try {
+      this.stripe ??= await this.pagos.cargarStripe(this.configuracionPago!.clavePublica!);
+    } catch (error) {
+      console.error('No se pudo cargar Stripe', error);
+    }
+    if (!this.stripe) {
+      this.cardErrors = this.idiomas.t('confirmar.tarjetaNoDisponible');
+      return;
+    }
+    // El contenedor aparece al elegir tarjeta: se espera a que Angular lo pinte
+    setTimeout(() => {
+      if (!this.stripe || this.card) return;
+      // Los textos y errores de Stripe, en el idioma elegido
+      this.elements = this.stripe.elements({ locale: this.idiomas.idioma() });
+      this.card = this.elements.create('card', {
+        hidePostalCode: true,
+        style: {
+          base: {
+            fontSize: '16px',
+            color: '#0A2342',
+            '::placeholder': { color: '#7DA7D9' }
+          }
+        }
+      });
+      this.card.mount('#card-element');
+      this.card.on('change', event => {
+        this.cardErrors = event.error?.message || '';
+      });
+    }, 50);
   }
 
-  finalizarPedido() {
-    if (!this.pedidoTemporal) return;
-    this.procesarPedido();
-  }
+  async finalizarPedido(): Promise<void> {
+    if (!this.pedidoTemporal || this.procesando) return;
 
-  private procesarPedido() {
-    if (!this.pedidoTemporal) return;
-  
     // 1. Validar requerimiento de MESA si el pedido es en local/mesa
     if (this.pedidoTemporal.tipoPedido === 'MESA' && !this.pedidoTemporal.idMesa) {
       this.showToastMessage(this.idiomas.t('confirmar.toast.mesa'), 'error');
       return;
     }
-  
+
+    this.procesando = true;
+    let pagoId: string | null = null;
+    if (this.metodoPago?.toLowerCase() === 'tarjeta') {
+      pagoId = await this.pagarConTarjeta();
+      if (!pagoId) {
+        this.procesando = false;
+        return;
+      }
+    }
+    this.procesarPedido(pagoId);
+  }
+
+  /** Las líneas que se pagan: producto y cantidad. El precio lo pone el servidor. */
+  private lineasDePago(): LineaPago[] {
+    return (this.pedidoTemporal?.productos ?? []).map(item => ({ id_producto: item.producto.id, cantidad: item.cantidad }));
+  }
+
+  /** Identifica el carrito, para no reutilizar un pago cobrado con otros productos. */
+  private carritoDelPago(): string {
+    return this.lineasDePago().map(l => `${l.id_producto}x${l.cantidad}`).sort().join(',');
+  }
+
+  /**
+   * Cobra con la tarjeta y devuelve el id del pago, o null si no se ha cobrado. Si ya hay un pago
+   * cobrado para este mismo carrito (el pedido no llegó a crearse), lo reutiliza.
+   */
+  private async pagarConTarjeta(): Promise<string | null> {
+    const carrito = this.carritoDelPago();
+    const pendiente = this.pagoPendiente();
+    if (pendiente?.carrito === carrito) {
+      return pendiente.pagoId;
+    }
+    if (!this.stripe || !this.card) {
+      this.showToastMessage(this.idiomas.t('confirmar.toast.tarjeta'), 'error');
+      return null;
+    }
+    try {
+      const intento = await firstValueFrom(this.pagos.crearIntento(this.lineasDePago()));
+      const resultado = await this.stripe.confirmCardPayment(intento.clientSecret, { payment_method: { card: this.card } });
+      if (resultado.error) {
+        // El mensaje de Stripe ya viene en el idioma elegido (tarjeta rechazada, sin fondos...)
+        this.cardErrors = resultado.error.message ?? '';
+        this.showToastMessage(this.idiomas.t('confirmar.toast.pago'), 'error');
+        return null;
+      }
+      if (resultado.paymentIntent?.status !== 'succeeded') {
+        this.showToastMessage(this.idiomas.t('confirmar.toast.pago'), 'error');
+        return null;
+      }
+      const pagoId = resultado.paymentIntent.id;
+      try {
+        localStorage.setItem(PAGO_PENDIENTE, JSON.stringify({ pagoId, carrito }));
+      } catch {
+        // Sin almacenamiento se sigue: solo se pierde el reintento sin volver a cobrar
+      }
+      return pagoId;
+    } catch (err: any) {
+      this.showToastMessage(this.idiomas.delServidor(err?.error?.message, 'confirmar.toast.pago'), 'error');
+      return null;
+    }
+  }
+
+  private pagoPendiente(): { pagoId: string; carrito: string } | null {
+    try {
+      const guardado = JSON.parse(localStorage.getItem(PAGO_PENDIENTE) ?? 'null');
+      return guardado && typeof guardado.pagoId === 'string' && typeof guardado.carrito === 'string' ? guardado : null;
+    } catch {
+      return null;
+    }
+  }
+
+  private olvidarPagoPendiente(): void {
+    try {
+      localStorage.removeItem(PAGO_PENDIENTE);
+    } catch {
+      // Nada que hacer
+    }
+  }
+
+  private procesarPedido(pagoId: string | null) {
+    if (!this.pedidoTemporal) return;
+
     const esTarjeta = this.metodoPago?.toLowerCase() === 'tarjeta';
     const tipo = this.pedidoTemporal.tipoPedido; // 'MESA', 'DOMICILIO' o 'RECOGER'
   
@@ -160,6 +261,8 @@ export class ConfirmarPedidoComponent implements OnInit {
       metodo_pago: esTarjeta ? 'TARJETA' : 'EFECTIVO',
       estado_pago: 'PENDIENTE',
       precio_total: Number(this.calcularTotal()),
+      // El servidor comprueba este pago en Stripe antes de dar el pedido por pagado
+      pago_id: pagoId,
   
       detalles: this.pedidoTemporal.productos.map(item => ({
         idProducto: item.producto.id,
@@ -170,11 +273,10 @@ export class ConfirmarPedidoComponent implements OnInit {
       }))
     };
   
-    console.log('Enviando DTO adaptado al backend:', dtoPayload);
-  
     this.pedidoService.postCrearSeguro(dtoPayload).subscribe({
       next: (res) => {
-        console.log('Pedido creado con éxito', res);
+        this.procesando = false;
+        this.olvidarPagoPendiente();
         this.showToastMessage(this.idiomas.t('confirmar.toast.exito'), 'success');
   
         const idPedidoCreado = res.id || 1;
@@ -187,12 +289,15 @@ export class ConfirmarPedidoComponent implements OnInit {
         }, 2500);
       },
       error: (err) => {
-        console.error('Error al guardar el pedido:', err);
-        if (err?.error?.message) {
-          this.showToastMessage(err.error.message, 'error');
-        } else {
-          this.showToastMessage(this.idiomas.t('confirmar.toast.error'), 'error');
+        this.procesando = false;
+        // Rechazado por el pago (no vale, ya tiene pedido o se ha devuelto): el siguiente intento cobra de nuevo.
+        // Si es otro error (conexión, servidor), el pago se guarda para no cobrar dos veces
+        if ([402, 403, 409].includes(err?.status)) {
+          this.olvidarPagoPendiente();
         }
+        console.error('Error al guardar el pedido:', err);
+        const clave = [402, 403, 409, 503].includes(err?.status) ? 'confirmar.toast.pagoRechazado' : 'confirmar.toast.error';
+        this.showToastMessage(this.idiomas.delServidor(err?.error?.message, clave), 'error');
       }
     });
   }

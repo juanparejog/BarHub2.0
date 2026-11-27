@@ -70,6 +70,10 @@ public class Pedido {
     @Column(name = "estado_pago", nullable = false)
     private EstadoPago estadoPago = EstadoPago.PENDIENTE;
 
+    /** Id del pago con tarjeta en Stripe (pi_...), comprobado al crear el pedido. Un pago, un pedido. */
+    @Column(name = "pago_id", length = 100, unique = true)
+    private String pagoId;
+
     @CreationTimestamp
     private Instant createdAt;
 

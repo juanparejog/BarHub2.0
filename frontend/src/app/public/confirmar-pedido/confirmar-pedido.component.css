@@ -345,6 +345,16 @@
   box-shadow: 0 0 0 1px var(--text-title);
 }
 
+/* Sin claves de Stripe en el servidor, la tarjeta no se puede elegir */
+.payment-option-card.disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.payment-option-card.disabled:hover {
+  background: var(--bg-card);
+}
+
 .option-left {
   display: flex;
   align-items: center;
@@ -425,6 +435,11 @@
 .btn-confirm-final:hover {
   background: var(--text-muted);
   transform: translateY(-2px);
+}
+
+.btn-confirm-final:disabled {
+  opacity: 0.7;
+  cursor: progress;
 }
 
 .btn-cancel-link {

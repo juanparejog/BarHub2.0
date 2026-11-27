@@ -3,9 +3,11 @@ package com.daw2.barhub.controller;
 import com.daw2.barhub.model.dto.ErrorDto;
 import com.daw2.barhub.model.dto.PedidoDto;
 import com.daw2.barhub.model.entity.Pedido;
+import com.daw2.barhub.pago.PagoRechazadoException;
 import com.daw2.barhub.service.PedidoService;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -86,6 +88,14 @@ public class PedidoController {
             // Mensajes escritos a proposito en el servicio para el cliente
             log.warn("Peticion invalida al crear pedido: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ErrorDto.from(e.getMessage()));
+        } catch (PagoRechazadoException e) {
+            log.warn("Pedido con tarjeta rechazado ({}): {}", e.getEstado().value(), e.getMessage());
+            return ResponseEntity.status(e.getEstado()).body(ErrorDto.from(e.getMessage()));
+        } catch (DataIntegrityViolationException e) {
+            // Dos peticiones a la vez con el mismo pago: la segunda choca con el indice unico de pago_id
+            log.warn("Pedido con un pago ya usado: {}", e.getMostSpecificCause().getMessage());
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(ErrorDto.from("Este pago ya tiene su pedido. Puedes verlo en el seguimiento de tus pedidos."));
         } catch (Exception e) {
             log.error("Error al procesar el pedido", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)

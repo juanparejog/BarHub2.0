@@ -113,6 +113,21 @@ Cada producto lleva `alergenos`: la lista de los 14 de declaración obligatoria 
 | `GET` | `/pedidos/pendientes-efectivo` | Pedidos con pago en efectivo aún pendiente |
 | `GET` | `/pedidos/mis-pedidos` | Seguimiento de los pedidos del cliente autenticado |
 
+Con `metodo_pago` `TARJETA`, el pedido lleva `pago_id` (el pago ya cobrado en Stripe) y solo se crea si `VerificacionPago` lo da por bueno ([3.4.1](#341-pago-con-tarjeta--pagos)). El `estado_pago` que mande el cliente no cuenta nunca: en efectivo queda `PENDIENTE`.
+
+### 3.4.1. Pago con tarjeta · `/pagos`
+
+Stripe (PaymentIntents) en **modo de pruebas**. Los datos de la tarjeta van del navegador a Stripe, nunca a BarHub; el servidor crea el intento de pago y, al crear el pedido, comprueba el pago en Stripe con la clave secreta.
+
+| Método | Ruta | Acceso | Descripción |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/pagos/configuracion` | Público | `{tarjeta, clavePublica, pruebas}`: si hay pago con tarjeta y la clave publicable para Stripe.js |
+| `POST` | `/pagos/intento` | Público (con sesión si el pedido va a ir con ella) | Con `{detalles: [{id_producto, cantidad}]}`, crea el intento de pago por el total que calcula el servidor con los precios de la carta (el que mande el navegador se ignora) y responde `201` con `{id, clientSecret, importe}`. Sin claves de Stripe, `503` |
+
+Al crear el pedido, `VerificacionPago` exige, por este orden: claves de Stripe (`503`), un `pago_id` con formato `pi_...` (`400`), que no lo use ya otro pedido (`409`; `pedidos.pago_id` es único), que exista en Stripe (`400`), que sea del mismo usuario (o de un anónimo, si el pedido es anónimo) (`403`), que esté cobrado (`succeeded`, si no `402`) y que sea por el mismo importe, en euros y para los mismos productos (`409`, y el pago **se devuelve** al momento). Usuario y productos van en los metadatos del intento (`barhub_usuario` y una huella SHA-256 del carrito), así que un pago no sirve para otro carrito del mismo importe ni para otra persona.
+
+Las claves salen de `STRIPE_SECRET_KEY` y `STRIPE_PUBLISHABLE_KEY`. Con `app.pagos.solo-pruebas=true` (por defecto) solo se aceptan claves de pruebas: con unas reales, la tarjeta queda desactivada y se anota en el log. Sin claves, solo se puede pagar en efectivo.
+
 ### 3.5. Caja y turnos · `/caja`
 
 | Método | Endpoint | Descripción |
@@ -200,7 +215,7 @@ stateDiagram-v2
     pendiente --> rechazado: pago fallido
 ```
 
-Los pagos en efectivo quedan `pendiente` hasta que un empleado los registra (`/pedidos/pendientes-efectivo`) y alimentan el cuadre de `/caja/cerrar`.
+Los pagos en efectivo quedan `pendiente` hasta que un empleado los registra (`/pedidos/pendientes-efectivo`) y alimentan el cuadre de `/caja/cerrar`. Los pagos con tarjeta nacen `completado`, porque el pedido solo se crea cuando Stripe ha cobrado (ver [3.4.1](#341-pago-con-tarjeta--pagos)).
 
 ## 6. Actualización de datos
 

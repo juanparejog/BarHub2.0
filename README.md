@@ -57,7 +57,7 @@ Es la segunda versión de mi TFC. Esta vez me he centrado en tres cosas: redise�
 - Carta digital interactiva por QR
 - Pedido en mesa, a recoger o a domicilio
 - Seguimiento del pedido en tiempo real
-- Pago en efectivo y con tarjeta (Stripe en modo demostración, sin cargos reales)
+- Pago en efectivo y con tarjeta (Stripe en modo de pruebas, sin cargos reales), con el pago comprobado en el servidor
 - Registro de usuarios y perfil por pestañas: datos personales, dirección de entrega, cuenta y correo (cambio de correo con enlace de confirmación), seguridad (contraseña, verificación en dos pasos y sesiones abiertas) y privacidad (descargar mis datos y eliminar la cuenta)
 - Historial de pedidos
 - Todo lo del cliente en español, portugués e inglés, con selector de banderas, y productos traducidos por el bar
@@ -162,6 +162,7 @@ Además de las auditorías estáticas, he probado el backend en ejecución (inst
 | Control de acceso | 25 rutas protegidas frente a anónimos y clientes (401 / 403) | 0 fallos |
 | Propiedad de los datos | Un cliente no lee ni modifica el perfil de otro ni se asigna roles | Verificado |
 | Pedidos | El servidor ignora los precios, el estado y el usuario enviados por el cliente | Verificado |
+| Pagos con tarjeta | Sin pago cobrado en Stripe, con un id inventado o con el estado de pago del cliente, el pedido no queda pagado; el importe del pago lo pone el servidor | Verificado |
 | JWT | Firma alterada y `alg=none` rechazados | Verificado |
 | Subidas | Extensión, tipo, firma del fichero, tamaño y ruta | Verificado |
 | Errores | Respuestas genéricas y `404` en recursos inexistentes | Verificado |
@@ -279,7 +280,7 @@ La migración va primero, para que las funcionalidades nuevas se construyan ya s
 | 12 | Varios idiomas (español, portugués e inglés) | Carta traducida, tras los alérgenos |
 | 13 | Impresión de comandas | Flujo cocina y barra; pendiente decidir si hay pantalla en cocina |
 | 14 | SOC en local | Hecho |
-| 15 | Stripe en modo de pruebas | Probar el flujo de pago completo sin cobros reales |
+| 15 | Stripe en modo de pruebas | Hecho |
 
 **Cuando haya servidor**
 

@@ -60,6 +60,11 @@ public class PedidoDto {
     @JsonAlias({"metodoPago"})
     private String metodoPago;
 
+    /** Id del pago con tarjeta en Stripe; solo de entrada: el servidor lo comprueba y no lo devuelve. */
+    @JsonProperty(value = "pago_id", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonAlias({"pagoId"})
+    private String pagoId;
+
     private List<DetallePedidoDto> detalles = new ArrayList<>();
 
     public static PedidoDto from(Pedido pedido) {

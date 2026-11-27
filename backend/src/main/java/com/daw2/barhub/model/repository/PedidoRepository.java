@@ -12,6 +12,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface PedidoRepository extends JpaRepository<Pedido, Long> {
+    boolean existsByPagoId(String pagoId);
+
     // Los controladores convierten los pedidos a DTO con sus detalles fuera de la transaccion
     // (open-in-view desactivado), asi que los detalles y sus productos vienen en la misma consulta.
     @Override

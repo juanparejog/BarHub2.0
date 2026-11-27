@@ -13,6 +13,8 @@ import com.daw2.barhub.model.enums.TipoPedido;
 import com.daw2.barhub.model.repository.MesaRepository;
 import com.daw2.barhub.model.repository.PedidoRepository;
 import com.daw2.barhub.model.repository.ProductoRepository;
+import com.daw2.barhub.pago.PagoRechazadoException;
+import com.daw2.barhub.pago.VerificacionPago;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -22,6 +24,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -38,6 +41,10 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -54,6 +61,8 @@ class PedidoServiceImplTest {
     private UserRepository userRepository;
     @Mock
     private ProductoRepository productoRepository;
+    @Mock
+    private VerificacionPago verificacionPago;
 
     @InjectMocks
     private PedidoServiceImpl servicio;
@@ -136,18 +145,61 @@ class PedidoServiceImplTest {
     }
 
     @Test
-    void pagoConTarjetaQuedaCompletadoYEfectivoPendiente() {
+    void conTarjetaSoloQuedaPagadoSiStripeConfirmaElPagoPorElTotalDelServidor() {
+        Long productoId = 10L;
+        when(productoRepository.findById(productoId)).thenReturn(Optional.of(producto(productoId, 1.5)));
+        guardarDevuelveLoRecibido();
+        PedidoDto dto = pedidoDto(TipoPedido.RECOGER, "TARJETA", linea(productoId, 2));
+        dto.setPagoId("pi_pagado12345678");
+
+        Pedido pedido = servicio.crearPedidoSeguro(dto, null);
+
+        verify(verificacionPago).comprobar(eq("pi_pagado12345678"), eq(new BigDecimal("3.00")), anyList(), isNull());
+        assertEquals(EstadoPago.COMPLETADO, pedido.getEstadoPago());
+        assertEquals("pi_pagado12345678", pedido.getPagoId());
+    }
+
+    @Test
+    void conTarjetaSinPagoValidoNoSeGuardaElPedido() {
+        Long productoId = 10L;
+        when(productoRepository.findById(productoId)).thenReturn(Optional.of(producto(productoId, 1.0)));
+        doThrow(new PagoRechazadoException(HttpStatus.PAYMENT_REQUIRED, "El pago con tarjeta no se ha completado."))
+                .when(verificacionPago).comprobar(any(), any(), anyList(), any());
+
+        PedidoDto dto = pedidoDto(TipoPedido.RECOGER, "tarjeta", linea(productoId, 1));
+        assertThrows(PagoRechazadoException.class, () -> servicio.crearPedidoSeguro(dto, null));
+        verify(pedidoRepository, never()).save(any(Pedido.class));
+    }
+
+    @Test
+    void enEfectivoQuedaPendienteAunqueElClienteDigaQueEstaPagado() {
         Long productoId = 10L;
         when(productoRepository.findById(productoId)).thenReturn(Optional.of(producto(productoId, 1.0)));
         guardarDevuelveLoRecibido();
+        PedidoDto dto = pedidoDto(TipoPedido.RECOGER, "efectivo", linea(productoId, 1));
+        dto.setEstadoPago(EstadoPago.COMPLETADO);
+        dto.setPagoId("pi_inventado12345678");
 
-        Pedido conTarjeta = servicio.crearPedidoSeguro(
-                pedidoDto(TipoPedido.RECOGER, "TARJETA", linea(productoId, 1)), null);
-        Pedido enEfectivo = servicio.crearPedidoSeguro(
-                pedidoDto(TipoPedido.RECOGER, "efectivo", linea(productoId, 1)), null);
+        Pedido pedido = servicio.crearPedidoSeguro(dto, null);
 
-        assertEquals(EstadoPago.COMPLETADO, conTarjeta.getEstadoPago());
-        assertEquals(EstadoPago.PENDIENTE, enEfectivo.getEstadoPago());
+        assertEquals(EstadoPago.PENDIENTE, pedido.getEstadoPago());
+        assertNull(pedido.getPagoId());
+        verifyNoInteractions(verificacionPago);
+    }
+
+    @Test
+    void elTotalDeUnCarritoSaleDeLosPreciosDeLaCartaYNoSeGuardaNada() {
+        // Long y no long: con el primitivo se elige el findById(long) del repositorio, que no devuelve Optional
+        Long croquetas = 10L;
+        Long agua = 11L;
+        when(productoRepository.findById(croquetas)).thenReturn(Optional.of(producto(croquetas, 2.5)));
+        when(productoRepository.findById(agua)).thenReturn(Optional.of(producto(agua, 1.2)));
+
+        BigDecimal total = servicio.totalDe(List.of(linea(croquetas, 2), linea(agua, 3)));
+
+        assertEquals(0, new BigDecimal("8.60").compareTo(total));
+        verifyNoInteractions(pedidoRepository);
+        assertThrows(IllegalArgumentException.class, () -> servicio.totalDe(List.of()));
     }
 
     @Test

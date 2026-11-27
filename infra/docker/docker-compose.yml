@@ -36,7 +36,9 @@ services:
       - JWT_SECRET=${JWT_SECRET:?Falta_JWT_SECRET}
       # Verificacion en dos pasos: clave para cifrar los secretos TOTP (vacia: se deriva de JWT_SECRET)
       - APP_TOTP_CLAVE=${APP_TOTP_CLAVE:-}
+      # Pago con tarjeta con Stripe, solo en modo de pruebas (sk_test_ y pk_test_). Sin claves, solo efectivo
       - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY:-}
+      - STRIPE_PUBLISHABLE_KEY=${STRIPE_PUBLISHABLE_KEY:-}
       - APP_UPLOAD_USUARIOS=/data/uploads/usuarios/
       - APP_UPLOAD_PRODUCTOS=/data/uploads/productos/
       - APP_SEED_DEMO=${APP_SEED_DEMO:-false}

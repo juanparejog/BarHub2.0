@@ -131,22 +131,28 @@
                   <i class="bi bi-cash-stack option-icon"></i>
                 </label>
                 <!-- Tarjeta -->
-                <label class="payment-option-card" [class.active]="metodoPago === 'tarjeta'">
+                <label class="payment-option-card" [class.active]="metodoPago === 'tarjeta'" [class.disabled]="!tarjetaDisponible">
                   <div class="option-left">
-                    <input type="radio" name="metodoPago" [(ngModel)]="metodoPago" value="tarjeta" (change)="onTarjetaSelected()" class="radio-input">
+                    <input type="radio" name="metodoPago" [(ngModel)]="metodoPago" value="tarjeta" (change)="onTarjetaSelected()" class="radio-input"
+                      [disabled]="!tarjetaDisponible" [attr.aria-describedby]="tarjetaDisponible ? null : 'tarjeta-no-disponible'">
                     <span class="option-title">{{ 'confirmar.tarjeta' | t }}</span>
                   </div>
                   <i class="bi bi-credit-card-2-front option-icon"></i>
                 </label>
               </div>
+              @if (configuracionPago && !tarjetaDisponible) {
+                <p class="small text-body-secondary mt-2 mb-0" id="tarjeta-no-disponible">{{ 'confirmar.tarjetaNoDisponible' | t }}</p>
+              }
             </div>
             <!-- Contenedor Stripe Card Element -->
             @if (metodoPago === 'tarjeta') {
               <div class="stripe-container">
-                <div class="alert alert-warning py-2 small mb-2" role="note">
-                  <i class="bi bi-info-circle me-1"></i>
-                  {{ 'confirmar.pruebas' | t }}
-                </div>
+                @if (configuracionPago?.pruebas) {
+                  <div class="alert alert-warning py-2 small mb-2" role="note">
+                    <i class="bi bi-info-circle me-1"></i>
+                    {{ 'confirmar.pruebas' | t }}
+                  </div>
+                }
                 <div id="card-element"></div>
                 @if (cardErrors) {
                   <div class="card-errors" role="alert">{{ cardErrors }}</div>
@@ -155,9 +161,9 @@
             }
             <!-- Botones de Acción -->
             <div class="action-buttons">
-              <button class="btn-confirm-final" type="button" (click)="finalizarPedido()">
+              <button class="btn-confirm-final" type="button" (click)="finalizarPedido()" [disabled]="procesando" [attr.aria-busy]="procesando">
                 <i class="bi bi-check-circle-fill"></i>
-                <span>{{ 'confirmar.finalizar' | t }}</span>
+                <span>{{ (procesando ? 'confirmar.procesando' : 'confirmar.finalizar') | t }}</span>
               </button>
               <button class="btn-cancel-link" type="button" (click)="cancelarPedido()">
                 {{ 'confirmar.cancelar' | t }}

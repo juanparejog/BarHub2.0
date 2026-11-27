@@ -20,6 +20,7 @@ Resumen de las prácticas de seguridad aplicadas en BarHub 2.0, un modelo de ame
 | **Control de acceso** | Denegación por defecto (`anyRequest().denyAll()`) y `@PreAuthorize` por rol en las operaciones de escritura | Pruebas dinámicas |
 | **Acceso a datos ajenos** | Un usuario solo ve y modifica sus propios pedidos y perfil; el resto recibe un `404` uniforme | Pruebas dinámicas |
 | **Integridad de pedidos** | El servidor recalcula los precios con los del catálogo y no confía en los del cliente | Pruebas dinámicas |
+| **Pagos con tarjeta** | Stripe en modo de pruebas: la tarjeta se escribe en un iframe de Stripe y nunca pasa por BarHub; el servidor crea el intento de pago por el importe que calcula él y, al crear el pedido, comprueba en Stripe que el pago está cobrado, es de ese usuario, por ese importe y para esos productos, y que no se ha usado ya. La clave secreta solo vive en el servidor | Tests de integración, E2E y pruebas dinámicas |
 | **Subida de archivos** | Lista blanca de extensiones, tipo declarado, firma real del archivo, límites de tamaño, nombre aleatorio y ruta normalizada | Pruebas dinámicas y en navegador |
 | **Errores** | Respuestas genéricas al cliente; el detalle queda solo en el log | Pruebas dinámicas |
 | **Validación** | Bean Validation (`@Valid`) en los DTO de entrada | Pruebas dinámicas |
@@ -125,6 +126,8 @@ flowchart LR
 | 23 | Agotar el servidor abriendo conexiones de avisos | Denegación de servicio | Sin hilo por conexión (modo asíncrono), 5 por usuario (se cierra la más antigua), 500 en total (`503`) y 5 min de duración máxima | Aplicada (tests de integración) |
 | 24 | Un ataque en curso (fuerza bruta, escaneo, pruebas de permisos, XSS) que nadie ve hasta revisar los logs a mano | Varias | SOC: Alloy recoge los logs de Caddy y del backend, Loki los vigila con reglas de alerta y Alertmanager avisa por correo o Telegram en uno o dos minutos | Verificado (`soc.py probar` y job `soc` de CI) |
 | 25 | Acceso a los paneles del SOC o a los logs, que llevan IP | Divulgación | Puertos solo en `127.0.0.1` (túnel SSH), contraseña obligatoria en Grafana, sin registro ni acceso anónimo; los logs del SOC no llevan usuarios ni detalle y se borran a los 30 días | Aplicada (tests de `soc.py`) |
+| 26 | Pedido con tarjeta marcado como pagado sin pagar (el cliente manda `estado_pago: COMPLETADO` o un id de pago inventado, de otro pedido o de otra persona) | Manipulación / Fraude | El servidor nunca cree al navegador: pregunta a Stripe con la clave secreta si el pago existe, está cobrado, es de ese usuario, por el importe que calcula él, en euros y para esos productos, y no se ha usado ya (índice único). Si el importe o los productos no cuadran, lo devuelve | Verificado (tests unitarios, de integración, E2E y pruebas dinámicas) |
+| 27 | Robo de los datos de la tarjeta | Divulgación | Stripe Elements: la tarjeta se escribe en un iframe de Stripe y nunca pasa por BarHub (fuera del alcance de PCI DSS más allá del SAQ A). La clave secreta solo está en el servidor; al navegador solo llega la publicable | Aplicada |
 
 ### Fuera de alcance
 
@@ -210,7 +213,7 @@ Si siguen activas las alertas de una prueba anterior, `probar` espera a que se r
 
 | Tema | Detalle |
 | :--- | :--- |
-| Pago con tarjeta simulado | Funciona en modo demostración y la interfaz lo indica. Antes de un uso real hay que verificar en el servidor el `PaymentIntent` de Stripe (estado `succeeded` e importe) |
+| Pago con tarjeta | Solo en modo de pruebas de Stripe (las claves reales se rechazan). El pedido se crea con el pago ya comprobado en Stripe, sin webhook: si el navegador se cierra entre el cobro y la creación del pedido, el pago queda cobrado sin pedido hasta que el cliente reintente desde ese navegador (se guarda para no cobrar dos veces) o se devuelva desde el panel de Stripe. Antes del modo real (paso 18) hacen falta el webhook `payment_intent.succeeded` con su firma, el límite de intentos de pago por IP y las condiciones de venta y devolución |
 | Verificación en dos pasos | La primera configuración la hace quien conoce la contraseña, así que el personal tiene que activarla en cuanto recibe su cuenta. Si un empleado pierde el móvil y los códigos de recuperación, el administrador se la restablece desde el panel; si es el propio administrador, hay que hacerlo en la base de datos (ver el README). Los login a medias viven en memoria 5 minutos. Si cambia `APP_TOTP_CLAVE` (o `JWT_SECRET` sin ella), los secretos guardados dejan de descifrarse |
 | Límite de intentos | El login bloquea 15 minutos una cuenta tras 5 fallos seguidos y una IP tras 20 fallos contra cualquier cuenta. Los contadores viven en memoria (se pierden al reiniciar y no se comparten entre réplicas), alguien puede bloquear a propósito una cuenta ajena durante 15 minutos, y la creación de pedidos sigue sin límite |
 | Correo | En local los correos solo llegan a Mailpit. En producción hace falta un SMTP real con SPF, DKIM y DMARC en el dominio, o acabarán en la carpeta de correo no deseado. Las cuentas creadas antes de la 2.1 y las que da de alta un administrador cuentan como confirmadas |

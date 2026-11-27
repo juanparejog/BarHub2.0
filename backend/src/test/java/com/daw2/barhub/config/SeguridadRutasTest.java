@@ -56,6 +56,9 @@ class SeguridadRutasTest {
         assertPermitido(get("/mesas"));
         assertPermitido(get("/actuator/health"));
         assertPermitido(post("/pedidos").contentType(MediaType.APPLICATION_JSON).content("{}"));
+        // Pago con tarjeta: como los pedidos, tambien sin cuenta
+        assertPermitido(get("/pagos/configuracion"));
+        assertPermitido(post("/pagos/intento").contentType(MediaType.APPLICATION_JSON).content("{}"));
     }
 
     // ---------- cliente: no puede escalar privilegios ----------

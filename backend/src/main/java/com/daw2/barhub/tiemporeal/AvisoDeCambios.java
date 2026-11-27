@@ -6,6 +6,7 @@ import com.daw2.barhub.model.entity.Pedido;
 import jakarta.persistence.PostPersist;
 import jakarta.persistence.PostRemove;
 import jakarta.persistence.PostUpdate;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
@@ -14,13 +15,26 @@ import org.springframework.stereotype.Component;
  * {@link CambioEnTiempoReal}. Asi da igual que endpoint haga el cambio: no se puede olvidar avisar.
  * {@link EventosEnTiempoReal} lo envia a los navegadores cuando la transaccion se confirma.
  *
- * <p>Hibernate crea los listeners de JPA por su cuenta, sin inyeccion; por eso el publicador se
- * guarda al arrancar en un campo estatico ({@link Instalador}). Sin publicador (tests unitarios de
- * entidades) no hace nada.
+ * <p>Con Spring Boot, Hibernate pide el listener a Spring (SpringBeanContainer), que lo crea con el
+ * publicador de su propio contexto: con varios contextos a la vez (los tests) cada uno avisa en el
+ * suyo. Si Hibernate lo creara por su cuenta, sin inyeccion, se usa el que guarda al arrancar
+ * {@link Instalador} en un campo estatico. Sin ninguno (tests unitarios de entidades) no hace nada.
  */
 public class AvisoDeCambios {
 
     private static volatile ApplicationEventPublisher publicador;
+
+    private final ApplicationEventPublisher propio;
+
+    /** Para Hibernate sin Spring: usa el publicador estatico. */
+    public AvisoDeCambios() {
+        this(null);
+    }
+
+    @Autowired
+    public AvisoDeCambios(ApplicationEventPublisher propio) {
+        this.propio = propio;
+    }
 
     static void instalar(ApplicationEventPublisher nuevo) {
         publicador = nuevo;
@@ -30,7 +44,7 @@ public class AvisoDeCambios {
     @PostUpdate
     @PostRemove
     public void cambio(Object entidad) {
-        ApplicationEventPublisher actual = publicador;
+        ApplicationEventPublisher actual = propio != null ? propio : publicador;
         CambioEnTiempoReal cambio = describir(entidad);
         if (actual != null && cambio != null) {
             actual.publishEvent(cambio);

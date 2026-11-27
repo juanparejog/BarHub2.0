@@ -184,8 +184,9 @@ MYSQL_ROOT_PASSWORD=contrasena_root_muy_segura
 # Backend
 JWT_SECRET=secreto-aleatorio-de-al-menos-32-bytes
 
-# Opcional: pago con tarjeta real (sin ella funciona el modo demostración)
+# Opcional: pago con tarjeta con Stripe, claves de PRUEBAS (sin ellas, solo efectivo)
 STRIPE_SECRET_KEY=
+STRIPE_PUBLISHABLE_KEY=
 
 # Solo producción (perfil prod)
 DUCKDNS_DOMAINS=barhub2
@@ -206,7 +207,7 @@ APP_SEED_ADMIN_PASSWORD=
 | `SITE_ADDRESS` | Solo producción. Dominio completo (por defecto `http://localhost`, sin HTTPS) |
 | `CORS_ALLOWED_ORIGINS` | Solo producción. Orígenes permitidos por el backend, separados por comas |
 | `DUCKDNS_TOKEN` | Solo producción. Token de tu cuenta de DuckDNS |
-| `STRIPE_SECRET_KEY` | Opcional. Clave secreta de Stripe; sin ella, el pago con tarjeta funciona en modo demostración |
+| `STRIPE_SECRET_KEY` / `STRIPE_PUBLISHABLE_KEY` | Opcionales. Claves de **pruebas** de Stripe (`sk_test_...` y `pk_test_...`, en *dashboard.stripe.com/test/apikeys*). Sin ellas, la carta solo ofrece pagar en efectivo. Las claves reales se rechazan mientras `app.pagos.solo-pruebas` sea `true` |
 | `JWT_SECRET` | Secreto de firma de los tokens JWT |
 | `APP_SEED_DEMO` | `true` carga 19 productos y 10 mesas de ejemplo si la base de datos está vacía |
 | `APP_SEED_ADMIN_USERNAME` / `APP_SEED_ADMIN_PASSWORD` | Administrador inicial (solo con `APP_SEED_DEMO=true` y si no existe ninguno). La contraseña debe tener al menos 8 caracteres |

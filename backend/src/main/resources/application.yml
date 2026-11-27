@@ -4,9 +4,6 @@ server:
   # de la red interna (Docker). La usan el bloqueo de login por IP y el registro de sesiones
   forward-headers-strategy: native
 
-stripe:
-  secret-key: ${STRIPE_SECRET_KEY}
-
 spring:
   config:
     import: optional:env.properties
@@ -64,6 +61,13 @@ jwt:
 app:
   # URL con la que el usuario abre la web: la usan los enlaces de los correos
   url-publica: ${APP_URL_PUBLICA:http://localhost}
+  # Pago con tarjeta con Stripe. Sin las dos claves, solo se puede pagar en efectivo.
+  # solo-pruebas: con claves reales (sk_live_), la tarjeta queda desactivada hasta ponerlo a false
+  pagos:
+    solo-pruebas: ${APP_PAGOS_SOLO_PRUEBAS:true}
+    stripe:
+      clave-secreta: ${STRIPE_SECRET_KEY:}
+      clave-publica: ${STRIPE_PUBLISHABLE_KEY:}
   correo:
     remitente: ${APP_CORREO_REMITENTE:BarHub <no-responder@barhub.local>}
   # Avisos en tiempo real (Server-Sent Events): cada conexion dura como mucho esto y luego el

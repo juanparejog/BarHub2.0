@@ -119,7 +119,7 @@ sequenceDiagram
 | :--- | :--- | :--- |
 | `home` | Página de inicio | Todos |
 | `carta` | Menú de productos | Cliente |
-| `confirmar-pedido` | Revisión y confirmación del pedido | Cliente |
+| `confirmar-pedido` | Revisión y confirmación del pedido y pago. Con tarjeta (`PagoService`): pide al servidor si hay pago con tarjeta y su clave publicable, carga Stripe.js solo al elegirla, crea el intento de pago en el servidor, lo confirma con `confirmCardPayment` y crea el pedido con el id del pago. Un pago cobrado cuyo pedido no llega a crearse se guarda en `barhub.pagoPendiente` y se reutiliza al reintentar (si el carrito es el mismo), para no cobrar dos veces | Cliente |
 | `seguimiento-pedidos` | Estado actual del pedido | Cliente |
 | `perfil` | Mi perfil: cabecera con foto y estado de la cuenta, y pestañas como rutas hijas (`datos`, `direccion`, `cuenta`, `seguridad`, `privacidad`). `PerfilService` (proveído en el componente) comparte el perfil entre la cabecera y las pestañas | Todos con sesión |
 | `contacto` | Formulario e información de contacto | Todos |

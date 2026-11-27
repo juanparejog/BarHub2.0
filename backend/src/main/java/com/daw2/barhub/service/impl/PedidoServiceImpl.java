@@ -16,6 +16,7 @@ import com.daw2.barhub.model.entity.Producto;
 import com.daw2.barhub.model.repository.MesaRepository;
 import com.daw2.barhub.model.repository.PedidoRepository;
 import com.daw2.barhub.model.repository.ProductoRepository;
+import com.daw2.barhub.pago.VerificacionPago;
 import com.daw2.barhub.service.PedidoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -44,6 +45,9 @@ public class PedidoServiceImpl implements PedidoService {
 
     @Autowired
     private ProductoRepository productoRepository;
+
+    @Autowired
+    private VerificacionPago verificacionPago;
 
     @Override
     public Pedido save(Pedido entity) {
@@ -115,18 +119,31 @@ public class PedidoServiceImpl implements PedidoService {
         // El estado nunca lo decide el cliente
         pedido.setEstado(EstadoPedido.PENDIENTE);
         pedido.setMetodoPago(pedidoDto.getMetodoPago());
-
-        // NOTA: el pago con tarjeta es SIMULADO (modo demo): Stripe todavia no cobra.
-        // Antes de usarlo con dinero real hay que verificar en el servidor el
-        // PaymentIntent (estado succeeded e importe igual al total calculado aqui).
-        pedido.setEstadoPago("tarjeta".equalsIgnoreCase(pedidoDto.getMetodoPago())
-                ? EstadoPago.COMPLETADO
-                : EstadoPago.PENDIENTE);
+        // El estado del pago tampoco: en efectivo se cobra en el local; con tarjeta, solo si Stripe
+        // confirma un pago cobrado por este importe, de este usuario y para estos productos
+        pedido.setEstadoPago(EstadoPago.PENDIENTE);
 
         asignarTipoDePedido(pedido, pedidoDto);
         agregarLineas(pedido, pedidoDto);
 
+        if ("tarjeta".equalsIgnoreCase(pedidoDto.getMetodoPago())) {
+            verificacionPago.comprobar(pedidoDto.getPagoId(), pedido.getPrecioTotal(), pedidoDto.getDetalles(),
+                    pedido.getUser() == null ? null : pedido.getUser().getId());
+            pedido.setPagoId(pedidoDto.getPagoId());
+            pedido.setEstadoPago(EstadoPago.COMPLETADO);
+        }
+
         return pedidoRepository.save(pedido);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public BigDecimal totalDe(List<DetallePedidoDto> detalles) {
+        PedidoDto lineas = new PedidoDto();
+        lineas.setDetalles(detalles);
+        Pedido borrador = new Pedido();
+        agregarLineas(borrador, lineas);
+        return borrador.getPrecioTotal();
     }
 
     private User buscarUsuarioDelPedido(String username) {

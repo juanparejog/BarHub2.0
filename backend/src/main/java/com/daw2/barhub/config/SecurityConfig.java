@@ -91,6 +91,9 @@ public class SecurityConfig {
 
                         // --- PERMITIR CREACIÓN DE PEDIDOS ---
                         .requestMatchers(HttpMethod.POST, "/pedidos").permitAll()
+                        // Pago con tarjeta: como los pedidos, tambien sin cuenta. El pago se comprueba al crear el pedido
+                        .requestMatchers(HttpMethod.GET, "/pagos/configuracion").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/pagos/intento").permitAll()
 
                         // --- GESTIÓN DE PEDIDOS Y COMANDAS PARA EMPLEADOS / ADMINS ---
                         .requestMatchers(HttpMethod.GET, "/pedidos/mis-pedidos").hasAnyRole(ROL_CLIENTE, ROL_EMPLEADO, ROL_ADMIN)

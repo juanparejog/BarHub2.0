@@ -146,7 +146,7 @@ La pantalla **Resumen del Pedido** reúne los datos de entrega, la tabla de prod
 | Método | Descripción |
 | :--- | :--- |
 | **Efectivo / TPV en mesa** | El pago se realiza al personal. El pedido queda pendiente de cobro hasta que un empleado lo registra |
-| **Tarjeta de crédito** | Pago con tarjeta en **modo demostración**: el pago se simula y no se realiza ningún cargo. La pantalla de pago muestra un aviso |
+| **Tarjeta de crédito** | Pago con tarjeta con Stripe en **modo de pruebas**: no se cobra dinero real y la pantalla lo avisa con la tarjeta de prueba que se puede usar (4242 4242 4242 4242). Los datos de la tarjeta van directos a Stripe. El pedido solo se crea cuando el pago se ha cobrado; si la tarjeta se rechaza, se ve el motivo y no se crea nada. Si el local no tiene configurado el pago con tarjeta, la opción aparece desactivada |
 
 ### 5.2. Finalización
 

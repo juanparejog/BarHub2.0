@@ -3,6 +3,8 @@ package com.daw2.barhub.tiemporeal;
 import com.daw2.barhub.auth.sesion.SesionService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.event.ContextClosedEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.event.TransactionPhase;
@@ -43,6 +45,7 @@ public class EventosEnTiempoReal {
     }
 
     private final Map<String, Suscripcion> abiertas = new ConcurrentHashMap<>();
+    private volatile boolean parando;
     private final AtomicLong contador = new AtomicLong();
     private final SesionService sesiones;
     private final Duration duracion;
@@ -99,9 +102,22 @@ public class EventosEnTiempoReal {
         return CambioEnTiempoReal.PEDIDO.equals(cambio.tipo()) && suscripcion.usuarioId().equals(cambio.usuarioId());
     }
 
+    /**
+     * Al parar la aplicacion se cierran todas las conexiones (los navegadores se vuelven a conectar
+     * solos) y el latido deja de mirar las sesiones: la base de datos puede estar cerrandose ya.
+     */
+    @EventListener(ContextClosedEvent.class)
+    public void alParar() {
+        parando = true;
+        abiertas.values().forEach(this::cerrar);
+    }
+
     /** Latido: mantiene viva la conexion a traves de proxies y corta la de una sesion que ya no vale. */
     @Scheduled(fixedDelayString = "PT" + LATIDO_SEGUNDOS + "S")
     public void latido() {
+        if (parando) {
+            return;
+        }
         for (Suscripcion suscripcion : abiertas.values()) {
             if (!sesiones.sigueAbierta(suscripcion.sesionId(), suscripcion.usuarioId())) {
                 cerrar(suscripcion);
