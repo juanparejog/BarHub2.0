@@ -80,6 +80,9 @@ seguridad/certs/
 .env.local
 .env.production
 infra/.env
+# Configuracion de Alertmanager generada por seguridad/soc/soc.py (lleva las claves del SMTP y de Telegram)
+seguridad/soc/alertmanager/alertmanager.yml
+__pycache__/
 
 # ------------------------------------------
 # 5. Seguridad y SOC

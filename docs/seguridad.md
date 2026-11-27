@@ -1,6 +1,6 @@
 # Seguridad
 
-Resumen de las prácticas de seguridad aplicadas en BarHub 2.0 y un modelo de amenazas básico. Las evidencias estáticas están en [auditorias.md](auditorias.md) y las pruebas dinámicas en [evidencias/](evidencias/seguridad-2026-11-15.md).
+Resumen de las prácticas de seguridad aplicadas en BarHub 2.0, un modelo de amenazas básico y el SOC que vigila la aplicación. Las evidencias estáticas están en [auditorias.md](auditorias.md) y las pruebas dinámicas en [evidencias/](evidencias/seguridad-2026-11-15.md).
 
 ## Índice
 
@@ -8,7 +8,8 @@ Resumen de las prácticas de seguridad aplicadas en BarHub 2.0 y un modelo de am
 2. [Autenticación y autorización](#2-autenticación-y-autorización)
 3. [Modelo de amenazas básico](#3-modelo-de-amenazas-básico)
 4. [Pruebas dinámicas](#4-pruebas-dinámicas)
-5. [Pendientes y limitaciones conocidas](#5-pendientes-y-limitaciones-conocidas)
+5. [SOC: detección y alertas](#5-soc-detección-y-alertas)
+6. [Pendientes y limitaciones conocidas](#6-pendientes-y-limitaciones-conocidas)
 
 ---
 
@@ -34,6 +35,7 @@ Resumen de las prácticas de seguridad aplicadas en BarHub 2.0 y un modelo de am
 | **CSP estricta** | `Content-Security-Policy` en Caddy: scripts solo de la propia web y de Stripe, sin `unsafe-inline` ni `unsafe-eval`; `object-src 'none'`, `base-uri 'self'`, `form-action 'self'` y `frame-ancestors 'none'`. Las infracciones llegan al log del backend (`POST /api/csp-informe`). Con `CSP_CABECERA=Content-Security-Policy-Report-Only` queda solo en modo aviso para probar cambios | E2E (fallan si algo infringe la política) y pruebas dinámicas |
 | **Registro de auditoría** | Inicios de sesión (también los fallidos), segundo paso, reautenticación, cambios de contraseña y de correo, verificación en dos pasos, sesiones, descargas de datos, cuentas eliminadas, altas, ediciones (con los roles antes y después) y bajas de usuarios, caja y accesos denegados por rol, con usuario, IP, resultado y petición. Sin contraseñas, códigos ni tokens; solo lectura para el administrador (*Admin → Auditoría*) y se borra al año | Tests de integración y E2E |
 | **Avisos en tiempo real** | Server-Sent Events con el token en la cabecera `Authorization` (nunca en la URL). El canal del personal solo para empleados y administradores; el del cliente, solo con los pedidos propios. Los avisos llevan tipo e id, sin datos: la pantalla los vuelve a pedir por los endpoints que comprueban permisos. El servidor corta la conexión cuando la sesión se cierra o caduca, y limita las conexiones (5 por usuario, 500 en total, 5 min cada una) | Tests de integración, E2E y pruebas dinámicas |
+| **SOC** | Logs de Caddy y del backend en Loki (30 días), 8 reglas de alerta (fuerza bruta, accesos denegados, cambios de privilegios, escaneo, 5xx, CSP, errores) y avisos por correo o Telegram. Recolector sin acceso a Docker ni capacidades, paneles solo en `127.0.0.1`. Desplegado y probado con `seguridad/soc/soc.py` ([sección 5](#5-soc-detección-y-alertas)) | Job `soc` de CI y `soc.py probar` |
 | **CI/CD** | Análisis estático con SonarCloud; credenciales en secretos de GitHub | Pipeline |
 | **Endurecimiento del pipeline** | Acciones fijadas por SHA, permisos mínimos, `npm ci --ignore-scripts`, `gradle.lockfile` y contenedor del frontend sin root | SonarCloud |
 
@@ -121,6 +123,8 @@ flowchart LR
 | 21 | Uso indebido de una cuenta sin dejar rastro (cambios de roles, borrados, pruebas de contraseñas o de permisos) | Repudio | Registro de auditoría de las acciones de seguridad y de gestión, con resultado, IP y petición, que la aplicación no deja modificar | Verificado (tests de integración y E2E) |
 | 22 | Escuchar en tiempo real los pedidos de otros (un cliente en el canal del personal o en el de otro cliente) o seguir recibiendo avisos con una sesión ya cerrada | Divulgación | Canal del personal solo para empleados y administradores; el del cliente filtra por dueño del pedido; avisos sin datos personales; latido cada 25 s que corta la conexión de una sesión cerrada | Verificado (tests de integración, E2E y pruebas dinámicas) |
 | 23 | Agotar el servidor abriendo conexiones de avisos | Denegación de servicio | Sin hilo por conexión (modo asíncrono), 5 por usuario (se cierra la más antigua), 500 en total (`503`) y 5 min de duración máxima | Aplicada (tests de integración) |
+| 24 | Un ataque en curso (fuerza bruta, escaneo, pruebas de permisos, XSS) que nadie ve hasta revisar los logs a mano | Varias | SOC: Alloy recoge los logs de Caddy y del backend, Loki los vigila con reglas de alerta y Alertmanager avisa por correo o Telegram en uno o dos minutos | Verificado (`soc.py probar` y job `soc` de CI) |
+| 25 | Acceso a los paneles del SOC o a los logs, que llevan IP | Divulgación | Puertos solo en `127.0.0.1` (túnel SSH), contraseña obligatoria en Grafana, sin registro ni acceso anónimo; los logs del SOC no llevan usuarios ni detalle y se borran a los 30 días | Aplicada (tests de `soc.py`) |
 
 ### Fuera de alcance
 
@@ -138,7 +142,71 @@ La API en ejecución se probó con un script propio contra una instancia local y
 
 Resultado de la última ejecución (22 de noviembre de 2026): 53 OK y 0 fallos, incluida la fuerza bruta en el login, que el 15 de noviembre figuraba como pendiente.
 
-## 5. Pendientes y limitaciones conocidas
+## 5. SOC: detección y alertas
+
+El SOC de la aplicación vive en [`seguridad/soc/`](../seguridad/soc), junto al bastionado del servidor, y se arranca con el perfil `soc` de Docker Compose. Detecta y avisa; la respuesta es manual (salvo el bloqueo del login, que hace el backend). Cómo encaja con el resto de la monitorización del servidor (Uptime Kuma, `auditd`, `aide`) está en [infraestructura.md](infraestructura.md#12-soc-y-monitorización).
+
+| Contenedor | Imagen | Función | Puerto |
+| :--- | :--- | :--- | :--- |
+| `barhub-alloy` | `grafana/alloy` | Lee `access.log` de Caddy y `backend.log` del backend (volúmenes en solo lectura) y los envía a Loki con la etiqueta `servicio`. Sin acceso a Docker, sin capacidades (`cap_drop: ALL`) y sin puertos | Ninguno |
+| `barhub-loki` | `grafana/loki` | Guarda los logs 30 días y evalúa cada minuto las reglas de [`seguridad/soc/loki/reglas/barhub.yml`](../seguridad/soc/loki/reglas/barhub.yml) | `127.0.0.1:3100` |
+| `barhub-alertmanager` | `prom/alertmanager` | Agrupa las alertas por regla e IP y las envía; avisa también cuando se resuelven | `127.0.0.1:9093` |
+| `barhub-grafana` | `grafana/grafana` | Panel *BarHub - SOC* (página de inicio) y consultas libres a los logs. Sin registro ni acceso anónimo | `127.0.0.1:3000` |
+
+**De dónde salen los datos:**
+
+- **Caddy** ya escribía el log de acceso en JSON (una línea por petición, con IP, ruta y código).
+- **El backend** escribe, además de la consola, un log en JSON (`LOGGING_STRUCTURED_FORMAT_FILE=logstash`) en el volumen `backend_logs`, con rotación a los 10 MB y 7 días de histórico. Cada entrada del registro de auditoría deja una línea `evento=auditoria accion=INICIO_SESION resultado=RECHAZADO ip=203.0.113.7`: acción, resultado e IP, **sin usuario ni detalle**, que siguen solo en la base de datos (*Admin → Auditoría*). Se escribe antes de guardar la entrada, así que el SOC la tiene aunque la base de datos falle o alguien la modifique después. Los avisos de la CSP (`CSP:`) y los errores llegan por el mismo log.
+
+### 5.1. Reglas de alerta
+
+| Alerta | Se dispara con | Severidad |
+| :--- | :--- | :---: |
+| `FuerzaBrutaInicioSesion` | 8 o más inicios de sesión, segundos pasos o reautenticaciones rechazados o bloqueados desde una IP en 5 min (el backend bloquea una cuenta a los 5 y una IP a los 20) | alta |
+| `FallosInicioSesionRepartidos` | 40 o más inicios de sesión fallidos en 15 min sumando todas las IP (botnet o lista de contraseñas) | media |
+| `AccesosDenegadosRepetidos` | 10 o más `ACCESO_DENEGADO` (zonas de otro rol) desde una IP en 5 min | alta |
+| `CambioDePrivilegios` | Alta, edición o baja de un usuario, o restablecimiento de su verificación en dos pasos | info |
+| `EscaneoOAbusoDesdeUnaIp` | 40 o más respuestas 4xx para una IP en 5 min (escaneo de rutas) | media |
+| `ErroresDelServidor` | 10 o más respuestas 5xx en 5 min | alta |
+| `InfraccionCSP` | Cualquier aviso de la CSP en 10 min | media |
+| `ErroresDelBackend` | 5 o más líneas `ERROR` en 5 min | media |
+
+Los umbrales están pensados para el tráfico de un bar: con el uso normal no salta ninguna. Las pruebas sí las disparan, y es lo esperado: `pruebas_seguridad.py` y los E2E provocan fuerza bruta, accesos denegados, 4xx y avisos de la CSP.
+
+### 5.2. Despliegue y prueba con `soc.py`
+
+`seguridad/soc/soc.py` (Python 3, solo biblioteca estándar) hace todo el ciclo. Como el resto de scripts del proyecto, `desplegar`, `probar` y `parar` solo cuentan lo que harían hasta que se añade `--aplicar`.
+
+| Orden | Qué hace |
+| :--- | :--- |
+| `validar` | Revisa los ficheros (reglas, panel, que ningún puerto salga de `127.0.0.1`, versiones fijadas) y pasa la configuración por las propias imágenes: Loki la verifica y, en un contenedor de usar y tirar, carga y evalúa las reglas; `amtool` y Alloy revisan las suyas. Es lo que ejecuta el job `soc` de CI |
+| `comprobar` | Ficheros, variables `SOC_*` del `.env`, Docker, y que el backend ya escribe el log del SOC |
+| `desplegar` | Genera `seguridad/soc/alertmanager/alertmanager.yml` desde el `.env` (lleva las claves del SMTP y de Telegram: no se versiona), arranca los cuatro contenedores y espera a que estén listos y con todas las reglas cargadas |
+| `probar` | Ataque simulado: 8 inicios de sesión fallidos de un usuario inventado, 45 peticiones a rutas que no existen y un aviso de la CSP. Espera a que `FuerzaBrutaInicioSesion`, `EscaneoOAbusoDesdeUnaIp` e `InfraccionCSP` estén activas en Alertmanager y, con Mailpit, a que lleguen los tres correos. Si falta alguna, dice si los logs han llegado a Loki (recogida) o no (regla) |
+| `estado` | Contenedores, reglas cargadas con su estado y alertas activas |
+| `parar` | Para los cuatro contenedores; los datos de Loki y Grafana se quedan |
+
+```bash
+# 1. Variables: SOC_GRAFANA_CLAVE (obligatoria) y, en producción, el SMTP o Telegram (ver .env.example)
+nano infra/docker/.env
+# 2. La aplicación, con el log del SOC en el backend
+cd infra/docker && docker compose up -d --build && cd ../..
+# 3. El SOC
+python3 seguridad/soc/soc.py comprobar
+python3 seguridad/soc/soc.py desplegar --aplicar
+python3 seguridad/soc/soc.py probar --aplicar
+```
+
+Si siguen activas las alertas de una prueba anterior, `probar` espera a que se resuelvan (y, con Mailpit, al correo de resueltas) antes de atacar: Alertmanager no repite el correo de una alerta de la que ya ha avisado hasta que se resuelve o pasan 4 horas, y la prueba no demostraría nada. `probar` suma 8 fallos al contador de la IP en el backend, que la bloquea 15 minutos a los 20: conviene no lanzarlo seguido de `pruebas_seguridad.py` desde el mismo equipo. Las alertas de la prueba se resuelven solas cuando pasa su ventana (5 a 10 minutos).
+
+### 5.3. Acceso y datos personales
+
+- Ningún puerto del SOC sale del equipo. En el servidor se entra por un túnel SSH: `ssh -p 22022 -L 3000:127.0.0.1:3000 -L 9093:127.0.0.1:9093 usuario@servidor` y, en el navegador, `http://127.0.0.1:3000`.
+- Grafana pide usuario (`SOC_GRAFANA_USUARIO`, `admin` por defecto) y la contraseña de `SOC_GRAFANA_CLAVE`, que solo se aplica la primera vez que arranca (después se cambia desde el propio Grafana); sin registro, sin acceso anónimo y sin informes a Grafana Labs. `soc.py` no despliega sin una de al menos 12 caracteres.
+- Las IP son datos personales. Loki las guarda **30 días** (`retention_period: 720h`), lo necesario para investigar un incidente; el registro de auditoría de la base de datos las guarda un año por interés legítimo en la seguridad ([limitaciones](#6-pendientes-y-limitaciones-conocidas)). El SOC no recibe nombres de usuario, contraseñas, códigos ni tokens.
+- Memoria y acceso en el servidor: [infraestructura.md](infraestructura.md#121-soc-de-la-aplicación-perfil-soc).
+
+## 6. Pendientes y limitaciones conocidas
 
 | Tema | Detalle |
 | :--- | :--- |
@@ -148,8 +216,9 @@ Resultado de la última ejecución (22 de noviembre de 2026): 53 OK y 0 fallos, 
 | Correo | En local los correos solo llegan a Mailpit. En producción hace falta un SMTP real con SPF, DKIM y DMARC en el dominio, o acabarán en la carpeta de correo no deseado. Las cuentas creadas antes de la 2.1 y las que da de alta un administrador cuentan como confirmadas |
 | Registro de jornada | Registra entradas y salidas del personal, pero no es un sistema de fichaje certificado: no guarda firma del empleado ni impide que el administrador consulte o exporte a su criterio, y la conservación durante 4 años que exige la normativa depende de las copias de seguridad de la base de datos |
 | Token de acceso en `localStorage` | El token de acceso (15 min) sigue en `localStorage`; el de renovación ya no es accesible desde JavaScript. La CSP estricta reduce el riesgo de XSS que podría leerlo |
-| Registro de auditoría | Vive en la misma base de datos: quien tenga acceso directo a MariaDB puede modificarlo. Para que no se pueda alterar haría falta enviarlo también fuera (al SOC del paso 11). Guarda IP y nombres de usuario un año (interés legítimo en la seguridad); al eliminar una cuenta sus entradas se quedan sin nombre ni IP. Los `401` sin sesión no se anotan, para no llenarlo de ruido |
+| Registro de auditoría | Vive en la misma base de datos: quien tenga acceso directo a MariaDB puede modificarlo. Con el SOC en marcha, cada entrada (acción, resultado e IP) queda también en Loki, así que un cambio en la base de datos se puede contrastar; pero Loki está en el mismo servidor, y quien lo controle entero podría borrar las dos copias. Guarda IP y nombres de usuario un año (interés legítimo en la seguridad); al eliminar una cuenta sus entradas se quedan sin nombre ni IP. Los `401` sin sesión no se anotan, para no llenarlo de ruido |
 | CSP | Los estilos en línea están permitidos (`style-src 'unsafe-inline'`), porque Angular inserta así los de cada componente y Bootstrap usa el atributo `style`; un estilo inyectado no ejecuta código. Google Fonts, Google Maps y Stripe siguen permitidos (las fuentes serán propias en el paso 12). Los QR ya se dibujan en el navegador: `api.qrserver.com` ya no está en la política |
 | Pantallas que se refrescan solas | El cierre por inactividad lo decide la interacción del usuario, no las peticiones automáticas: un monitor de comandas que nadie toca durante 30 minutos pide confirmación y, sin respuesta, se cierra |
+| SOC | Detecta y avisa, pero no bloquea: la respuesta es manual (salvo el bloqueo del login, que hace el backend). Los avisos dependen del correo o de Telegram; si el SMTP falla no hay aviso, solo la alerta en Alertmanager. Las reglas tienen umbrales fijos: un ataque lento, por debajo de ellos, no salta |
 | Uptime Kuma | Publicado en el puerto 3001; ver mejoras en [infraestructura.md](infraestructura.md#13-mejoras-recomendadas) |
 | Dependencias sin parche compatible | `jaxb-core` 4.0.9 (XXE, no explotable: BarHub no lee XML de fuera) y `jakarta.validation-api` 3.1.1 (baja, corrección solo en una versión preliminar). Queda 1 alerta de Dependabot por revisar |

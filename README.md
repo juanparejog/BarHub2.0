@@ -42,7 +42,7 @@ BarHub 2.0 es una aplicación full-stack para establecimientos de hostelería. E
 Es la segunda versión de mi TFC. Esta vez me he centrado en tres cosas: rediseñar la interfaz, añadir los módulos de caja y analítica, y trabajar el ciclo de vida seguro del software, con auditorías de dependencias, calidad de código y contenedores, integración continua y bastionado del servidor.
 
 > [!NOTE]
-> **Estado actual:** la aplicación funciona y está auditada en local. El despliegue en VPS y el SOC automático siguen en curso. Más abajo está el [estado detallado](#estado-del-proyecto).
+> **Estado actual:** la aplicación funciona y está auditada en local, con un SOC automático que avisa de los ataques. El despliegue en VPS sigue pendiente. Más abajo está el [estado detallado](#estado-del-proyecto).
 
 ---
 
@@ -113,6 +113,7 @@ flowchart LR
 | **Frontend** | Angular 22 (build con esbuild), TypeScript 6, Bootstrap 5.3, Bootstrap Icons |
 | **Base de datos** | MariaDB |
 | **Infraestructura** | Docker (multi-stage), Docker Compose, Caddy, DuckDNS, Uptime Kuma, Mailpit (correo en local) |
+| **SOC** | Grafana Alloy, Loki, Alertmanager y Grafana ([`seguridad/soc/`](./seguridad/soc)) |
 | **Calidad y seguridad** | SonarQube / SonarCloud, Snyk, Trivy, GitHub Actions, Dependabot |
 
 ---
@@ -166,6 +167,19 @@ Además de las auditorías estáticas, he probado el backend en ejecución (inst
 | Errores | Respuestas genéricas y `404` en recursos inexistentes | Verificado |
 | Fuerza bruta en el login | Bloqueo tras 5 intentos fallidos (429 con `Retry-After`), cubierto por tests | Verificado ([prueba dinámica](docs/evidencias/seguridad-2026-11-22.md)) |
 
+### SOC: detección y alertas
+
+Los logs de Caddy y del backend pasan por un SOC propio ([`seguridad/soc/`](./seguridad/soc)): Grafana Alloy los recoge, Loki los guarda 30 días y vigila 8 reglas de alerta, Alertmanager avisa por correo (o Telegram) y Grafana los muestra en un panel. Todo con Docker Compose (perfil `soc`) y sin abrir puertos hacia fuera.
+
+| Alerta | Qué detecta |
+| :--- | :--- |
+| Fuerza bruta | Inicios de sesión, segundos pasos o reautenticaciones fallidos desde una IP, o muchos repartidos entre IP |
+| Accesos denegados y privilegios | Pruebas de zonas de otro rol, y altas, ediciones o bajas de usuarios |
+| Escaneo y errores | Muchas respuestas 4xx para una IP, 5xx y errores del backend |
+| CSP | Cualquier recurso que el navegador bloquee por la política de seguridad de contenido |
+
+`seguridad/soc/soc.py` (Python, sin dependencias) lo valida, lo despliega y lo prueba con un ataque simulado: comprueba que las alertas llegan a Alertmanager y los correos al buzón. En CI, el job `soc` carga y evalúa las reglas en un Loki real. Detalle en [`docs/seguridad.md`](docs/seguridad.md#5-soc-detección-y-alertas).
+
 ### Pipeline CI/CD
 
 ```mermaid
@@ -194,7 +208,7 @@ El pipeline compila el frontend, ejecuta sus tests (Vitest) y los del backend (J
 - **Red:** solo Caddy publica puertos hacia fuera; base de datos, backend y frontend viven en una red interna de Docker.
 - **Base de datos:** el backend se conecta a MariaDB con TLS 1.3 y certificado verificado, y el usuario de la aplicación tiene el TLS obligatorio (`REQUIRE SSL`): una conexión sin cifrar se rechaza ([evidencia](docs/evidencias/tls-mariadb-2026-11-20.md)).
 - **Dependencias:** auditoría con Snyk, versiones de seguridad alineadas donde hace falta (restricciones de Gradle) y Dependabot para las actualizaciones.
-- **Servidor:** script de bastionado del sistema Linux en [`seguridad/`](./seguridad).
+- **Servidor:** script de bastionado del sistema Linux y SOC con alertas en [`seguridad/`](./seguridad).
 - **Accesibilidad:** contrastes revisados para cumplir los mínimos de WCAG.
 - **Divulgación responsable:** política de reporte de vulnerabilidades en [`SECURITY.md`](./SECURITY.md).
 
@@ -264,7 +278,7 @@ La migración va primero, para que las funcionalidades nuevas se construyan ya s
 | 11 | Código QR por mesa | Pedir desde la mesa sin elegirla a mano |
 | 12 | Varios idiomas (español, portugués e inglés) | Carta traducida, tras los alérgenos |
 | 13 | Impresión de comandas | Flujo cocina y barra; pendiente decidir si hay pantalla en cocina |
-| 14 | SOC en local | Monitorización y alertas probadas sin depender de un VPS |
+| 14 | SOC en local | Hecho |
 | 15 | Stripe en modo de pruebas | Probar el flujo de pago completo sin cobros reales |
 
 **Cuando haya servidor**
@@ -326,7 +340,7 @@ BarHub2.0/
 │   ├── caddy/           Caddyfile (proxy inverso y HTTPS)
 │   ├── docker/          docker-compose.yml y .env.example
 │   └── mysql/           Configuración de la base de datos
-├── seguridad/           Script de bastionado del sistema Linux
+├── seguridad/           Bastionado del servidor Linux y SOC (detección y alertas)
 ├── docs/                Documentación técnica, auditorías y evidencias de pruebas
 ├── CHANGELOG.md
 ├── LICENSE.md

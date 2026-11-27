@@ -68,20 +68,25 @@ public class JwtUtils {
     return Jwts.parser().verifyWith(key()).build().parseSignedClaims(token).getPayload();
   }
 
+  /**
+   * Un token que no vale es un fallo del cliente, no del servidor: caducado es lo normal (el
+   * frontend lo renueva) y va en DEBUG; mal formado o con otra firma puede ser manipulacion y va en
+   * WARN. Ninguno es ERROR, que el SOC cuenta como fallo del backend.
+   */
   public boolean validateJwtToken(String authToken) {
     try {
       Jwts.parser().verifyWith(key()).build().parseSignedClaims(authToken);
       return true;
     } catch (MalformedJwtException e) {
-      logger.error("Token JWT no válido: {}", e.getMessage());
+      logger.warn("Token JWT no válido: {}", e.getMessage());
     } catch (ExpiredJwtException e) {
-      logger.error("El token JWT ha expirado: {}", e.getMessage());
+      logger.debug("El token JWT ha expirado: {}", e.getMessage());
     } catch (UnsupportedJwtException e) {
-      logger.error("El token JWT no es compatible: {}", e.getMessage());
+      logger.warn("El token JWT no es compatible: {}", e.getMessage());
     } catch (JwtException e) {
-      logger.error("Firma del token JWT no válida: {}", e.getMessage());
+      logger.warn("Firma del token JWT no válida: {}", e.getMessage());
     } catch (IllegalArgumentException e) {
-      logger.error("JWT afirma que la cadena está vacía: {}", e.getMessage());
+      logger.debug("JWT afirma que la cadena está vacía: {}", e.getMessage());
     }
 
     return false;

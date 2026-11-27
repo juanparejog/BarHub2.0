@@ -5,6 +5,9 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.boot.test.system.CapturedOutput;
+import org.springframework.boot.test.system.OutputCaptureExtension;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -86,6 +89,18 @@ class JwtUtilsTest {
     @Test
     void textoQueNoEsUnTokenNoEsValido() {
         assertFalse(jwtUtils.validateJwtToken("esto-no-es-un-jwt"));
+    }
+
+    @Test
+    @ExtendWith(OutputCaptureExtension.class)
+    void unTokenQueNoValeNoEsUnErrorDelServidorEnElLog(CapturedOutput salida) {
+        JwtUtils caducado = crear(SECRETO, -1_000);
+        assertFalse(jwtUtils.validateJwtToken(caducado.generateJwtToken(autenticacion("ROLE_CLIENTE"), SESION)));
+        assertFalse(jwtUtils.validateJwtToken(crear(OTRO_SECRETO, 60_000).generateJwtToken(autenticacion("ROLE_ADMIN"), SESION)));
+        assertFalse(jwtUtils.validateJwtToken("esto-no-es-un-jwt"));
+        assertFalse(jwtUtils.validateJwtToken(""));
+        // El SOC cuenta las lineas ERROR del backend como fallos suyos
+        assertTrue(salida.getOut().lines().noneMatch(l -> l.contains("JwtUtils") && l.contains("ERROR")), salida.getOut());
     }
 
     @Test

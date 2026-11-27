@@ -1,0 +1,11 @@
+# Panel del SOC, cargado desde ficheros: los cambios se hacen en seguridad/soc/grafana/paneles
+apiVersion: 1
+
+providers:
+  - name: barhub
+    folder: BarHub
+    type: file
+    disableDeletion: true
+    allowUiUpdates: false
+    options:
+      path: /etc/grafana/paneles-barhub

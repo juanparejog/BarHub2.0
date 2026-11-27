@@ -50,9 +50,14 @@ services:
       - SPRING_MAIL_PASSWORD=${MAIL_PASSWORD:-}
       - SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE=${MAIL_STARTTLS:-false}
       - APP_URL_PUBLICA=${SITE_ADDRESS:-http://localhost}
+      # Ademas de la consola, el log va en JSON a un fichero que lee el SOC (perfil "soc").
+      # Spring Boot lo rota a los 10 MB y guarda 7 dias
+      - LOGGING_FILE_NAME=/var/log/barhub/backend.log
+      - LOGGING_STRUCTURED_FORMAT_FILE=logstash
     volumes:
       - uploads_usuarios:/data/uploads/usuarios
       - uploads_productos:/data/uploads/productos
+      - backend_logs:/var/log/barhub
     networks:
       - barhub-net
 
@@ -125,6 +130,92 @@ services:
     networks:
       - barhub-net
 
+  # --- SOC (perfil "soc"): se despliega y se prueba con seguridad/soc/soc.py ---
+  # Alloy lee los logs de Caddy y del backend, Loki los guarda 30 dias y evalua las reglas de
+  # alerta, Alertmanager avisa (correo, y Telegram si se configura) y Grafana los muestra.
+  # Ningun puerto sale del propio equipo: en produccion se entra por un tunel SSH.
+  loki:
+    profiles: ["soc"]
+    image: grafana/loki:3.7.7
+    container_name: barhub-loki
+    restart: unless-stopped
+    command: ["-config.file=/etc/loki/barhub/loki.yml"]
+    security_opt: ["no-new-privileges:true"]
+    ports:
+      - "127.0.0.1:3100:3100"
+    volumes:
+      - ../../seguridad/soc/loki/loki.yml:/etc/loki/barhub/loki.yml:ro
+      # Reglas de alerta. Sin multiusuario, Loki las busca en la carpeta del usuario "fake"
+      - ../../seguridad/soc/loki/reglas:/etc/loki/reglas/fake:ro
+      - loki_data:/loki
+    networks:
+      - barhub-net
+
+  alloy:
+    profiles: ["soc"]
+    image: grafana/alloy:v1.21.0
+    container_name: barhub-alloy
+    restart: unless-stopped
+    # Como root para leer el log de Caddy (0600, de root), pero sin ninguna capacidad: solo lee
+    # los dos volumenes de logs, en modo lectura, y no tiene acceso a Docker
+    user: "0:0"
+    cap_drop: ["ALL"]
+    security_opt: ["no-new-privileges:true"]
+    command: ["run", "--server.http.listen-addr=0.0.0.0:12345", "--storage.path=/var/lib/alloy-barhub", "/etc/alloy/barhub/config.alloy"]
+    depends_on:
+      - loki
+    volumes:
+      - ../../seguridad/soc/alloy/config.alloy:/etc/alloy/barhub/config.alloy:ro
+      - caddy_logs:/var/log/caddy:ro
+      - backend_logs:/var/log/barhub:ro
+      - alloy_data:/var/lib/alloy-barhub
+    networks:
+      - barhub-net
+
+  alertmanager:
+    profiles: ["soc"]
+    image: prom/alertmanager:v0.34.1
+    container_name: barhub-alertmanager
+    restart: unless-stopped
+    security_opt: ["no-new-privileges:true"]
+    # alertmanager.yml lo genera soc.py a partir del .env (no se sube al repositorio)
+    command: ["--config.file=/etc/alertmanager/barhub/alertmanager.yml", "--storage.path=/alertmanager", "--web.external-url=http://127.0.0.1:9093"]
+    ports:
+      - "127.0.0.1:9093:9093"
+    volumes:
+      - ../../seguridad/soc/alertmanager:/etc/alertmanager/barhub:ro
+      - alertmanager_data:/alertmanager
+    networks:
+      - barhub-net
+
+  grafana:
+    profiles: ["soc"]
+    image: grafana/grafana:13.2.0
+    container_name: barhub-grafana
+    restart: unless-stopped
+    security_opt: ["no-new-privileges:true"]
+    depends_on:
+      - loki
+      - alertmanager
+    environment:
+      - GF_SECURITY_ADMIN_USER=${SOC_GRAFANA_USUARIO:-admin}
+      - GF_SECURITY_ADMIN_PASSWORD=${SOC_GRAFANA_CLAVE:-}
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_AUTH_ANONYMOUS_ENABLED=false
+      - GF_ANALYTICS_REPORTING_ENABLED=false
+      - GF_ANALYTICS_CHECK_FOR_UPDATES=false
+      - GF_ANALYTICS_CHECK_FOR_PLUGIN_UPDATES=false
+      - GF_NEWS_NEWS_FEED_ENABLED=false
+      - GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH=/etc/grafana/paneles-barhub/soc.json
+    ports:
+      - "127.0.0.1:3000:3000"
+    volumes:
+      - ../../seguridad/soc/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ../../seguridad/soc/grafana/paneles:/etc/grafana/paneles-barhub:ro
+      - grafana_data:/var/lib/grafana
+    networks:
+      - barhub-net
+
 networks:
   barhub-net:
     driver: bridge
@@ -135,5 +226,10 @@ volumes:
   caddy_config:
   caddy_logs:
   uptime_data:
+  backend_logs:
+  loki_data:
+  alloy_data:
+  alertmanager_data:
+  grafana_data:
   uploads_usuarios:
   uploads_productos:

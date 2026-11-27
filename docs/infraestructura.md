@@ -52,6 +52,7 @@ flowchart LR
 | `barhub-mysql` | Base de datos MariaDB | Solo red interna |
 | `barhub-duckdns` | Mantiene actualizado el registro DNS dinámico (solo con el perfil `prod`) | No |
 | `barhub-uptime-kuma` | Panel de monitorización de disponibilidad | 3001 |
+| `barhub-loki`, `barhub-alloy`, `barhub-alertmanager`, `barhub-grafana` | SOC: recogida de logs, reglas de alerta, avisos y panel (solo con el perfil `soc`, [seguridad.md](seguridad.md#5-soc-detección-y-alertas)) | No (solo `127.0.0.1`) |
 
 Puertos abiertos en el cortafuegos tras el bastionado: **`22022`** (SSH), **`80`**, **`443`** y **`3001`** (Uptime Kuma). Restringir el acceso al puerto 3001 figura entre las [mejoras recomendadas](#13-mejoras-recomendadas).
 
@@ -69,7 +70,8 @@ BarHub2.0/
 │   ├── mysql/                   Configuración de la base de datos
 │   └── README.md                Guía de despliegue
 └── seguridad/
-    └── hardening-linux.py       Script de bastionado del sistema
+    ├── hardening/               Script de bastionado del sistema
+    └── soc/                     SOC: reglas de Loki, Alloy, Grafana y soc.py (despliegue y prueba)
 ```
 
 ## 3. Requisitos previos
@@ -358,7 +360,7 @@ El contenedor del frontend lleva su propio `Caddyfile` (caché de los bundles co
 Fase final del despliegue: un script automatizado endurece el sistema operativo **preservando las interfaces de red virtuales de Docker**.
 
 ```bash
-sudo python3 seguridad/hardening-linux.py
+sudo python3 seguridad/hardening/hardening-linux.py
 ```
 
 > **Importante:** despliega primero los contenedores (sección 7) y comprueba que tu clave SSH funciona. Mantén **otra sesión SSH abierta** mientras se aplica el script, por si algo bloquea el acceso.
@@ -415,15 +417,17 @@ docker compose ps                          # los contenedores siguen sanos
 
 ## 11. CI/CD con GitHub Actions
 
-El workflow `.github/workflows/ci-cd.yml` se ejecuta en cada push y pull request a `main` y tiene tres jobs.
+El workflow `.github/workflows/ci-cd.yml` se ejecuta en cada push y pull request a `main` y tiene cuatro jobs.
 
 ```mermaid
 flowchart LR
     A[Push / PR] --> B["build-and-analyze<br/>build, Vitest, JUnit"]
     B --> C[SonarCloud]
     A --> D["e2e<br/>Docker Compose + Playwright"]
+    A --> S["soc<br/>soc.py y configuración"]
     C --> E["docker-build<br/>(solo en main)"]
     D --> E
+    S --> E
     E --> F[Docker Hub]
 ```
 
@@ -431,7 +435,8 @@ flowchart LR
 | :--- | :--- |
 | `build-and-analyze` | `npm ci --ignore-scripts` y build de producción del frontend; tests del frontend con cobertura (Vitest); tests del backend con cobertura (JUnit y JaCoCo, Java 21); análisis de SonarCloud con las dos coberturas |
 | `e2e` | Genera claves aleatorias en un `.env` temporal, levanta MariaDB, backend, frontend y Caddy con `docker compose` y los datos de demostración, espera a que la API sirva la carta y ejecuta los tests de Playwright ([`e2e/README.md`](../e2e/README.md)). Si fallan, sube el informe con capturas y trazas como artefacto durante 7 días |
-| `docker-build` | Solo en `main`, y solo si los dos anteriores terminan bien: construye la imagen del frontend y la publica en Docker Hub |
+| `soc` | Tests de `soc.py` (`unittest`, sin dependencias) y `soc.py validar`: Loki lee su configuración y, en un contenedor aparte, carga y evalúa todas las reglas de alerta; `amtool` revisa la configuración de Alertmanager generada (por defecto y con SMTP y Telegram) y Alloy la suya, todo con las versiones fijadas en el `docker-compose.yml` |
+| `docker-build` | Solo en `main`, y solo si los tres anteriores terminan bien: construye la imagen del frontend y la publica en Docker Hub |
 
 ### 11.1. Análisis estático continuo (SonarCloud)
 
@@ -460,7 +465,7 @@ flowchart LR
 
 ## 12. SOC y monitorización
 
-El servidor combina **monitorización de disponibilidad**, **auditoría del sistema**, **control de integridad** y **filtrado de red**, que son la base de un SOC básico. Hoy el análisis de los eventos es **manual**; la automatización de alertas y de respuesta está en la [sección 13](#13-mejoras-recomendadas).
+El servidor combina **monitorización de disponibilidad**, **auditoría del sistema**, **control de integridad**, **filtrado de red** y un **SOC automático** para la aplicación: los logs de Caddy y del backend se recogen, se guardan 30 días y se vigilan con reglas de alerta que avisan por correo (y por Telegram, si se configura). La respuesta sigue siendo manual: el SOC detecta y avisa, no bloquea IP por su cuenta (eso lo hace ya el backend en el login, y Fail2Ban sigue en la [sección 13](#13-mejoras-recomendadas)).
 
 ```mermaid
 flowchart TB
@@ -469,14 +474,25 @@ flowchart TB
         AU["auditd<br/>acciones del sistema"]
         AI["aide<br/>integridad de ficheros"]
         FW["iptables<br/>tráfico filtrado"]
-        CL["Logs de Caddy<br/>y del backend"]
+        SOC["SOC de la aplicación<br/>Loki + reglas de alerta"]
     end
 
-    UK & AU & AI & FW & CL --> AN["Análisis por el administrador"]
+    CA["Log de acceso de Caddy"] & BE["Log del backend<br/>auditoría, CSP, errores"] --> AL["Alloy"] --> SOC
+    SOC --> AM["Alertmanager"] --> AV["Correo / Telegram"]
+    SOC --> GR["Grafana<br/>panel del SOC"]
+    UK & AU & AI & FW & AV --> AN["Análisis por el administrador"]
     AN --> RS["Respuesta y recuperación"]
 ```
 
-### 12.1. Capas de control
+### 12.1. SOC de la aplicación (perfil `soc`)
+
+Los logs de Caddy y del backend los vigila el SOC de [`seguridad/soc/`](../seguridad/soc): Alloy los recoge, Loki los guarda y evalúa las reglas de alerta, Alertmanager avisa y Grafana los muestra. Qué detecta, cómo se despliega y se prueba con `soc.py`, y qué datos guarda está en [seguridad.md](seguridad.md#5-soc-detección-y-alertas). Lo que importa para el servidor:
+
+- Los cuatro contenedores solo arrancan con el perfil `soc` y ningún puerto sale de `127.0.0.1`. Se entra por un túnel SSH: `ssh -p 22022 -L 3000:127.0.0.1:3000 -L 9093:127.0.0.1:9093 usuario@servidor` y, en el navegador, `http://127.0.0.1:3000`.
+- Usan del orden de 500 a 700 MB de memoria con este volumen de logs: en un VPS pequeño conviene revisarlo antes de dejarlos siempre encendidos.
+- En producción, las alertas tienen que ir a un SMTP real o a Telegram (variables `SOC_*` del `.env`): Mailpit no entrega nada.
+
+### 12.2. Capas de control
 
 | Capa | Herramienta | Qué vigila |
 | :--- | :--- | :--- |
@@ -485,10 +501,10 @@ flowchart TB
 | Integridad | **aide** | Modificación no autorizada de ficheros del sistema |
 | Red | **iptables** | Solo `22022`, `80`, `443` y `3001` aceptan tráfico |
 | Acceso | **SSH + PAM** | Solo clave pública, `root` restringido y política de contraseñas |
-| Aplicación | **Logs de Caddy y backend** | Peticiones, `401/403`, errores y accesos a `/api/auth/login` |
+| Aplicación | **SOC (Alloy, Loki, Alertmanager, Grafana)** | Logs de Caddy y del backend: inicios de sesión fallidos, accesos denegados, 4xx y 5xx, CSP y errores, con alertas |
 | Contenedores | **HEALTHCHECK** | Estado de salud de cada contenedor |
 
-### 12.2. Monitores recomendados en Uptime Kuma
+### 12.3. Monitores recomendados en Uptime Kuma
 
 | Monitor | Tipo | Objetivo |
 | :--- | :--- | :--- |
@@ -499,23 +515,26 @@ flowchart TB
 | SSH | TCP | Puerto `22022` accesible |
 | Notificaciones | Email / Telegram | Aviso inmediato al administrador |
 
-### 12.3. Casos de detección
+### 12.4. Casos de detección
 
 | Caso | Señal | Fuente | Respuesta |
 | :--- | :--- | :--- | :--- |
 | Fuerza bruta SSH | Fallos repetidos de autenticación | `auditd`, `/var/log/auth.log` | Bloqueo de IP y revisión |
-| Fuerza bruta en login web | Muchos `401` en `/api/auth/login` | Logs de Caddy / backend | Bloqueo temporal de IP |
+| Fuerza bruta en login web | `FuerzaBrutaInicioSesion`, `FallosInicioSesionRepartidos` | SOC (auditoría del backend) | Bloqueo automático del backend (cuenta a los 5 fallos, IP a los 20); revisar *Admin → Auditoría* |
 | Fichero del sistema alterado | Diferencias en la comprobación | `aide --check` | Aislar, investigar y restaurar |
 | Caída de servicio | Monitor en rojo / contenedor *unhealthy* | Uptime Kuma, Docker | Reinicio y análisis de logs |
-| Escalada de privilegios | `403` repetidos en `/productos` o `/caja` | Logs del backend | Revisar cuenta y revocar token |
+| Escalada de privilegios | `AccesosDenegadosRepetidos`, `CambioDePrivilegios` | SOC (auditoría del backend) | Revisar la cuenta y cerrar sus sesiones |
+| Escaneo de rutas | `EscaneoOAbusoDesdeUnaIp` | SOC (log de Caddy) | Bloquear la IP con `iptables` si sigue |
+| XSS o recurso de fuera | `InfraccionCSP` | SOC (avisos de la CSP) | Ver la página y el recurso bloqueado en el panel |
+| Fallo de la aplicación | `ErroresDelServidor`, `ErroresDelBackend` | SOC (Caddy y backend) | Ver la traza en el panel y `docker logs barhub-backend` |
 | Puerto inesperado abierto | Nuevo servicio en escucha | `ss -tlnp` | Cerrar y auditar |
 | Descuadre de caja | `diferencia` distinta de 0 al cierre | Aplicación | Revisión por gerencia |
 
-### 12.4. Respuesta a incidentes
+### 12.5. Respuesta a incidentes
 
-1. **Detección:** alerta de Uptime Kuma, de `auditd`/`aide` o aviso del personal.
+1. **Detección:** alerta del SOC (correo o Telegram), de Uptime Kuma, de `auditd`/`aide` o aviso del personal.
 2. **Contención:** aislar el contenedor, bloquear la IP con `iptables` o revocar credenciales.
-3. **Análisis:** revisar logs de Caddy, backend y sistema, con la línea temporal de `auditd`.
+3. **Análisis:** panel del SOC y consultas en Grafana (Caddy y backend), *Admin → Auditoría* para el usuario, y la línea temporal de `auditd` para el sistema.
 4. **Recuperación:** restaurar desde copia de seguridad o desde la imagen anterior de Docker Hub.
 5. **Lecciones aprendidas:** documentar el incidente y actualizar [seguridad.md](seguridad.md).
 
@@ -529,14 +548,14 @@ Propuestas **aún no implementadas**, ordenadas por prioridad. Se irán marcando
 | Alta | Quitar el montaje de `/var/run/docker.sock` en Uptime Kuma y monitorizar por HTTP/TCP | Quien comprometa el contenedor controlaría Docker, es decir, el servidor |
 | Alta | Copias de seguridad de MariaDB (`mysqldump` programado), almacenadas fuera del servidor y con **restauración probada** | La caja y los pedidos son datos de negocio |
 | Media | `healthcheck` en MariaDB y `depends_on` con `condition: service_healthy` | Evitar que el backend arranque antes que la base de datos |
-| Media | Fail2Ban (SSH y logs de Caddy) con aviso por Telegram | Pasar de análisis manual a detección y respuesta automáticas |
+| Media | Fail2Ban (SSH y logs de Caddy) | La detección y los avisos ya son automáticos (SOC); falta la respuesta: bloquear la IP en el cortafuegos |
 | Media | Límite de peticiones en el login y en la creación de pedidos | Fuerza bruta y abuso de la API |
 | Media | Endurecer contenedores: `security_opt: [no-new-privileges:true]` y `cap_drop: [ALL]` donde sea posible | Reducir lo que puede hacer un contenedor comprometido |
 | Media | Pipeline del backend y `trivy image` sobre las imágenes finales, más `gitleaks` | Cobertura completa de CI y detección de secretos |
 | Baja | Quitar DuckDNS cuando el servidor tenga IP fija | Un servicio y una credencial menos |
 | Baja | Definir el endpoint de salud del backend para Uptime Kuma | Monitorización más fiable que la comprobación de puerto |
 
-**Ya aplicadas:** `JWT_SECRET` y `STRIPE_SECRET_KEY` llegan al backend desde el entorno, las imágenes tienen la versión fijada, DuckDNS solo arranca con el perfil `prod` y Caddy envía las cabeceras de seguridad (HSTS, `nosniff`, `X-Frame-Options`, `Referrer-Policy`, `Permissions-Policy` y una CSP estricta).
+**Ya aplicadas:** SOC con alertas por correo y Telegram (perfil `soc`), `JWT_SECRET` y `STRIPE_SECRET_KEY` llegan al backend desde el entorno, las imágenes tienen la versión fijada, DuckDNS solo arranca con el perfil `prod` y Caddy envía las cabeceras de seguridad (HSTS, `nosniff`, `X-Frame-Options`, `Referrer-Policy`, `Permissions-Policy` y una CSP estricta).
 
 **Cabeceras de seguridad que Caddy aplica** (el dominio sale de la variable `SITE_ADDRESS`; la CSP completa y su explicación están en `infra/caddy/Caddyfile` y en [seguridad.md](seguridad.md)):
 

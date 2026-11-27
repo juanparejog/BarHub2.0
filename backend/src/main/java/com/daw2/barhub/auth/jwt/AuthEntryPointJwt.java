@@ -14,6 +14,11 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Responde 401 a las peticiones sin sesion valida. Es lo normal (token caducado antes de renovarlo,
+ * visitante sin cuenta, escaneos), asi que solo se anota en DEBUG: un ERROR haria saltar la alerta
+ * de errores del backend del SOC con trafico corriente. Los 401 se cuentan en el log de Caddy.
+ */
 @Component
 public class AuthEntryPointJwt implements AuthenticationEntryPoint {
 
@@ -23,7 +28,7 @@ public class AuthEntryPointJwt implements AuthenticationEntryPoint {
   public void commence(HttpServletRequest request, HttpServletResponse response,
                        AuthenticationException authException) throws IOException, ServletException {
 
-    logger.error("Unauthorized error: {}", authException.getMessage());
+    logger.debug("Peticion sin autenticar: {}", authException.getMessage());
     response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Error: Unauthorized");
   }
 }

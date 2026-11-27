@@ -26,6 +26,25 @@ class AuditoriaServiceTest {
     }
 
     @Test
+    void laLineaDelSocLlevaAccionResultadoEIpYNadaMas() {
+        EventoAuditoria evento = new EventoAuditoria();
+        evento.setAccion(AccionAuditoria.INICIO_SESION);
+        evento.setResultado(ResultadoAuditoria.RECHAZADO);
+        evento.setIp("203.0.113.7");
+        evento.setUsuario("ana");
+        evento.setDetalle("motivo");
+        assertEquals("evento=auditoria accion=INICIO_SESION resultado=RECHAZADO ip=203.0.113.7",
+                AuditoriaService.lineaDelSoc(evento));
+
+        // Sin IP (cuenta eliminada o accion que no la guarda) y con un valor que intentara meter campos
+        evento.setIp(null);
+        assertEquals("evento=auditoria accion=INICIO_SESION resultado=RECHAZADO ip=-", AuditoriaService.lineaDelSoc(evento));
+        evento.setIp("1.2.3.4 resultado=CORRECTO");
+        assertEquals("evento=auditoria accion=INICIO_SESION resultado=RECHAZADO ip=1.2.3.4_resultado=CORRECTO",
+                AuditoriaService.lineaDelSoc(evento));
+    }
+
+    @Test
     void losTextosNoPuedenInventarLineasNiPasarseDeLargo() {
         String recortado = AuditoriaService.recortar("ana\r\nINICIO_SESION CORRECTO admin", 50);
         assertFalse(recortado.contains("\n") || recortado.contains("\r"));

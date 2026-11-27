@@ -1,0 +1,59 @@
+// Recolector del SOC de BarHub: lee los dos logs (volumenes montados en modo lectura) y los envia
+// a Loki con la etiqueta "servicio". No necesita Docker ni red hacia fuera.
+
+// Log de acceso de Caddy (JSON, una linea por peticion). Solo el fichero activo: los rotados ya se
+// leyeron mientras lo eran.
+loki.source.file "caddy" {
+  targets = [
+    {"__path__" = "/var/log/caddy/access.log", "servicio" = "caddy"},
+  ]
+  forward_to = [loki.write.local.receiver]
+}
+
+// Log del backend (JSON de Spring Boot, formato logstash). Se queda el mensaje como linea, la traza
+// si la hay, el nivel como etiqueta y la hora del propio log.
+loki.source.file "backend" {
+  targets = [
+    {"__path__" = "/var/log/barhub/backend.log", "servicio" = "backend"},
+  ]
+  forward_to = [loki.process.backend.receiver]
+}
+
+loki.process "backend" {
+  stage.json {
+    expressions = {
+      momento = "\"@timestamp\"",
+      nivel   = "level",
+      mensaje = "message",
+      traza   = "stack_trace",
+    }
+  }
+
+  stage.timestamp {
+    source = "momento"
+    format = "RFC3339Nano"
+  }
+
+  stage.labels {
+    values = {
+      nivel = "",
+    }
+  }
+
+  stage.template {
+    source   = "linea"
+    template = "{{ .mensaje }}{{ if .traza }}\n{{ .traza }}{{ end }}"
+  }
+
+  stage.output {
+    source = "linea"
+  }
+
+  forward_to = [loki.write.local.receiver]
+}
+
+loki.write "local" {
+  endpoint {
+    url = "http://loki:3100/loki/api/v1/push"
+  }
+}

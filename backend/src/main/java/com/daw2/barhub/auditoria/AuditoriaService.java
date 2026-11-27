@@ -32,6 +32,10 @@ import java.util.Map;
  *
  * <p>Cada entrada se guarda en su propia transaccion: queda aunque la accion falle, y un fallo al
  * guardarla no tumba la accion (solo se anota en el log).
+ *
+ * <p>Ademas, cada entrada deja en el log una linea para el SOC ({@link #lineaDelSoc}): accion,
+ * resultado e IP, sin usuario ni detalle. Se escribe antes de guardar, asi que el SOC la recibe
+ * aunque la base de datos falle, y queda fuera de ella aunque alguien la modifique despues.
  */
 @Slf4j
 @Service
@@ -70,6 +74,7 @@ public class AuditoriaService {
         evento.setObjetivo(recortar(objetivo != null ? String.valueOf(objetivo) : idDeLaRuta(peticion), EventoAuditoria.LARGO_OBJETIVO));
         Object detalle = peticion.getAttribute(Auditoria.DETALLE);
         evento.setDetalle(recortar(detalle == null ? null : String.valueOf(detalle), EventoAuditoria.LARGO_DETALLE));
+        log.info("{}", lineaDelSoc(evento));
         repositorio.save(evento);
     }
 
@@ -157,6 +162,16 @@ public class AuditoriaService {
             return "id " + mapa.get("id");
         }
         return null;
+    }
+
+    /**
+     * La linea del log que lee el SOC, en formato clave=valor: {@code evento=auditoria
+     * accion=INICIO_SESION resultado=RECHAZADO ip=203.0.113.7}. Sin IP (o si no se guarda), {@code ip=-}.
+     * Los valores no llevan espacios, asi que no se pueden inventar campos.
+     */
+    static String lineaDelSoc(EventoAuditoria evento) {
+        String ip = evento.getIp() == null || evento.getIp().isBlank() ? "-" : evento.getIp().replaceAll("\\s", "_");
+        return "evento=auditoria accion=" + evento.getAccion() + " resultado=" + evento.getResultado() + " ip=" + ip;
     }
 
     /** Sin caracteres de control (no se pueden inventar lineas) y con el largo de la columna. */

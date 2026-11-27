@@ -12,9 +12,10 @@ RUN ./gradlew --no-daemon bootJar -x test
 FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
 
+# /var/log/barhub: log en JSON para el SOC (volumen backend_logs, ver infra/docker/docker-compose.yml)
 RUN addgroup -S barhub && adduser -S barhub -G barhub \
- && mkdir -p /data/uploads/usuarios /data/uploads/productos \
- && chown -R barhub:barhub /data/uploads /app
+ && mkdir -p /data/uploads/usuarios /data/uploads/productos /var/log/barhub \
+ && chown -R barhub:barhub /data/uploads /app /var/log/barhub
 
 COPY --from=build --chown=barhub:barhub /src/build/libs/BarHub-0.0.1-SNAPSHOT.jar app.jar
 

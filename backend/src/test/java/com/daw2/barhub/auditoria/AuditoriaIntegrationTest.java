@@ -10,8 +10,11 @@ import com.daw2.barhub.auth.repository.UserRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.system.CapturedOutput;
+import org.springframework.boot.test.system.OutputCaptureExtension;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -32,6 +35,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -123,6 +127,29 @@ class AuditoriaIntegrationTest {
         EventoAuditoria correcto = ultima("au_ana", AccionAuditoria.INICIO_SESION);
         assertEquals(ResultadoAuditoria.CORRECTO, correcto.getResultado());
         assertEquals(ana.getId(), correcto.getUsuarioId());
+    }
+
+    @Test
+    @ExtendWith(OutputCaptureExtension.class)
+    void elLoginFallidoDejaEnElLogLaLineaDelSocSinElUsuario(CapturedOutput salida) throws Exception {
+        crear("au_soc", RoleEnum.ROLE_CLIENTE);
+
+        assertEquals(401, login.post("/auth/login", Map.of("username", "au_soc", "password", "no-es-esta")).getStatus());
+        String linea = salida.getOut().lines().filter(l -> l.contains("evento=auditoria accion=INICIO_SESION"))
+                .reduce((primera, ultima) -> ultima).orElseThrow(() -> new AssertionError("sin linea del SOC"));
+        assertTrue(linea.endsWith("evento=auditoria accion=INICIO_SESION resultado=RECHAZADO ip=" + IP), linea);
+        assertFalse(linea.contains("au_soc"), linea);
+    }
+
+    @Test
+    @ExtendWith(OutputCaptureExtension.class)
+    void unaPeticionSinSesionNoEsUnErrorDelServidorEnElLog(CapturedOutput salida) throws Exception {
+        assertEquals(401, mvc.perform(get("/auditoria")).andReturn().getResponse().getStatus());
+        assertEquals(401, mvc.perform(get("/auditoria").header("Authorization", "Bearer no-es-un-token"))
+                .andReturn().getResponse().getStatus());
+        // Un 401 es trafico normal: si saliera como ERROR, la alerta ErroresDelBackend saltaria sin motivo
+        assertTrue(salida.getOut().lines().noneMatch(l -> l.contains(" ERROR ")
+                && (l.contains("AuthEntryPointJwt") || l.contains("JwtUtils"))), salida.getOut());
     }
 
     @Test

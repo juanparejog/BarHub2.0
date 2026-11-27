@@ -1,0 +1,56 @@
+# Loki de un solo nodo para el SOC de BarHub: guarda los logs 30 dias en el propio volumen y
+# evalua cada minuto las reglas de alerta de reglas/, que envia a Alertmanager.
+auth_enabled: false
+
+server:
+  http_listen_port: 3100
+  log_level: warn
+
+common:
+  instance_addr: 127.0.0.1
+  path_prefix: /loki
+  replication_factor: 1
+  storage:
+    filesystem:
+      chunks_directory: /loki/chunks
+  ring:
+    kvstore:
+      store: inmemory
+
+schema_config:
+  configs:
+    - from: 2026-01-01
+      store: tsdb
+      object_store: filesystem
+      schema: v13
+      index:
+        prefix: index_
+        period: 24h
+
+limits_config:
+  # 30 dias: las IP son datos personales y solo se guardan lo necesario para investigar (RGPD)
+  retention_period: 720h
+  reject_old_samples: true
+  reject_old_samples_max_age: 168h
+
+compactor:
+  working_directory: /loki/compactor
+  retention_enabled: true
+  delete_request_store: filesystem
+
+ruler:
+  storage:
+    type: local
+    local:
+      directory: /etc/loki/reglas
+  rule_path: /loki/reglas-temporales
+  alertmanager_url: http://alertmanager:9093
+  enable_api: true
+  evaluation_interval: 1m
+  poll_interval: 1m
+  ring:
+    kvstore:
+      store: inmemory
+
+analytics:
+  reporting_enabled: false

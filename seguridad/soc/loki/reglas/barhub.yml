@@ -1,0 +1,93 @@
+# Reglas de alerta del SOC de BarHub (LogQL). Loki las evalua cada minuto y envia las que se
+# cumplen a Alertmanager. Las lineas de auditoria del backend son
+#   evento=auditoria accion=INICIO_SESION resultado=RECHAZADO ip=203.0.113.7
+# y las de Caddy, su log de acceso en JSON. Los umbrales estan pensados para un bar: con el trafico
+# normal no salta ninguna; las pruebas de seguridad (pruebas_seguridad.py, soc.py probar) si.
+groups:
+  - name: barhub-autenticacion
+    rules:
+      - alert: FuerzaBrutaInicioSesion
+        # El backend bloquea un usuario a los 5 fallos y una IP a los 20: esto avisa antes
+        expr: |
+          sum by (ip) (count_over_time({servicio="backend"} |= "evento=auditoria" | logfmt
+            | accion=~"INICIO_SESION|SEGUNDO_PASO|REAUTENTICACION" | resultado=~"RECHAZADO|BLOQUEADO" [5m])) >= 8
+        labels:
+          severidad: alta
+        annotations:
+          summary: "Posible fuerza bruta desde {{ $labels.ip }}"
+          description: "{{ $value }} intentos fallidos o bloqueados de inicio de sesion, segundo paso o reautenticacion en 5 minutos. Revisar Admin > Auditoria y, si sigue, bloquear la IP."
+
+      - alert: FallosInicioSesionRepartidos
+        # Muchas IP distintas con pocos intentos cada una (botnet o lista de contrasenas)
+        expr: |
+          sum(count_over_time({servicio="backend"} |= "evento=auditoria" | logfmt
+            | accion="INICIO_SESION" | resultado=~"RECHAZADO|BLOQUEADO" [15m])) >= 40
+        labels:
+          severidad: media
+        annotations:
+          summary: "Muchos inicios de sesion fallidos en total"
+          description: "{{ $value }} inicios de sesion fallidos o bloqueados en 15 minutos, sumando todas las IP."
+
+  - name: barhub-autorizacion
+    rules:
+      - alert: AccesosDenegadosRepetidos
+        expr: |
+          sum by (ip) (count_over_time({servicio="backend"} |= "evento=auditoria" | logfmt
+            | accion="ACCESO_DENEGADO" [5m])) >= 10
+        labels:
+          severidad: alta
+        annotations:
+          summary: "Accesos denegados repetidos desde {{ $labels.ip }}"
+          description: "{{ $value }} peticiones a zonas de otro rol en 5 minutos: alguien con sesion prueba lo que no le corresponde."
+
+      - alert: CambioDePrivilegios
+        # Informativa: un alta, edicion o baja de usuario, o un restablecimiento de la verificacion en dos pasos
+        expr: |
+          sum by (accion, ip) (count_over_time({servicio="backend"} |= "evento=auditoria" | logfmt
+            | accion=~"USUARIO_CREADO|USUARIO_EDITADO|USUARIO_BORRADO|DOS_FACTORES_RESTABLECIDA" | resultado="CORRECTO" [5m])) > 0
+        labels:
+          severidad: info
+        annotations:
+          summary: "{{ $labels.accion }} desde {{ $labels.ip }}"
+          description: "Cambio en las cuentas del personal. Si no lo ha hecho la gerencia, revisar Admin > Auditoria."
+
+  - name: barhub-trafico
+    rules:
+      - alert: EscaneoOAbusoDesdeUnaIp
+        expr: |
+          sum by (ip) (count_over_time({servicio="caddy"} | json ip="request.client_ip", estado="status"
+            | estado >= 400 | estado < 500 [5m])) >= 40
+        labels:
+          severidad: media
+        annotations:
+          summary: "Muchas respuestas 4xx para {{ $labels.ip }}"
+          description: "{{ $value }} respuestas 400-499 en 5 minutos: escaneo de rutas, sesiones caducadas en bucle o un cliente roto."
+
+      - alert: ErroresDelServidor
+        expr: |
+          sum(count_over_time({servicio="caddy"} | json estado="status" | estado >= 500 [5m])) >= 10
+        labels:
+          severidad: alta
+        annotations:
+          summary: "Errores 5xx en la web"
+          description: "{{ $value }} respuestas 500-599 en 5 minutos. Un 502 suele ser el backend reiniciando o caido."
+
+  - name: barhub-aplicacion
+    rules:
+      - alert: InfraccionCSP
+        expr: |
+          sum(count_over_time({servicio="backend"} |= "CSP: " [10m])) > 0
+        labels:
+          severidad: media
+        annotations:
+          summary: "El navegador ha bloqueado algo por la CSP"
+          description: "{{ $value }} avisos de la politica de seguridad de contenido en 10 minutos: posible XSS o un cambio de la web que choca con la politica. Ver el panel del SOC."
+
+      - alert: ErroresDelBackend
+        expr: |
+          sum(count_over_time({servicio="backend", nivel="ERROR"} [5m])) >= 5
+        labels:
+          severidad: media
+        annotations:
+          summary: "Errores en el log del backend"
+          description: "{{ $value }} lineas ERROR en 5 minutos."

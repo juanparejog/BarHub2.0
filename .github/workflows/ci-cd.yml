@@ -63,10 +63,10 @@ jobs:
             -Dsonar.projectKey=juanparejog_BarHub2.0
             -Dsonar.projectVersion=2.1.0
             -Dsonar.sources=.
-            -Dsonar.exclusions=backend/build/**,backend/src/test/**,backend/src/main/resources/demo/**,frontend/src/**/*.spec.ts,e2e/**
+            -Dsonar.exclusions=backend/build/**,backend/src/test/**,backend/src/main/resources/demo/**,frontend/src/**/*.spec.ts,e2e/**,seguridad/soc/test_*.py
             -Dsonar.coverage.exclusions=seguridad/**,frontend/src/**/*.module.ts,frontend/src/environments/**,frontend/src/main.ts
-            -Dsonar.tests=backend/src/test/java,frontend/src,e2e
-            -Dsonar.test.inclusions=backend/src/test/java/**,frontend/src/**/*.spec.ts,e2e/tests/**/*.ts,e2e/*.ts
+            -Dsonar.tests=backend/src/test/java,frontend/src,e2e,seguridad/soc
+            -Dsonar.test.inclusions=backend/src/test/java/**,frontend/src/**/*.spec.ts,e2e/tests/**/*.ts,e2e/*.ts,seguridad/soc/test_*.py
             -Dsonar.java.binaries=backend/build/classes/java/main
             -Dsonar.java.test.binaries=backend/build/classes/java/test
             -Dsonar.coverage.jacoco.xmlReportPaths=backend/build/reports/jacoco/test/jacocoTestReport.xml
@@ -148,9 +148,24 @@ jobs:
             e2e/test-results/
           retention-days: 7
 
+  soc:
+    # SOC: tests de soc.py y la configuracion leida por las imagenes fijadas (Loki carga y evalua
+    # las reglas de alerta, amtool revisa la de Alertmanager y Alloy la suya)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Tests de soc.py
+        run: python3 -m unittest discover -s seguridad/soc -p "test_*.py" -v
+
+      - name: Validar la configuracion del SOC
+        run: python3 seguridad/soc/soc.py validar
+
   docker-build:
-    # La imagen solo se publica si pasan el analisis y los tests E2E
-    needs: [build-and-analyze, e2e]
+    # La imagen solo se publica si pasan el analisis, los tests E2E y los del SOC
+    needs: [build-and-analyze, e2e, soc]
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
 
