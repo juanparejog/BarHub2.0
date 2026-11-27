@@ -1,4 +1,4 @@
-import { describirNavegador, esMovil, haceCuanto } from './formato';
+import { describirNavegador, esMovil, fechaHora, haceCuanto } from './formato';
 
 describe('formato de las sesiones', () => {
   const FIREFOX_LINUX = 'Mozilla/5.0 (X11; Linux x86_64; rv:140.0) Gecko/20100101 Firefox/140.0';
@@ -28,5 +28,20 @@ describe('formato de las sesiones', () => {
     expect(haceCuanto(ahora - 5 * 60_000, ahora)).toBe('hace 5 minutos');
     expect(haceCuanto(ahora - 2 * 3_600_000, ahora)).toBe('hace 2 horas');
     expect(haceCuanto(ahora - 3 * 86_400_000, ahora)).toBe('hace 3 días');
+  });
+});
+
+describe('formato de las sesiones en portugués e inglés', () => {
+  const FIREFOX_LINUX = 'Mozilla/5.0 (X11; Linux x86_64; rv:140.0) Gecko/20100101 Firefox/140.0';
+  const CHROME_ANDROID = 'Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0 Mobile Safari/537.36';
+  const ahora = Date.UTC(2026, 10, 23, 12, 0);
+  it('describe el navegador y el tiempo en el idioma elegido', () => {
+    expect(describirNavegador(FIREFOX_LINUX, 'en')).toBe('Firefox on Linux');
+    expect(describirNavegador(CHROME_ANDROID, 'pt')).toBe('Chrome em Android');
+    expect(describirNavegador(null, 'en')).toBe('Unknown browser');
+    expect(haceCuanto(ahora - 30_000, ahora, 'en')).toBe('just now');
+    expect(haceCuanto(ahora - 2 * 3_600_000, ahora, 'pt')).toBe('há 2 horas');
+    expect(haceCuanto(ahora - 86_400_000, ahora, 'en')).toBe('1 day ago');
+    expect(fechaHora(ahora, 'en')).toMatch(/^23\/11\/2026, \d{2}:\d{2}$/);
   });
 });

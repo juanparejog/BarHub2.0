@@ -4,6 +4,9 @@ import { CodigoQrService } from '../../../auth/dos-factores/codigo-qr.service';
 import { DialogService } from '../../../main/services/shared/services/dialog.service';
 import { CodigosRecuperacionComponent } from '../../../shared/codigos-recuperacion/codigos-recuperacion.component';
 import { PerfilService } from '../perfil.service';
+import { IdiomaService } from '../../../shared/i18n/idioma.service';
+import type { Clave } from '../../../shared/i18n/textos';
+import { TraducirPipe } from '../../../shared/i18n/traducir.pipe';
 
 type Vista = 'estado' | 'configurar' | 'codigos';
 
@@ -15,12 +18,13 @@ type Vista = 'estado' | 'configurar' | 'codigos';
 @Component({
   selector: 'app-perfil-dos-factores',
   standalone: true,
-  imports: [ReactiveFormsModule, CodigosRecuperacionComponent],
+  imports: [ReactiveFormsModule, CodigosRecuperacionComponent, TraducirPipe],
   templateUrl: './perfil-dos-factores.component.html',
   styleUrls: ['../perfil.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class PerfilDosFactoresComponent {
+  private readonly idiomas = inject(IdiomaService);
   readonly perfil = inject(PerfilService);
   private readonly codigoQr = inject(CodigoQrService);
   private readonly dialogos = inject(DialogService);
@@ -50,7 +54,7 @@ export class PerfilDosFactoresComponent {
         // Sin QR sigue sirviendo la clave escrita
         this.codigoQr.comoImagen(configuracion.uri).then(imagen => this.qr.set(imagen), () => undefined);
       },
-      error: err => this.fallo(err, 'No se pudo empezar la configuración.')
+      error: err => this.fallo(err, 'perfil.dosf.errorEmpezar')
     });
   }
 
@@ -70,7 +74,7 @@ export class PerfilDosFactoresComponent {
       },
       error: err => {
         this.codigo.reset();
-        this.fallo(err, 'No se pudo activar.');
+        this.fallo(err, 'perfil.dosf.errorActivar');
       }
     });
   }
@@ -82,8 +86,8 @@ export class PerfilDosFactoresComponent {
 
   regenerar(): void {
     this.dialogos.solicitarConfirmacion(
-      'Los códigos de recuperación que tienes ahora dejarán de valer y recibirás 10 nuevos.',
-      'Generar códigos nuevos',
+      this.idiomas.t('perfil.dosf.regenerar.pregunta'),
+      this.idiomas.t('perfil.dosf.regenerar'),
       () => {
         this.limpiarMensajes();
         this.perfil.regenerarCodigos().subscribe({
@@ -91,20 +95,20 @@ export class PerfilDosFactoresComponent {
             this.codigosNuevos.set(codigos);
             this.vista.set('codigos');
           },
-          error: err => this.fallo(err, 'No se pudieron generar códigos nuevos.')
+          error: err => this.fallo(err, 'perfil.dosf.errorRegenerar')
         });
       });
   }
 
   desactivar(): void {
     this.dialogos.solicitarConfirmacion(
-      'Para entrar solo te pediremos la contraseña. Tus códigos de recuperación dejarán de valer.',
-      'Desactivar la verificación en dos pasos',
+      this.idiomas.t('perfil.dosf.desactivar.pregunta'),
+      this.idiomas.t('perfil.dosf.desactivar.titulo'),
       () => {
         this.limpiarMensajes();
         this.perfil.desactivarDosFactores().subscribe({
-          next: () => this.aviso.set('Verificación en dos pasos desactivada.'),
-          error: err => this.fallo(err, 'No se pudo desactivar.')
+          next: () => this.aviso.set(this.idiomas.t('perfil.dosf.desactivadaOk')),
+          error: err => this.fallo(err, 'perfil.dosf.errorDesactivar')
         });
       });
   }
@@ -112,7 +116,7 @@ export class PerfilDosFactoresComponent {
   terminar(): void {
     this.codigosNuevos.set([]);
     this.vista.set('estado');
-    this.aviso.set('Listo: guarda bien tus códigos de recuperación.');
+    this.aviso.set(this.idiomas.t('perfil.dosf.listo'));
   }
 
   private limpiarMensajes(): void {
@@ -120,12 +124,12 @@ export class PerfilDosFactoresComponent {
     this.aviso.set('');
   }
 
-  private fallo(err: any, porDefecto: string): void {
+  private fallo(err: any, porDefecto: Clave): void {
     this.enviando.set(false);
     // Si cancela la ventana de confirmar su identidad no hace falta otro aviso
     if (err?.error?.code === 'REAUTENTICACION_REQUERIDA') {
       return;
     }
-    this.error.set(err?.error?.message ?? porDefecto);
+    this.error.set(this.idiomas.delServidor(err?.error?.message, porDefecto));
   }
 }

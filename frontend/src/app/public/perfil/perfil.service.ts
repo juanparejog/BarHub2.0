@@ -4,6 +4,7 @@ import { Observable, map, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { Usuario } from '../../admin/pages/usuarios/interface/usuario';
 import { UsuarioService } from '../../admin/pages/usuarios/services/usuario';
+import { IdiomaService } from '../../shared/i18n/idioma.service';
 
 /** Estado de la pestaña Seguridad (GET /perfil/seguridad). */
 export interface EstadoSeguridad {
@@ -41,16 +42,17 @@ export class PerfilService {
   readonly usuario = signal<Usuario | null>(null);
   readonly seguridad = signal<EstadoSeguridad | null>(null);
   readonly error = signal('');
+  private readonly idiomas = inject(IdiomaService);
 
   cargar(): void {
     const id = localStorage.getItem('usuarioId') || localStorage.getItem('id');
     if (!id) {
-      this.error.set('No se ha encontrado una sesión activa. Por favor, inicia sesión de nuevo.');
+      this.error.set(this.idiomas.t('perfil.sinSesion'));
       return;
     }
     this.usuarios.getId(id).subscribe({
       next: usuario => this.usuario.set(usuario),
-      error: () => this.error.set('No se pudieron cargar los datos del perfil.')
+      error: () => this.error.set(this.idiomas.t('perfil.errorCarga'))
     });
     this.cargarSeguridad();
   }

@@ -1,8 +1,9 @@
 import { AuthService } from '../auth.service';
-import { Component, ChangeDetectionStrategy } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { catchError, of } from 'rxjs';
 import { environment } from '../../../environments/environment';
+import { IdiomaService } from '../../shared/i18n/idioma.service';
 
 @Component({
     selector: 'app-register',
@@ -12,6 +13,7 @@ import { environment } from '../../../environments/environment';
     standalone: false
 })
 export class RegisterComponent {
+  private readonly idiomas = inject(IdiomaService);
   form = {
     username: '',
     email: '',
@@ -56,12 +58,12 @@ export class RegisterComponent {
     // Validación estricta para impedir el username 'default' (sin importar mayúsculas/minúsculas)
     if (this.form.username.trim().toLowerCase() === 'default') {
       this.usernameRestricted = true;
-      this.showToastMessage('El nombre de usuario "default" está reservado y no se puede utilizar.');
+      this.showToastMessage(this.idiomas.t('registro.usuario.reservado'));
       return;
     }
   
     if (this.form.password !== this.confirmPassword) {
-      this.showToastMessage('Las contraseñas no coinciden');
+      this.showToastMessage(this.idiomas.t('auth.noCoinciden'));
       return;
     }
   
@@ -85,7 +87,7 @@ export class RegisterComponent {
         error: (err) => {
           console.error('❌ Error al registrarse', err);
           if (!this.usernameTaken && !this.usernameRestricted) {
-            this.showToastMessage('Error al registrarse en el servidor');
+            this.showToastMessage(this.idiomas.t('registro.error'));
           }
         }
       });
@@ -93,8 +95,8 @@ export class RegisterComponent {
 
   reenviarCorreo(): void {
     this.authService.reenviarConfirmacion(this.form.username).subscribe({
-      next: res => this.showToastMessage(res.message, 'success'),
-      error: () => this.showToastMessage('No se pudo reenviar el correo. Inténtalo más tarde.')
+      next: res => this.showToastMessage(this.idiomas.delServidor(res.message, 'auth.reenviado'), 'success'),
+      error: () => this.showToastMessage(this.idiomas.t('auth.reenviarError'))
     });
   }
 }

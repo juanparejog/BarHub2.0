@@ -1,4 +1,6 @@
-import { ChangeDetectionStrategy, Component, input, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input, output, signal } from '@angular/core';
+import { IdiomaService } from '../i18n/idioma.service';
+import { TraducirPipe } from '../i18n/traducir.pipe';
 
 /**
  * Lista de códigos de recuperación recién generados, con Descargar y Copiar, y un botón que no se
@@ -8,6 +10,7 @@ import { ChangeDetectionStrategy, Component, input, output, signal } from '@angu
 @Component({
   selector: 'app-codigos-recuperacion',
   standalone: true,
+  imports: [TraducirPipe],
   templateUrl: './codigos-recuperacion.component.html',
   styleUrls: ['./codigos-recuperacion.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -16,7 +19,9 @@ export class CodigosRecuperacionComponent {
   readonly codigos = input.required<string[]>();
   /** Para el encabezado del archivo descargado. */
   readonly usuario = input('');
-  readonly textoBoton = input('Continuar');
+  /** Vacío: «Continuar» en el idioma elegido. */
+  readonly textoBoton = input('');
+  private readonly idiomas = inject(IdiomaService);
   readonly terminado = output<void>();
 
   readonly guardados = signal(false);
@@ -25,9 +30,9 @@ export class CodigosRecuperacionComponent {
   descargar(): void {
     const usuario = this.usuario();
     const texto = [
-      'BarHub - códigos de recuperación' + (usuario ? ` de ${usuario}` : ''),
+      usuario ? this.idiomas.t('codigos.archivo.de', { usuario }) : this.idiomas.t('codigos.archivo'),
       '',
-      'Cada código sirve una sola vez para entrar si no tienes la app de autenticación.',
+      this.idiomas.t('codigos.archivo.ayuda'),
       '',
       ...this.codigos()
     ].join('\n');

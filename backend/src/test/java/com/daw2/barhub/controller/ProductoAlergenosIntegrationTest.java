@@ -34,8 +34,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 
 /**
- * Alergenos de los productos: el administrador los indica al crear o editar; la carta (publica) los
- * recibe ordenados, o null si aun no se han indicado, que no es lo mismo que "no lleva ninguno".
+ * Alergenos y traducciones de los productos: el administrador los indica al crear o editar; la carta
+ * (publica) recibe los alergenos ordenados, o null si aun no se han indicado, que no es lo mismo que
+ * "no lleva ninguno", y el nombre y la descripcion en portugues e ingles si los hay.
  */
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -154,5 +155,30 @@ class ProductoAlergenosIntegrationTest {
     void unAlergenoQueNoExisteSeRechaza() throws Exception {
         assertEquals(400, guardar(HttpMethod.POST, "/productos/",
                 producto("Raro al", "TAPA", List.of("CHOCOLATE"))).getStatus());
+    }
+
+    @Test
+    void lasTraduccionesSeGuardanSeEditanYEnBlancoQuedanSinTraducir() throws Exception {
+        Map<String, Object> datos = producto("Tortilla al", "TAPA", null);
+        datos.put("nombrePt", "Tortilha de batata");
+        datos.put("nombreEn", "Spanish omelette");
+        datos.put("descripcionEn", "Potato omelette");
+        Object id = json(guardar(HttpMethod.POST, "/productos/", datos)).get("id");
+
+        Map<?, ?> visto = publico(id);
+        assertEquals("Tortilha de batata", visto.get("nombrePt"));
+        assertEquals("Spanish omelette", visto.get("nombreEn"));
+        assertEquals("Potato omelette", visto.get("descripcionEn"));
+        assertNull(visto.get("descripcionPt"));
+
+        datos.put("nombreEn", "  ");
+        datos.put("descripcionPt", " Batata e ovo ");
+        assertEquals(200, guardar(HttpMethod.PUT, "/productos/" + id, datos).getStatus());
+        visto = publico(id);
+        assertNull(visto.get("nombreEn"), "en blanco cuenta como sin traducir");
+        assertEquals("Batata e ovo", visto.get("descripcionPt"));
+
+        datos.put("nombrePt", "x".repeat(101));
+        assertEquals(400, guardar(HttpMethod.PUT, "/productos/" + id, datos).getStatus());
     }
 }

@@ -1,6 +1,8 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { PerfilService } from '../perfil.service';
+import { IdiomaService } from '../../../shared/i18n/idioma.service';
+import { TraducirPipe } from '../../../shared/i18n/traducir.pipe';
 
 /**
  * Pestaña «Cuenta y correo»: nombre de usuario, correo y cambio de correo. El correo nuevo no entra
@@ -9,12 +11,13 @@ import { PerfilService } from '../perfil.service';
 @Component({
   selector: 'app-perfil-cuenta',
   standalone: true,
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, TraducirPipe],
   templateUrl: './perfil-cuenta.component.html',
   styleUrls: ['../perfil.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class PerfilCuentaComponent {
+  private readonly idiomas = inject(IdiomaService);
   readonly perfil = inject(PerfilService);
 
   readonly nuevo = new FormControl('', {
@@ -42,13 +45,13 @@ export class PerfilCuentaComponent {
       next: pendiente => {
         this.enviando.set(false);
         this.nuevo.reset();
-        this.exito.set(`Te hemos enviado un enlace a ${pendiente}. Ábrelo para terminar el cambio.`);
+        this.exito.set(this.idiomas.t('perfil.cuenta.enviado', { correo: pendiente }));
       },
       error: err => {
         this.enviando.set(false);
         // Si se cancela la reautenticación, la petición termina con el 403 original: no es un fallo
         if (err?.error?.code !== 'REAUTENTICACION_REQUERIDA') {
-          this.error.set(err?.error?.message ?? 'No se pudo enviar el enlace. Inténtalo de nuevo.');
+          this.error.set(this.idiomas.delServidor(err?.error?.message, 'perfil.cuenta.error'));
         }
       }
     });
@@ -58,8 +61,8 @@ export class PerfilCuentaComponent {
     this.exito.set('');
     this.error.set('');
     this.perfil.cancelarCambioCorreo().subscribe({
-      next: () => this.exito.set('Cambio de correo cancelado: el enlace enviado ya no sirve.'),
-      error: () => this.error.set('No se pudo cancelar el cambio. Inténtalo de nuevo.')
+      next: () => this.exito.set(this.idiomas.t('perfil.cuenta.cancelado')),
+      error: () => this.error.set(this.idiomas.t('perfil.cuenta.errorCancelar'))
     });
   }
 }

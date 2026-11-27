@@ -1,9 +1,9 @@
 <div class="legal-container">
   <header class="legal-header">
-    <span class="badge">Aviso Legal & RGPD</span>
-    <h1>Política de Privacidad</h1>
+    <span class="badge">{{ 'priv.etiqueta' | t }}</span>
+    <h1>{{ 'priv.titulo' | t }}</h1>
     <p class="intro">
-      En <strong>BarHub 2.0</strong> garantizamos la máxima protección de tus datos personales conforme al RGPD y la LOPDGDD.
+      {{ 'priv.intro.antes' | t }} <strong>BarHub 2.0</strong> {{ 'priv.intro.despues' | t }}
     </p>
   </header>
 
@@ -15,20 +15,20 @@
         <div class="icon-wrapper">
           <svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
         </div>
-        <h2>1. Responsable del Tratamiento</h2>
+        <h2>{{ 'priv.1' | t }}</h2>
       </div>
       <div class="card-body">
         <div class="info-list">
           <div class="info-item">
-            <span class="label">Responsable</span>
+            <span class="label">{{ 'priv.1.responsable' | t }}</span>
             <span class="value highlight">Juan Parejo García / BarHub</span>
           </div>
           <div class="info-item">
-            <span class="label">Ubicación</span>
-            <span class="value">Badajoz, España</span>
+            <span class="label">{{ 'legal.ubicacion' | t }}</span>
+            <span class="value">{{ 'priv.1.lugar' | t }}</span>
           </div>
           <div class="info-item">
-            <span class="label">Email de Privacidad</span>
+            <span class="label">{{ 'priv.1.email' | t }}</span>
             <a href="mailto:privacidad@barhub.com" class="value link">privacidad&#64;barhub.com</a>
           </div>
         </div>
@@ -41,18 +41,18 @@
         <div class="icon-wrapper">
           <svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
         </div>
-        <h2>2. Datos que Recopilamos</h2>
+        <h2>{{ 'priv.2' | t }}</h2>
       </div>
       <div class="card-body">
-        <p class="description">Recopilamos únicamente la información estrictamente necesaria para prestar el servicio:</p>
+        <p class="description">{{ 'priv.2.intro' | t }}</p>
         <ul class="custom-list">
           <li>
             <svg aria-hidden="true" focusable="false" class="check-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-            <span><strong>Clientes:</strong> Nombre, dirección de entrega (pedidos a domicilio), email, teléfono e historial de comandas.</span>
+            <span><strong>{{ 'priv.2.clientes' | t }}</strong> {{ 'priv.2.clientes.datos' | t }}</span>
           </li>
           <li>
             <svg aria-hidden="true" focusable="false" class="check-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-            <span><strong>Empleados / Personal:</strong> Credenciales de acceso cifradas y rol dentro de BarHub.</span>
+            <span><strong>{{ 'priv.2.personal' | t }}</strong> {{ 'priv.2.personal.datos' | t }}</span>
           </li>
         </ul>
       </div>
@@ -64,25 +64,25 @@
         <div class="icon-wrapper">
           <svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4"/><path d="M12 18v4"/><path d="M4.93 4.93l2.83 2.83"/><path d="M16.24 16.24l2.83 2.83"/><path d="M2 12h4"/><path d="M18 12h4"/><path d="M4.93 19.07l2.83-2.83"/><path d="M16.24 7.76l2.83-2.83"/></svg>
         </div>
-        <h2>3. Finalidad del Tratamiento</h2>
+        <h2>{{ 'priv.3' | t }}</h2>
       </div>
       <div class="card-body">
         <ul class="custom-list">
           <li>
             <svg aria-hidden="true" focusable="false" class="check-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-            <span>Gestionar y procesar pedidos realizados en mesa o servicio a domicilio.</span>
+            <span>{{ 'priv.3.pedidos' | t }}</span>
           </li>
           <li>
             <svg aria-hidden="true" focusable="false" class="check-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-            <span>Calcular el saldo consumido por mesa y llevar el historial de consumo.</span>
+            <span>{{ 'priv.3.saldo' | t }}</span>
           </li>
           <li>
             <svg aria-hidden="true" focusable="false" class="check-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-            <span>Mantener el historial de pedidos asociado a tu cuenta.</span>
+            <span>{{ 'priv.3.historial' | t }}</span>
           </li>
           <li>
             <svg aria-hidden="true" focusable="false" class="check-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-            <span>Garantizar la seguridad de las sesiones mediante tokens cifrados (JWT).</span>
+            <span>{{ 'priv.3.sesiones' | t }}</span>
           </li>
         </ul>
       </div>
@@ -95,11 +95,11 @@
           <div class="icon-wrapper">
             <svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
           </div>
-          <h2>4. Legitimación</h2>
+          <h2>{{ 'priv.4' | t }}</h2>
         </div>
         <div class="card-body">
           <p class="description">
-            La base legal es la <strong>ejecución del contrato del servicio</strong> de restaurante/pedidos y el consentimiento explícito concedido al registrarte o realizar un pedido.
+            {{ 'priv.4.antes' | t }} <strong>{{ 'priv.4.contrato' | t }}</strong> {{ 'priv.4.despues' | t }}
           </p>
         </div>
       </section>
@@ -109,11 +109,11 @@
           <div class="icon-wrapper">
             <svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
           </div>
-          <h2>5. Destinatarios</h2>
+          <h2>{{ 'priv.5' | t }}</h2>
         </div>
         <div class="card-body">
           <p class="description">
-            No cederemos tus datos a terceros salvo obligación legal o proveedores indispensables para completar la transacción (ej. pasarela de pago <strong>Stripe</strong> o servidores de infraestructura).
+            {{ 'priv.5.antes' | t }} <strong>Stripe</strong> {{ 'priv.5.despues' | t }}
           </p>
         </div>
       </section>
@@ -125,11 +125,11 @@
         <div class="icon-wrapper focus-icon">
           <svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
         </div>
-        <h2>6. Derechos del Usuario (ARCO)</h2>
+        <h2>{{ 'priv.6' | t }}</h2>
       </div>
       <div class="card-body">
         <p class="description">
-          Tienes derecho a **acceder, rectificar, suprimir, limitar u oponerte** al tratamiento de tus datos en cualquier momento. Puedes ejercitarlos libremente enviando una solicitud a:
+          {{ 'priv.6.antes' | t }} <strong>{{ 'priv.6.derechos' | t }}</strong> {{ 'priv.6.despues' | t }}
         </p>
         <div class="action-box">
           <a href="mailto:privacidad@barhub.com" class="btn-email">
@@ -143,6 +143,6 @@
   </div>
 
   <footer class="legal-footer">
-    <p class="date">Última actualización: 26/09/2026</p>
+    <p class="date">{{ 'legal.actualizacion' | t }}</p>
   </footer>
 </div>

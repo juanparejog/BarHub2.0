@@ -8,101 +8,84 @@
 
   @if (registrado) {
     <div class="registro-confirmar" role="status">
-      <h2>Revisa tu correo</h2>
+      <h2>{{ 'registro.revisa' | t }}</h2>
       <p>
-        Te hemos enviado un correo a <strong>{{ correoEnviadoA }}</strong> con un enlace para confirmar tu cuenta.
-        Ábrelo para poder iniciar sesión; caduca en 24 horas.
+        {{ 'registro.enviado.antes' | t }} <strong>{{ correoEnviadoA }}</strong> {{ 'registro.enviado.despues' | t }}
       </p>
-      <p class="text-muted">¿No te llega? Mira en la carpeta de correo no deseado o pide otro.</p>
+      <p class="text-muted">{{ 'registro.noLlega' | t }}</p>
       <div class="d-flex flex-wrap gap-2 justify-content-center">
-        <button type="button" class="btn btn-outline-secondary" (click)="reenviarCorreo()">Reenviar correo</button>
-        <a class="btn btn-primary" routerLink="/auth/login">Ir al inicio de sesión</a>
+        <button type="button" class="btn btn-outline-secondary" (click)="reenviarCorreo()">{{ 'registro.reenviar' | t }}</button>
+        <a class="btn btn-primary" routerLink="/auth/login">{{ 'auth.irAlLogin' | t }}</a>
       </div>
     </div>
   } @else {
-  <h2>Registro</h2>
+  <h2>{{ 'registro.titulo' | t }}</h2>
   <form #registerForm="ngForm" (ngSubmit)="onSubmit()">
 
     <!-- Nombre de usuario -->
     <label>
-      <span>Nombre de usuario</span>
+      <span>{{ 'auth.usuario' | t }}</span>
       <input type="text" [(ngModel)]="form.username" name="username"
         #username="ngModel" required minlength="3"
-        placeholder="Usuario"
+        [placeholder]="'registro.usuario.ejemplo' | t"
         [class.is-invalid]="(username.invalid || usernameRestricted) && (username.dirty || username.touched)">
       @if (username.errors?.['required'] && (username.dirty || username.touched)) {
-        <div class="invalid-feedback" role="alert">
-          El nombre de usuario es requerido
-        </div>
+        <div class="invalid-feedback" role="alert">{{ 'registro.usuario.requerido' | t }}</div>
       }
       @if (username.errors?.['minlength'] && (username.dirty || username.touched)) {
-        <div class="invalid-feedback" role="alert">
-          Mínimo 3 caracteres
-        </div>
+        <div class="invalid-feedback" role="alert">{{ 'registro.usuario.corto' | t }}</div>
       }
       @if (usernameTaken) {
-        <div class="invalid-feedback" role="alert">
-          Este usuario ya está registrado
-        </div>
+        <div class="invalid-feedback" role="alert">{{ 'registro.usuario.ocupado' | t }}</div>
       }
       @if (usernameRestricted) {
-        <div class="invalid-feedback" role="alert">
-          El nombre de usuario "default" está reservado y no se puede utilizar.
-        </div>
+        <div class="invalid-feedback" role="alert">{{ 'registro.usuario.reservado' | t }}</div>
       }
     </label>
 
     <!-- Nombre y Apellidos (Obligatorios para evitar error 500) -->
     <div class="row-fields">
       <label class="half-width">
-        <span>Nombre</span>
+        <span>{{ 'registro.nombre' | t }}</span>
         <input type="text" [(ngModel)]="form.nombre" name="nombre"
           #nombre="ngModel" required
-          placeholder="Nombre"
+          [placeholder]="'registro.nombre' | t"
           [class.is-invalid]="nombre.invalid && (nombre.dirty || nombre.touched)">
         @if (nombre.invalid && (nombre.dirty || nombre.touched)) {
-          <div class="invalid-feedback" role="alert">
-            El nombre es requerido
-          </div>
+          <div class="invalid-feedback" role="alert">{{ 'registro.nombre.requerido' | t }}</div>
         }
       </label>
 
       <label class="half-width">
-        <span>Primer Apellido</span>
+        <span>{{ 'registro.apellido' | t }}</span>
         <input type="text" [(ngModel)]="form.apellido1" name="apellido1"
           #apellido1="ngModel" required
-          placeholder="Primer apellido"
+          [placeholder]="'registro.apellido.ejemplo' | t"
           [class.is-invalid]="apellido1.invalid && (apellido1.dirty || apellido1.touched)">
         @if (apellido1.invalid && (apellido1.dirty || apellido1.touched)) {
-          <div class="invalid-feedback" role="alert">
-            El apellido es requerido
-          </div>
+          <div class="invalid-feedback" role="alert">{{ 'registro.apellido.requerido' | t }}</div>
         }
       </label>
     </div>
 
     <!-- Correo -->
     <label>
-      <span>Correo</span>
+      <span>{{ 'registro.correo' | t }}</span>
       <input type="email" [(ngModel)]="form.email" name="email"
         #email="ngModel" required pattern="[^@]+@[^@]+\.[a-zA-Z]{2,6}"
-        placeholder="Correo electrónico"
+        [placeholder]="'auth.correo' | t"
         [class.is-invalid]="email.invalid && (email.dirty || email.touched)">
       @if (email.errors?.['required'] && (email.dirty || email.touched)) {
-        <div class="invalid-feedback" role="alert">
-          El correo es requerido
-        </div>
+        <div class="invalid-feedback" role="alert">{{ 'registro.correo.requerido' | t }}</div>
       }
       @if (email.errors?.['pattern'] && (email.dirty || email.touched)) {
-        <div class="invalid-feedback" role="alert">
-          Formato de correo inválido
-        </div>
+        <div class="invalid-feedback" role="alert">{{ 'registro.correo.invalido' | t }}</div>
       }
     </label>
 
     <!-- Contraseña -->
     <label>
-      <span>Contraseña</span>
+      <span>{{ 'auth.clave' | t }}</span>
       <div class="input-eye-row">
         <input
           [type]="showPassword ? 'text' : 'password'"
@@ -111,9 +94,9 @@
           #password="ngModel"
           required
           pattern="^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}$"
-          placeholder="Contraseña"
+          [placeholder]="'auth.clave' | t"
           [class.is-invalid]="password.invalid && (password.dirty || password.touched)">
-        <button type="button" class="eye-btn" (click)="showPassword = !showPassword" tabindex="-1" [attr.aria-label]="showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'">
+        <button type="button" class="eye-btn" (click)="showPassword = !showPassword" tabindex="-1" [attr.aria-label]="(showPassword ? 'auth.ocultarClave' : 'auth.mostrarClave') | t">
           @if (!showPassword) {
             <svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24"><path stroke="currentColor" stroke-width="2" d="M1 12S5 5 12 5s11 7 11 7-4 7-11 7S1 12 1 12Z"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/></svg>
           }
@@ -123,29 +106,25 @@
         </button>
       </div>
       @if (password.errors?.['required'] && (password.dirty || password.touched)) {
-        <div class="invalid-feedback" role="alert">
-          La contraseña es requerida
-        </div>
+        <div class="invalid-feedback" role="alert">{{ 'registro.clave.requerida' | t }}</div>
       }
       @if (password.errors?.['pattern'] && (password.dirty || password.touched)) {
-        <div class="invalid-feedback" role="alert">
-          Mínimo 8 caracteres, 1 número, 1 mayúscula y 1 minúscula
-        </div>
+        <div class="invalid-feedback" role="alert">{{ 'registro.clave.formato' | t }}</div>
       }
     </label>
 
     <!-- Repetir Contraseña -->
     <label>
-      <span>Repetir Contraseña</span>
+      <span>{{ 'registro.repetir' | t }}</span>
       <div class="input-eye-row">
         <input [type]="showConfirmPassword ? 'text' : 'password'"
           [(ngModel)]="confirmPassword"
           name="confirmPassword"
           #confirmPasswordCtrl="ngModel"
           required
-          placeholder="Repite tu contraseña"
+          [placeholder]="'registro.repetir.ejemplo' | t"
           [class.is-invalid]="(confirmPasswordCtrl.invalid || form.password !== confirmPassword) && (confirmPasswordCtrl.dirty || confirmPasswordCtrl.touched)">
-        <button type="button" class="eye-btn" (click)="showConfirmPassword = !showConfirmPassword" tabindex="-1" [attr.aria-label]="showConfirmPassword ? 'Ocultar confirmación de contraseña' : 'Mostrar confirmación de contraseña'">
+        <button type="button" class="eye-btn" (click)="showConfirmPassword = !showConfirmPassword" tabindex="-1" [attr.aria-label]="(showConfirmPassword ? 'registro.ocultarRepetida' : 'registro.mostrarRepetida') | t">
           @if (!showConfirmPassword) {
             <svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24"><path stroke="currentColor" stroke-width="2" d="M1 12S5 5 12 5s11 7 11 7-4 7-11 7S1 12 1 12Z"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/></svg>
           }
@@ -155,14 +134,10 @@
         </button>
       </div>
       @if (confirmPasswordCtrl.errors?.['required'] && (confirmPasswordCtrl.dirty || confirmPasswordCtrl.touched)) {
-        <div class="invalid-feedback" role="alert">
-          Debes repetir la contraseña
-        </div>
+        <div class="invalid-feedback" role="alert">{{ 'registro.repetir.requerida' | t }}</div>
       }
       @if (form.password !== confirmPassword && confirmPasswordCtrl.touched) {
-        <div class="invalid-feedback" role="alert">
-          Las contraseñas no coinciden
-        </div>
+        <div class="invalid-feedback" role="alert">{{ 'auth.noCoinciden' | t }}</div>
       }
     </label>
 
@@ -176,16 +151,14 @@
         #politicas="ngModel"
         >
       <span>
-        Acepto la <a href="/politica-privacidad" target="_blank">Política de Privacidad</a> y los <a href="/terminos-condiciones" target="_blank">Términos y Condiciones</a>
+        {{ 'registro.acepto' | t }} <a href="/politica-privacidad" target="_blank">{{ 'registro.privacidad' | t }}</a> {{ 'registro.y' | t }} <a href="/terminos-condiciones" target="_blank">{{ 'registro.terminos' | t }}</a>
       </span>
     </label>
     @if (politicas.invalid && (politicas.dirty || politicas.touched)) {
-      <div class="invalid-feedback" role="alert">
-        Debes aceptar las políticas para registrarte.
-      </div>
+      <div class="invalid-feedback" role="alert">{{ 'registro.aceptar' | t }}</div>
     }
 
-    <button type="submit" [disabled]="registerForm.invalid || form.password !== confirmPassword || !aceptaPoliticas"> Registrarse </button>
+    <button type="submit" [disabled]="registerForm.invalid || form.password !== confirmPassword || !aceptaPoliticas"> {{ 'registro.boton' | t }} </button>
   </form>
   }
 </div>

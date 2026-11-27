@@ -2,6 +2,8 @@ import { ChangeDetectionStrategy, Component, DestroyRef, effect, inject, signal 
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, ValidatorFn, Validators } from '@angular/forms';
 import { PerfilService } from '../perfil.service';
+import { IdiomaService } from '../../../shared/i18n/idioma.service';
+import { TraducirPipe } from '../../../shared/i18n/traducir.pipe';
 
 type TipoVivienda = 'piso' | 'urbanizacion' | 'casa';
 
@@ -16,12 +18,13 @@ const OBLIGATORIOS_POR_TIPO: Record<TipoVivienda, string[]> = {
 @Component({
   selector: 'app-perfil-direccion',
   standalone: true,
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, TraducirPipe],
   templateUrl: './perfil-direccion.component.html',
   styleUrls: ['../perfil.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class PerfilDireccionComponent {
+  private readonly idiomas = inject(IdiomaService);
   readonly perfil = inject(PerfilService);
 
   readonly form = new FormGroup({
@@ -76,7 +79,7 @@ export class PerfilDireccionComponent {
     this.error.set('');
     if (this.form.invalid) {
       this.form.markAllAsTouched();
-      this.error.set('Revisa los campos marcados.');
+      this.error.set(this.idiomas.t('perfil.revisa'));
       return;
     }
     const valores = this.form.getRawValue();
@@ -99,11 +102,11 @@ export class PerfilDireccionComponent {
       next: () => {
         this.guardando.set(false);
         this.form.markAsPristine();
-        this.exito.set('Dirección guardada. Se propondrá en tus pedidos a domicilio.');
+        this.exito.set(this.idiomas.t('perfil.dir.guardada'));
       },
       error: err => {
         this.guardando.set(false);
-        this.error.set(err?.error?.message ?? 'No se pudo guardar la dirección.');
+        this.error.set(this.idiomas.delServidor(err?.error?.message, 'perfil.dir.error'));
       }
     });
   }

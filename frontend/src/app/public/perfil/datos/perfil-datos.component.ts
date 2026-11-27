@@ -2,17 +2,20 @@ import { ChangeDetectionStrategy, Component, effect, inject, signal } from '@ang
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { PerfilService } from '../perfil.service';
+import { IdiomaService } from '../../../shared/i18n/idioma.service';
+import { TraducirPipe } from '../../../shared/i18n/traducir.pipe';
 
 /** Pestaña «Datos personales»: nombre y apellidos. Usuario y correo se muestran; el correo se cambia en «Cuenta y correo». */
 @Component({
   selector: 'app-perfil-datos',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink, TraducirPipe],
   templateUrl: './perfil-datos.component.html',
   styleUrls: ['../perfil.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class PerfilDatosComponent {
+  private readonly idiomas = inject(IdiomaService);
   readonly perfil = inject(PerfilService);
 
   readonly form = new FormGroup({
@@ -48,7 +51,7 @@ export class PerfilDatosComponent {
     this.error.set('');
     if (this.form.invalid) {
       this.form.markAllAsTouched();
-      this.error.set('Revisa los campos marcados.');
+      this.error.set(this.idiomas.t('perfil.revisa'));
       return;
     }
     this.guardando.set(true);
@@ -57,11 +60,11 @@ export class PerfilDatosComponent {
       next: () => {
         this.guardando.set(false);
         this.form.markAsPristine();
-        this.exito.set('Datos guardados.');
+        this.exito.set(this.idiomas.t('perfil.datos.guardados'));
       },
       error: err => {
         this.guardando.set(false);
-        this.error.set(err?.error?.message ?? 'No se pudieron guardar los datos.');
+        this.error.set(this.idiomas.delServidor(err?.error?.message, 'perfil.datos.error'));
       }
     });
   }

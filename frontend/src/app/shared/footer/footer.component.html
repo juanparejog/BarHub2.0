@@ -1,14 +1,14 @@
 <footer class="footer">
   <div class="footer-content">
     <span class="footer-copy">
-      © 2026 <strong class="footer-brand">BarHub</strong> · Juan Parejo García · Todos los derechos reservados
+      © 2026 <strong class="footer-brand">BarHub</strong> · Juan Parejo García · {{ 'pie.derechos' | t }}
     </span>
-    <nav class="footer-links" aria-label="Enlaces secundarios">
-      <a routerLink="/terminos-condiciones">Aviso Legal</a>
+    <nav class="footer-links" [attr.aria-label]="'pie.enlaces' | t">
+      <a routerLink="/terminos-condiciones">{{ 'pie.avisoLegal' | t }}</a>
       <span class="footer-separator" aria-hidden="true">•</span>
-      <a routerLink="/politica-privacidad">Política de Privacidad</a>
+      <a routerLink="/politica-privacidad">{{ 'pie.privacidad' | t }}</a>
       <span class="footer-separator" aria-hidden="true">•</span>
-      <a routerLink="/contacto">Contacto</a>
+      <a routerLink="/contacto">{{ 'pie.contacto' | t }}</a>
     </nav>
   </div>
 </footer>

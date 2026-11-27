@@ -99,6 +99,8 @@ El listado y la creación se sirven en `/productos/` (con barra final).
 | `PUT` | `/productos/{id}` | Actualiza un producto y, si se envía, su imagen. **Solo administradores** |
 | `DELETE` | `/productos/{id}` | Elimina un producto y su imagen. **Solo administradores** |
 
+Cada producto puede llevar `nombrePt`, `nombreEn`, `descripcionPt` y `descripcionEn` para la carta en portugués e inglés (hasta 100 y 500 caracteres; en blanco se guardan como `null` y la carta usa el español). Con `APP_SEED_DEMO=true`, `demo/demo-traducciones.sql` rellena en cada arranque los productos de demostración que aún no tienen ninguna traducción.
+
 Cada producto lleva `alergenos`: la lista de los 14 de declaración obligatoria (`GLUTEN`, `CRUSTACEOS`, `HUEVOS`, `PESCADO`, `CACAHUETES`, `SOJA`, `LACTEOS`, `FRUTOS_DE_CASCARA`, `APIO`, `MOSTAZA`, `SESAMO`, `SULFITOS`, `ALTRAMUCES`, `MOLUSCOS`) que contiene, en ese orden, o `null` si el bar aún no los ha indicado. `[]` significa indicados y ninguno: no es lo mismo que `null`. Se guardan en `producto_alergenos` y en la columna `productos.alergenos_declarados`.
 
 ### 3.4. Pedidos y comandas · `/pedidos`

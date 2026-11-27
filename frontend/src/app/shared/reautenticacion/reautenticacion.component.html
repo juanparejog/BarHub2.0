@@ -6,18 +6,18 @@
       <form class="modal-content" (submit)="$event.preventDefault(); confirmar()" novalidate>
         <div class="modal-header">
           <h2 class="modal-title h5" id="reautenticacionTitulo">
-            <i class="bi bi-shield-lock me-2" aria-hidden="true"></i>Confirma que eres tú
+            <i class="bi bi-shield-lock me-2" aria-hidden="true"></i>{{ 'reaut.titulo' | t }}
           </h2>
         </div>
         <div class="modal-body">
           <p id="reautenticacionTexto">
             @if (conCodigo()) {
-              Es una acción protegida. Escribe el código de 6 dígitos de tu app de autenticación.
+              {{ 'reaut.codigo' | t }}
             } @else {
-              Es una acción protegida. Escribe tu contraseña.
+              {{ 'reaut.clave' | t }}
             }
           </p>
-          <label for="campoReautenticacion" class="form-label">{{ conCodigo() ? 'Código de verificación' : 'Contraseña' }}</label>
+          <label for="campoReautenticacion" class="form-label">{{ (conCodigo() ? 'dosf.campo.codigo' : 'auth.clave') | t }}</label>
           @if (conCodigo()) {
             <input #campo id="campoReautenticacion" class="form-control" autocomplete="one-time-code"
               inputmode="numeric" maxlength="7" [attr.aria-invalid]="!!error()">
@@ -30,8 +30,8 @@
           }
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-outline-secondary" (click)="cancelar()">Cancelar</button>
-          <button type="submit" class="btn btn-primary" [disabled]="enviando()">Confirmar</button>
+          <button type="button" class="btn btn-outline-secondary" (click)="cancelar()">{{ 'reaut.cancelar' | t }}</button>
+          <button type="submit" class="btn btn-primary" [disabled]="enviando()">{{ 'reaut.confirmar' | t }}</button>
         </div>
       </form>
     </div>

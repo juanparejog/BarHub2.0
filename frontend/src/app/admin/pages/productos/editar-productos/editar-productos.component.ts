@@ -18,6 +18,11 @@ export class EditarProductoComponent implements OnInit {
     id: [-1],
     nombre: [''],
     descripcion: [''],
+    // Traducciones para la carta en portugués e inglés (opcionales)
+    nombrePt: [''],
+    nombreEn: [''],
+    descripcionPt: [''],
+    descripcionEn: [''],
     precio: [''],
     tipoProducto: [''],
     imagen: [''],

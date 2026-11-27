@@ -97,6 +97,7 @@ Se pulsa **Nuevo** y se completa el formulario **Gestión de Producto**:
 | Descripción | Texto descriptivo |
 | Precio | Importe unitario |
 | Tipo | Categoría: bebida, entrante, tapa o postre |
+| Traducciones | Nombre y descripción en portugués y en inglés para la carta en esos idiomas. Son opcionales: lo que se deje en blanco se muestra en español |
 | Alérgenos | Casilla **Información de alérgenos revisada** y, al marcarla, los 14 alérgenos de declaración obligatoria, con su icono, para indicar los que lleva. Sin marcar, la carta dice «Alérgenos: pregunta al personal» y el producto no aparece a quien filtra por alérgenos. Marcada sin ningún alérgeno, la carta dice que no lleva ninguno de declaración obligatoria |
 | Imagen | Archivo JPG, PNG o WebP de hasta 5 MB, arrastrándolo al recuadro o seleccionándolo manualmente. El servidor comprueba que realmente es una imagen |
 

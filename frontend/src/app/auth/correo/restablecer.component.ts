@@ -4,6 +4,8 @@ import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { AuthService } from '../auth.service';
 import { borrarFragmento, tokenDelFragmento } from './token-del-enlace';
+import { IdiomaService } from '../../shared/i18n/idioma.service';
+import { TraducirPipe } from '../../shared/i18n/traducir.pipe';
 
 /** Mismas reglas que en el registro: 8 a 40 caracteres con minuscula, mayuscula y numero. */
 const CLAVE_SEGURA = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,40}$/;
@@ -12,12 +14,13 @@ const CLAVE_SEGURA = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,40}$/;
 @Component({
   selector: 'app-restablecer',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink, TraducirPipe],
   templateUrl: './restablecer.component.html',
   styleUrls: ['./cuenta-correo.css'],
   changeDetection: ChangeDetectionStrategy.Eager
 })
 export class RestablecerComponent implements OnInit {
+  private readonly idiomas = inject(IdiomaService);
   private readonly route = inject(ActivatedRoute);
   private readonly location = inject(Location);
   private readonly authService = inject(AuthService);
@@ -54,11 +57,11 @@ export class RestablecerComponent implements OnInit {
     this.authService.restablecerContrasena(this.token, this.form.controls.password.value).subscribe({
       next: respuesta => {
         this.cambiada = true;
-        this.mensaje = respuesta.message;
+        this.mensaje = this.idiomas.delServidor(respuesta.message, 'restablecer.hecho');
         this.guardando = false;
       },
       error: err => {
-        this.error = err?.error?.message ?? 'No se pudo cambiar la contraseña. Inténtalo más tarde.';
+        this.error = this.idiomas.delServidor(err?.error?.message, 'restablecer.error');
         this.guardando = false;
       }
     });

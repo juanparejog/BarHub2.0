@@ -6,40 +6,40 @@
 
       <div class="carousel-inner">
         <div class="carousel-item active">
-          <img src="assets/images/tapas.jpg" class="d-block w-100 carousel-img" alt="Tapas españolas">
+          <img src="assets/images/tapas.jpg" class="d-block w-100 carousel-img" [alt]="'home.tapas.alt' | t">
           <div class="carousel-caption">
-            <span class="caption-badge"><i class="bi bi-star-fill"></i> Especialidad</span>
-            <h5>Nuestras Tapas</h5>
-            <p>Prueba nuestras clásicas tapas de la casa elaboradas a diario con ingredientes locales.</p>
+            <span class="caption-badge"><i class="bi bi-star-fill"></i> {{ 'home.tapas.etiqueta' | t }}</span>
+            <h5>{{ 'home.tapas.titulo' | t }}</h5>
+            <p>{{ 'home.tapas.texto' | t }}</p>
           </div>
         </div>
 
         <div class="carousel-item">
-          <img src="assets/images/barra.jpg" class="d-block w-100 carousel-img" alt="Barra típica">
+          <img src="assets/images/barra.jpg" class="d-block w-100 carousel-img" [alt]="'home.barra.alt' | t">
           <div class="carousel-caption">
-            <span class="caption-badge"><i class="bi bi-cup-straw"></i> Ambiente</span>
-            <h5>Barra Típica</h5>
-            <p>Ambiente familiar y cañas tiradas a la temperatura y presión perfectas.</p>
+            <span class="caption-badge"><i class="bi bi-cup-straw"></i> {{ 'home.barra.etiqueta' | t }}</span>
+            <h5>{{ 'home.barra.titulo' | t }}</h5>
+            <p>{{ 'home.barra.texto' | t }}</p>
           </div>
         </div>
 
         <div class="carousel-item">
-          <img src="assets/images/terraza.jpg" class="d-block w-100 carousel-img" alt="Terraza del bar">
+          <img src="assets/images/terraza.jpg" class="d-block w-100 carousel-img" [alt]="'home.terraza.alt' | t">
           <div class="carousel-caption">
-            <span class="caption-badge"><i class="bi bi-sun"></i> Exterior</span>
-            <h5>Nuestra Terraza</h5>
-            <p>Disfruta del increíble clima de Badajoz al aire libre en la avenida principal.</p>
+            <span class="caption-badge"><i class="bi bi-sun"></i> {{ 'home.terraza.etiqueta' | t }}</span>
+            <h5>{{ 'home.terraza.titulo' | t }}</h5>
+            <p>{{ 'home.terraza.texto' | t }}</p>
           </div>
         </div>
       </div>
 
       <button class="carousel-control-prev" type="button" data-bs-target="#barCarousel" data-bs-slide="prev">
         <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-        <span class="visually-hidden">Anterior</span>
+        <span class="visually-hidden">{{ 'home.anterior' | t }}</span>
       </button>
       <button class="carousel-control-next" type="button" data-bs-target="#barCarousel" data-bs-slide="next">
         <span class="carousel-control-next-icon" aria-hidden="true"></span>
-        <span class="visually-hidden">Siguiente</span>
+        <span class="visually-hidden">{{ 'home.siguiente' | t }}</span>
       </button>
     </div>
   </section>
@@ -51,18 +51,17 @@
       <div class="home-bar-info-text">
         <div class="home-bar-header">
           <div class="logo-wrapper">
-            <img src="assets/images/logo.png" alt="Bar La Avenida Logo" class="home-bar-logo">
-            <span class="status-indicator" title="Abierto ahora"></span>
+            <img src="assets/images/logo.png" [alt]="'home.logo' | t" class="home-bar-logo">
+            <span class="status-indicator" [title]="'home.abierto' | t"></span>
           </div>
           <div class="home-bar-titles">
             <h1>Bar La Avenida</h1>
-            <span class="subtitle">Tu bar de toa' la vida en Badajoz</span>
+            <span class="subtitle">{{ 'home.lema' | t }}</span>
           </div>
         </div>
 
         <p class="lead">
-          Bienvenido a <strong>Bar La Avenida</strong>, la taberna tradicional de referencia en Avenida Sinforiano Madroñero.
-          Raciones abundantes, tapas caseras recién hechas y el ambiente cercano que buscas. ¡Ven a vivir la verdadera experiencia extremeña!
+          {{ 'home.intro.antes' | t }} <strong>Bar La Avenida</strong>{{ 'home.intro.despues' | t }}
         </p>
 
         <!-- Tarjetas Interactivas de Información -->
@@ -73,7 +72,7 @@
               <i class="bi bi-geo-alt-fill"></i>
             </div>
             <div class="badge-content">
-              <strong>Ubicación</strong>
+              <strong>{{ 'home.ubicacion' | t }}</strong>
               <p>Av. Sinforiano Madroñero, Badajoz</p>
             </div>
           </div>
@@ -83,8 +82,8 @@
               <i class="bi bi-clock-fill"></i>
             </div>
             <div class="badge-content">
-              <strong>Horario</strong>
-              <p>Lun - Dom: 8:00 - 23:30</p>
+              <strong>{{ 'home.horario' | t }}</strong>
+              <p>{{ 'home.horario.dias' | t }}</p>
             </div>
           </div>
 
@@ -93,7 +92,7 @@
               <i class="bi bi-telephone-fill"></i>
             </div>
             <div class="badge-content">
-              <strong>Reservas</strong>
+              <strong>{{ 'home.reservas' | t }}</strong>
               <p>924 123 456</p>
             </div>
           </div>
@@ -104,9 +103,9 @@
       <!-- Imagen con marco flotante y animación -->
       <div class="home-bar-info-img">
         <div class="img-wrapper">
-          <img src="assets/images/laAvenida.jpg" alt="Interior Bar La Avenida"/>
+          <img src="assets/images/laAvenida.jpg" [alt]="'home.interior' | t"/>
           <div class="img-overlay-tag">
-            <i class="bi bi-heart-fill text-danger"></i> Tradición en Badajoz
+            <i class="bi bi-heart-fill text-danger"></i> {{ 'home.tradicion' | t }}
           </div>
         </div>
       </div>
@@ -117,17 +116,17 @@
     <div class="home-bar-actions">
       <a routerLink="/carta" class="btn-bar btn-bar-primary">
         <i class="bi bi-journal-richtext btn-icon"></i>
-        <span>Ver Carta Digital</span>
+        <span>{{ 'home.verCarta' | t }}</span>
       </a>
 
       @if (!(isAuthenticated$ | async)) {
         <a routerLink="/auth/login" class="btn-bar btn-bar-outline">
           <i class="bi bi-box-arrow-in-right"></i>
-          <span>Iniciar Sesión</span>
+          <span>{{ 'home.iniciarSesion' | t }}</span>
         </a>
         <a routerLink="/auth/register" class="btn-bar btn-bar-subtle">
           <i class="bi bi-person-plus"></i>
-          <span>Registrarse</span>
+          <span>{{ 'home.registrarse' | t }}</span>
         </a>
       }
     </div>
@@ -138,13 +137,13 @@
     <div class="map-header">
       <div class="map-header-title">
         <i class="bi bi-map-fill"></i>
-        <h3>¿Dónde encontrarnos?</h3>
+        <h3>{{ 'home.donde' | t }}</h3>
       </div>
       <span class="map-subtitle">Avenida Sinforiano Madroñero, Badajoz</span>
     </div>
     <div class="map-frame-container">
       <iframe
-        title="Ubicación deL bar en el mapa"
+        [title]="'home.mapa' | t"
         width="100%"
         height="340"
         loading="lazy"

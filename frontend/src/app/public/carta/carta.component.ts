@@ -9,7 +9,9 @@ import { UsuarioService } from '../../admin/pages/usuarios/services/usuario';
 import { Mesa } from '../../admin/pages/mesas/interface/mesa';
 import { Producto } from '../../admin/pages/productos/interface/producto';
 import { Usuario } from '../../admin/pages/usuarios/interface/usuario';
-import { ALERGENOS, aptoSin, textoAlergenos } from '../../shared/alergenos/alergenos';
+import { ALERGENOS, aptoSin, nombreAlergeno, textoAlergenos } from '../../shared/alergenos/alergenos';
+import { IdiomaService } from '../../shared/i18n/idioma.service';
+import { descripcionDe, nombreDe } from '../../shared/i18n/producto-idioma';
 
 /** Alérgenos que el visitante quiere evitar, recordados en su navegador. */
 const CLAVE_ALERGENOS = 'barhub.alergenosExcluidos';
@@ -61,7 +63,30 @@ export class CartaComponent implements OnInit {
   categoriaSeleccionada = 'todos';
 
   readonly alergenos = ALERGENOS;
-  readonly textoAlergenos = textoAlergenos;
+
+  /** Texto de los alérgenos de un producto, en el idioma elegido. */
+  textoAlergenos(alergenos: readonly string[] | null | undefined): string {
+    return textoAlergenos(alergenos, this.idiomas.idioma());
+  }
+
+  /** Nombre del producto en el idioma elegido (si el bar lo ha traducido; si no, en español). */
+  nombreProducto(producto: Producto): string {
+    return nombreDe(producto, this.idiomas.idioma());
+  }
+
+  descripcionProducto(producto: Producto): string {
+    return descripcionDe(producto, this.idiomas.idioma());
+  }
+
+  nombreAlergeno(codigo: string): string {
+    return nombreAlergeno(codigo, this.idiomas.idioma());
+  }
+
+  /** Estado de la mesa (llega de la API como DISPONIBLE, OCUPADA...) en el idioma elegido. */
+  estadoMesa(estado: unknown): string {
+    const codigo = String(estado ?? '').toUpperCase();
+    return this.idiomas.tSiExiste(`mesa.estado.${codigo}`, String(estado ?? '').toLowerCase());
+  }
   alergenosExcluidos = new Set<string>(leerAlergenosExcluidos());
   /**
    * El desplegable empieza abierto si ya había alérgenos elegidos. Solo al entrar: si siguiera al
@@ -80,7 +105,8 @@ export class CartaComponent implements OnInit {
     private readonly usuarioService: UsuarioService,
     private readonly route: ActivatedRoute,
     private readonly router: Router,
-    private readonly sanitizer: DomSanitizer
+    private readonly sanitizer: DomSanitizer,
+    private readonly idiomas: IdiomaService
   ) {}
 
   ngOnInit() {
@@ -107,9 +133,9 @@ export class CartaComponent implements OnInit {
           this.idMesa = mesa;
           this.tipoPedido = 'MESA';
           this.mesaBloqueadaPorQr = true;
-          this.showToastMessage(`Mesa #${this.idMesa} detectada por QR`, 'success');
+          this.showToastMessage(this.idiomas.t('carta.toast.qr', { id: mesa }), 'success');
         } else {
-          this.showToastMessage('El código QR no es válido: elige tu mesa en la lista', 'error');
+          this.showToastMessage(this.idiomas.t('carta.toast.qrInvalido'), 'error');
         }
       }
     });
@@ -132,7 +158,7 @@ export class CartaComponent implements OnInit {
   cargarDatosPerfil() {
     const idGuardado = localStorage.getItem('usuarioId') || localStorage.getItem('id');
     if (!idGuardado) {
-      this.showToastMessage('No se encontró una sesión activa de usuario', 'error');
+      this.showToastMessage(this.idiomas.t('carta.toast.sinSesion'), 'error');
       return;
     }
 
@@ -149,12 +175,12 @@ export class CartaComponent implements OnInit {
           this.codigoPostal = usuario.codigoPostal || '';
           this.telefonoContacto = usuario.telefono || '';
           
-          this.showToastMessage('¡Datos de tu perfil cargados con éxito!', 'success');
+          this.showToastMessage(this.idiomas.t('carta.toast.perfilCargado'), 'success');
         }
       },
       error: (err) => {
         console.error('Error al cargar datos del perfil:', err);
-        this.showToastMessage('No se pudieron cargar los datos del perfil', 'error');
+        this.showToastMessage(this.idiomas.t('carta.toast.perfilError'), 'error');
       }
     });
   }
@@ -165,7 +191,7 @@ export class CartaComponent implements OnInit {
   cargarTelefonoPerfil() {
     const idGuardado = localStorage.getItem('usuarioId') || localStorage.getItem('id');
     if (!idGuardado) {
-      this.showToastMessage('No se encontró una sesión activa de usuario', 'error');
+      this.showToastMessage(this.idiomas.t('carta.toast.sinSesion'), 'error');
       return;
     }
 
@@ -173,14 +199,14 @@ export class CartaComponent implements OnInit {
       next: (usuario: Usuario) => {
         if (usuario?.telefono) {
           this.telefonoContacto = usuario.telefono;
-          this.showToastMessage('¡Teléfono cargado con éxito!', 'success');
+          this.showToastMessage(this.idiomas.t('carta.toast.telefonoCargado'), 'success');
         } else {
-          this.showToastMessage('No hay un teléfono guardado en tu perfil', 'info');
+          this.showToastMessage(this.idiomas.t('carta.toast.sinTelefono'), 'info');
         }
       },
       error: (err) => {
         console.error('Error al cargar teléfono del perfil:', err);
-        this.showToastMessage('No se pudo cargar el teléfono del perfil', 'error');
+        this.showToastMessage(this.idiomas.t('carta.toast.telefonoError'), 'error');
       }
     });
   }
@@ -213,12 +239,12 @@ export class CartaComponent implements OnInit {
 
   getMensajeAdvertencia(): string {
     if (this.tipoPedido === 'MESA') {
-      return 'selecciona tu mesa';
+      return this.idiomas.t('carta.falta.mesa');
     }
     if (this.tipoPedido === 'RECOGER') {
-      return 'introduce tu teléfono de contacto';
+      return this.idiomas.t('carta.falta.telefono');
     }
-    return 'completa los datos obligatorios de dirección';
+    return this.idiomas.t('carta.falta.direccion');
   }
 
   get detalleViviendaTexto(): string {
@@ -292,7 +318,7 @@ export class CartaComponent implements OnInit {
 
   onAdd(producto: Producto) {
     if (!this.datosServicioCompletos) {
-      this.showToastMessage(`Por favor, ${this.getMensajeAdvertencia()} antes de añadir productos.`, 'error');
+      this.showToastMessage(this.idiomas.t('carta.toast.antesDeAnadir', { falta: this.getMensajeAdvertencia() }), 'error');
       return;
     }
 
@@ -342,12 +368,12 @@ export class CartaComponent implements OnInit {
 
   confirmarPedido() {
     if (!this.datosServicioCompletos) {
-      this.showToastMessage(`Debes ${this.getMensajeAdvertencia()}`, 'error');
+      this.showToastMessage(this.idiomas.t('carta.toast.antesDeConfirmar', { falta: this.getMensajeAdvertencia() }), 'error');
       return;
     }
 
     if (!this.hayProductosSeleccionados()) {
-      this.showToastMessage('Seleccione al menos un producto de la carta', 'info');
+      this.showToastMessage(this.idiomas.t('carta.toast.sinProductos'), 'info');
       return;
     }
 
@@ -395,6 +421,16 @@ export class CartaComponent implements OnInit {
   quitarFiltroAlergenos(): void {
     this.alergenosExcluidos = new Set();
     guardarAlergenosExcluidos(this.alergenosExcluidos);
+  }
+
+  /** «3 productos ocultos, 1 porque aún no tienen la información de alérgenos.» */
+  resumenOcultos(): string {
+    const { total, sinInformacion } = this.ocultosPorAlergenos;
+    let texto = this.idiomas.t(total === 1 ? 'carta.alergenos.oculto' : 'carta.alergenos.ocultos', { n: total });
+    if (sinInformacion > 0) {
+      texto += this.idiomas.t('carta.alergenos.sinInformacion', { n: sinInformacion });
+    }
+    return `${texto}.`;
   }
 
   /** Productos que el filtro de alérgenos esconde y, de ellos, cuántos no tienen la información. */

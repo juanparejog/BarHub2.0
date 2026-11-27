@@ -1,51 +1,51 @@
-<h2 class="h5 fw-bold mb-1"><i class="bi bi-geo-alt text-indigo me-2" aria-hidden="true"></i>Dirección de entrega</h2>
-<p class="text-muted font-size-14 mb-4">La que te proponemos al pedir a domicilio. Siempre puedes cambiarla en el pedido.</p>
+<h2 class="h5 fw-bold mb-1"><i class="bi bi-geo-alt text-indigo me-2" aria-hidden="true"></i>{{ 'perfil.dir.titulo' | t }}</h2>
+<p class="text-muted font-size-14 mb-4">{{ 'perfil.dir.ayuda' | t }}</p>
 
 <form [formGroup]="form" (ngSubmit)="guardar()" novalidate>
   <div class="row g-3">
     <div class="col-md-6">
-      <label for="telefono" class="form-label font-size-14 fw-semibold">Teléfono de contacto <span class="text-rose" aria-hidden="true">*</span></label>
+      <label for="telefono" class="form-label font-size-14 fw-semibold">{{ 'perfil.dir.telefono' | t }} <span class="text-rose" aria-hidden="true">*</span></label>
       <div class="input-group has-validation">
         <span class="input-group-text bg-body-tertiary border-end-0"><i class="bi bi-telephone" aria-hidden="true"></i></span>
         <input type="tel" id="telefono" class="form-control search-input border-start-0 ps-0" formControlName="telefono"
           autocomplete="tel-national" inputmode="numeric" maxlength="9" placeholder="600123456"
           [class.is-invalid]="invalido('telefono')" [attr.aria-invalid]="invalido('telefono')" aria-describedby="telefono-error">
-        <div class="invalid-feedback" id="telefono-error">9 dígitos, sin espacios.</div>
+        <div class="invalid-feedback" id="telefono-error">{{ 'perfil.dir.telefono.formato' | t }}</div>
       </div>
     </div>
 
     <div class="col-md-6">
-      <label for="codigoPostal" class="form-label font-size-14 fw-semibold">Código postal <span class="text-rose" aria-hidden="true">*</span></label>
+      <label for="codigoPostal" class="form-label font-size-14 fw-semibold">{{ 'perfil.dir.cp' | t }} <span class="text-rose" aria-hidden="true">*</span></label>
       <div class="input-group has-validation">
         <span class="input-group-text bg-body-tertiary border-end-0"><i class="bi bi-mailbox" aria-hidden="true"></i></span>
         <input type="text" id="codigoPostal" class="form-control search-input border-start-0 ps-0" formControlName="codigoPostal"
           autocomplete="postal-code" inputmode="numeric" maxlength="5"
           [class.is-invalid]="invalido('codigoPostal')" [attr.aria-invalid]="invalido('codigoPostal')" aria-describedby="codigoPostal-error">
-        <div class="invalid-feedback" id="codigoPostal-error">5 dígitos.</div>
+        <div class="invalid-feedback" id="codigoPostal-error">{{ 'perfil.dir.cp.formato' | t }}</div>
       </div>
     </div>
 
     <div class="col-12">
-      <label for="calle" class="form-label font-size-14 fw-semibold">Calle, avenida o vía <span class="text-rose" aria-hidden="true">*</span></label>
+      <label for="calle" class="form-label font-size-14 fw-semibold">{{ 'perfil.dir.calle' | t }} <span class="text-rose" aria-hidden="true">*</span></label>
       <div class="input-group has-validation">
         <span class="input-group-text bg-body-tertiary border-end-0"><i class="bi bi-signpost" aria-hidden="true"></i></span>
         <input type="text" id="calle" class="form-control search-input border-start-0 ps-0" formControlName="calle"
           autocomplete="address-line1" maxlength="150"
           [class.is-invalid]="invalido('calle')" [attr.aria-invalid]="invalido('calle')" aria-describedby="calle-error">
-        <div class="invalid-feedback" id="calle-error">Al menos 5 caracteres.</div>
+        <div class="invalid-feedback" id="calle-error">{{ 'perfil.dir.calle.formato' | t }}</div>
       </div>
     </div>
 
     <fieldset class="col-12 mt-3">
-      <legend class="form-label font-size-14 fw-semibold mb-2">Tipo de inmueble</legend>
+      <legend class="form-label font-size-14 fw-semibold mb-2">{{ 'perfil.dir.tipo' | t }}</legend>
       <div class="row g-3">
         <div class="col-md-4">
           <label class="tipo-vivienda-card" [class.active]="tipo() === 'piso'">
             <input class="visually-hidden" type="radio" formControlName="tipoVivienda" value="piso">
             <span class="card-content">
               <span class="icon-box"><i class="bi bi-building" aria-hidden="true"></i></span>
-              <span class="fw-semibold font-size-14">Piso</span>
-              <small class="text-muted">Portal, planta y puerta</small>
+              <span class="fw-semibold font-size-14">{{ 'perfil.dir.piso' | t }}</span>
+              <small class="text-muted">{{ 'perfil.dir.piso.ayuda' | t }}</small>
             </span>
           </label>
         </div>
@@ -54,8 +54,8 @@
             <input class="visually-hidden" type="radio" formControlName="tipoVivienda" value="urbanizacion">
             <span class="card-content">
               <span class="icon-box"><i class="bi bi-houses" aria-hidden="true"></i></span>
-              <span class="fw-semibold font-size-14">Urbanización</span>
-              <small class="text-muted">Bloque y chalet</small>
+              <span class="fw-semibold font-size-14">{{ 'perfil.dir.urb' | t }}</span>
+              <small class="text-muted">{{ 'perfil.dir.urb.ayuda' | t }}</small>
             </span>
           </label>
         </div>
@@ -64,8 +64,8 @@
             <input class="visually-hidden" type="radio" formControlName="tipoVivienda" value="casa">
             <span class="card-content">
               <span class="icon-box"><i class="bi bi-house-door" aria-hidden="true"></i></span>
-              <span class="fw-semibold font-size-14">Casa</span>
-              <small class="text-muted">Número de la casa</small>
+              <span class="fw-semibold font-size-14">{{ 'perfil.dir.casa' | t }}</span>
+              <small class="text-muted">{{ 'perfil.dir.casa.ayuda' | t }}</small>
             </span>
           </label>
         </div>
@@ -75,40 +75,40 @@
     @switch (tipo()) {
       @case ('piso') {
         <div class="col-md-4">
-          <label for="portalNum" class="form-label font-size-14 fw-semibold">Portal <span class="text-rose" aria-hidden="true">*</span></label>
+          <label for="portalNum" class="form-label font-size-14 fw-semibold">{{ 'perfil.dir.portal' | t }} <span class="text-rose" aria-hidden="true">*</span></label>
           <input id="portalNum" class="form-control search-input" formControlName="portalNum" [class.is-invalid]="invalido('portalNum')">
         </div>
         <div class="col-md-4">
-          <label for="pisoNum" class="form-label font-size-14 fw-semibold">Planta <span class="text-rose" aria-hidden="true">*</span></label>
+          <label for="pisoNum" class="form-label font-size-14 fw-semibold">{{ 'perfil.dir.planta' | t }} <span class="text-rose" aria-hidden="true">*</span></label>
           <input id="pisoNum" class="form-control search-input" formControlName="pisoNum" [class.is-invalid]="invalido('pisoNum')">
         </div>
         <div class="col-md-4">
-          <label for="puerta" class="form-label font-size-14 fw-semibold">Puerta o letra <span class="text-rose" aria-hidden="true">*</span></label>
+          <label for="puerta" class="form-label font-size-14 fw-semibold">{{ 'perfil.dir.puerta' | t }} <span class="text-rose" aria-hidden="true">*</span></label>
           <input id="puerta" class="form-control search-input" formControlName="puerta" [class.is-invalid]="invalido('puerta')">
         </div>
       }
       @case ('urbanizacion') {
         <div class="col-md-6">
-          <label for="urbanizacionNombre" class="form-label font-size-14 fw-semibold">Urbanización o bloque <span class="text-rose" aria-hidden="true">*</span></label>
+          <label for="urbanizacionNombre" class="form-label font-size-14 fw-semibold">{{ 'perfil.dir.urbNombre' | t }} <span class="text-rose" aria-hidden="true">*</span></label>
           <input id="urbanizacionNombre" class="form-control search-input" formControlName="urbanizacionNombre" [class.is-invalid]="invalido('urbanizacionNombre')">
         </div>
         <div class="col-md-6">
-          <label for="casaNum" class="form-label font-size-14 fw-semibold">Número de chalet <span class="text-rose" aria-hidden="true">*</span></label>
+          <label for="casaNum" class="form-label font-size-14 fw-semibold">{{ 'perfil.dir.chalet' | t }} <span class="text-rose" aria-hidden="true">*</span></label>
           <input id="casaNum" class="form-control search-input" formControlName="casaNum" [class.is-invalid]="invalido('casaNum')">
         </div>
       }
       @case ('casa') {
         <div class="col-md-6">
-          <label for="casaNum" class="form-label font-size-14 fw-semibold">Número de la casa <span class="text-rose" aria-hidden="true">*</span></label>
+          <label for="casaNum" class="form-label font-size-14 fw-semibold">{{ 'perfil.dir.casa.ayuda' | t }} <span class="text-rose" aria-hidden="true">*</span></label>
           <input id="casaNum" class="form-control search-input" formControlName="casaNum" [class.is-invalid]="invalido('casaNum')">
         </div>
       }
     }
 
     <div class="col-12 mt-3">
-      <label for="instruccionesEntrega" class="form-label font-size-14 fw-semibold">Instrucciones para el repartidor</label>
+      <label for="instruccionesEntrega" class="form-label font-size-14 fw-semibold">{{ 'perfil.dir.instrucciones' | t }}</label>
       <textarea id="instruccionesEntrega" class="form-control search-input h-auto" formControlName="instruccionesEntrega" rows="3"
-        placeholder="Por ejemplo: el timbre no funciona, llamad al llegar"></textarea>
+        [placeholder]="'perfil.dir.instrucciones.ejemplo' | t"></textarea>
     </div>
   </div>
 
@@ -121,7 +121,7 @@
 
   <div class="d-flex justify-content-end mt-4">
     <button type="submit" class="btn-crud-primary px-4 py-2" [disabled]="guardando() || !perfil.usuario()">
-      <i class="bi bi-save me-2" aria-hidden="true"></i>Guardar dirección
+      <i class="bi bi-save me-2" aria-hidden="true"></i>{{ 'perfil.dir.guardar' | t }}
     </button>
   </div>
 </form>

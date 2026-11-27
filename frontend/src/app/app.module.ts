@@ -23,6 +23,8 @@ import { FooterComponent } from './shared/footer/footer.component';
 import { AvisoSesionComponent } from './shared/aviso-sesion/aviso-sesion.component';
 import { ReautenticacionComponent } from './shared/reautenticacion/reautenticacion.component';
 
+import { PrecioPipe, TraducirPipe } from './shared/i18n/traducir.pipe';
+
 @NgModule({ declarations: [
         AppComponent,
         CartaComponent,
@@ -49,7 +51,9 @@ import { ReautenticacionComponent } from './shared/reautenticacion/reautenticaci
         SharedModule,
         AvisoSesionComponent,
         ReautenticacionComponent,
-        AlergenoIconoComponent], providers: [
+        AlergenoIconoComponent,
+        TraducirPipe,
+        PrecioPipe], providers: [
         { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
         provideHttpClient(withXhr(), withInterceptorsFromDi())
     ] })

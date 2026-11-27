@@ -8,7 +8,7 @@
 
     <!-- Botón Hamburguesa Móvil -->
     <button class="navbar-toggler custom-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown"
-      aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+      aria-controls="navbarNavDropdown" aria-expanded="false" [attr.aria-label]="'menu.abrir' | t">
       <span class="navbar-toggler-icon"></span>
     </button>
 
@@ -18,14 +18,14 @@
       <!-- Navegación principal -->
       <ul class="navbar-nav me-auto main-nav-links">
         <li class="nav-item">
-          <a class="nav-link" routerLink="/home" routerLinkActive="active">Inicio</a>
+          <a class="nav-link" routerLink="/home" routerLinkActive="active">{{ 'menu.inicio' | t }}</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" routerLink="/carta" routerLinkActive="active">Carta</a>
+          <a class="nav-link" routerLink="/carta" routerLinkActive="active">{{ 'menu.carta' | t }}</a>
         </li>
         @if (isCliente || isEmple || isAdmin) {
           <li class="nav-item">
-            <a class="nav-link" routerLink="/seguimiento-pedidos" routerLinkActive="active">Sigue tu pedido</a>
+            <a class="nav-link" routerLink="/seguimiento-pedidos" routerLinkActive="active">{{ 'menu.seguimiento' | t }}</a>
           </li>
         }
         @if (isEmple || isAdmin) {
@@ -86,10 +86,12 @@
       <!-- Zona de autenticación y Modo Oscuro -->
       <div class="auth-section d-flex align-items-center gap-2">
 
+        <app-selector-idioma class="me-2" />
+
         <div class="theme-switch-group me-3"
           (click)="toggleTheme()"
           (keydown.enter)="toggleTheme()"
-          [title]="(isDarkMode$ | async) ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'">
+          [title]="((isDarkMode$ | async) ? 'menu.temaClaro' : 'menu.temaOscuro') | t">
 
           <div class="theme-switch-option" [class.active]="!(isDarkMode$ | async)">
             <i class="bi bi-sun-fill"></i>
@@ -103,8 +105,8 @@
         <!-- Sin iniciar sesión -->
         @if (!sesionIniciada) {
           <div class="auth-buttons d-flex align-items-center">
-            <a class="nav-link btn-login" routerLink="/auth/login">Iniciar sesión</a>
-            <a class="btn btn-primary custom-btn-register ms-lg-2" routerLink="/auth/register">Registrarse</a>
+            <a class="nav-link btn-login" routerLink="/auth/login">{{ 'menu.iniciarSesion' | t }}</a>
+            <a class="btn btn-primary custom-btn-register ms-lg-2" routerLink="/auth/register">{{ 'menu.registrarse' | t }}</a>
           </div>
         }
 
@@ -133,7 +135,7 @@
                 <ul class="dropdown-menu dropdown-menu-end custom-dropdown">
                   <li>
                     <a class="dropdown-item d-flex align-items-center" routerLink="/perfil" routerLinkActive="active">
-                      <i class="bi bi-person-fill me-2"></i> Perfil
+                      <i class="bi bi-person-fill me-2"></i> {{ 'menu.perfil' | t }}
                     </a>
                   </li>
                   <li><hr class="dropdown-divider"></li>
@@ -146,7 +148,7 @@
                   }
                   <li>
                     <a class="dropdown-item logout-item d-flex align-items-center" href="#" (click)="cerrarSesion(); $event.preventDefault()">
-                      <i class="bi bi-box-arrow-right me-2"></i> Cerrar sesión
+                      <i class="bi bi-box-arrow-right me-2"></i> {{ 'menu.cerrarSesion' | t }}
                     </a>
                   </li>
                 </ul>

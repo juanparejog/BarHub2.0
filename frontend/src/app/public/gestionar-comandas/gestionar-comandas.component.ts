@@ -315,7 +315,7 @@ export class GestionarComandasComponent implements OnInit, OnDestroy {
   alergenosDe(det: any): string[] | null {
     const id = det?.id_producto ?? det?.idProducto ?? det?.producto?.id;
     const alergenos = id == null ? undefined : this.alergenosPorProducto.get(Number(id));
-    return alergenos == null ? null : alergenos.map(nombreAlergeno);
+    return alergenos == null ? null : alergenos.map(a => nombreAlergeno(a));
   }
 
   /** Imprime solo esta comanda, con el formato del ticket (ver styles.css, «imprimiendo-comanda»). */

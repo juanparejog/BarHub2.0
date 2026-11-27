@@ -6,7 +6,7 @@
       <header class="crud-card perfil-cabecera p-4 mb-3 animate-fade-in shadow-sm border-0 rounded-4">
         <div class="d-flex flex-wrap align-items-center gap-3">
           <button type="button" class="avatar-wrapper position-relative p-0 border-0 bg-transparent"
-            (click)="abrirModalImagen()" title="Cambiar la foto de perfil" aria-label="Cambiar la foto de perfil">
+            (click)="abrirModalImagen()" [title]="'perfil.foto.cambiar' | t" [attr.aria-label]="'perfil.foto.cambiar' | t">
             <img [src]="urlFoto()" (error)="fotoPorDefecto($event)"
               class="rounded-circle shadow-sm border border-2 border-primary object-fit-cover avatar" alt="">
             <span class="avatar-overlay rounded-circle d-flex align-items-center justify-content-center text-white">
@@ -15,7 +15,7 @@
           </button>
 
           <div class="flex-grow-1 min-w-0">
-            <h1 class="crud-title h3 mb-1 text-truncate">{{ nombreCompleto() || 'Mi perfil' }}</h1>
+            <h1 class="crud-title h3 mb-1 text-truncate">{{ nombreCompleto() || ('perfil.titulo' | t) }}</h1>
             @if (perfil.usuario(); as usuario) {
               <p class="text-muted font-size-14 mb-2">
                 &#64;{{ usuario.username }}
@@ -23,25 +23,25 @@
                   <span class="badge rounded-pill text-bg-light border ms-1">{{ rol }}</span>
                 }
                 @if (miembroDesde()) {
-                  <span class="ms-2 text-nowrap">· Miembro desde {{ miembroDesde() }}</span>
+                  <span class="ms-2 text-nowrap">· {{ 'perfil.miembro' | t: { fecha: miembroDesde() } }}</span>
                 }
               </p>
             }
             @if (perfil.seguridad(); as estado) {
-              <ul class="list-inline mb-0 estado-cuenta" aria-label="Estado de la cuenta">
+              <ul class="list-inline mb-0 estado-cuenta" [attr.aria-label]="'perfil.estado' | t">
                 <li class="list-inline-item">
                   @if (estado.correoVerificado) {
-                    <span class="chip chip-ok"><i class="bi bi-envelope-check" aria-hidden="true"></i> Correo verificado</span>
+                    <span class="chip chip-ok"><i class="bi bi-envelope-check" aria-hidden="true"></i> {{ 'perfil.correoVerificado' | t }}</span>
                   } @else {
-                    <span class="chip chip-aviso"><i class="bi bi-envelope-exclamation" aria-hidden="true"></i> Correo sin verificar</span>
+                    <span class="chip chip-aviso"><i class="bi bi-envelope-exclamation" aria-hidden="true"></i> {{ 'perfil.correoSinVerificar' | t }}</span>
                   }
                 </li>
                 <li class="list-inline-item">
                   @if (estado.dosFactoresActiva) {
-                    <span class="chip chip-ok"><i class="bi bi-shield-check" aria-hidden="true"></i> Verificación en dos pasos activa</span>
+                    <span class="chip chip-ok"><i class="bi bi-shield-check" aria-hidden="true"></i> {{ 'perfil.dosfActiva' | t }}</span>
                   } @else {
                     <a class="chip chip-aviso text-decoration-none" routerLink="seguridad">
-                      <i class="bi bi-shield-exclamation" aria-hidden="true"></i> Verificación en dos pasos desactivada
+                      <i class="bi bi-shield-exclamation" aria-hidden="true"></i> {{ 'perfil.dosfInactiva' | t }}
                     </a>
                   }
                 </li>
@@ -58,12 +58,12 @@
       }
 
       <div class="perfil-cuerpo">
-        <nav class="perfil-pestanas" aria-label="Secciones del perfil">
+        <nav class="perfil-pestanas" [attr.aria-label]="'perfil.secciones' | t">
           @for (pestana of pestanas; track pestana.ruta) {
             <a class="perfil-pestana" [routerLink]="pestana.ruta" routerLinkActive="activa"
               ariaCurrentWhenActive="page">
               <i class="bi {{ pestana.icono }}" aria-hidden="true"></i>
-              <span>{{ pestana.titulo }}</span>
+              <span>{{ pestana.clave | t }}</span>
             </a>
           }
         </nav>
@@ -82,29 +82,29 @@
   <div class="modal-backdrop-custom d-flex align-items-center justify-content-center" (keydown.escape)="cerrarModalImagen()">
     <div class="crud-card p-4 shadow-lg animate-fade-in modal-foto" role="dialog" aria-modal="true" aria-labelledby="tituloFoto">
       <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
-        <h2 id="tituloFoto" class="h5 fw-bold m-0"><i class="bi bi-image text-indigo me-2" aria-hidden="true"></i>Cambiar foto de perfil</h2>
-        <button type="button" class="btn-close" (click)="cerrarModalImagen()" aria-label="Cerrar"></button>
+        <h2 id="tituloFoto" class="h5 fw-bold m-0"><i class="bi bi-image text-indigo me-2" aria-hidden="true"></i>{{ 'perfil.foto.titulo' | t }}</h2>
+        <button type="button" class="btn-close" (click)="cerrarModalImagen()" [attr.aria-label]="'perfil.cerrar' | t"></button>
       </div>
       <button type="button" class="drop-zone w-100 text-center p-4 my-3" [class.drag-over]="arrastrando()"
         (dragover)="alArrastrar($event, true)" (dragleave)="alArrastrar($event, false)" (drop)="alSoltar($event)"
         (click)="selectorFoto.click()">
         @if (vistaPrevia(); as previa) {
-          <img [src]="previa" class="rounded-circle shadow border object-fit-cover mb-2 vista-previa" alt="Vista previa de la foto nueva">
-          <span class="d-block text-success font-size-14 fw-semibold"><i class="bi bi-check-circle me-1" aria-hidden="true"></i>Lista para guardar</span>
+          <img [src]="previa" class="rounded-circle shadow border object-fit-cover mb-2 vista-previa" [alt]="'perfil.foto.previa' | t">
+          <span class="d-block text-success font-size-14 fw-semibold"><i class="bi bi-check-circle me-1" aria-hidden="true"></i>{{ 'perfil.foto.lista' | t }}</span>
         } @else {
           <i class="bi bi-cloud-arrow-up fs-1 text-indigo mb-2" aria-hidden="true"></i>
-          <span class="d-block mb-1 fw-semibold">Arrastra tu foto aquí</span>
-          <span class="d-block text-muted font-size-14">o haz clic para elegir un archivo</span>
+          <span class="d-block mb-1 fw-semibold">{{ 'perfil.foto.arrastra' | t }}</span>
+          <span class="d-block text-muted font-size-14">{{ 'perfil.foto.elegir' | t }}</span>
         }
       </button>
-      <input #selectorFoto type="file" class="d-none" accept="image/*" (change)="alSeleccionar($event)" aria-label="Elegir foto de perfil">
+      <input #selectorFoto type="file" class="d-none" accept="image/*" (change)="alSeleccionar($event)" [attr.aria-label]="'perfil.foto.selector' | t">
       @if (errorFoto()) {
         <div class="text-danger font-size-14" role="alert">{{ errorFoto() }}</div>
       }
       <div class="d-flex justify-content-end gap-2 mt-4">
-        <button type="button" class="btn-crud-secondary" (click)="cerrarModalImagen()">Cancelar</button>
+        <button type="button" class="btn-crud-secondary" (click)="cerrarModalImagen()">{{ 'perfil.cancelar' | t }}</button>
         <button type="button" class="btn-crud-primary" [disabled]="!vistaPrevia() || subiendoFoto()" (click)="guardarFoto()">
-          <i class="bi bi-upload me-1" aria-hidden="true"></i>Guardar foto
+          <i class="bi bi-upload me-1" aria-hidden="true"></i>{{ 'perfil.foto.guardar' | t }}
         </button>
       </div>
     </div>

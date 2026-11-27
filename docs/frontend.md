@@ -12,6 +12,7 @@ Aplicación **Angular 22** organizada en módulos por área funcional, con rutas
 6. [Componentes compartidos](#6-componentes-compartidos)
 7. [Actualización de datos en el cliente](#7-actualización-de-datos-en-el-cliente)
 8. [Estilos, temas y accesibilidad](#8-estilos-temas-y-accesibilidad)
+9. [Idiomas](#9-idiomas)
 
 ---
 
@@ -181,3 +182,25 @@ Las comandas, las mesas, los pagos en efectivo y el seguimiento del cliente se a
 | `assets/` | Imágenes corporativas y de fondo |
 
 **Accesibilidad (WCAG):** todas las interfaces se refactorizaron para cumplir los ratios mínimos de contraste: colores sólidos optimizados, eliminación de opacidades conflictivas en textos y contraste verificado en botones y elementos interactivos. Además, tras la auditoría de SonarQube, cada `<input>` y `<select>` tiene su `<label>` asociado para ofrecer nombres accesibles.
+
+## 9. Idiomas
+
+Las pantallas del cliente están en **español, portugués (de Portugal) e inglés (británico)**. El personal y la administración siguen en español. Los textos de la interfaz se traducen en el navegador, sin librerías; los nombres y descripciones de los productos, que escribe el bar, vienen traducidos de la API (ver abajo).
+
+| Pieza | Detalle |
+| :--- | :--- |
+| Textos | `shared/i18n/textos.es.ts` es la referencia; `textos.pt.ts` y `textos.en.ts` son `Record<Clave, string>`, así que TypeScript no deja compilar si falta una clave. Un test comprueba además que cada traducción lleva los mismos datos entre llaves (`{id}`, `{n}`...) |
+| En las plantillas | `{{ 'carta.titulo' \| t }}` y, con datos, `{{ 'carta.mesa.opcion' \| t: { id: mesa.id } }}`. Precios con `{{ producto.precio \| precio }}` (`Intl.NumberFormat`: 12,50 € en español y portugués, €12.50 en inglés) |
+| En el código | `IdiomaService.t(clave, datos)` para avisos y textos montados en TypeScript; `tSiExiste` para claves que salen de la API (estados de pedidos y mesas) |
+| Cambio al momento | El idioma es una señal; las tuberías `t` y `precio` no son puras, así que al cambiarlo se repinta lo que esté a la vista, también en componentes `OnPush` |
+| Selector | `SelectorIdiomaComponent` en el menú: una pastilla con tres botones redondos con la bandera de España, Portugal y Reino Unido (SVG dibujado, sin imágenes), como el interruptor del modo oscuro. Cada botón lleva el nombre del idioma en ese idioma, su `lang` y `aria-pressed` en el activo |
+| Productos | `nombrePt`, `nombreEn`, `descripcionPt` y `descripcionEn` de cada producto (los escribe el administrador). `nombreDe()` y `descripcionDe()` de `producto-idioma.ts` eligen la del idioma y, si falta, la española. Se usan en la carta, la confirmación y el seguimiento |
+| Primera visita | Si el navegador está en portugués o inglés, se usa ese; si no, español. La elección se guarda en `barhub.idioma` |
+| Accesibilidad | Se cambia el `lang` de `<html>` para que los lectores de pantalla pronuncien bien. Los alérgenos tienen el nombre del Reglamento (UE) 1169/2011 en cada idioma |
+| Stripe | El formulario de la tarjeta se crea con el idioma elegido (`elements({ locale })`) |
+| Mensajes de la API | El servidor responde en español. `IdiomaService.delServidor(mensaje, clave)` lo muestra tal cual en español y, en portugués o inglés, pone el texto de la clave, que dice lo mismo sin los detalles (por ejemplo, «Incorrect code.») |
+| Fechas | `IdiomaService.fecha()` y los formatos de las sesiones («há 2 horas», «2 hours ago») usan la configuración regional del idioma |
+| Tests | `src/test-setup.ts` deja el idioma en español antes de cada fichero de Vitest, porque jsdom dice estar en inglés; los tests de idiomas lo cambian por su cuenta |
+| Sin traducir | El ticket en PDF del pedido (factura simplificada, documento fiscal) y la comanda impresa para cocina, que salen en español |
+
+Están traducidas todas las pantallas del cliente: menú y pie, portada, carta, confirmación del pedido, seguimiento, inicio de sesión, registro, verificación en dos pasos, recuperar la contraseña y los enlaces del correo, el perfil con sus cinco pestañas, contacto, la política de privacidad y los términos y condiciones (enteros), y los avisos comunes (sesión a punto de cerrarse, confirmar que eres tú, diálogos).

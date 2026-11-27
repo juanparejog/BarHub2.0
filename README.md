@@ -60,6 +60,7 @@ Es la segunda versión de mi TFC. Esta vez me he centrado en tres cosas: redise�
 - Pago en efectivo y con tarjeta (Stripe en modo demostración, sin cargos reales)
 - Registro de usuarios y perfil por pestañas: datos personales, dirección de entrega, cuenta y correo (cambio de correo con enlace de confirmación), seguridad (contraseña, verificación en dos pasos y sesiones abiertas) y privacidad (descargar mis datos y eliminar la cuenta)
 - Historial de pedidos
+- Todo lo del cliente en español, portugués e inglés, con selector de banderas, y productos traducidos por el bar
 
 </td>
 <td width="33%" valign="top">

@@ -3,8 +3,8 @@
 
     <!-- Encabezado -->
     <header class="pedidos-header">
-      <h2>Mis Pedidos</h2>
-      <p class="pedidos-subtitle">Sigue en tiempo real el estado de tus comandas</p>
+      <h2>{{ 'seguimiento.titulo' | t }}</h2>
+      <p class="pedidos-subtitle">{{ 'seguimiento.subtitulo' | t }}</p>
     </header>
 
     <!-- Anuncios para lectores de pantalla -->
@@ -16,8 +16,8 @@
         <div class="empty-icon">
           <i class="bi bi-receipt-cutoff"></i>
         </div>
-        <h3>No tienes pedidos activos</h3>
-        <p class="sinPedidos">Aún no has realizado ninguna comanda. ¡Explora nuestra carta y haz tu primer pedido!</p>
+        <h3>{{ 'seguimiento.vacio.titulo' | t }}</h3>
+        <p class="sinPedidos">{{ 'seguimiento.vacio.texto' | t }}</p>
       </div>
     }
 
@@ -32,7 +32,7 @@
               <div class="pedido-main-info">
                 <div class="d-flex align-items-center gap-2 flex-wrap">
                   <span class="pedido-badge-id">
-                    <i class="bi bi-bag-check-fill me-1"></i> Pedido #{{ pedido.id }}
+                    <i class="bi bi-bag-check-fill me-1"></i> {{ 'seguimiento.pedido' | t: { id: pedido.id } }}
                   </span>
                   <!-- Badge con el Tipo de Pedido y Ubicación/Mesa -->
                   <span class="badge-tipo-pedido" [ngClass]="getTipoPedidoClass(pedido)">
@@ -45,9 +45,9 @@
                 </span>
               </div>
               <div class="pedido-price-info">
-                <span class="price-label">TOTAL A PAGAR</span>
+                <span class="price-label">{{ 'seguimiento.total' | t }}</span>
                 <span class="price-amount">
-                  {{ calcularTotalPedido(pedido) | currency:'EUR':'symbol':'1.2-2' }}
+                  {{ calcularTotalPedido(pedido) | precio }}
                 </span>
               </div>
             </div>
@@ -61,7 +61,7 @@
                 <div class="step-icon-wrapper">
                   <i class="bi bi-receipt"></i>
                 </div>
-                <span class="step-label">Recibido</span>
+                <span class="step-label">{{ 'paso.recibido' | t }}</span>
               </div>
               <div class="tracker-line" [ngClass]="{'completed': isPasoCompletado(pedido, 'recibido')}"></div>
               <!-- Paso 2: En cocina -->
@@ -72,7 +72,7 @@
                 <div class="step-icon-wrapper">
                   <i class="bi bi-fire"></i>
                 </div>
-                <span class="step-label">En cocina</span>
+                <span class="step-label">{{ 'paso.cocina' | t }}</span>
               </div>
               <div class="tracker-line" [ngClass]="{'completed': isPasoCompletado(pedido, 'preparacion')}"></div>
               <!-- Paso 3: Dinámico (Listo para servir / Listo para recoger / De camino) -->
@@ -94,13 +94,13 @@
                 <div class="step-icon-wrapper">
                   <i class="bi bi-check-circle-fill"></i>
                 </div>
-                <span class="step-label">Entregado</span>
+                <span class="step-label">{{ 'paso.entregado' | t }}</span>
               </div>
             </div>
             <!-- ACORDEÓN CON DETALLES DE PRODUCTOS -->
             <details class="pedido-accordion">
               <summary class="accordion-trigger">
-                <span>Ver artículos del pedido ({{ pedido.detalles?.length || 0 }})</span>
+                <span>{{ 'seguimiento.articulos' | t: { n: pedido.detalles?.length || 0 } }}</span>
                 <i class="bi bi-chevron-down icon-arrow"></i>
               </summary>
               @if (pedido.detalles && pedido.detalles.length > 0) {
@@ -109,10 +109,10 @@
                     <table class="detalles-table">
                       <thead>
                         <tr>
-                          <th>Producto</th>
-                          <th class="text-center">Cant.</th>
-                          <th class="text-end">Precio U.</th>
-                          <th class="text-end">Subtotal</th>
+                          <th>{{ 'tabla.producto' | t }}</th>
+                          <th class="text-center">{{ 'tabla.cantidad' | t }}</th>
+                          <th class="text-end">{{ 'tabla.precio' | t }}</th>
+                          <th class="text-end">{{ 'tabla.subtotal' | t }}</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -120,22 +120,17 @@
                           <tr>
                             <td class="product-name-cell">
                               <span class="product-title">
-                                {{
-                                det.producto?.nombre ||
-                                det.nombreProducto ||
-                                det.nombre ||
-                                det.producto_nombre
-                                }}
+                                {{ nombreLinea(det) }}
                               </span>
                             </td>
                             <td class="text-center">
                               <span class="qty-badge">{{ det.cantidad }}</span>
                             </td>
                             <td class="text-end text-muted">
-                              {{ (det.precio_unitario || det.precioUnitario || det.precio) | currency:'EUR':'symbol':'1.2-2' }}
+                              {{ (det.precio_unitario || det.precioUnitario || det.precio) | precio }}
                             </td>
                             <td class="text-end font-bold text-body">
-                              {{ (det.cantidad * (det.precio_unitario || det.precioUnitario || det.precio || 0)) | currency:'EUR':'symbol':'1.2-2' }}
+                              {{ (det.cantidad * (det.precio_unitario || det.precioUnitario || det.precio || 0)) | precio }}
                             </td>
                           </tr>
                         }

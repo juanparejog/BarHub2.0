@@ -7,6 +7,7 @@ El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y e
 ## [Sin publicar]
 
 ### Añadido
+- Idiomas en las pantallas del cliente: menú, pie, portada, carta, confirmación del pedido, seguimiento, inicio de sesión, registro, verificación en dos pasos, recuperación de la contraseña, enlaces del correo, perfil con sus cinco pestañas, contacto y textos legales (traducidos enteros) en español, portugués de Portugal e inglés británico, con un selector en el menú. Los mensajes que manda la API se ven tal cual en español y, en los otros idiomas, con un texto equivalente. Selector con las banderas de España, Portugal y Reino Unido en botones redondos, como el interruptor del modo oscuro. Nombre y descripción de cada producto en portugués e inglés (`nombrePt`, `nombreEn`, `descripcionPt`, `descripcionEn`), que el administrador escribe al editar el producto; si faltan, la carta usa el español. Los productos de demostración vienen traducidos (`demo/demo-traducciones.sql`, que solo rellena los que no tienen ninguna traducción). Cambia al momento, se recuerda en el navegador y la primera vez se toma el del navegador. Precios con el formato de cada idioma, alérgenos con su nombre oficial en cada uno, `lang` de la página y formulario de Stripe en el idioma elegido. Sin librerías nuevas: textos en `shared/i18n`, tuberías `t` y `precio`. Tests de Vitest (claves y datos iguales en los tres idiomas, detección, guardado, formato de precios y fechas, mensajes de la API, alérgenos, sesiones) y E2E `14-idiomas`.
 - Tiempo real con Server-Sent Events: las comandas, el estado de las mesas, los pagos en efectivo y el seguimiento del cliente se actualizan al momento, en lugar de preguntar cada 5 s. Endpoints `GET /eventos/personal` (empleados y administradores) y `GET /eventos/mis-pedidos` (solo los pedidos propios). Los avisos se envían tras el commit y solo dicen qué ha cambiado; la pantalla vuelve a pedir los datos. El frontend lee el flujo con `fetch` (el token va en la cabecera, no en la URL), agrupa los avisos que llegan juntos, se reconecta solo y, sin conexión, vuelve a preguntar cada 5 s. Las listas se pintan con `track` por id, así que una recarga ya no cierra lo que estaba abierto.
 - Aviso sonoro opcional en la pantalla de comandas (Web Audio, sin ficheros), que cada persona activa en su navegador.
 - Imprimir comanda: ticket para impresora térmica de 80 mm con número, modalidad y ubicación, horas del pedido y de impresión, productos con cantidad, notas y alérgenos por nombre («sin indicar, consultar» si faltan).
@@ -95,6 +96,9 @@ El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y e
 
 
 ### Corregido
+- La política de privacidad mostraba los asteriscos de «**acceder, rectificar...**» en lugar de la negrita.
+- La confirmación de un pedido para recoger mostraba «Servicio en Local» y una mesa vacía; ahora muestra el lugar de recogida y el teléfono.
+- Los precios del cliente salían con el formato inglés (€12.50) aunque la web estuviera en español; ahora 12,50 €.
 - Los empleados no podían cambiar el estado de una mesa: la pantalla usaba `PUT /mesas/{id}`, que es solo del administrador, y mostraba un error. Ahora usa `PATCH /mesas/{id}/estado`.
 - La pantalla de comandas no encontraba el nombre de los productos (`producto_nombre`) y pedía las líneas de cada pedido otra vez en cada recarga.
 - El seguimiento del cliente vaciaba la lista si una recarga fallaba; ahora se queda la última cargada.

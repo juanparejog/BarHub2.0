@@ -1,70 +1,66 @@
-<h3 class="h6 fw-bold mb-1"><i class="bi bi-phone text-indigo me-2" aria-hidden="true"></i>Verificación en dos pasos</h3>
+<h3 class="h6 fw-bold mb-1"><i class="bi bi-phone text-indigo me-2" aria-hidden="true"></i>{{ 'dosf.titulo' | t }}</h3>
 
 @switch (vista()) {
   @case ('configurar') {
-    <p class="text-muted font-size-14 mb-3">Además de la contraseña, al entrar te pediremos un código que genera tu móvil.</p>
+    <p class="text-muted font-size-14 mb-3">{{ 'perfil.dosf.ayuda' | t }}</p>
     <ol class="font-size-14 ps-3">
-      <li class="mb-2">Instala una app de autenticación, por ejemplo Google Authenticator, Microsoft Authenticator o Aegis.</li>
+      <li class="mb-2">{{ 'dosf.paso.instalar' | t }}</li>
       <li class="mb-2">
-        Escanea este código QR con la app:
+        {{ 'dosf.paso.escanear' | t }}
         @if (qr()) {
-          <img class="qr-perfil my-2" [src]="qr()" width="208" height="208" alt="Código QR para añadir BarHub a la app de autenticación">
+          <img class="qr-perfil my-2" [src]="qr()" width="208" height="208" [alt]="'dosf.qr' | t">
         }
-        <span class="d-block text-muted small">¿No puedes escanearlo? Escribe esta clave en la app:</span>
+        <span class="d-block text-muted small">{{ 'dosf.paso.clave' | t }}</span>
         <code class="d-block text-break" data-testid="secreto-totp">{{ secretoAgrupado() }}</code>
       </li>
-      <li>Escribe el código de 6 dígitos que muestra la app.</li>
+      <li>{{ 'dosf.paso.codigo' | t }}</li>
     </ol>
     <form class="d-flex flex-wrap align-items-end gap-2" (submit)="$event.preventDefault(); activar()" novalidate>
       <div>
-        <label for="codigoActivar" class="form-label font-size-14 fw-semibold">Código de verificación</label>
+        <label for="codigoActivar" class="form-label font-size-14 fw-semibold">{{ 'dosf.campo.codigo' | t }}</label>
         <input id="codigoActivar" class="form-control search-input" [formControl]="codigo" autocomplete="one-time-code"
           inputmode="numeric" maxlength="7" placeholder="123456">
       </div>
-      <button type="submit" class="btn-crud-primary px-4 py-2" [disabled]="enviando()">Activar</button>
-      <button type="button" class="btn-crud-secondary px-4 py-2" (click)="cancelar()">Cancelar</button>
+      <button type="submit" class="btn-crud-primary px-4 py-2" [disabled]="enviando()">{{ 'dosf.activar' | t }}</button>
+      <button type="button" class="btn-crud-secondary px-4 py-2" (click)="cancelar()">{{ 'perfil.cancelar' | t }}</button>
     </form>
   }
 
   @case ('codigos') {
-    <p class="font-size-14 mb-0">Si pierdes el móvil, cada uno de estos códigos te deja entrar una sola vez.
-      Guárdalos en un lugar seguro: no los volveremos a mostrar.</p>
-    <app-codigos-recuperacion [codigos]="codigosNuevos()" [usuario]="usuario()" textoBoton="Hecho" (terminado)="terminar()" />
+    <p class="font-size-14 mb-0">{{ 'dosf.codigos.ayuda' | t }}</p>
+    <app-codigos-recuperacion [codigos]="codigosNuevos()" [usuario]="usuario()" [textoBoton]="'perfil.dosf.hecho' | t" (terminado)="terminar()" />
   }
 
   @default {
     @if (perfil.seguridad(); as estado) {
       @if (estado.dosFactoresActiva) {
         <p class="font-size-14 mb-2">
-          <span class="chip chip-ok me-2"><i class="bi bi-shield-check" aria-hidden="true"></i> Activa</span>
-          Al entrar te pedimos el código de tu app de autenticación.
+          <span class="chip chip-ok me-2"><i class="bi bi-shield-check" aria-hidden="true"></i> {{ 'perfil.dosf.activa' | t }}</span>
+          {{ 'perfil.dosf.activa.ayuda' | t }}
         </p>
         <p class="font-size-14 text-muted mb-3">
-          Te {{ estado.codigosRecuperacionRestantes === 1 ? 'queda 1 código' : 'quedan ' + estado.codigosRecuperacionRestantes + ' códigos' }}
-          de recuperación sin usar.
+          {{ (estado.codigosRecuperacionRestantes === 1 ? 'dosf.restante' : 'dosf.restantes') | t: { n: estado.codigosRecuperacionRestantes } }}
           @if (estado.dosFactoresObligatoria) {
-            Tu cuenta es del personal: no se puede desactivar.
+            {{ 'perfil.dosf.obligatoria' | t }}
           }
         </p>
         <div class="d-flex flex-wrap gap-2">
           <button type="button" class="btn-crud-secondary px-3 py-2" (click)="regenerar()">
-            <i class="bi bi-arrow-repeat me-1" aria-hidden="true"></i>Generar códigos nuevos
+            <i class="bi bi-arrow-repeat me-1" aria-hidden="true"></i>{{ 'perfil.dosf.regenerar' | t }}
           </button>
           @if (!estado.dosFactoresObligatoria) {
-            <button type="button" class="btn btn-outline-danger px-3 py-2" (click)="desactivar()">Desactivar</button>
+            <button type="button" class="btn btn-outline-danger px-3 py-2" (click)="desactivar()">{{ 'perfil.dosf.desactivar' | t }}</button>
           }
         </div>
       } @else {
         <p class="font-size-14 mb-3">
-          <span class="chip chip-aviso me-2"><i class="bi bi-shield-exclamation" aria-hidden="true"></i> Desactivada</span>
-          Con ella, aunque alguien averigüe tu contraseña no podrá entrar sin tu móvil.
+          <span class="chip chip-aviso me-2"><i class="bi bi-shield-exclamation" aria-hidden="true"></i> {{ 'perfil.dosf.desactivada' | t }}</span>
+          {{ 'perfil.dosf.porque' | t }}
         </p>
-        <button type="button" class="btn-crud-primary px-4 py-2" [disabled]="enviando()" (click)="empezar()">
-          Activar la verificación en dos pasos
-        </button>
+        <button type="button" class="btn-crud-primary px-4 py-2" [disabled]="enviando()" (click)="empezar()">{{ 'perfil.dosf.empezar' | t }}</button>
       }
     } @else {
-      <p class="text-muted font-size-14" role="status">Cargando…</p>
+      <p class="text-muted font-size-14" role="status">{{ 'perfil.cargando' | t }}</p>
     }
   }
 }

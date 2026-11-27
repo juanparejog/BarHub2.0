@@ -1,4 +1,5 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
+import { IdiomaService } from '../../../../shared/i18n/idioma.service';
 
 /**
  * Diálogos y avisos con la API nativa de Bootstrap 5 (sin jQuery).
@@ -8,6 +9,7 @@ import { Injectable } from '@angular/core';
   providedIn: 'root'
 })
 export class DialogService {
+  private readonly idiomas = inject(IdiomaService);
 
   private readonly HTML_MODAL_ALERT = `
     <div class="modal fade" id="modalAlert" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="modalAlertTitulo" aria-hidden="true">
@@ -58,9 +60,10 @@ export class DialogService {
   /**
    * Muestra un mensaje en un modal con un botón de aceptar.
    */
-  mostrarMensaje(mensaje: string, titulo: string = 'Advertencia'): void {
+  mostrarMensaje(mensaje: string, titulo?: string): void {
     const modal = this.obtenerElemento('modalAlert', this.HTML_MODAL_ALERT);
-    this.ponerTexto(modal, '.modal-title', titulo);
+    this.traducirBotones(modal);
+    this.ponerTexto(modal, '.modal-title', titulo ?? this.idiomas.t('dialogo.advertencia'));
     this.ponerTexto(modal, '.modal-body', mensaje);
     bootstrap.Modal.getOrCreateInstance(modal).show();
   }
@@ -70,6 +73,7 @@ export class DialogService {
    */
   solicitarConfirmacion(mensaje: string, titulo: string, accion: () => void): void {
     const modal = this.obtenerElemento('modalConfirmar', this.HTML_MODAL_CONFIRMAR);
+    this.traducirBotones(modal);
     this.ponerTexto(modal, '.modal-title', titulo);
     this.ponerTexto(modal, '.modal-body', mensaje);
 
@@ -93,6 +97,7 @@ export class DialogService {
    */
   mostrarToast(mensaje: string): void {
     const toast = this.obtenerElemento('__Toast', this.HTML_TOAST);
+    toast.querySelector('.btn-close')?.setAttribute('aria-label', this.idiomas.t('dialogo.cerrar'));
     this.ponerTexto(toast, '.toast-body', mensaje);
     bootstrap.Toast.getOrCreateInstance(toast).show();
   }
@@ -105,6 +110,13 @@ export class DialogService {
       elemento = document.getElementById(id) as HTMLElement;
     }
     return elemento;
+  }
+
+  /** Los botones del modal, en el idioma elegido (el HTML se crea una vez y se reutiliza). */
+  private traducirBotones(modal: HTMLElement): void {
+    modal.querySelector('.btn-close')?.setAttribute('aria-label', this.idiomas.t('dialogo.cerrar'));
+    this.ponerTexto(modal, '.modal-footer .btn-secondary', this.idiomas.t(modal.querySelector('#botonAceptar') ? 'dialogo.cancelar' : 'dialogo.aceptar'));
+    this.ponerTexto(modal, '#botonAceptar', this.idiomas.t('dialogo.aceptar'));
   }
 
   /** textContent, como el .text() de jQuery: el mensaje nunca se interpreta como HTML. */

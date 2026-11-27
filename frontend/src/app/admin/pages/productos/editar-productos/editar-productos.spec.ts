@@ -67,4 +67,20 @@ describe('EditarProductoComponent: alérgenos', () => {
     expect(enviado.alergenos).toEqual([]);
     expect(enviado.id).toBeUndefined();
   });
+
+  it('envía las traducciones que se escriben y carga las que ya tiene', () => {
+    productoService.getId.mockReturnValue(of({
+      id: 9, nombre: 'Tortilla', descripcion: 'De patatas', precio: 3, imagen: '', tipoProducto: 'TAPA', alergenos: null,
+      nombrePt: 'Tortilha', nombreEn: null, descripcionPt: null, descripcionEn: null
+    }));
+    const formulario = crear('/admin/editar-productos/9');
+    formulario.ngOnInit();
+    expect(formulario.formulario.get('nombrePt')?.value).toBe('Tortilha');
+
+    formulario.formulario.patchValue({ nombreEn: 'Spanish omelette' });
+    formulario.guardar();
+    const enviado = productoService.put.mock.calls[0][0] as Producto;
+    expect(enviado.nombrePt).toBe('Tortilha');
+    expect(enviado.nombreEn).toBe('Spanish omelette');
+  });
 });

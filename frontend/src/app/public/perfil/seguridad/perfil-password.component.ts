@@ -1,6 +1,8 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { AbstractControl, FormControl, FormGroup, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { PerfilService } from '../perfil.service';
+import { IdiomaService } from '../../../shared/i18n/idioma.service';
+import { TraducirPipe } from '../../../shared/i18n/traducir.pipe';
 
 function coinciden(grupo: AbstractControl): ValidationErrors | null {
   const nueva = grupo.get('nueva')?.value;
@@ -12,12 +14,13 @@ function coinciden(grupo: AbstractControl): ValidationErrors | null {
 @Component({
   selector: 'app-perfil-password',
   standalone: true,
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, TraducirPipe],
   templateUrl: './perfil-password.component.html',
   styleUrls: ['../perfil.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class PerfilPasswordComponent {
+  private readonly idiomas = inject(IdiomaService);
   private readonly perfil = inject(PerfilService);
 
   readonly form = new FormGroup({
@@ -48,13 +51,12 @@ export class PerfilPasswordComponent {
       next: cerradas => {
         this.enviando.set(false);
         this.form.reset();
-        this.exito.set('Contraseña cambiada.' + (cerradas === 1
-          ? ' Hemos cerrado la otra sesión que tenías abierta.'
-          : cerradas > 1 ? ` Hemos cerrado las otras ${cerradas} sesiones que tenías abiertas.` : ''));
+        this.exito.set(this.idiomas.t(cerradas === 1 ? 'perfil.clave.cambiada1'
+          : cerradas > 1 ? 'perfil.clave.cambiadaN' : 'perfil.clave.cambiada', { n: cerradas }));
       },
       error: err => {
         this.enviando.set(false);
-        this.error.set(err?.error?.message ?? 'No se pudo cambiar la contraseña.');
+        this.error.set(this.idiomas.delServidor(err?.error?.message, 'perfil.clave.error'));
       }
     });
   }

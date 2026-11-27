@@ -14,6 +14,21 @@ describe('alérgenos', () => {
     expect(textoAlergenos(['GLUTEN', 'LACTEOS'])).toBe('Contiene: Gluten, Lácteos');
   });
 
+  it('en portugués y en inglés, con los nombres del reglamento en cada idioma', () => {
+    expect(nombreAlergeno('FRUTOS_DE_CASCARA', 'pt')).toBe('Frutos de casca rija');
+    expect(nombreAlergeno('ALTRAMUCES', 'en')).toBe('Lupin');
+    expect(textoAlergenos(['GLUTEN', 'LACTEOS'], 'pt')).toBe('Contém: Glúten, Leite');
+    expect(textoAlergenos(['HUEVOS', 'SULFITOS'], 'en')).toBe('Contains: Eggs, Sulphites');
+    expect(textoAlergenos(null, 'en')).toBe('Allergens: ask the staff');
+    expect(textoAlergenos([], 'pt')).toBe('Sem alergénios de declaração obrigatória');
+    // Todos tienen nombre en los tres idiomas
+    for (const { codigo } of ALERGENOS) {
+      expect(nombreAlergeno(codigo, 'pt')).not.toBe(codigo);
+      expect(nombreAlergeno(codigo, 'en')).not.toBe(codigo);
+    }
+    expect(nombreAlergeno('CHOCOLATE', 'en')).toBe('CHOCOLATE');
+  });
+
   it('con un filtro activo oculta lo que lleva ese alérgeno y lo que no tiene información', () => {
     const sinGluten = new Set(['GLUTEN']);
     expect(aptoSin(['LACTEOS'], sinGluten)).toBe(true);

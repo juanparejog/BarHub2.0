@@ -3,13 +3,14 @@ import { Router } from '@angular/router';
 import { loadStripe, Stripe, StripeElements } from '@stripe/stripe-js';
 import { PedidoService } from '../../admin/pages/pedidos/services/pedido';
 import { AuthService } from '../../auth/auth.service';
+import { IdiomaService } from '../../shared/i18n/idioma.service';
+import { type ProductoTraducible, nombreDe } from '../../shared/i18n/producto-idioma';
 
 export type TipoPedido = 'MESA' | 'DOMICILIO' | 'RECOGER';
 
 interface ProductoSeleccionado {
-  producto: {
+  producto: ProductoTraducible & {
     id: number;
-    nombre: string;
     precio: number;
   };
   cantidad: number;
@@ -19,6 +20,7 @@ interface PedidoTemporal {
   tipoPedido: TipoPedido;
   idMesa?: number | null;
   direccionEnvio?: string | null;
+  ubicacionRecogida?: string | null;
   telefonoContacto?: string | null;
   productos: ProductoSeleccionado[];
   precioTotal: number;
@@ -47,7 +49,8 @@ export class ConfirmarPedidoComponent implements OnInit {
   constructor(
     private readonly pedidoService: PedidoService,
     private readonly authService: AuthService,
-    private readonly router: Router
+    private readonly router: Router,
+    private readonly idiomas: IdiomaService
   ) {}
 
   ngOnInit() {
@@ -88,7 +91,8 @@ export class ConfirmarPedidoComponent implements OnInit {
   onTarjetaSelected() {
     if (this.metodoPago === 'tarjeta' && this.stripe && !this.card) {
       setTimeout(() => {
-        this.elements = this.stripe!.elements();
+        // Los textos y errores de Stripe, en el idioma elegido
+        this.elements = this.stripe!.elements({ locale: this.idiomas.idioma() });
         this.card = this.elements.create('card', {
           style: {
             base: {
@@ -116,7 +120,7 @@ export class ConfirmarPedidoComponent implements OnInit {
   
     // 1. Validar requerimiento de MESA si el pedido es en local/mesa
     if (this.pedidoTemporal.tipoPedido === 'MESA' && !this.pedidoTemporal.idMesa) {
-      this.showToastMessage('Es obligatorio seleccionar una mesa para pedidos en local', 'error');
+      this.showToastMessage(this.idiomas.t('confirmar.toast.mesa'), 'error');
       return;
     }
   
@@ -171,7 +175,7 @@ export class ConfirmarPedidoComponent implements OnInit {
     this.pedidoService.postCrearSeguro(dtoPayload).subscribe({
       next: (res) => {
         console.log('Pedido creado con éxito', res);
-        this.showToastMessage('¡Pedido realizado con éxito!', 'success');
+        this.showToastMessage(this.idiomas.t('confirmar.toast.exito'), 'success');
   
         const idPedidoCreado = res.id || 1;
         this.generarTicketPDF(idPedidoCreado);
@@ -187,7 +191,7 @@ export class ConfirmarPedidoComponent implements OnInit {
         if (err?.error?.message) {
           this.showToastMessage(err.error.message, 'error');
         } else {
-          this.showToastMessage('Error al procesar el pedido. Comprueba la mesa seleccionada.', 'error');
+          this.showToastMessage(this.idiomas.t('confirmar.toast.error'), 'error');
         }
       }
     });
@@ -202,12 +206,18 @@ export class ConfirmarPedidoComponent implements OnInit {
   }
 
   cancelarPedido() {
-    if (confirm('¿Desea cancelar y regresar a la carta?')) {
+    if (confirm(this.idiomas.t('confirmar.preguntaCancelar'))) {
       localStorage.removeItem('pedidoTemporal');
       void this.router.navigate(['/carta']);
     }
   }
 
+  /** Nombre del producto en el idioma elegido (el ticket en PDF lo lleva en español). */
+  nombreProducto(producto: ProductoTraducible): string {
+    return nombreDe(producto, this.idiomas.idioma());
+  }
+
+  /** El ticket sale siempre en español: es la factura simplificada del bar, un documento fiscal. */
   generarTicketPDF(pedidoId: number) {
     if (!this.pedidoTemporal) return;
 
@@ -315,7 +325,7 @@ export class ConfirmarPedidoComponent implements OnInit {
       pdfMake.createPdf(docDefinition).download(nombreArchivo);
     } catch (error) {
       console.error('No se pudo generar el ticket en PDF', error);
-      this.showToastMessage('No se pudo generar el ticket en PDF', 'error');
+      this.showToastMessage(this.idiomas.t('confirmar.toast.pdf'), 'error');
     }
   }
 }

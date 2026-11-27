@@ -12,6 +12,7 @@ Esta guía describe cómo utilizar BarHub 2.0 desde la perspectiva del cliente: 
 6. [Seguimiento del pedido](#6-seguimiento-del-pedido)
 7. [Perfil de usuario](#7-perfil-de-usuario)
 8. [Modo oscuro](#8-modo-oscuro)
+9. [Idioma](#9-idioma)
 
 ---
 
@@ -215,3 +216,9 @@ El interruptor situado en la esquina superior derecha de la barra de navegación
   <img src="../img/productos/modo_oscuro.png" alt="Modo oscuro" width="760">
 </p>
 <p align="center"><em>Pantalla de inicio en modo oscuro.</em></p>
+
+## 9. Idioma
+
+El desplegable **ES · Español** de la barra de navegación cambia toda la parte del cliente (portada, carta, pedido, seguimiento, inicio de sesión, registro, perfil, contacto y textos legales) a **portugués** o **inglés** al momento, sin recargar. La elección se recuerda en el navegador y, en la primera visita, se usa el idioma del navegador si es uno de los tres. Los precios se muestran con el formato de cada idioma y los alérgenos con su nombre oficial en cada uno.
+
+El selector son tres botones redondos con la bandera de cada idioma, junto al del modo oscuro. Los nombres y descripciones de los productos salen en el idioma elegido cuando el bar los ha traducido; si no, en español. El ticket en PDF sale siempre en español.

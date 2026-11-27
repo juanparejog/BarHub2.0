@@ -6,6 +6,8 @@ import { LoginComponent } from './login/login.component';
 import { RegisterComponent } from './register/register.component';
 import { SharedModule } from '../shared/shared.module';
 
+import { TraducirPipe } from '../shared/i18n/traducir.pipe';
+
 @NgModule({
   declarations: [
     LoginComponent,
@@ -16,7 +18,8 @@ import { SharedModule } from '../shared/shared.module';
     FormsModule,
     ReactiveFormsModule,
     AuthRoutingModule,
-    SharedModule
+    SharedModule,
+    TraducirPipe
   ]
 })
 export class AuthModule { }

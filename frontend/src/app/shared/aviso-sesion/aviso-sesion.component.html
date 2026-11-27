@@ -6,16 +6,16 @@
       <div class="modal-content">
         <div class="modal-header">
           <h2 class="modal-title h5" id="avisoSesionTitulo">
-            <i class="bi bi-hourglass-split me-2" aria-hidden="true"></i>¿Sigues ahí?
+            <i class="bi bi-hourglass-split me-2" aria-hidden="true"></i>{{ 'sesion.sigues' | t }}
           </h2>
         </div>
         <div class="modal-body" id="avisoSesionTexto">
-          Por seguridad, tu sesión se cerrará por inactividad en
+          {{ 'sesion.inactividad' | t }}
           <strong class="cuenta-atras">{{ aviso.texto() }}</strong>.
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-outline-secondary" (click)="aviso.cerrarSesion()">Cerrar sesión</button>
-          <button #botonSeguir type="button" class="btn btn-primary" (click)="aviso.seguirConectado()">Seguir conectado</button>
+          <button type="button" class="btn btn-outline-secondary" (click)="aviso.cerrarSesion()">{{ 'sesion.cerrar' | t }}</button>
+          <button #botonSeguir type="button" class="btn btn-primary" (click)="aviso.seguirConectado()">{{ 'sesion.seguir' | t }}</button>
         </div>
       </div>
     </div>
@@ -26,9 +26,8 @@
   <div class="aviso-fin alert alert-warning d-flex align-items-start gap-2 shadow" role="status">
     <i class="bi bi-clock-history fs-5" aria-hidden="true"></i>
     <div class="flex-grow-1">
-      Tu sesión termina a las <strong>{{ aviso.texto() }}</strong> por su duración máxima.
-      Guarda lo que estés haciendo; después tendrás que volver a iniciar sesión.
+      {{ 'sesion.fin.antes' | t }} <strong>{{ aviso.texto() }}</strong> {{ 'sesion.fin.despues' | t }}
     </div>
-    <button type="button" class="btn-close" aria-label="Cerrar aviso" (click)="aviso.descartarAvisoDeFin()"></button>
+    <button type="button" class="btn-close" [attr.aria-label]="'sesion.cerrarAviso' | t" (click)="aviso.descartarAvisoDeFin()"></button>
   </div>
 }

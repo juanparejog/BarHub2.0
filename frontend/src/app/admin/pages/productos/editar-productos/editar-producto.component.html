@@ -16,6 +16,29 @@
         <input formControlName="descripcion" type="text" class="form-control" id="descripcion">
       </div>
 
+      <fieldset class="mb-3">
+        <legend class="form-label fs-6">Traducciones para la carta <span class="text-muted small">(opcional)</span></legend>
+        <p class="small text-muted mb-2">Si un idioma se deja en blanco, la carta en ese idioma muestra el nombre y la descripción en español.</p>
+        <div class="row g-2">
+          <div class="col-md-6">
+            <label for="nombrePt" class="form-label small mb-1">Nombre en portugués</label>
+            <input formControlName="nombrePt" type="text" class="form-control" id="nombrePt" maxlength="100" lang="pt">
+          </div>
+          <div class="col-md-6">
+            <label for="nombreEn" class="form-label small mb-1">Nombre en inglés</label>
+            <input formControlName="nombreEn" type="text" class="form-control" id="nombreEn" maxlength="100" lang="en">
+          </div>
+          <div class="col-md-6">
+            <label for="descripcionPt" class="form-label small mb-1">Descripción en portugués</label>
+            <input formControlName="descripcionPt" type="text" class="form-control" id="descripcionPt" maxlength="500" lang="pt">
+          </div>
+          <div class="col-md-6">
+            <label for="descripcionEn" class="form-label small mb-1">Descripción en inglés</label>
+            <input formControlName="descripcionEn" type="text" class="form-control" id="descripcionEn" maxlength="500" lang="en">
+          </div>
+        </div>
+      </fieldset>
+
       <div class="mb-3">
         <label for="precio" class="form-label">Precio:</label>
         <input formControlName="precio" type="number" class="form-control" id="precio">

@@ -1,27 +1,27 @@
 <div class="cuenta-correo">
-  <h2>Confirmar correo nuevo</h2>
+  <h2>{{ 'correo.nuevo.titulo' | t }}</h2>
   @switch (estado) {
     @case ('comprobando') {
-      <p role="status">Comprobando el enlace…</p>
+      <p role="status">{{ 'correo.comprobando' | t }}</p>
     }
     @case ('confirmado') {
       <p class="text-success fw-semibold" role="status">{{ mensaje }}</p>
       <div class="acciones">
         @if (conSesion) {
-          <a class="btn btn-primary" routerLink="/perfil/cuenta">Ir a mi perfil</a>
+          <a class="btn btn-primary" routerLink="/perfil/cuenta">{{ 'correo.irPerfil' | t }}</a>
         } @else {
-          <a class="btn btn-primary" routerLink="/auth/login">Iniciar sesión</a>
+          <a class="btn btn-primary" routerLink="/auth/login">{{ 'auth.iniciarSesion' | t }}</a>
         }
       </div>
     }
     @case ('error') {
       <p class="text-danger" role="alert">{{ mensaje }}</p>
-      <p class="text-muted">Puedes pedir otro enlace en Mi perfil &gt; Cuenta y correo.</p>
+      <p class="text-muted">{{ 'correo.nuevo.pedirOtro' | t }}</p>
       <div class="acciones">
         @if (conSesion) {
-          <a class="btn btn-outline-secondary" routerLink="/perfil/cuenta">Ir a mi perfil</a>
+          <a class="btn btn-outline-secondary" routerLink="/perfil/cuenta">{{ 'correo.irPerfil' | t }}</a>
         } @else {
-          <a class="btn btn-outline-secondary" routerLink="/auth/login">Ir al inicio de sesión</a>
+          <a class="btn btn-outline-secondary" routerLink="/auth/login">{{ 'auth.irAlLogin' | t }}</a>
         }
       </div>
     }

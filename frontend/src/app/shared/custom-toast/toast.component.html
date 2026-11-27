@@ -7,7 +7,7 @@
       <span class="toast-message">{{ message }}</span>
       <button type="button"
         class="toast-close border-0 bg-transparent"
-        aria-label="Cerrar notificación"
+        [attr.aria-label]="'aviso.cerrar' | t"
         (click)="onClose()">
         &times;
       </button>

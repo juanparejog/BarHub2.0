@@ -2,11 +2,13 @@ import {
   ChangeDetectionStrategy, Component, ElementRef, OnDestroy, OnInit, effect, inject, viewChild
 } from '@angular/core';
 import { SesionAvisoService } from '../../auth/sesion-aviso.service';
+import { TraducirPipe } from '../i18n/traducir.pipe';
 
 /** Avisos de cierre de sesion: por inactividad (con cuenta atras) y por la duracion maxima del rol. */
 @Component({
   selector: 'app-aviso-sesion',
   standalone: true,
+  imports: [TraducirPipe],
   templateUrl: './aviso-sesion.component.html',
   styleUrls: ['./aviso-sesion.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush

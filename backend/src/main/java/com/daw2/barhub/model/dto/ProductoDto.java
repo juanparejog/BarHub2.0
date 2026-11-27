@@ -29,6 +29,19 @@ public class ProductoDto {
     @Size(max = 500)
     private String descripcion;
 
+    /** Traducciones para la carta en portugues e ingles; vacias o null, la carta usa el espanol. */
+    @Size(max = 100)
+    private String nombrePt;
+
+    @Size(max = 100)
+    private String nombreEn;
+
+    @Size(max = 500)
+    private String descripcionPt;
+
+    @Size(max = 500)
+    private String descripcionEn;
+
     @NotNull
     @Positive
     private Double precio;
@@ -53,6 +66,10 @@ public class ProductoDto {
             dto.setId(producto.getId());
             dto.setNombre(producto.getNombre());
             dto.setDescripcion(producto.getDescripcion());
+            dto.setNombrePt(producto.getNombrePt());
+            dto.setNombreEn(producto.getNombreEn());
+            dto.setDescripcionPt(producto.getDescripcionPt());
+            dto.setDescripcionEn(producto.getDescripcionEn());
             dto.setPrecio(producto.getPrecio());
             dto.setImagen(producto.getImagen());
             dto.setTipoProducto(producto.getTipoProducto());
@@ -81,11 +98,20 @@ public class ProductoDto {
         producto.setId(this.getId());
         producto.setNombre(this.getNombre());
         producto.setDescripcion(this.getDescripcion());
+        producto.setNombrePt(opcional(this.getNombrePt()));
+        producto.setNombreEn(opcional(this.getNombreEn()));
+        producto.setDescripcionPt(opcional(this.getDescripcionPt()));
+        producto.setDescripcionEn(opcional(this.getDescripcionEn()));
         producto.setPrecio(this.getPrecio());
         producto.setImagen(this.getImagen());
         producto.setTipoProducto(this.getTipoProducto());
         producto.indicarAlergenos(this.getAlergenos());
 
         return producto;
+    }
+
+    /** Una traduccion en blanco cuenta como sin traducir. */
+    private static String opcional(String texto) {
+        return texto == null || texto.isBlank() ? null : texto.strip();
     }
 }

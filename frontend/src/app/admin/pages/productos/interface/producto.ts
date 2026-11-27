@@ -2,6 +2,11 @@ export interface Producto {
     id?:                    number,
     nombre:                 string,
     descripcion:            string,
+    /** Traducciones para la carta en portugués e inglés; sin ellas, la carta usa el español. */
+    nombrePt?:              string | null,
+    nombreEn?:              string | null,
+    descripcionPt?:         string | null,
+    descripcionEn?:         string | null,
     precio:                 number,
     imagen:                 string,
     tipoProducto:          string,

@@ -3,6 +3,7 @@ import { TestBed } from '@angular/core/testing';
 
 import { AlergenoIconoComponent } from './alergeno-icono.component';
 import { ALERGENOS } from './alergenos';
+import { IdiomaService } from '../i18n/idioma.service';
 
 @Component({
   standalone: true,
@@ -21,6 +22,7 @@ class AnfitrionComponent {
 
 describe('AlergenoIconoComponent', () => {
   function crear() {
+    localStorage.setItem('barhub.idioma', 'es');
     TestBed.configureTestingModule({ imports: [AnfitrionComponent] });
     const fixture = TestBed.createComponent(AnfitrionComponent);
     fixture.detectChanges();
@@ -39,6 +41,19 @@ describe('AlergenoIconoComponent', () => {
     expect(iconos.some(svg => svg.textContent?.includes('?'))).toBe(false);
     const colores = iconos.map(svg => svg.querySelector('circle')!.getAttribute('fill'));
     expect(new Set(colores).size).toBe(14);
+  });
+
+  it('el nombre cambia con el idioma elegido en el menú', () => {
+    const { fixture, raiz } = crear();
+    fixture.componentInstance.codigos.set(['LACTEOS']);
+    fixture.detectChanges();
+    expect(raiz.querySelector('svg')!.getAttribute('aria-label')).toBe('Lácteos');
+
+    TestBed.inject(IdiomaService).cambiar('en');
+    fixture.detectChanges();
+    expect(raiz.querySelector('svg')!.getAttribute('aria-label')).toBe('Milk');
+    expect(raiz.querySelector('title')?.textContent).toBe('Milk');
+    localStorage.removeItem('barhub.idioma');
   });
 
   it('decorativo se oculta a los lectores de pantalla; el tamaño se aplica', () => {

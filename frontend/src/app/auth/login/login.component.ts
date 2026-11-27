@@ -1,7 +1,8 @@
-import { Component, ChangeDetectionStrategy, OnInit } from '@angular/core';
+import { Component, ChangeDetectionStrategy, OnInit, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AuthService, esDesafio } from '../auth.service';
 import { ActivatedRoute, Router } from '@angular/router';
+import { IdiomaService } from '../../shared/i18n/idioma.service';
 
 @Component({
     selector: 'app-login',
@@ -11,6 +12,7 @@ import { ActivatedRoute, Router } from '@angular/router';
     standalone: false
 })
 export class LoginComponent implements OnInit {
+  private readonly idiomas = inject(IdiomaService);
   form: FormGroup;
   errorMessage: string = '';
   showPassword = false;
@@ -41,7 +43,7 @@ export class LoginComponent implements OnInit {
   ngOnInit(): void {
     // El interceptor manda aqui con ?sesion=caducada cuando la sesion ya no se puede renovar
     if (this.route.snapshot.queryParamMap.get('sesion') === 'caducada') {
-      this.showToastMessage('Tu sesión ha caducado. Vuelve a iniciar sesión.', 'info', 6000);
+      this.showToastMessage(this.idiomas.t('login.caducada'), 'info', 6000);
     }
   }
 
@@ -50,22 +52,22 @@ export class LoginComponent implements OnInit {
 
   reenviarConfirmacion(): void {
     this.authService.reenviarConfirmacion(this.form.value.username).subscribe({
-      next: res => this.showToastMessage(res.message, 'success', 6000),
-      error: () => this.showToastMessage('No se pudo reenviar el correo. Inténtalo más tarde.', 'error')
+      next: res => this.showToastMessage(this.idiomas.delServidor(res.message, 'auth.reenviado'), 'success', 6000),
+      error: () => this.showToastMessage(this.idiomas.t('auth.reenviarError'), 'error')
     });
   }
 
   private mensajeDeError(err: any): string {
     if (err?.status === 403 && err.error?.code === 'EMAIL_NO_VERIFICADO') {
-      return err.error.message;
+      return this.idiomas.delServidor(err.error.message, 'login.sinConfirmar');
     }
     if (err?.status === 429) {
-      return err.error?.message ?? 'Demasiados intentos fallidos. Vuelve a intentarlo más tarde.';
+      return this.idiomas.delServidor(err.error?.message, 'login.bloqueo');
     }
     if (err?.status === 401) {
-      return 'Usuario o contraseña incorrectos';
+      return this.idiomas.t('login.incorrecto');
     }
-    return 'No se pudo iniciar sesión. Inténtalo de nuevo más tarde';
+    return this.idiomas.t('login.error');
   }
 
   onSubmit() {

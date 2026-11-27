@@ -4,6 +4,9 @@ import { switchMap, takeUntil, catchError } from 'rxjs/operators';
 import { PedidoService } from '../services/pedido';
 import { TiempoRealService } from '../../services/tiempo-real.service';
 import { Pedido } from '../interface/pedido';
+import { IdiomaService } from '../../shared/i18n/idioma.service';
+import { type ProductoTraducible, nombreDe } from '../../shared/i18n/producto-idioma';
+import { ProductoService } from '../../admin/pages/productos/services/producto';
 
 @Component({
     selector: 'app-seguimiento-pedidos',
@@ -21,12 +24,23 @@ export class SeguimientoPedidosComponent implements OnInit, OnDestroy {
 
   constructor(
     private readonly pedidoService: PedidoService,
-    private readonly tiempoReal: TiempoRealService
+    private readonly tiempoReal: TiempoRealService,
+    private readonly idiomas: IdiomaService,
+    private readonly productoService: ProductoService
   ) {}
+
+  /** Los productos de la carta por id, para mostrar el nombre de cada línea en el idioma elegido. */
+  private productosPorId = new Map<number, ProductoTraducible>();
 
   ngOnInit(): void {
     this.usuario = JSON.parse(localStorage.getItem('user') || 'null');
     if (this.usuario) {
+      this.productoService.get().subscribe({
+        next: productos => this.productosPorId = new Map((productos || [])
+          .filter(p => p.id != null)
+          .map((p): [number, ProductoTraducible] => [p.id as number, p])),
+        error: () => undefined
+      });
       this.iniciarRefrescoAutomatico();
     }
   }
@@ -77,12 +91,12 @@ export class SeguimientoPedidosComponent implements OnInit, OnDestroy {
     const tipo = (pedido.tipoPedido || pedido.tipo_pedido || 'MESA').toString().toUpperCase();
 
     if (tipo.includes('RECOGER') || tipo.includes('LLEVAR')) {
-      return 'Listo para recoger';
+      return this.idiomas.t('paso.listoRecoger');
     }
     if (tipo.includes('DOMICILIO')) {
-      return 'De camino';
+      return this.idiomas.t('paso.camino');
     }
-    return 'Listo para servir';
+    return this.idiomas.t('paso.listoServir');
   }
 
   getPaso3Icon(pedido: any): string {
@@ -102,19 +116,19 @@ export class SeguimientoPedidosComponent implements OnInit, OnDestroy {
 
     if (tipo.includes('MESA')) {
       const numMesa = pedido.mesa?.numero || pedido.numMesa || pedido.mesa || '1';
-      return `En mesa · Mesa ${numMesa}`;
+      return this.idiomas.t('tipo.mesa', { mesa: numMesa });
     }
 
     if (tipo.includes('RECOGER') || tipo.includes('LLEVAR')) {
-      return 'Para recoger en tienda';
+      return this.idiomas.t('tipo.recoger');
     }
 
     if (tipo.includes('DOMICILIO')) {
       const direccion = this.obtenerDireccionCorta(pedido);
-      return direccion ? `A domicilio · ${direccion}` : 'A domicilio';
+      return direccion ? this.idiomas.t('tipo.domicilioEn', { direccion }) : this.idiomas.t('tipo.domicilio');
     }
 
-    return 'Pedido en local';
+    return this.idiomas.t('tipo.local');
   }
 
   getTipoPedidoIcon(pedido: any): string {
@@ -163,7 +177,8 @@ export class SeguimientoPedidosComponent implements OnInit, OnDestroy {
       const estado = (p.estado || '').toString();
       const antes = this.estadosPrevios.get(p.id);
       if (!this.primeraCargaEstados && antes !== undefined && antes !== estado) {
-        mensajes.push(`Pedido ${p.id}: ahora ${estado.replaceAll('_', ' ').toLowerCase()}`);
+        const nombre = this.idiomas.tSiExiste(`estado.${estado.toUpperCase()}`, estado.replaceAll('_', ' ').toLowerCase());
+        mensajes.push(this.idiomas.t('seguimiento.anuncio', { id: p.id, estado: nombre }));
       }
       this.estadosPrevios.set(p.id, estado);
     }
@@ -262,5 +277,14 @@ export class SeguimientoPedidosComponent implements OnInit, OnDestroy {
     this.destroy$.next();
     this.destroy$.complete();
     this.timers.forEach(t => clearTimeout(t));
+  }
+
+  /** Nombre de una línea del pedido: traducido si el producto sigue en la carta; si no, el guardado. */
+  nombreLinea(det: any): string {
+    const producto = this.productosPorId.get(Number(det?.id_producto ?? det?.producto?.id));
+    if (producto) {
+      return nombreDe(producto, this.idiomas.idioma());
+    }
+    return det?.producto?.nombre || det?.nombreProducto || det?.nombre || det?.producto_nombre || '';
   }
 }

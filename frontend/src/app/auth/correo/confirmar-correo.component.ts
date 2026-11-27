@@ -3,17 +3,20 @@ import { Location } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { AuthService } from '../auth.service';
 import { borrarFragmento, tokenDelFragmento } from './token-del-enlace';
+import { IdiomaService } from '../../shared/i18n/idioma.service';
+import { TraducirPipe } from '../../shared/i18n/traducir.pipe';
 
 /** Pagina del enlace de confirmacion que llega por correo al registrarse. */
 @Component({
   selector: 'app-confirmar-correo',
   standalone: true,
-  imports: [RouterLink],
+  imports: [RouterLink, TraducirPipe],
   templateUrl: './confirmar-correo.component.html',
   styleUrls: ['./cuenta-correo.css'],
   changeDetection: ChangeDetectionStrategy.Eager
 })
 export class ConfirmarCorreoComponent implements OnInit {
+  private readonly idiomas = inject(IdiomaService);
   private readonly route = inject(ActivatedRoute);
   private readonly location = inject(Location);
   private readonly authService = inject(AuthService);
@@ -26,17 +29,17 @@ export class ConfirmarCorreoComponent implements OnInit {
     borrarFragmento(this.location);
     if (!token) {
       this.estado = 'error';
-      this.mensaje = 'El enlace está incompleto. Ábrelo de nuevo desde el correo.';
+      this.mensaje = this.idiomas.t('correo.incompleto');
       return;
     }
     this.authService.confirmarCorreo(token).subscribe({
       next: respuesta => {
         this.estado = 'confirmado';
-        this.mensaje = respuesta.message;
+        this.mensaje = this.idiomas.delServidor(respuesta.message, 'correo.confirmado');
       },
       error: err => {
         this.estado = 'error';
-        this.mensaje = err?.error?.message ?? 'No se pudo confirmar el correo. Inténtalo más tarde.';
+        this.mensaje = this.idiomas.delServidor(err?.error?.message, 'correo.errorConfirmar');
       }
     });
   }

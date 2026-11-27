@@ -2,21 +2,18 @@ import { IMAGEN_USUARIO_POR_DEFECTO, ponerImagenPorDefecto } from '../../shared/
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { PerfilService } from './perfil.service';
+import { IdiomaService } from '../../shared/i18n/idioma.service';
+import { TraducirPipe } from '../../shared/i18n/traducir.pipe';
 
 /** Pestañas del perfil; cada una es una ruta hija de /perfil. */
 export const PESTANAS_PERFIL = [
-  { ruta: 'datos', titulo: 'Datos personales', icono: 'bi-person' },
-  { ruta: 'direccion', titulo: 'Dirección de entrega', icono: 'bi-geo-alt' },
-  { ruta: 'cuenta', titulo: 'Cuenta y correo', icono: 'bi-envelope' },
-  { ruta: 'seguridad', titulo: 'Seguridad', icono: 'bi-shield-lock' },
-  { ruta: 'privacidad', titulo: 'Privacidad', icono: 'bi-incognito' }
+  { ruta: 'datos', titulo: 'Datos personales', clave: 'perfil.pestana.datos', icono: 'bi-person' },
+  { ruta: 'direccion', titulo: 'Dirección de entrega', clave: 'perfil.pestana.direccion', icono: 'bi-geo-alt' },
+  { ruta: 'cuenta', titulo: 'Cuenta y correo', clave: 'perfil.pestana.cuenta', icono: 'bi-envelope' },
+  { ruta: 'seguridad', titulo: 'Seguridad', clave: 'perfil.pestana.seguridad', icono: 'bi-shield-lock' },
+  { ruta: 'privacidad', titulo: 'Privacidad', clave: 'perfil.pestana.privacidad', icono: 'bi-incognito' }
 ] as const;
 
-const NOMBRES_ROL: Record<string, string> = {
-  ROLE_ADMIN: 'Administrador',
-  ROLE_EMPLEADO: 'Empleado',
-  ROLE_CLIENTE: 'Cliente'
-};
 
 /**
  * Mi perfil: cabecera con la foto, el nombre y el estado de la cuenta, y una pestaña por tema.
@@ -26,7 +23,7 @@ const NOMBRES_ROL: Record<string, string> = {
 @Component({
   selector: 'app-perfil',
   standalone: true,
-  imports: [RouterOutlet, RouterLink, RouterLinkActive],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, TraducirPipe],
   templateUrl: './perfil.component.html',
   styleUrls: ['./perfil.component.css'],
   providers: [PerfilService],
@@ -34,6 +31,7 @@ const NOMBRES_ROL: Record<string, string> = {
 })
 export class PerfilComponent implements OnInit {
   readonly perfil = inject(PerfilService);
+  private readonly idiomas = inject(IdiomaService);
   readonly pestanas = PESTANAS_PERFIL;
 
   readonly nombreCompleto = computed(() => {
@@ -42,10 +40,10 @@ export class PerfilComponent implements OnInit {
   });
   readonly miembroDesde = computed(() => {
     const creada = this.perfil.seguridad()?.cuentaCreada;
-    return creada ? new Intl.DateTimeFormat('es-ES', { month: 'long', year: 'numeric' }).format(new Date(creada)) : '';
+    return creada ? this.idiomas.fecha(creada, { month: 'long', year: 'numeric' }) : '';
   });
   readonly roles = computed(() =>
-    (this.perfil.usuario()?.roles ?? []).map(r => NOMBRES_ROL[r.nombre] ?? r.nombre));
+    (this.perfil.usuario()?.roles ?? []).map(r => this.idiomas.tSiExiste(`rol.${r.nombre}`, r.nombre)));
 
   // ---------- foto ----------
   readonly mostrarModalImagen = signal(false);
@@ -119,7 +117,7 @@ export class PerfilComponent implements OnInit {
       },
       error: err => {
         this.subiendoFoto.set(false);
-        this.errorFoto.set(err?.error?.message ?? 'No se pudo guardar la foto.');
+        this.errorFoto.set(this.idiomas.delServidor(err?.error?.message, 'perfil.foto.error'));
       }
     });
   }
@@ -127,7 +125,7 @@ export class PerfilComponent implements OnInit {
   private elegirArchivo(archivo: File): void {
     this.errorFoto.set('');
     if (!archivo.type.startsWith('image/')) {
-      this.errorFoto.set('Elige un archivo de imagen (JPG, PNG o WebP).');
+      this.errorFoto.set(this.idiomas.t('perfil.foto.tipo'));
       return;
     }
     this.archivo = archivo;

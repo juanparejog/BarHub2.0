@@ -3,6 +3,14 @@ import { vi } from 'vitest';
 
 import { CartaComponent } from './carta.component';
 import { Producto } from '../../admin/pages/productos/interface/producto';
+import { traducir, traducirSiExiste } from '../../shared/i18n/textos';
+
+/** El idioma, fijo en español para estos tests. */
+const enEspanol = {
+  idioma: () => 'es',
+  t: (clave: any, parametros?: any) => traducir('es', clave, parametros),
+  tSiExiste: (clave: string, porDefecto: string) => traducirSiExiste('es', clave, porDefecto)
+};
 
 /** Filtro de alérgenos de la carta y mesa del QR, probados sobre la clase (sin pintar la plantilla). */
 describe('CartaComponent: alérgenos y mesa del QR', () => {
@@ -17,7 +25,8 @@ describe('CartaComponent: alérgenos y mesa del QR', () => {
       {} as any,
       { queryParams: of(parametros) } as any,
       {} as any,
-      {} as any
+      {} as any,
+      enEspanol as any
     );
     vi.spyOn(carta, 'showToastMessage').mockImplementation(() => undefined);
     return carta;

@@ -5,6 +5,8 @@ import { Router, RouterLink } from '@angular/router';
 import { AuthService, SesionAbierta } from '../auth.service';
 import { CodigoQrService } from './codigo-qr.service';
 import { CodigosRecuperacionComponent } from '../../shared/codigos-recuperacion/codigos-recuperacion.component';
+import { IdiomaService } from '../../shared/i18n/idioma.service';
+import { TraducirPipe } from '../../shared/i18n/traducir.pipe';
 
 /** Lo que el login deja en el estado del historial al navegar aqui. */
 interface EstadoDesafio {
@@ -24,12 +26,13 @@ type Paso = 'cargando' | 'verificar' | 'configurar' | 'codigos' | 'recuperacionU
 @Component({
   selector: 'app-dos-factores',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink, NgTemplateOutlet, CodigosRecuperacionComponent],
+  imports: [ReactiveFormsModule, RouterLink, NgTemplateOutlet, CodigosRecuperacionComponent, TraducirPipe],
   templateUrl: './dos-factores.component.html',
   styleUrls: ['../correo/cuenta-correo.css', './dos-factores.component.css'],
   changeDetection: ChangeDetectionStrategy.Eager
 })
 export class DosFactoresComponent implements OnInit {
+  private readonly idiomas = inject(IdiomaService);
   private readonly authService = inject(AuthService);
   private readonly codigoQr = inject(CodigoQrService);
   private readonly router = inject(Router);
@@ -58,7 +61,7 @@ export class DosFactoresComponent implements OnInit {
       if (this.authService.isAuthenticated()) {
         this.continuar();
       } else {
-        this.caducar('Empieza de nuevo desde el inicio de sesión.');
+        this.caducar(this.idiomas.t('dosf.empezar'));
       }
       return;
     }
@@ -141,12 +144,12 @@ export class DosFactoresComponent implements OnInit {
     this.enviando = false;
     const codigo = err?.error?.code;
     if (err?.status === 401 && codigo === 'CODIGO_INCORRECTO') {
-      this.error = err.error.message;
+      this.error = this.idiomas.delServidor(err.error.message, 'dosf.incorrecto');
       this.codigo.reset();
     } else if (err?.status === 401 || err?.status === 429) {
-      this.caducar(err.error?.message ?? 'Vuelve a iniciar sesión.');
+      this.caducar(this.idiomas.delServidor(err.error?.message, 'dosf.volverAEntrar'));
     } else {
-      this.error = 'No se pudo comprobar el código. Inténtalo de nuevo.';
+      this.error = this.idiomas.t('dosf.error');
     }
   }
 

@@ -12,31 +12,32 @@
     <section class="card-modalidad">
       <div class="modalidad-header">
         <div class="modalidad-titles">
-          <h2>Carta Digital</h2>
-          <p>Selecciona tu modalidad de pedido e indica tu ubicación o tienda de recogida antes de añadir productos.</p>
+          <h2>{{ 'carta.titulo' | t }}</h2>
+          <p>{{ 'carta.intro' | t }}</p>
         </div>
 
         <!-- Switch Local vs Domicilio vs Recoger -->
         <fieldset class="modalidad-switch-group">
+          <legend class="visually-hidden">{{ 'carta.modalidad' | t }}</legend>
           <button type="button"
             class="btn-switch"
             [class.active]="tipoPedido === 'MESA'"
             (click)="seleccionarTipoPedido('MESA')">
-            <i class="bi bi-shop"></i> En Local / Mesa
+            <i class="bi bi-shop"></i> {{ 'carta.modalidad.mesa' | t }}
           </button>
 
           <button type="button"
             class="btn-switch"
             [class.active]="tipoPedido === 'RECOGER'"
             (click)="seleccionarTipoPedido('RECOGER')">
-            <i class="bi bi-bag-check-fill"></i> Para Recoger
+            <i class="bi bi-bag-check-fill"></i> {{ 'carta.modalidad.recoger' | t }}
           </button>
 
           <button type="button"
             class="btn-switch"
             [class.active]="tipoPedido === 'DOMICILIO'"
             (click)="seleccionarTipoPedido('DOMICILIO')">
-            <i class="bi bi-truck"></i> A Domicilio
+            <i class="bi bi-truck"></i> {{ 'carta.modalidad.domicilio' | t }}
           </button>
         </fieldset>
       </div>
@@ -47,19 +48,19 @@
       @if (tipoPedido === 'MESA') {
         <div class="modalidad-body">
           <div class="form-group-mesa">
-            <label for="idMesaSelect" class="form-label">Mesa asignada <span class="required-asterisk">*</span>:</label>
+            <label for="idMesaSelect" class="form-label">{{ 'carta.mesa' | t }} <span class="required-asterisk">*</span>:</label>
             <div class="input-select-wrapper">
               <span class="input-icon"><i class="bi bi-qr-code-scan"></i></span>
               <select id="idMesaSelect" class="form-select-custom" [(ngModel)]="idMesa" [disabled]="mesaBloqueadaPorQr">
-                <option [ngValue]="null" disabled>-- Selecciona número de mesa para comenzar --</option>
+                <option [ngValue]="null" disabled>{{ 'carta.mesa.elegir' | t }}</option>
                 @for (mesa of mesas; track mesa) {
-                  <option [value]="mesa.id">Mesa #{{ mesa.id }} ({{ mesa.estado }})</option>
+                  <option [value]="mesa.id">{{ 'carta.mesa.opcion' | t: { id: mesa.id ?? '', estado: estadoMesa(mesa.estado) } }}</option>
                 }
               </select>
             </div>
             @if (mesaBloqueadaPorQr) {
               <small class="qr-detected-notice">
-                <i class="bi bi-check-circle-fill"></i> Mesa detectada escaneando el código QR
+                <i class="bi bi-check-circle-fill"></i> {{ 'carta.mesa.qr' | t }}
               </small>
             }
           </div>
@@ -73,37 +74,37 @@
           <div class="profile-suggestion-banner mb-3 p-3 rounded border d-flex justify-content-between align-items-center" style="background-color: var(--card-bg); border-color: var(--border-color) !important;">
             <div class="d-flex align-items-center gap-2">
               <i class="bi bi-telephone-badge fs-4 text-primary"></i>
-              <span class="small fw-semibold" style="color: var(--text-main);">¿Quieres usar el teléfono de contacto guardado en tu perfil?</span>
+              <span class="small fw-semibold" style="color: var(--text-main);">{{ 'carta.recoger.pregunta' | t }}</span>
             </div>
             <button type="button" class="btn btn-sm btn-primary px-3 py-2 fw-bold" (click)="cargarTelefonoPerfil()">
-              <i class="bi bi-magic me-1"></i> Usar mi teléfono
+              <i class="bi bi-magic me-1"></i> {{ 'carta.recoger.usarTelefono' | t }}
             </button>
           </div>
           <div class="recoger-grid">
             <!-- Info de Tienda de Recogida -->
             <div class="form-field col-full">
-              <span class="form-label mb-2">Ubicación de Recogida (Tienda Única):</span>
+              <span class="form-label mb-2">{{ 'carta.recoger.ubicacion' | t }}:</span>
               <div class="tienda-fixed-info border rounded p-3 bg-body-tertiary d-flex align-items-center gap-3">
                 <div class="tienda-icon text-success fs-3">
                   <i class="bi bi-geo-alt-fill"></i>
                 </div>
                 <div>
                   <h6 class="mb-1 fw-bold text-body">{{ UBICACION_RECOGIDA_FIJA.nombre }}</h6>
-                  <p class="mb-0 text-muted small">{{ UBICACION_RECOGIDA_FIJA.direccion }} - CP {{ UBICACION_RECOGIDA_FIJA.cp }}</p>
+                  <p class="mb-0 text-muted small">{{ 'carta.recoger.direccion' | t: { direccion: UBICACION_RECOGIDA_FIJA.direccion, cp: UBICACION_RECOGIDA_FIJA.cp } }}</p>
                 </div>
               </div>
             </div>
             <!-- Teléfono de contacto obligatorio para la recogida -->
             <div class="form-field col-full mt-2">
-              <label for="telefonoRecoger" class="form-label">Teléfono de contacto para avisos <span class="required-asterisk">*</span>:</label>
-              <input id="telefonoRecoger" type="tel" class="form-input" placeholder="Ej: 600 000 000" [(ngModel)]="telefonoContacto">
+              <label for="telefonoRecoger" class="form-label">{{ 'carta.recoger.telefono' | t }} <span class="required-asterisk">*</span>:</label>
+              <input id="telefonoRecoger" type="tel" class="form-input" [placeholder]="'carta.ejemplo' | t: { valor: '600 000 000' }" [(ngModel)]="telefonoContacto">
             </div>
             <div class="form-field col-full mt-2">
               <a [href]="googleMapsUrl"
                 target="_blank"
                 class="btn-maps">
                 <i class="bi bi-geo-alt-fill"></i>
-                <span>Ver Ubicación de la Tienda en Google Maps</span>
+                <span>{{ 'carta.recoger.maps' | t }}</span>
                 <i class="bi bi-box-arrow-up-right external-icon"></i>
               </a>
             </div>
@@ -111,7 +112,7 @@
           <!-- Mapa Embebido centrado en la Tienda -->
           <div class="map-embed-wrapper mt-3">
             <iframe [src]="googleMapsEmbedUrl"
-              title="Ubicación de la tienda en el mapa"
+              [title]="'carta.recoger.mapa' | t"
               width="100%"
               height="100%"
               style="border:0;"
@@ -129,33 +130,33 @@
           <div class="profile-suggestion-banner mb-3 p-3 rounded border d-flex justify-content-between align-items-center" style="background-color: var(--card-bg); border-color: var(--border-color) !important;">
             <div class="d-flex align-items-center gap-2">
               <i class="bi bi-person-badge fs-4 text-primary"></i>
-              <span class="small fw-semibold" style="color: var(--text-main);">¿Quieres usar la dirección y teléfono guardados en tu perfil?</span>
+              <span class="small fw-semibold" style="color: var(--text-main);">{{ 'carta.domicilio.pregunta' | t }}</span>
             </div>
             <button type="button" class="btn btn-sm btn-primary px-3 py-2 fw-bold" (click)="cargarDatosPerfil()">
-              <i class="bi bi-magic me-1"></i> Usar mis datos
+              <i class="bi bi-magic me-1"></i> {{ 'carta.domicilio.usarDatos' | t }}
             </button>
           </div>
           <div class="domicilio-grid">
             <!-- Calle y Nombre -->
             <div class="form-field col-full">
-              <label for="calleDomicilio" class="form-label">Calle / Avenida / Vía <span class="required-asterisk">*</span>:</label>
-              <input id="calleDomicilio" type="text" class="form-input" placeholder="Ej: Av. Sinforiano Madroñero" [(ngModel)]="calle">
+              <label for="calleDomicilio" class="form-label">{{ 'carta.domicilio.calle' | t }} <span class="required-asterisk">*</span>:</label>
+              <input id="calleDomicilio" type="text" class="form-input" [placeholder]="'carta.ejemplo' | t: { valor: 'Av. Sinforiano Madroñero' }" [(ngModel)]="calle">
             </div>
             <!-- Selector Tipo Vivienda -->
             <div class="form-field col-full">
-              <span class="form-label mb-2">Tipo de Inmueble:</span>
+              <span class="form-label mb-2">{{ 'carta.domicilio.tipo' | t }}:</span>
               <div class="vivienda-selector-group">
                 <label class="vivienda-radio-btn" [class.active]="tipoVivienda === 'piso'">
                   <input type="radio" name="tipoVivienda" value="piso" [(ngModel)]="tipoVivienda">
-                  <span><i class="bi bi-building"></i> Piso / Depto</span>
+                  <span><i class="bi bi-building"></i> {{ 'carta.domicilio.piso' | t }}</span>
                 </label>
                 <label class="vivienda-radio-btn" [class.active]="tipoVivienda === 'casa'">
                   <input type="radio" name="tipoVivienda" value="casa" [(ngModel)]="tipoVivienda">
-                  <span><i class="bi bi-house-door"></i> Casa Unifamiliar</span>
+                  <span><i class="bi bi-house-door"></i> {{ 'carta.domicilio.casa' | t }}</span>
                 </label>
                 <label class="vivienda-radio-btn" [class.active]="tipoVivienda === 'urbanizacion'">
                   <input type="radio" name="tipoVivienda" value="urbanizacion" [(ngModel)]="tipoVivienda">
-                  <span><i class="bi bi-houses"></i> Urbanización</span>
+                  <span><i class="bi bi-houses"></i> {{ 'carta.domicilio.urbanizacion' | t }}</span>
                 </label>
               </div>
             </div>
@@ -163,44 +164,44 @@
             <!-- CASO 1: PISO -->
             @if (tipoVivienda === 'piso') {
               <div class="form-field col-third">
-                <label for="portalNumInput" class="form-label">Nº Portal <span class="required-asterisk">*</span>:</label>
-                <input id="portalNumInput" type="text" class="form-input" placeholder="Ej: 12" [(ngModel)]="portalNum">
+                <label for="portalNumInput" class="form-label">{{ 'carta.domicilio.portal' | t }} <span class="required-asterisk">*</span>:</label>
+                <input id="portalNumInput" type="text" class="form-input" [placeholder]="'carta.ejemplo' | t: { valor: '12' }" [(ngModel)]="portalNum">
               </div>
               <div class="form-field col-third">
-                <label for="pisoNumInput" class="form-label">Planta / Piso <span class="required-asterisk">*</span>:</label>
-                <input id="pisoNumInput" type="text" class="form-input" placeholder="Ej: 1" [(ngModel)]="pisoNum">
+                <label for="pisoNumInput" class="form-label">{{ 'carta.domicilio.planta' | t }} <span class="required-asterisk">*</span>:</label>
+                <input id="pisoNumInput" type="text" class="form-input" [placeholder]="'carta.ejemplo' | t: { valor: '1' }" [(ngModel)]="pisoNum">
               </div>
               <div class="form-field col-third">
-                <label for="puertaInput" class="form-label">Puerta <span class="required-asterisk">*</span>:</label>
-                <input id="puertaInput" type="text" class="form-input" placeholder="Ej: A" [(ngModel)]="puerta">
+                <label for="puertaInput" class="form-label">{{ 'carta.domicilio.puerta' | t }} <span class="required-asterisk">*</span>:</label>
+                <input id="puertaInput" type="text" class="form-input" [placeholder]="'carta.ejemplo' | t: { valor: 'A' }" [(ngModel)]="puerta">
               </div>
             }
             <!-- CASO 2: CASA -->
             @if (tipoVivienda === 'casa') {
               <div class="form-field col-full">
-                <label for="casaNumInput" class="form-label">Número / Puerta de la Casa <span class="required-asterisk">*</span>:</label>
-                <input id="casaNumInput" type="text" class="form-input" placeholder="Ej: Nº 45 o Puerta Principal" [(ngModel)]="casaNum">
+                <label for="casaNumInput" class="form-label">{{ 'carta.domicilio.numeroCasa' | t }} <span class="required-asterisk">*</span>:</label>
+                <input id="casaNumInput" type="text" class="form-input" [placeholder]="'carta.domicilio.numeroCasa.ejemplo' | t" [(ngModel)]="casaNum">
               </div>
             }
             <!-- CASO 3: URBANIZACIÓN -->
             @if (tipoVivienda === 'urbanizacion') {
               <div class="form-field col-half">
-                <label for="urbNombreInput" class="form-label">Nombre / Bloque Urbanización <span class="required-asterisk">*</span>:</label>
-                <input id="urbNombreInput" type="text" class="form-input" placeholder="Ej: Urb. Los Olivos, Bloque B" [(ngModel)]="urbanizacionNombre">
+                <label for="urbNombreInput" class="form-label">{{ 'carta.domicilio.urbNombre' | t }} <span class="required-asterisk">*</span>:</label>
+                <input id="urbNombreInput" type="text" class="form-input" [placeholder]="'carta.ejemplo' | t: { valor: 'Urb. Los Olivos, Bloque B' }" [(ngModel)]="urbanizacionNombre">
               </div>
               <div class="form-field col-half">
-                <label for="casaNumUrbInput" class="form-label">Nº Casa / Chalet <span class="required-asterisk">*</span>:</label>
-                <input id="casaNumUrbInput" type="text" class="form-input" placeholder="Ej: Chalet 14" [(ngModel)]="casaNum">
+                <label for="casaNumUrbInput" class="form-label">{{ 'carta.domicilio.urbCasa' | t }} <span class="required-asterisk">*</span>:</label>
+                <input id="casaNumUrbInput" type="text" class="form-input" [placeholder]="'carta.ejemplo' | t: { valor: 'Chalet 14' }" [(ngModel)]="casaNum">
               </div>
             }
             <!-- Código Postal y Teléfono -->
             <div class="form-field col-half">
-              <label for="cpInput" class="form-label">Código Postal:</label>
-              <input id="cpInput" type="text" class="form-input" placeholder="Ej: 06011" [(ngModel)]="codigoPostal">
+              <label for="cpInput" class="form-label">{{ 'carta.domicilio.cp' | t }}:</label>
+              <input id="cpInput" type="text" class="form-input" [placeholder]="'carta.ejemplo' | t: { valor: '06011' }" [(ngModel)]="codigoPostal">
             </div>
             <div class="form-field col-half">
-              <label for="telDomicilio" class="form-label">Teléfono de contacto <span class="required-asterisk">*</span>:</label>
-              <input id="telDomicilio" type="tel" class="form-input" placeholder="Ej: 600 000 000" [(ngModel)]="telefonoContacto">
+              <label for="telDomicilio" class="form-label">{{ 'carta.domicilio.telefono' | t }} <span class="required-asterisk">*</span>:</label>
+              <input id="telDomicilio" type="tel" class="form-input" [placeholder]="'carta.ejemplo' | t: { valor: '600 000 000' }" [(ngModel)]="telefonoContacto">
             </div>
             <div class="form-field col-full">
               <a [href]="googleMapsUrl"
@@ -208,7 +209,7 @@
                 class="btn-maps"
                 [class.disabled]="!calle">
                 <i class="bi bi-geo-alt-fill"></i>
-                <span>Ver Ubicación en Google Maps</span>
+                <span>{{ 'carta.domicilio.maps' | t }}</span>
                 <i class="bi bi-box-arrow-up-right external-icon"></i>
               </a>
             </div>
@@ -217,7 +218,7 @@
           @if (calle) {
             <div class="map-embed-wrapper">
               <iframe [src]="googleMapsEmbedUrl"
-                title="Ubicación del domicilio en el mapa"
+                [title]="'carta.domicilio.mapa' | t"
                 width="100%"
                 height="100%"
                 style="border:0;"
@@ -235,7 +236,7 @@
       <div class="lock-warning-banner">
         <i class="bi bi-exclamation-triangle-fill"></i>
         <span>
-          Por favor, <strong>{{ getMensajeAdvertencia() }}</strong> arriba para poder añadir productos a tu comanda.
+          {{ 'carta.falta.antes' | t }} <strong>{{ getMensajeAdvertencia() }}</strong> {{ 'carta.falta.despues' | t }}
         </span>
       </div>
     }
@@ -245,27 +246,27 @@
       <button class="btn-filter"
         [class.active]="categoriaSeleccionada === 'todos'"
         (click)="filtrarCategoria('todos')">
-        <i class="bi bi-grid-fill"></i> Todos
+        <i class="bi bi-grid-fill"></i> {{ 'carta.categoria.todos' | t }}
       </button>
       <button class="btn-filter"
         [class.active]="categoriaSeleccionada === 'bebida'"
         (click)="filtrarCategoria('bebida')">
-        <i class="bi bi-cup-straw"></i> Bebidas
+        <i class="bi bi-cup-straw"></i> {{ 'carta.categoria.bebida' | t }}
       </button>
       <button class="btn-filter"
         [class.active]="categoriaSeleccionada === 'entrante'"
         (click)="filtrarCategoria('entrante')">
-        <i class="bi bi-egg-fried"></i> Entrantes
+        <i class="bi bi-egg-fried"></i> {{ 'carta.categoria.entrante' | t }}
       </button>
       <button class="btn-filter"
         [class.active]="categoriaSeleccionada === 'tapa'"
         (click)="filtrarCategoria('tapa')">
-        <i class="bi bi-pie-chart"></i> Tapas
+        <i class="bi bi-pie-chart"></i> {{ 'carta.categoria.tapa' | t }}
       </button>
       <button class="btn-filter"
         [class.active]="categoriaSeleccionada === 'postre'"
         (click)="filtrarCategoria('postre')">
-        <i class="bi bi-cake2"></i> Postres
+        <i class="bi bi-cake2"></i> {{ 'carta.categoria.postre' | t }}
       </button>
     </section>
 
@@ -273,33 +274,33 @@
     <details class="filtro-alergenos" [open]="filtroAlergenosAbiertoAlEntrar">
       <summary>
         <i class="bi bi-shield-exclamation" aria-hidden="true"></i>
-        Alergias e intolerancias
+        {{ 'carta.alergenos.titulo' | t }}
         @if (alergenosExcluidos.size > 0) {
           <span class="badge rounded-pill text-bg-primary ms-1">{{ alergenosExcluidos.size }}</span>
         }
       </summary>
       <fieldset class="mt-2">
-        <legend class="filtro-alergenos-leyenda">Ocultar los productos que lleven:</legend>
+        <legend class="filtro-alergenos-leyenda">{{ 'carta.alergenos.leyenda' | t }}</legend>
         <div class="filtro-alergenos-opciones">
           @for (alergeno of alergenos; track alergeno.codigo) {
-            <label class="chip-alergeno" [class.activo]="alergenosExcluidos.has(alergeno.codigo)" [title]="alergeno.nombre">
+            <label class="chip-alergeno" [class.activo]="alergenosExcluidos.has(alergeno.codigo)" [title]="nombreAlergeno(alergeno.codigo)">
               <input type="checkbox" class="visually-hidden-focusable-checkbox"
                 [checked]="alergenosExcluidos.has(alergeno.codigo)"
                 (change)="alternarAlergeno(alergeno.codigo)">
               <app-alergeno-icono [codigo]="alergeno.codigo" [tamano]="40" [decorativo]="true" />
-              <span class="chip-alergeno-nombre">{{ alergeno.nombre }}</span>
+              <span class="chip-alergeno-nombre">{{ nombreAlergeno(alergeno.codigo) }}</span>
             </label>
           }
         </div>
       </fieldset>
       @if (alergenosExcluidos.size > 0) {
         <p class="filtro-alergenos-resumen" role="status">
-          {{ ocultosPorAlergenos.total }} {{ ocultosPorAlergenos.total === 1 ? 'producto oculto' : 'productos ocultos' }}@if (ocultosPorAlergenos.sinInformacion > 0) {, {{ ocultosPorAlergenos.sinInformacion }} porque aún no tienen la información de alérgenos}.
-          <button type="button" class="btn btn-link btn-sm p-0 align-baseline" (click)="quitarFiltroAlergenos()">Quitar el filtro</button>
+          {{ resumenOcultos() }}
+          <button type="button" class="btn btn-link btn-sm p-0 align-baseline" (click)="quitarFiltroAlergenos()">{{ 'carta.alergenos.quitar' | t }}</button>
         </p>
       }
       <p class="filtro-alergenos-aviso">
-        La información la indica el bar según la receta. Si tienes una alergia grave, confírmala con el personal antes de pedir.
+        {{ 'carta.alergenos.aviso' | t }}
       </p>
     </details>
 
@@ -313,17 +314,17 @@
             <div class="product-img-wrapper">
               <img [src]="getImagenUrl(producto.imagen)"
                 class="product-img"
-                [alt]="producto.nombre"
+                [alt]="nombreProducto(producto)"
                 (error)="imagenNoDisponible($event)">
                 <span class="price-badge">
-                  {{ producto.precio | currency:'EUR':'symbol':'1.2-2' }}
+                  {{ producto.precio | precio }}
                 </span>
               </div>
               <div class="product-card-body">
                 <div class="product-info">
-                  <h3 class="product-title" [title]="producto.nombre">{{ producto.nombre }}</h3>
+                  <h3 class="product-title" [title]="nombreProducto(producto)">{{ nombreProducto(producto) }}</h3>
                   <p class="product-description">
-                    {{ producto.descripcion || 'Delicioso producto recién preparado.' }}
+                    {{ descripcionProducto(producto) || ('carta.producto.descripcion' | t) }}
                   </p>
                   @if (producto.alergenos == null) {
                     <p class="product-alergenos sin-informacion">
@@ -332,7 +333,7 @@
                   } @else if (producto.alergenos.length === 0) {
                     <p class="product-alergenos">{{ textoAlergenos(producto.alergenos) }}</p>
                   } @else {
-                    <ul class="product-alergenos-iconos" aria-label="Alérgenos">
+                    <ul class="product-alergenos-iconos" [attr.aria-label]="'carta.producto.alergenos' | t">
                       @for (alergeno of producto.alergenos; track alergeno) {
                         <li><app-alergeno-icono [codigo]="alergeno" [tamano]="28" /></li>
                       }
@@ -340,19 +341,19 @@
                   }
                 </div>
                 <div class="product-card-footer">
-                  <span class="product-price">{{ producto.precio | currency:'EUR':'symbol':'1.2-2' }}</span>
+                  <span class="product-price">{{ producto.precio | precio }}</span>
                   <div class="quantity-controls">
                     <button class="btn-quantity"
                       [disabled]="!datosServicioCompletos || getCantidad(producto) === 0"
                       (click)="onRemove(producto)"
-                      aria-label="Restar">
+                      [attr.aria-label]="'carta.producto.restar' | t">
                     <i class="bi bi-dash"></i>
                   </button>
                   <span class="quantity-counter">{{ getCantidad(producto) }}</span>
                   <button class="btn-quantity btn-quantity-add"
                     [disabled]="!datosServicioCompletos"
                     (click)="onAdd(producto)"
-                    aria-label="Añadir">
+                    [attr.aria-label]="'carta.producto.anadir' | t">
                     <i class="bi bi-plus"></i>
                   </button>
                 </div>
@@ -373,15 +374,15 @@
       <div class="floating-cart-content">
         <div class="cart-info">
           <output class="cart-items-count" aria-live="polite">
-            {{ getTotalItems() }}<span class="visually-hidden"> productos en el carrito</span>
+            {{ getTotalItems() }}<span class="visually-hidden"> {{ 'carta.carrito.productos' | t }}</span>
           </output>
           <div class="cart-total-details">
-            <span class="cart-total-label">Total estimado</span>
-            <span class="cart-total-amount">{{ calcularTotal() | currency:'EUR':'symbol':'1.2-2' }}</span>
+            <span class="cart-total-label">{{ 'carta.carrito.total' | t }}</span>
+            <span class="cart-total-amount">{{ calcularTotal() | precio }}</span>
           </div>
         </div>
         <button class="btn-confirm-order" [disabled]="!datosServicioCompletos" (click)="confirmarPedido()">
-          <span>Confirmar Pedido</span>
+          <span>{{ 'carta.carrito.confirmar' | t }}</span>
           <i class="bi bi-arrow-right"></i>
         </button>
       </div>

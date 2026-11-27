@@ -1,20 +1,20 @@
 <div class="cuenta-correo">
-  <h2>Confirmar correo</h2>
+  <h2>{{ 'correo.titulo' | t }}</h2>
   @switch (estado) {
     @case ('comprobando') {
-      <p role="status">Comprobando el enlace…</p>
+      <p role="status">{{ 'correo.comprobando' | t }}</p>
     }
     @case ('confirmado') {
       <p class="text-success fw-semibold" role="status">{{ mensaje }}</p>
       <div class="acciones">
-        <a class="btn btn-primary" routerLink="/auth/login">Iniciar sesión</a>
+        <a class="btn btn-primary" routerLink="/auth/login">{{ 'auth.iniciarSesion' | t }}</a>
       </div>
     }
     @case ('error') {
       <p class="text-danger" role="alert">{{ mensaje }}</p>
-      <p class="text-muted">Desde el inicio de sesión puedes pedir que te enviemos otro enlace.</p>
+      <p class="text-muted">{{ 'correo.pedirOtro' | t }}</p>
       <div class="acciones">
-        <a class="btn btn-outline-secondary" routerLink="/auth/login">Ir al inicio de sesión</a>
+        <a class="btn btn-outline-secondary" routerLink="/auth/login">{{ 'auth.irAlLogin' | t }}</a>
       </div>
     }
   }

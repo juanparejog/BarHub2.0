@@ -22,7 +22,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Datos de demostracion (productos, mesas y un administrador).
+ * Datos de demostracion (productos con sus traducciones, mesas y un administrador).
  * Solo se ejecuta con APP_SEED_DEMO=true. La contrasena del administrador sale de
  * APP_SEED_ADMIN_PASSWORD: no hay ninguna contrasena en el codigo ni en el repositorio.
  */
@@ -59,6 +59,7 @@ public class DemoDataSeeder implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
         cargarCatalogo();
+        traducirCatalogo();
         crearAdministrador();
     }
 
@@ -73,6 +74,17 @@ public class DemoDataSeeder implements CommandLineRunner {
             ScriptUtils.executeSqlScript(conexion, new ClassPathResource("demo/demo-data.sql"));
         }
         log.info("Datos de demostracion: catalogo cargado (mesas y productos).");
+    }
+
+    /**
+     * Nombre y descripcion en portugues e ingles de los productos de demostracion. Se ejecuta en cada
+     * arranque porque tambien sirve para bases de datos creadas antes de que hubiera traducciones, y
+     * solo toca los productos que no tienen ninguna.
+     */
+    private void traducirCatalogo() throws Exception {
+        try (Connection conexion = dataSource.getConnection()) {
+            ScriptUtils.executeSqlScript(conexion, new ClassPathResource("demo/demo-traducciones.sql"));
+        }
     }
 
     private void crearAdministrador() {

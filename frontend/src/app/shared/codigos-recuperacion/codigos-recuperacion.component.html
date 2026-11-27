@@ -1,21 +1,21 @@
-<ul class="codigos" aria-label="Códigos de recuperación">
+<ul class="codigos" [attr.aria-label]="'codigos.lista' | t">
   @for (codigo of codigos(); track codigo) {
     <li><code>{{ codigo }}</code></li>
   }
 </ul>
 <div class="acciones-codigos">
   <button type="button" class="btn btn-outline-secondary" (click)="descargar()">
-    <i class="bi bi-download me-1" aria-hidden="true"></i>Descargar
+    <i class="bi bi-download me-1" aria-hidden="true"></i>{{ 'codigos.descargar' | t }}
   </button>
   <button type="button" class="btn btn-outline-secondary" (click)="copiar()">
-    <i class="bi bi-clipboard me-1" aria-hidden="true"></i>{{ copiados() ? 'Copiados' : 'Copiar' }}
+    <i class="bi bi-clipboard me-1" aria-hidden="true"></i>{{ (copiados() ? 'codigos.copiados' : 'codigos.copiar') | t }}
   </button>
 </div>
 <div class="form-check mt-3 text-start">
   <input class="form-check-input" type="checkbox" id="codigosGuardados" [checked]="guardados()"
     (change)="guardados.set(!guardados())">
-  <label class="form-check-label" for="codigosGuardados">He guardado los códigos en un lugar seguro</label>
+  <label class="form-check-label" for="codigosGuardados">{{ 'codigos.guardados' | t }}</label>
 </div>
 <div class="acciones-codigos">
-  <button type="button" class="btn btn-primary" [disabled]="!guardados()" (click)="terminado.emit()">{{ textoBoton() }}</button>
+  <button type="button" class="btn btn-primary" [disabled]="!guardados()" (click)="terminado.emit()">{{ textoBoton() || ('auth.continuar' | t) }}</button>
 </div>

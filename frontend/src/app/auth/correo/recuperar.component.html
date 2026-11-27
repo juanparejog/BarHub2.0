@@ -1,26 +1,26 @@
 <div class="cuenta-correo">
-  <h2>Recuperar contraseña</h2>
+  <h2>{{ 'recuperar.titulo' | t }}</h2>
   @if (enviado) {
     <p role="status">{{ mensaje }}</p>
-    <p class="text-muted">El enlace caduca en 30 minutos. Si no te llega, mira en la carpeta de correo no deseado.</p>
+    <p class="text-muted">{{ 'recuperar.caduca' | t }}</p>
     <div class="acciones">
-      <a class="btn btn-primary" routerLink="/auth/login">Volver al inicio de sesión</a>
+      <a class="btn btn-primary" routerLink="/auth/login">{{ 'auth.volverAlLogin' | t }}</a>
     </div>
   } @else {
-    <p class="text-muted">Escribe el correo de tu cuenta y te enviaremos un enlace para elegir una contraseña nueva.</p>
+    <p class="text-muted">{{ 'recuperar.ayuda' | t }}</p>
     <form [formGroup]="form" (ngSubmit)="enviar()" novalidate>
-      <label for="recuperarEmail" class="form-label">Correo electrónico</label>
+      <label for="recuperarEmail" class="form-label">{{ 'recuperar.correo' | t }}</label>
       <input id="recuperarEmail" type="email" class="form-control" formControlName="email" autocomplete="email"
         [attr.aria-invalid]="form.controls.email.invalid && form.controls.email.touched">
       @if (form.controls.email.invalid && form.controls.email.touched) {
-        <div class="text-danger small mt-1">Escribe un correo válido.</div>
+        <div class="text-danger small mt-1">{{ 'auth.correoInvalido' | t }}</div>
       }
       @if (error) {
         <div class="text-danger mt-2" role="alert">{{ error }}</div>
       }
       <div class="acciones">
-        <button type="submit" class="btn btn-primary" [disabled]="enviando">Enviar enlace</button>
-        <a class="btn btn-outline-secondary" routerLink="/auth/login">Cancelar</a>
+        <button type="submit" class="btn btn-primary" [disabled]="enviando">{{ 'auth.enviarEnlace' | t }}</button>
+        <a class="btn btn-outline-secondary" routerLink="/auth/login">{{ 'auth.cancelar' | t }}</a>
       </div>
     </form>
   }

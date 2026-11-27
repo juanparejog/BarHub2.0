@@ -5,6 +5,8 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { AuthService } from '../../../auth/auth.service';
 import { DialogService } from '../../../main/services/shared/services/dialog.service';
 import { PerfilService } from '../perfil.service';
+import { IdiomaService } from '../../../shared/i18n/idioma.service';
+import { TraducirPipe } from '../../../shared/i18n/traducir.pipe';
 
 const ROLES_PERSONAL = ['ROLE_ADMIN', 'ROLE_EMPLEADO'];
 
@@ -16,12 +18,13 @@ const ROLES_PERSONAL = ['ROLE_ADMIN', 'ROLE_EMPLEADO'];
 @Component({
   selector: 'app-perfil-privacidad',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink, TraducirPipe],
   templateUrl: './perfil-privacidad.component.html',
   styleUrls: ['../perfil.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class PerfilPrivacidadComponent {
+  private readonly idiomas = inject(IdiomaService);
   readonly perfil = inject(PerfilService);
   private readonly authService = inject(AuthService);
   private readonly dialogo = inject(DialogService);
@@ -54,7 +57,7 @@ export class PerfilPrivacidadComponent {
         this.descargando.set(false);
         // Si se cancela la reautenticación, la petición termina con el 403 original: no es un fallo
         if (err?.error?.code !== 'REAUTENTICACION_REQUERIDA') {
-          this.errorDescarga.set('No se pudieron descargar tus datos. Inténtalo de nuevo.');
+          this.errorDescarga.set(this.idiomas.t('perfil.priv.errorDescarga'));
         }
       }
     });
@@ -68,13 +71,13 @@ export class PerfilPrivacidadComponent {
     this.errorEliminar.set('');
     this.perfil.eliminarCuenta().subscribe({
       next: () => {
-        this.dialogo.mostrarToast('Tu cuenta se ha eliminado. Gracias por haber usado BarHub.');
+        this.dialogo.mostrarToast(this.idiomas.t('perfil.priv.eliminada'));
         this.authService.logout();
       },
       error: err => {
         this.eliminando.set(false);
         if (err?.error?.code !== 'REAUTENTICACION_REQUERIDA') {
-          this.errorEliminar.set(err?.error?.message ?? 'No se pudo eliminar la cuenta. Inténtalo de nuevo.');
+          this.errorEliminar.set(this.idiomas.delServidor(err?.error?.message, 'perfil.priv.errorEliminar'));
         }
       }
     });

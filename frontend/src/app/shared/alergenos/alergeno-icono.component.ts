@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
+import { IdiomaService } from '../i18n/idioma.service';
 import { nombreAlergeno } from './alergenos';
 
 /**
@@ -140,6 +141,9 @@ export class AlergenoIconoComponent {
   /** Oculto a los lectores de pantalla (cuando el nombre ya está escrito al lado). */
   readonly decorativo = input(false);
 
-  readonly nombre = computed(() => nombreAlergeno(this.codigo()));
+  private readonly idiomas = inject(IdiomaService);
+
+  /** En el idioma elegido en el menú. */
+  readonly nombre = computed(() => nombreAlergeno(this.codigo(), this.idiomas.idioma()));
   readonly color = computed(() => COLORES[this.codigo()] ?? '#475569');
 }

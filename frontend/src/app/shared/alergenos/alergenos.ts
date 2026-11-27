@@ -1,3 +1,6 @@
+import type { Idioma } from '../i18n/idiomas';
+import { traducir, traducirSiExiste } from '../i18n/textos';
+
 /**
  * Los 14 alérgenos de declaración obligatoria (anexo II del Reglamento (UE) 1169/2011), en el
  * mismo orden que el backend (enum Alergeno). El código es lo que viaja en la API.
@@ -21,24 +24,23 @@ export const ALERGENOS = [
 
 export type CodigoAlergeno = typeof ALERGENOS[number]['codigo'];
 
-const NOMBRES = new Map<string, string>(ALERGENOS.map(a => [a.codigo, a.nombre]));
-
-export function nombreAlergeno(codigo: string): string {
-  return NOMBRES.get(codigo) ?? codigo;
+/** Nombre de un alérgeno en el idioma pedido (en español si no se dice: el personal y el ticket). */
+export function nombreAlergeno(codigo: string, idioma: Idioma = 'es'): string {
+  return traducirSiExiste(idioma, `alergeno.${codigo}`, codigo);
 }
 
 /**
  * Texto de la carta para los alérgenos de un producto. {@code null} significa que el bar aún no
  * los ha indicado, que no es lo mismo que una lista vacía (indicados: no lleva ninguno).
  */
-export function textoAlergenos(alergenos: readonly string[] | null | undefined): string {
+export function textoAlergenos(alergenos: readonly string[] | null | undefined, idioma: Idioma = 'es'): string {
   if (alergenos == null) {
-    return 'Alérgenos: pregunta al personal';
+    return traducir(idioma, 'alergenos.preguntar');
   }
   if (alergenos.length === 0) {
-    return 'Sin alérgenos de declaración obligatoria';
+    return traducir(idioma, 'alergenos.ninguno');
   }
-  return `Contiene: ${alergenos.map(nombreAlergeno).join(', ')}`;
+  return traducir(idioma, 'alergenos.contiene', { lista: alergenos.map(a => nombreAlergeno(a, idioma)).join(', ') });
 }
 
 /**

@@ -5,21 +5,21 @@
     [type]="toastType"
     (closed)="showToast = false">
   </app-toast>
-  <h2>Inicio de sesión</h2>
+  <h2>{{ 'login.titulo' | t }}</h2>
   <form [formGroup]="form" (ngSubmit)="onSubmit()">
     <label>
-      <span>Nombre de usuario</span>
-      <input formControlName="username" placeholder="Tu usuario" />
+      <span>{{ 'auth.usuario' | t }}</span>
+      <input formControlName="username" [placeholder]="'login.usuario.ejemplo' | t" />
     </label>
     <label>
-      <span>Contraseña</span>
+      <span>{{ 'auth.clave' | t }}</span>
       <div class="input-eye-row">
         <input
           [type]="showPassword ? 'text' : 'password'"
           formControlName="password"
-          placeholder="Contraseña"
+          [placeholder]="'auth.clave' | t"
           />
-        <button type="button" class="eye-btn" (click)="showPassword = !showPassword" tabindex="-1" [attr.aria-label]="showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'">
+        <button type="button" class="eye-btn" (click)="showPassword = !showPassword" tabindex="-1" [attr.aria-label]="(showPassword ? 'auth.ocultarClave' : 'auth.mostrarClave') | t">
           @if (!showPassword) {
             <svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24"><path stroke="#888" stroke-width="2" d="M1 12S5 5 12 5s11 7 11 7-4 7-11 7S1 12 1 12Z"/><circle cx="12" cy="12" r="3" stroke="#888" stroke-width="2"/></svg>
           }
@@ -29,15 +29,13 @@
         </button>
       </div>
     </label>
-    <button type="submit">Login</button>
+    <button type="submit">{{ 'login.entrar' | t }}</button>
   </form>
   @if (pendienteConfirmar) {
     <div class="login-confirmar" role="status">
-      <p>Tu cuenta está pendiente de confirmar. Busca el correo que te enviamos o pide otro.</p>
-      <button type="button" class="btn btn-outline-secondary" (click)="reenviarConfirmacion()">
-        Reenviar correo de confirmación
-      </button>
+      <p>{{ 'login.pendiente' | t }}</p>
+      <button type="button" class="btn btn-outline-secondary" (click)="reenviarConfirmacion()">{{ 'login.reenviar' | t }}</button>
     </div>
   }
-  <p class="login-olvido"><a routerLink="/auth/recuperar">¿Has olvidado tu contraseña?</a></p>
+  <p class="login-olvido"><a routerLink="/auth/recuperar">{{ 'login.olvido' | t }}</a></p>
 </div>

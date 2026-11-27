@@ -34,6 +34,22 @@ public class Producto {
     @Column
     private String descripcion;
 
+    /*
+     * Nombre y descripcion en portugues y en ingles, para la carta en esos idiomas. Opcionales: si
+     * faltan, la carta muestra los de arriba (en espanol).
+     */
+    @Column(name = "nombre_pt", length = 100)
+    private String nombrePt;
+
+    @Column(name = "nombre_en", length = 100)
+    private String nombreEn;
+
+    @Column(name = "descripcion_pt", length = 500)
+    private String descripcionPt;
+
+    @Column(name = "descripcion_en", length = 500)
+    private String descripcionEn;
+
     @Column
     private Double precio;
 

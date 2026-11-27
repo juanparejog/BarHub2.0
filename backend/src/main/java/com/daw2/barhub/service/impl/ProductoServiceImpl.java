@@ -45,6 +45,10 @@ public class ProductoServiceImpl implements ProductoService {
         if (productoExistente != null) {
             productoExistente.setNombre(entity.getNombre());
             productoExistente.setDescripcion(entity.getDescripcion());
+            productoExistente.setNombrePt(entity.getNombrePt());
+            productoExistente.setNombreEn(entity.getNombreEn());
+            productoExistente.setDescripcionPt(entity.getDescripcionPt());
+            productoExistente.setDescripcionEn(entity.getDescripcionEn());
             productoExistente.setPrecio(entity.getPrecio());
             productoExistente.setImagen(entity.getImagen());
             productoExistente.setTipoProducto(entity.getTipoProducto());
