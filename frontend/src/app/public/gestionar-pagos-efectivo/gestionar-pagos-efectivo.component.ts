@@ -4,6 +4,9 @@ import { catchError, switchMap, takeUntil } from 'rxjs/operators';
 import { PedidoService } from '../services/pedido';
 import { TiempoRealService } from '../../services/tiempo-real.service';
 import { Pedido } from '../../public/interface/pedido';
+import { AvisoService } from '../../shared/avisos/aviso.service';
+
+const EUROS = new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' });
 
 @Component({
     selector: 'app-gestionar-pagos-efectivo',
@@ -24,7 +27,8 @@ export class GestionarPagosEfectivoComponent implements OnInit, OnDestroy {
 
   constructor(
     private readonly pedidoService: PedidoService,
-    private readonly tiempoReal: TiempoRealService
+    private readonly tiempoReal: TiempoRealService,
+    private readonly avisos: AvisoService
   ) {}
 
   /** Se recarga cuando entra o cambia un pedido (aviso del servidor) y, sin conexión, cada 5 s. */
@@ -100,7 +104,7 @@ export class GestionarPagosEfectivoComponent implements OnInit, OnDestroy {
     const total = this.pedidoSeleccionado.precioTotal ?? (this.pedidoSeleccionado as any).precio_total ?? (this.pedidoSeleccionado as any).total ?? 0;
   
     if (this.montoEntregado < total) {
-      alert('El monto entregado es menor al total del pedido.');
+      this.avisos.flotante('El importe entregado es menor que el total del pedido.', 'error');
       return;
     }
 
@@ -130,13 +134,22 @@ export class GestionarPagosEfectivoComponent implements OnInit, OnDestroy {
   
     this.pedidoService.put(payloadActualizacion as any).subscribe({
       next: () => {
-        alert('Pago procesado correctamente');
+        const entregado = Number(this.montoEntregado);
+        this.avisos.exito({
+          titulo: 'Cobro registrado',
+          mensaje: `El pedido #${payloadActualizacion.id} queda pagado en efectivo.`,
+          detalles: [
+            { etiqueta: 'Total', valor: EUROS.format(Number(total)) },
+            { etiqueta: 'Entregado', valor: EUROS.format(entregado) },
+            { etiqueta: 'Cambio', valor: EUROS.format(Math.max(entregado - Number(total), 0)) }
+          ]
+        });
         this.pedidoSeleccionado = null;
         this.cargarPedidosPendientesDePago();
       },
       error: (err) => {
         console.error('Error al procesar el pago:', err);
-        alert('Ocurrió un error al registrar el pago');
+        this.avisos.flotante('No se ha podido registrar el cobro. Inténtalo de nuevo.', 'error');
       }
     });
   }

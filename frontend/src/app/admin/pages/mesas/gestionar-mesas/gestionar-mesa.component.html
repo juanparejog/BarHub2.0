@@ -18,7 +18,7 @@
   </div>
 
   <!-- Tarjeta Principal del CRUD -->
-  <div class="crud-card">
+  <div class="crud-card" #listado>
 
     <!-- Barra Superior / Barra de Filtro Integrada -->
     <div class="table-toolbar d-flex flex-wrap align-items-center justify-content-between gap-3 p-3 border-bottom bg-light-subtle">
@@ -30,13 +30,14 @@
           class="form-control search-input"
           placeholder="Buscar por código QR o estado..."
           [(ngModel)]="searchTerm"
+          (ngModelChange)="pagina = 1"
           aria-label="Buscar"
           >
           @if (searchTerm) {
             <button
               class="btn-clear-search"
               type="button"
-              (click)="searchTerm = ''"
+              (click)="searchTerm = ''; pagina = 1"
               title="Limpiar búsqueda">
             <i class="bi bi-x-lg"></i>
           </button>
@@ -89,7 +90,7 @@
 
         @if (mesasFiltradas.length > 0) {
           <tbody>
-            @for (mesa of mesasFiltradas; track mesa) {
+            @for (mesa of mesasPagina; track mesa) {
               <tr>
                 <!-- Código QR -->
                 <td class="ps-4 font-monospace fw-semibold text-body">
@@ -146,6 +147,8 @@
         <!-- Estado vacío -->
       </table>
     </div>
+    <app-paginador class="border-top" [total]="mesasFiltradas.length" [(pagina)]="pagina" [(tamano)]="tamano"
+      elementos="mesas" [ancla]="listado" />
   </div>
 </div>
 

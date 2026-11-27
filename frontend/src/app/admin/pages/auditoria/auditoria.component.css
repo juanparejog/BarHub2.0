@@ -1,0 +1,211 @@
+/* Registro de auditoría: explicación, filtros con rangos rápidos y tabla con iconos */
+
+.auditoria-intro {
+  display: flex;
+  gap: 1.25rem;
+  margin-bottom: 1.5rem;
+  padding: 1.25rem 1.5rem;
+  border-radius: 16px;
+  color: #e2e8f0;
+  background: linear-gradient(135deg, #0a2342 0%, #12315a 60%, #1d4ed8 140%);
+  box-shadow: 0 16px 32px -20px rgba(10, 35, 66, 0.9);
+}
+
+.auditoria-intro strong {
+  color: #ffffff;
+}
+
+.auditoria-intro .text-muted {
+  color: #b6c6dc !important;
+}
+
+.auditoria-intro-icono {
+  width: 52px;
+  height: 52px;
+  flex-shrink: 0;
+  border-radius: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.auditoria-intro-lista {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0 0 0.75rem;
+  padding: 0;
+  list-style: none;
+}
+
+.auditoria-intro-lista li {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.auditoria-filtros {
+  margin-bottom: 1.5rem;
+  padding: 1.25rem 1.5rem;
+  overflow: visible;
+}
+
+.auditoria-rangos {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-bottom: 1rem;
+}
+
+.auditoria-rango {
+  padding: 0.4rem 0.9rem;
+  border-radius: 999px;
+  border: 1px solid var(--bs-border-color);
+  background: var(--bs-body-bg);
+  color: var(--bs-secondary-color);
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.auditoria-rango:hover {
+  color: var(--bs-body-color);
+  border-color: #1d4ed8;
+}
+
+.auditoria-rango.activo {
+  background: #0a2342;
+  border-color: #0a2342;
+  color: #ffffff;
+}
+
+.auditoria-cabecera-tabla {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--bs-border-color);
+}
+
+.auditoria-total {
+  padding: 0.2rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  background: var(--bs-tertiary-bg);
+  color: var(--bs-secondary-color);
+}
+
+.table-responsive {
+  transition: opacity 0.2s ease;
+}
+
+.table-responsive.cargando {
+  opacity: 0.55;
+}
+
+.auditoria-usuario {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.auditoria-inicial {
+  width: 30px;
+  height: 30px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: #ffffff;
+  background: #0a2342;
+}
+
+.auditoria-accion {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 500;
+}
+
+.auditoria-accion i {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #1d4ed8;
+  background: #eff6ff;
+}
+
+.resultado-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+
+.resultado-correcto { color: #047857; background: #d1fae5; border-color: #a7f3d0; }
+.resultado-rechazado { color: #92400e; background: #fef3c7; border-color: #fde68a; }
+.resultado-bloqueado { color: #b91c1c; background: #fee2e2; border-color: #fca5a5; }
+.resultado-error { color: #f8fafc; background: #334155; border-color: #334155; }
+
+.auditoria-detalle {
+  max-width: 420px;
+}
+
+.auditoria-peticion {
+  display: inline-block;
+  margin-top: 0.25rem;
+  padding: 0.1rem 0.45rem;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  color: #334155;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+}
+
+/* Modo oscuro */
+:host-context(.dark-theme) .auditoria-rango.activo,
+:host-context(.dark-theme) .auditoria-inicial {
+  background: #1d4ed8;
+  border-color: #1d4ed8;
+}
+
+:host-context(.dark-theme) .auditoria-accion i {
+  color: #93c5fd;
+  background: rgba(59, 130, 246, 0.15);
+}
+
+:host-context(.dark-theme) .resultado-correcto { color: #6ee7b7; background: #16412b; border-color: #1f6b45; }
+:host-context(.dark-theme) .resultado-rechazado { color: #fcd34d; background: #413816; border-color: #78591c; }
+:host-context(.dark-theme) .resultado-bloqueado { color: #fca5a5; background: #411616; border-color: #7f1d1d; }
+
+:host-context(.dark-theme) .auditoria-peticion {
+  color: #cbd5e1;
+  background: #0f172a;
+  border-color: #334155;
+}
+
+@media (max-width: 575.98px) {
+  .auditoria-intro {
+    flex-direction: column;
+  }
+}

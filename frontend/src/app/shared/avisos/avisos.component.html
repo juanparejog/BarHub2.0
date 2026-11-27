@@ -1,0 +1,53 @@
+@if (avisos.dialogo(); as dialogo) {
+  <div class="aviso-fondo" (click)="alPulsarFondo($event)">
+    <div #caja class="aviso-dialogo" [class]="'aviso-dialogo aviso-' + dialogo.tipo" role="dialog" aria-modal="true"
+      aria-labelledby="aviso-titulo" [attr.aria-describedby]="dialogo.mensaje ? 'aviso-mensaje' : null"
+      (keydown)="alTeclear($event)">
+      <div class="aviso-icono" aria-hidden="true">
+        <svg viewBox="0 0 52 52">
+          <circle class="aviso-circulo" cx="26" cy="26" r="23" />
+          @if (dialogo.tipo === 'exito') {
+            <path class="aviso-trazo" d="M15.5 27.5l7 7 14-15" />
+          } @else if (dialogo.tipo === 'error') {
+            <path class="aviso-trazo" d="M18 18l16 16M34 18L18 34" />
+          } @else {
+            <path class="aviso-trazo" d="M26 24v12M26 16.5v.5" />
+          }
+        </svg>
+      </div>
+      <h2 class="aviso-titulo" id="aviso-titulo">{{ dialogo.titulo }}</h2>
+      @if (dialogo.mensaje) {
+        <p class="aviso-mensaje" id="aviso-mensaje">{{ dialogo.mensaje }}</p>
+      }
+      @if (dialogo.detalles?.length) {
+        <dl class="aviso-detalles">
+          @for (detalle of dialogo.detalles; track detalle.etiqueta) {
+            <div class="aviso-detalle">
+              <dt>{{ detalle.etiqueta }}</dt>
+              <dd>{{ detalle.valor }}</dd>
+            </div>
+          }
+        </dl>
+      }
+      <div class="aviso-acciones">
+        @for (accion of dialogo.acciones; track accion.texto) {
+          <button type="button" class="aviso-boton" [class.primaria]="accion.primaria" (click)="avisos.cerrar(accion)">
+            {{ accion.texto }}
+          </button>
+        }
+      </div>
+    </div>
+  </div>
+}
+
+<div class="aviso-flotantes" role="status" aria-live="polite">
+  @for (flotante of avisos.flotantes(); track flotante.id) {
+    <div class="aviso-flotante" [class]="'aviso-flotante aviso-' + flotante.tipo">
+      <i class="bi" [class.bi-check-circle-fill]="flotante.tipo === 'exito'"
+        [class.bi-exclamation-octagon-fill]="flotante.tipo === 'error'"
+        [class.bi-info-circle-fill]="flotante.tipo === 'info'" aria-hidden="true"></i>
+      <span class="aviso-flotante-texto">{{ flotante.texto }}</span>
+      <button type="button" class="btn-close" [attr.aria-label]="'aviso.cerrar' | t" (click)="avisos.quitar(flotante.id)"></button>
+    </div>
+  }
+</div>

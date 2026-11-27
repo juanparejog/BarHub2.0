@@ -21,14 +21,19 @@ describe('ConfirmarPedidoComponent', () => {
   let postCrearSeguro: ReturnType<typeof vi.fn>;
   let crearIntento: ReturnType<typeof vi.fn>;
   let confirmCardPayment: ReturnType<typeof vi.fn>;
+  let exito: ReturnType<typeof vi.fn>;
 
   function crear(configuracion: ConfiguracionPago): ConfirmarPedidoComponent {
     const componente = new ConfirmarPedidoComponent(
       { postCrearSeguro } as any,
-      {} as any,
+      { isLoggedIn: () => true } as any,
       { navigate: vi.fn().mockResolvedValue(true) } as any,
-      { t: (clave: string) => clave, idioma: () => 'es', delServidor: (mensaje: string, clave: string) => mensaje || clave } as any,
-      { configuracion: () => of(configuracion), crearIntento, cargarStripe: vi.fn() } as any
+      {
+        t: (clave: string) => clave, idioma: () => 'es', precio: (valor: number) => `${valor} €`,
+        delServidor: (mensaje: string, clave: string) => mensaje || clave
+      } as any,
+      { configuracion: () => of(configuracion), crearIntento, cargarStripe: vi.fn() } as any,
+      { exito, error: vi.fn() } as any
     );
     vi.spyOn(componente, 'generarTicketPDF').mockImplementation(() => undefined);
     vi.spyOn(componente, 'showToastMessage').mockImplementation(() => undefined);
@@ -51,6 +56,7 @@ describe('ConfirmarPedidoComponent', () => {
     postCrearSeguro = vi.fn().mockReturnValue(of({ id: 7 }));
     crearIntento = vi.fn().mockReturnValue(of({ id: 'pi_123', clientSecret: 'pi_123_secret', importe: 5 }));
     confirmCardPayment = vi.fn().mockResolvedValue({ paymentIntent: { id: 'pi_123', status: 'succeeded' } });
+    exito = vi.fn();
   });
 
   afterEach(() => {
@@ -83,6 +89,23 @@ describe('ConfirmarPedidoComponent', () => {
     expect(enviado().metodo_pago).toBe('TARJETA');
     expect(enviado().pago_id).toBe('pi_123');
     expect(localStorage.getItem(PAGO_PENDIENTE)).toBeNull();
+  });
+
+  it('con el pedido hecho se ve el aviso con su número y su total, y el acceso al seguimiento', async () => {
+    const componente = crear(conTarjeta);
+    conTarjetaMontada(componente);
+
+    await componente.finalizarPedido();
+
+    const aviso = exito.mock.calls[0][0];
+    expect(aviso.titulo).toBe('confirmar.toast.exito');
+    expect(aviso.mensaje).toBe('confirmar.exito.tarjeta');
+    expect(aviso.detalles).toEqual([
+      { etiqueta: 'confirmar.exito.numero', valor: 'BH-000007' },
+      { etiqueta: 'confirmar.exito.total', valor: '5 €' }
+    ]);
+    expect(aviso.acciones.map((a: any) => a.texto)).toEqual(['confirmar.exito.seguir', 'confirmar.volver']);
+    expect(localStorage.getItem('pedidoTemporal')).toBeNull();
   });
 
   it('si Stripe rechaza la tarjeta no se crea el pedido y se ve su mensaje', async () => {

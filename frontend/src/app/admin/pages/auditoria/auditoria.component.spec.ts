@@ -26,8 +26,8 @@ describe('AuditoriaComponent', () => {
   }
 
   const texto = (elemento: Element | null) => elemento?.textContent?.replace(/\s+/g, ' ').trim() ?? '';
-  const boton = (raiz: HTMLElement, contenido: string) =>
-    Array.from(raiz.querySelectorAll('button')).find(b => b.textContent?.includes(contenido))!;
+  const boton = (raiz: HTMLElement, etiqueta: string) =>
+    Array.from(raiz.querySelectorAll('button')).find(b => b.getAttribute('aria-label') === etiqueta || b.textContent?.trim() === etiqueta)!;
 
   beforeEach(() => buscar.mockReset());
 
@@ -50,7 +50,8 @@ describe('AuditoriaComponent', () => {
     const filas = Array.from(raiz.querySelectorAll('tbody tr'));
     expect(filas.length).toBe(2);
     expect(texto(filas[0])).toContain('Inicio de sesión');
-    expect(filas[0].querySelector('.badge')?.className).toContain('text-bg-warning');
+    expect(filas[0].querySelector('.resultado-pill')?.className).toContain('resultado-rechazado');
+    expect(filas[0].querySelector('.auditoria-accion i')?.className).toContain('bi-box-arrow-in-right');
     expect(texto(filas[0])).toContain('Rechazado');
     expect(texto(filas[0])).toContain('198.51.100.7');
     expect(texto(filas[1])).toContain('Usuario editado');
@@ -69,17 +70,34 @@ describe('AuditoriaComponent', () => {
     expect(buscar).toHaveBeenLastCalledWith(expect.objectContaining({ usuario: 'ana', accion: 'ACCESO_DENEGADO', pagina: 0 }));
   });
 
-  it('pasa de página y desactiva «Anterior» en la primera y «Siguiente» en la última', () => {
+  it('pasa de página y desactiva «anterior» en la primera y «siguiente» en la última', () => {
     buscar.mockReturnValueOnce(of(pagina([evento({})], 0, 2, 60))).mockReturnValueOnce(of(pagina([evento({})], 1, 2, 60)));
     const { fixture, raiz } = crear();
-    expect(texto(raiz.querySelector('nav'))).toContain('Página 1 de 2');
-    expect(boton(raiz, 'Anterior').disabled).toBe(true);
+    expect(texto(raiz.querySelector('.paginador-rango'))).toBe('1–50 de 60 entradas');
+    expect(boton(raiz, 'Página anterior').disabled).toBe(true);
 
-    boton(raiz, 'Siguiente').click();
+    boton(raiz, 'Página siguiente').click();
     fixture.detectChanges();
     expect(buscar).toHaveBeenLastCalledWith(expect.objectContaining({ pagina: 1 }));
-    expect(texto(raiz.querySelector('nav'))).toContain('Página 2 de 2');
-    expect(boton(raiz, 'Siguiente').disabled).toBe(true);
+    expect(texto(raiz.querySelector('.paginador-rango'))).toBe('51–60 de 60 entradas');
+    expect(boton(raiz, 'Página siguiente').disabled).toBe(true);
+  });
+
+  it('los rangos rápidos cambian las fechas y buscan; escribir una fecha los desmarca', () => {
+    buscar.mockReturnValue(of(pagina([])));
+    const { fixture, raiz } = crear();
+    expect(boton(raiz, 'Últimos 7 días').classList).toContain('activo');
+
+    boton(raiz, 'Hoy').click();
+    fixture.detectChanges();
+    const filtro = buscar.mock.lastCall![0];
+    expect(filtro.desde).toBe(filtro.hasta);
+    expect(filtro.pagina).toBe(0);
+    expect(boton(raiz, 'Hoy').classList).toContain('activo');
+
+    fixture.componentInstance.fechasAMano();
+    fixture.detectChanges();
+    expect(raiz.querySelector('.auditoria-rango.activo')).toBeNull();
   });
 
   it('sin entradas lo dice, y si falla muestra el motivo', () => {

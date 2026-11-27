@@ -1,0 +1,51 @@
+@if (total() > 0) {
+  <nav class="paginador" [attr.aria-label]="'paginador.etiqueta' | t">
+    <p class="paginador-rango">
+      {{ 'paginador.rango' | t: { desde: desde(), hasta: hasta(), total: total() } }}
+      @if (elementos()) {
+        {{ elementos() }}
+      }
+    </p>
+
+    @if (ultima() > 1) {
+      <ul class="paginador-paginas">
+        <li>
+          <button type="button" class="paginador-boton paginador-flecha" [disabled]="actual() === 1"
+            (click)="ir(actual() - 1)" [attr.aria-label]="'paginador.anterior' | t" [title]="'paginador.anterior' | t">
+            <i class="bi bi-chevron-left" aria-hidden="true"></i>
+          </button>
+        </li>
+        @for (pagina of visibles(); track $index) {
+          @if (pagina === hueco) {
+            <li class="paginador-hueco" aria-hidden="true">…</li>
+          } @else {
+            <li>
+              <button type="button" class="paginador-boton" [class.activa]="pagina === actual()"
+                [attr.aria-current]="pagina === actual() ? 'page' : null"
+                [attr.aria-label]="'paginador.pagina' | t: { n: pagina }" (click)="ir(pagina)">
+                {{ pagina }}
+              </button>
+            </li>
+          }
+        }
+        <li>
+          <button type="button" class="paginador-boton paginador-flecha" [disabled]="actual() === ultima()"
+            (click)="ir(actual() + 1)" [attr.aria-label]="'paginador.siguiente' | t" [title]="'paginador.siguiente' | t">
+            <i class="bi bi-chevron-right" aria-hidden="true"></i>
+          </button>
+        </li>
+      </ul>
+    }
+
+    @if (conTamano()) {
+      <label class="paginador-tamano">
+        <span>{{ 'paginador.porPagina' | t }}</span>
+        <select class="form-select form-select-sm" (change)="cambiarTamano($event)">
+          @for (opcion of tamanos(); track opcion) {
+            <option [value]="opcion" [selected]="opcion === tamano()">{{ opcion }}</option>
+          }
+        </select>
+      </label>
+    }
+  </nav>
+}

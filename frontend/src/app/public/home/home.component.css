@@ -93,7 +93,7 @@
 }
 
 .carousel-caption h5 {
-  font-family: 'Merriweather', serif;
+  font-family: var(--fuente-titulos);
   font-size: 1.75rem;
   font-weight: 700;
   margin-bottom: 6px;
@@ -194,7 +194,7 @@
 .home-bar-titles h1 {
   margin: 0;
   color: #0f172a; /* Color oscuro legible sobre fondo blanco */
-  font-family: 'Merriweather', serif;
+  font-family: var(--fuente-titulos);
   font-size: 2.3rem;
   font-weight: 800;
   line-height: 1.15;
@@ -412,7 +412,7 @@
   margin: 0;
   color: #ffffff;
   font-size: 1.15rem;
-  font-family: 'Merriweather', serif;
+  font-family: var(--fuente-titulos);
 }
 
 .map-subtitle {
@@ -562,4 +562,53 @@
 :host-context(.dark-theme) .home-bar-logo {
   border-color: #334155;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+}
+
+/* =========================================================
+   PORTADA A TODO EL ANCHO: el carrusel de lado a lado y las
+   secciones con un margen que crece con la pantalla
+   ========================================================= */
+
+.home-bar-container {
+  max-width: none;
+  padding: 0 0 48px;
+  gap: 40px;
+}
+
+.home-bar-content,
+.home-bar-map {
+  margin-inline: clamp(16px, 3vw, 56px);
+}
+
+.home-bar-carousel {
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.carousel-caption {
+  border-radius: 0;
+  padding: clamp(32px, 5vw, 72px) clamp(24px, 6vw, 96px) clamp(28px, 4vw, 56px);
+}
+
+.carousel-caption h5 {
+  font-size: clamp(1.6rem, 3vw, 2.75rem);
+}
+
+.carousel-caption p {
+  font-size: clamp(1rem, 1.25vw, 1.2rem);
+  max-width: 760px;
+}
+
+@media (min-width: 901px) {
+  .carousel-img {
+    height: clamp(380px, 58vh, 640px);
+  }
+
+  .home-bar-content {
+    padding: clamp(40px, 3.5vw, 64px);
+  }
+
+  .home-bar-info-img img {
+    height: clamp(340px, 28vw, 480px);
+  }
 }

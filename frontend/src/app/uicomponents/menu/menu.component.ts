@@ -1,5 +1,5 @@
 import { IMAGEN_USUARIO_POR_DEFECTO, ponerImagenPorDefecto } from '../../shared/imagen-por-defecto';
-import { Component, OnInit, ChangeDetectionStrategy, inject } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, HostListener, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { AuthService } from 'src/app/auth/auth.service';
 import { ThemeService } from 'src/app/services/theme.service';
@@ -22,8 +22,20 @@ export class MenuComponent implements OnInit {
     private readonly themeService: ThemeService
   ) {}
 
+  /** Con la pagina desplazada, la barra se compacta y gana sombra. */
+  desplazada = false;
+
   ngOnInit(): void {
     this.isDarkMode$ = this.themeService.isDarkMode$;
+    this.alDesplazar();
+  }
+
+  @HostListener('window:scroll')
+  alDesplazar(): void {
+    const desplazada = window.scrollY > 8;
+    if (desplazada !== this.desplazada) {
+      this.desplazada = desplazada;
+    }
   }
 
   toggleTheme(): void {

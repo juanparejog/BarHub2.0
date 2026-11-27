@@ -10,7 +10,7 @@ describe('GestionarMesasEmpleadoComponent: QR de la mesa', () => {
 
   function crear() {
     return new GestionarMesasEmpleadoComponent({ get: () => of([]) } as any, { comoImagen } as any, { markForCheck } as any,
-      { recargas: () => NEVER } as any);
+      { recargas: () => NEVER } as any, { flotante: vi.fn() } as any);
   }
 
   beforeEach(() => {
@@ -56,7 +56,7 @@ describe('GestionarMesasEmpleadoComponent: estado y tiempo real', () => {
     const cambiarEstado = vi.fn(() => of({ id: 3, estado: 'OCUPADA' }));
     const put = vi.fn();
     const pantalla = new GestionarMesasEmpleadoComponent({ get: () => of([]), cambiarEstado, put } as any, {} as any,
-      { markForCheck: vi.fn() } as any, { recargas: () => NEVER } as any);
+      { markForCheck: vi.fn() } as any, { recargas: () => NEVER } as any, { flotante: vi.fn() } as any);
     const mesa = { id: 3, codigoqr: 'QR003', estado: 'disponible' };
 
     pantalla.setEstado(mesa, 'ocupada');
@@ -71,7 +71,7 @@ describe('GestionarMesasEmpleadoComponent: estado y tiempo real', () => {
     let llamadas = 0;
     const get = vi.fn(() => of([{ id: 1, codigoqr: 'QR001', estado: llamadas++ === 0 ? 'DISPONIBLE' : 'OCUPADA' }]));
     const pantalla = new GestionarMesasEmpleadoComponent({ get } as any, {} as any, { markForCheck: vi.fn() } as any,
-      { recargas: () => avisos } as any);
+      { recargas: () => avisos } as any, { flotante: vi.fn() } as any);
 
     pantalla.ngOnInit();
     avisos.next();

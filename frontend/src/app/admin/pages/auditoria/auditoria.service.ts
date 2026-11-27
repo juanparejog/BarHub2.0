@@ -68,6 +68,9 @@ export const RESULTADOS_AUDITORIA: Readonly<Record<ResultadoAuditoria, string>> 
   ERROR: 'Error'
 };
 
+/** Entradas por página: las que devuelve el servidor en cada consulta. */
+export const TAMANO_PAGINA_AUDITORIA = 50;
+
 /** Registro de auditoría, solo lectura y solo para el administrador. */
 @Injectable({ providedIn: 'root' })
 export class AuditoriaService {
@@ -79,7 +82,7 @@ export class AuditoriaService {
       .set('desde', filtro.desde)
       .set('hasta', filtro.hasta)
       .set('pagina', filtro.pagina)
-      .set('tamano', 50);
+      .set('tamano', TAMANO_PAGINA_AUDITORIA);
     for (const clave of ['usuario', 'accion', 'resultado'] as const) {
       const valor = filtro[clave].trim();
       if (valor) {

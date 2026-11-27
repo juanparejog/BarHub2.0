@@ -12,6 +12,7 @@ import { Usuario } from '../../admin/pages/usuarios/interface/usuario';
 import { ALERGENOS, aptoSin, nombreAlergeno, textoAlergenos } from '../../shared/alergenos/alergenos';
 import { IdiomaService } from '../../shared/i18n/idioma.service';
 import { descripcionDe, nombreDe } from '../../shared/i18n/producto-idioma';
+import { paginar } from '../../shared/paginador/paginar';
 
 /** Alérgenos que el visitante quiere evitar, recordados en su navegador. */
 const CLAVE_ALERGENOS = 'barhub.alergenosExcluidos';
@@ -61,6 +62,12 @@ export class CartaComponent implements OnInit {
   telefonoContacto = '';
 
   categoriaSeleccionada = 'todos';
+
+  /** Búsqueda por nombre o descripción (en el idioma elegido y en español), sin tener en cuenta las tildes. */
+  busqueda = '';
+  /** Página de la carta (la primera es la 1) y productos por página. */
+  pagina = 1;
+  tamano = 24;
 
   readonly alergenos = ALERGENOS;
 
@@ -298,6 +305,22 @@ export class CartaComponent implements OnInit {
 
   filtrarCategoria(cat: string) {
     this.categoriaSeleccionada = cat;
+    this.pagina = 1;
+  }
+
+  buscar(texto: string): void {
+    this.busqueda = texto;
+    this.pagina = 1;
+  }
+
+  /** Los productos de la página actual, con todos los filtros aplicados. */
+  get productosPagina(): Producto[] {
+    return paginar(this.productosFiltrados, this.pagina, this.tamano);
+  }
+
+  /** Retraso de la animación de cada tarjeta: escalonado, pero sin que las últimas tarden en salir. */
+  retrasoTarjeta(indice: number): string {
+    return `${Math.min(indice, 12) * 0.04}s`;
   }
 
   get productosFiltrados(): Producto[] {
@@ -305,7 +328,10 @@ export class CartaComponent implements OnInit {
       return [];
     }
 
-    const aptos = this.productos.filter(p => aptoSin(p.alergenos, this.alergenosExcluidos));
+    const termino = normalizar(this.busqueda);
+    const aptos = this.productos.filter(p => aptoSin(p.alergenos, this.alergenosExcluidos)
+      && (!termino || [this.nombreProducto(p), p.nombre, this.descripcionProducto(p)]
+        .some(texto => normalizar(texto).includes(termino))));
     if (this.categoriaSeleccionada === 'todos') {
       return aptos;
     }
@@ -415,11 +441,13 @@ export class CartaComponent implements OnInit {
       excluidos.add(codigo);
     }
     this.alergenosExcluidos = excluidos;
+    this.pagina = 1;
     guardarAlergenosExcluidos(excluidos);
   }
 
   quitarFiltroAlergenos(): void {
     this.alergenosExcluidos = new Set();
+    this.pagina = 1;
     guardarAlergenosExcluidos(this.alergenosExcluidos);
   }
 
@@ -441,6 +469,11 @@ export class CartaComponent implements OnInit {
     const ocultos = this.productos.filter(p => !aptoSin(p.alergenos, this.alergenosExcluidos));
     return { total: ocultos.length, sinInformacion: ocultos.filter(p => p.alergenos == null).length };
   }
+}
+
+/** Minúsculas y sin tildes, para buscar «cafe» y encontrar «Café». */
+function normalizar(texto: string | null | undefined): string {
+  return (texto ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
 }
 
 function leerAlergenosExcluidos(): string[] {

@@ -6,6 +6,7 @@ import { PedidoService } from '../../admin/pages/pedidos/services/pedido';
 import { ProductoService } from '../../admin/pages/productos/services/producto';
 import { TiempoRealService } from '../../services/tiempo-real.service';
 import { AvisoSonoroService } from '../../services/aviso-sonoro.service';
+import { AvisoService } from '../../shared/avisos/aviso.service';
 import { nombreAlergeno } from '../../shared/alergenos/alergenos';
 
 export interface EstadoOpcion {
@@ -39,7 +40,8 @@ export class GestionarComandasComponent implements OnInit, OnDestroy {
     private readonly productoService: ProductoService,
     private readonly tiempoReal: TiempoRealService,
     readonly avisoSonoro: AvisoSonoroService,
-    private readonly cdr: ChangeDetectorRef
+    private readonly cdr: ChangeDetectorRef,
+    private readonly avisos: AvisoService
   ) {}
 
   ngOnInit(): void {
@@ -249,10 +251,11 @@ export class GestionarComandasComponent implements OnInit, OnDestroy {
         if (estadoEnviar === 'servido' || estadoEnviar === 'entregado') {
           this.pedidos = this.pedidos.filter(p => p.id !== pedido.id);
         }
+        this.avisos.flotante(`Pedido #${pedido.id}: ${this.getLabelEstado(estadoEnviar)}`);
       },
       error: (err) => {
         console.error('Error actualizando el estado de la comanda:', err);
-        alert('Error al actualizar el estado de la comanda en el servidor.');
+        this.avisos.flotante(`No se ha podido cambiar el pedido #${pedido.id}. Inténtalo de nuevo.`, 'error');
       }
     });
   }

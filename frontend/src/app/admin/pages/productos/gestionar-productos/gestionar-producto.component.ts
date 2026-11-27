@@ -1,3 +1,4 @@
+import { paginar } from 'src/app/shared/paginador/paginar';
 import { IMAGEN_PRODUCTO_POR_DEFECTO, ponerImagenPorDefecto } from '../../../../shared/imagen-por-defecto';
 import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { ProductoService } from '../services/producto';
@@ -15,6 +16,10 @@ export class GestionarProductoComponent implements OnInit {
   productos: Producto[] = [];
 
   searchTerm: string = '';
+
+  /** Página del listado (la primera es la 1) y filas por página. */
+  pagina = 1;
+  tamano = 25;
   sortColumn: 'nombre' | 'descripcion' | 'precio' | 'tipoProducto' = 'nombre';
   sortDirection: 'asc' | 'desc' = 'asc';
 
@@ -50,6 +55,11 @@ export class GestionarProductoComponent implements OnInit {
       this.sortColumn = column;
       this.sortDirection = 'asc';
     }
+  }
+
+  /** Las filas de la página actual, tras buscar y ordenar. */
+  get productosPagina(): Producto[] {
+    return paginar(this.productosFiltrados, this.pagina, this.tamano);
   }
 
   get productosFiltrados(): Producto[] {

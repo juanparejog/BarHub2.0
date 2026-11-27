@@ -149,6 +149,8 @@ sequenceDiagram
 
 | Carpeta | Contenido |
 | :--- | :--- |
+| `shared/avisos` | Diálogo de éxito o error y avisos flotantes (`AvisoService` y `<app-avisos>`), ver la sección 8 |
+| `shared/paginador` | `<app-paginador>` (rango, páginas y tamaño, con `[(pagina)]` y `[(tamano)]`) y `paginar()` para cortar una lista en el navegador. Con `(paginaChange)` y `[conTamano]="false"` vale para listados que pagina el servidor, como la auditoría |
 | `shared/custom-toast` | Notificaciones flotantes (feedback visual) |
 | `shared/footer` | Pie de página común |
 | `shared/modals` | Diálogos reutilizables, p. ej. `modal-confirmar-eliminar` |
@@ -180,6 +182,10 @@ Las comandas, las mesas, los pagos en efectivo y el seguimiento del cliente se a
 | Estilos por componente | Hojas específicas de cada vista |
 | `theme.service.ts` | Gestión de temas para adaptabilidad visual |
 | `assets/` | Imágenes corporativas y de fondo |
+| Fuentes | Inter (texto) y Merriweather (títulos), variables, y los iconos de Material, desde npm (`@fontsource-variable/*`, `material-icons`) en los `styles` de `angular.json`: se sirven con la web, sin Google Fonts (CSP `font-src 'self'`). En el CSS se usan con `var(--fuente-texto)` y `var(--fuente-titulos)` |
+| Transiciones | `enableViewTransitions` en el router; las animaciones están en `styles.css` (`::view-transition-old/new(root)`). La barra y el pie tienen su propio `view-transition-name` para no moverse. Con `prefers-reduced-motion` no hay animación |
+| Barra superior | Se queda arriba al bajar: el `sticky` está en `<app-menu>` (en `styles.css`). Lo que se pegue debajo usa `top: var(--alto-barra)` |
+| Avisos | `AvisoService` (`shared/avisos`) con señales: `exito()` y `error()` abren un diálogo con título, mensaje, detalles y acciones; `flotante()` muestra un aviso breve. `<app-avisos>` está una sola vez en `app.component.html`. Diálogo para lo que cierra un proceso (pedido hecho, cobro registrado) y flotante para lo que el personal hace muchas veces (comandas, mesas, caja) |
 
 **Accesibilidad (WCAG):** todas las interfaces se refactorizaron para cumplir los ratios mínimos de contraste: colores sólidos optimizados, eliminación de opacidades conflictivas en textos y contraste verificado en botones y elementos interactivos. Además, tras la auditoría de SonarQube, cada `<input>` y `<select>` tiene su `<label>` asociado para ofrecer nombres accesibles.
 

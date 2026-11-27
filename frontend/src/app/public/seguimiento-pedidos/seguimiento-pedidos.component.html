@@ -3,8 +3,14 @@
 
     <!-- Encabezado -->
     <header class="pedidos-header">
-      <h2>{{ 'seguimiento.titulo' | t }}</h2>
-      <p class="pedidos-subtitle">{{ 'seguimiento.subtitulo' | t }}</p>
+      <span class="pedidos-header-icono" aria-hidden="true"><i class="bi bi-receipt"></i></span>
+      <div>
+        <h2>{{ 'seguimiento.titulo' | t }}</h2>
+        <p class="pedidos-subtitle">
+          <span class="directo-punto" aria-hidden="true"></span>
+          {{ 'seguimiento.subtitulo' | t }}
+        </p>
+      </div>
     </header>
 
     <!-- Anuncios para lectores de pantalla -->
@@ -18,132 +24,152 @@
         </div>
         <h3>{{ 'seguimiento.vacio.titulo' | t }}</h3>
         <p class="sinPedidos">{{ 'seguimiento.vacio.texto' | t }}</p>
+        <a routerLink="/carta" class="btn-ver-carta">
+          <i class="bi bi-journal-richtext" aria-hidden="true"></i> {{ 'seguimiento.verCarta' | t }}
+        </a>
       </div>
     }
 
-    <!-- Lista de Pedidos -->
-    @if (pedidos.length > 0) {
-      <div class="pedidos-list">
-        <!-- BUCLE DE PEDIDOS -->
-        @for (pedido of pedidos; track pedido.id) {
-          <div class="pedido-card">
-            <!-- Header de la tarjeta -->
-            <div class="pedido-card-header">
-              <div class="pedido-main-info">
-                <div class="d-flex align-items-center gap-2 flex-wrap">
-                  <span class="pedido-badge-id">
-                    <i class="bi bi-bag-check-fill me-1"></i> {{ 'seguimiento.pedido' | t: { id: pedido.id } }}
-                  </span>
-                  <!-- Badge con el Tipo de Pedido y Ubicación/Mesa -->
-                  <span class="badge-tipo-pedido" [ngClass]="getTipoPedidoClass(pedido)">
-                    <i [class]="getTipoPedidoIcon(pedido)" class="me-1"></i>
-                    {{ getTipoPedidoLabel(pedido) }}
-                  </span>
-                </div>
-                <span class="fecha-info mt-1">
-                  <i class="bi bi-clock me-1"></i> {{ pedido.fecha | date:'dd/MM/yyyy · HH:mm' }}
-                </span>
-              </div>
-              <div class="pedido-price-info">
-                <span class="price-label">{{ 'seguimiento.total' | t }}</span>
-                <span class="price-amount">
-                  {{ calcularTotalPedido(pedido) | precio }}
-                </span>
-              </div>
-            </div>
-            <!-- TRACKER VISUAL DE ESTADO -->
-            <div class="pedido-status-tracker">
-              <!-- Paso 1: Recibido -->
-          <div class="tracker-step" [ngClass]="{
-            'active': isPasoActivo(pedido, 'recibido'),
-            'completed': isPasoCompletado(pedido, 'recibido')
-          }">
-                <div class="step-icon-wrapper">
-                  <i class="bi bi-receipt"></i>
-                </div>
-                <span class="step-label">{{ 'paso.recibido' | t }}</span>
-              </div>
-              <div class="tracker-line" [ngClass]="{'completed': isPasoCompletado(pedido, 'recibido')}"></div>
-              <!-- Paso 2: En cocina -->
-          <div class="tracker-step" [ngClass]="{
-            'active': isPasoActivo(pedido, 'preparacion'),
-            'completed': isPasoCompletado(pedido, 'preparacion')
-          }">
-                <div class="step-icon-wrapper">
-                  <i class="bi bi-fire"></i>
-                </div>
-                <span class="step-label">{{ 'paso.cocina' | t }}</span>
-              </div>
-              <div class="tracker-line" [ngClass]="{'completed': isPasoCompletado(pedido, 'preparacion')}"></div>
-              <!-- Paso 3: Dinámico (Listo para servir / Listo para recoger / De camino) -->
-          <div class="tracker-step" [ngClass]="{
-            'active': isPasoActivo(pedido, 'camino'),
-            'completed': isPasoCompletado(pedido, 'camino')
-          }">
-                <div class="step-icon-wrapper">
-                  <i [class]="getPaso3Icon(pedido)"></i>
-                </div>
-                <span class="step-label">{{ getPaso3Label(pedido) }}</span>
-              </div>
-              <div class="tracker-line" [ngClass]="{'completed': isPasoCompletado(pedido, 'camino')}"></div>
-              <!-- Paso 4: Entregado / Servido -->
-          <div class="tracker-step" [ngClass]="{
-            'active': isPasoActivo(pedido, 'entregado'),
-            'completed': isPasoCompletado(pedido, 'entregado')
-          }">
-                <div class="step-icon-wrapper">
-                  <i class="bi bi-check-circle-fill"></i>
-                </div>
-                <span class="step-label">{{ 'paso.entregado' | t }}</span>
-              </div>
-            </div>
-            <!-- ACORDEÓN CON DETALLES DE PRODUCTOS -->
-            <details class="pedido-accordion">
-              <summary class="accordion-trigger">
-                <span>{{ 'seguimiento.articulos' | t: { n: pedido.detalles?.length || 0 } }}</span>
-                <i class="bi bi-chevron-down icon-arrow"></i>
-              </summary>
-              @if (pedido.detalles && pedido.detalles.length > 0) {
-                <div class="pedido-detalles">
-                  <div class="table-responsive">
-                    <table class="detalles-table">
-                      <thead>
-                        <tr>
-                          <th>{{ 'tabla.producto' | t }}</th>
-                          <th class="text-center">{{ 'tabla.cantidad' | t }}</th>
-                          <th class="text-end">{{ 'tabla.precio' | t }}</th>
-                          <th class="text-end">{{ 'tabla.subtotal' | t }}</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        @for (det of pedido.detalles; track det) {
-                          <tr>
-                            <td class="product-name-cell">
-                              <span class="product-title">
-                                {{ nombreLinea(det) }}
-                              </span>
-                            </td>
-                            <td class="text-center">
-                              <span class="qty-badge">{{ det.cantidad }}</span>
-                            </td>
-                            <td class="text-end text-muted">
-                              {{ (det.precio_unitario || det.precioUnitario || det.precio) | precio }}
-                            </td>
-                            <td class="text-end font-bold text-body">
-                              {{ (det.cantidad * (det.precio_unitario || det.precioUnitario || det.precio || 0)) | precio }}
-                            </td>
-                          </tr>
-                        }
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              }
-            </details>
-          </div>
-        }
-      </div>
+    <!-- Pedidos en curso y, debajo, los ya servidos o entregados -->
+    @if (pedidosEnCurso.length > 0) {
+      <section aria-labelledby="titulo-en-curso">
+        <h3 class="pedidos-seccion" id="titulo-en-curso">
+          {{ 'seguimiento.enCurso' | t }} <span class="pedidos-seccion-cuenta">{{ pedidosEnCurso.length }}</span>
+        </h3>
+        <div class="pedidos-list">
+          @for (pedido of pedidosEnCurso; track pedido.id) {
+            <ng-container [ngTemplateOutlet]="tarjeta" [ngTemplateOutletContext]="{ $implicit: pedido }"></ng-container>
+          }
+        </div>
+      </section>
+    }
+
+    @if (pedidosTerminados.length > 0) {
+      <section aria-labelledby="titulo-terminados">
+        <h3 class="pedidos-seccion" id="titulo-terminados">
+          {{ 'seguimiento.terminados' | t }} <span class="pedidos-seccion-cuenta">{{ pedidosTerminados.length }}</span>
+        </h3>
+        <div class="pedidos-list">
+          @for (pedido of pedidosTerminados; track pedido.id) {
+            <ng-container [ngTemplateOutlet]="tarjeta" [ngTemplateOutletContext]="{ $implicit: pedido }"></ng-container>
+          }
+        </div>
+      </section>
     }
 
   </div>
 </div>
+
+<ng-template #tarjeta let-pedido>
+  <article class="pedido-card" [ngClass]="'nivel-' + nivel(pedido)">
+    <!-- Cabecera: número, tipo, fecha, estado y total -->
+    <div class="pedido-card-header">
+      <div class="pedido-main-info">
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+          <span class="pedido-badge-id">
+            <i class="bi bi-bag-check-fill me-1"></i> {{ 'seguimiento.pedido' | t: { id: pedido.id } }}
+          </span>
+          <span class="badge-tipo-pedido" [ngClass]="getTipoPedidoClass(pedido)">
+            <i [class]="getTipoPedidoIcon(pedido)" class="me-1"></i>
+            {{ getTipoPedidoLabel(pedido) }}
+          </span>
+        </div>
+        <span class="fecha-info mt-1">
+          <i class="bi bi-clock me-1"></i> {{ pedido.fecha | date:'dd/MM/yyyy · HH:mm' }}
+        </span>
+      </div>
+      <div class="pedido-price-info">
+        <span class="estado-pill">
+          @if (nivel(pedido) < 4) {
+            <span class="estado-pill-punto" aria-hidden="true"></span>
+          } @else {
+            <i class="bi bi-check2" aria-hidden="true"></i>
+          }
+          {{ estadoActual(pedido) }}
+        </span>
+        <span class="price-label">{{ 'seguimiento.total' | t }}</span>
+        <span class="price-amount">{{ calcularTotalPedido(pedido) | precio }}</span>
+      </div>
+    </div>
+
+    <!-- Pasos del pedido, cada uno con su color -->
+    <div class="pedido-status-tracker">
+      <div class="tracker-step paso-recibido" [ngClass]="{
+        'active': isPasoActivo(pedido, 'recibido'),
+        'completed': isPasoCompletado(pedido, 'recibido')
+      }">
+        <div class="step-icon-wrapper"><i class="bi bi-receipt"></i></div>
+        <span class="step-label">{{ 'paso.recibido' | t }}</span>
+      </div>
+      <div class="tracker-line linea-1" [ngClass]="{'completed': isPasoCompletado(pedido, 'recibido')}"></div>
+
+      <div class="tracker-step paso-cocina" [ngClass]="{
+        'active': isPasoActivo(pedido, 'preparacion'),
+        'completed': isPasoCompletado(pedido, 'preparacion')
+      }">
+        <div class="step-icon-wrapper"><i class="bi bi-fire"></i></div>
+        <span class="step-label">{{ 'paso.cocina' | t }}</span>
+      </div>
+      <div class="tracker-line linea-2" [ngClass]="{'completed': isPasoCompletado(pedido, 'preparacion')}"></div>
+
+      <div class="tracker-step paso-listo" [ngClass]="{
+        'active': isPasoActivo(pedido, 'camino'),
+        'completed': isPasoCompletado(pedido, 'camino')
+      }">
+        <div class="step-icon-wrapper"><i [class]="getPaso3Icon(pedido)"></i></div>
+        <span class="step-label">{{ getPaso3Label(pedido) }}</span>
+      </div>
+      <div class="tracker-line linea-3" [ngClass]="{'completed': isPasoCompletado(pedido, 'camino')}"></div>
+
+      <div class="tracker-step paso-entregado" [ngClass]="{
+        'active': isPasoActivo(pedido, 'entregado'),
+        'completed': isPasoCompletado(pedido, 'entregado')
+      }">
+        <div class="step-icon-wrapper"><i class="bi bi-check-circle-fill"></i></div>
+        <span class="step-label">{{ 'paso.entregado' | t }}</span>
+      </div>
+    </div>
+
+    <!-- Productos del pedido -->
+    <details class="pedido-accordion">
+      <summary class="accordion-trigger">
+        <span>{{ 'seguimiento.articulos' | t: { n: pedido.detalles?.length || 0 } }}</span>
+        <i class="bi bi-chevron-down icon-arrow"></i>
+      </summary>
+      @if (pedido.detalles && pedido.detalles.length > 0) {
+        <div class="pedido-detalles">
+          <div class="table-responsive">
+            <table class="detalles-table">
+              <thead>
+                <tr>
+                  <th>{{ 'tabla.producto' | t }}</th>
+                  <th class="text-center">{{ 'tabla.cantidad' | t }}</th>
+                  <th class="text-end">{{ 'tabla.precio' | t }}</th>
+                  <th class="text-end">{{ 'tabla.subtotal' | t }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (det of pedido.detalles; track det) {
+                  <tr>
+                    <td class="product-name-cell">
+                      <span class="product-title">{{ nombreLinea(det) }}</span>
+                    </td>
+                    <td class="text-center">
+                      <span class="qty-badge">{{ det.cantidad }}</span>
+                    </td>
+                    <td class="text-end text-muted">
+                      {{ (det.precio_unitario || det.precioUnitario || det.precio) | precio }}
+                    </td>
+                    <td class="text-end font-bold text-body">
+                      {{ (det.cantidad * (det.precio_unitario || det.precioUnitario || det.precio || 0)) | precio }}
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+      }
+    </details>
+  </article>
+</ng-template>

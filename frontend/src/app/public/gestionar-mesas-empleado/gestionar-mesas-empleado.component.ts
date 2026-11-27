@@ -3,6 +3,7 @@ import { EMPTY, Subject } from 'rxjs';
 import { catchError, switchMap, takeUntil } from 'rxjs/operators';
 import { MesaService } from '../../admin/pages/mesas/services/mesa';
 import { TiempoRealService } from '../../services/tiempo-real.service';
+import { AvisoService } from '../../shared/avisos/aviso.service';
 import { Mesa } from '../../admin/pages/mesas/interface/mesa';
 import { CodigoQrService } from '../../auth/dos-factores/codigo-qr.service';
 
@@ -30,7 +31,8 @@ export class GestionarMesasEmpleadoComponent implements OnInit, OnDestroy {
     private readonly mesaService: MesaService,
     private readonly codigoQr: CodigoQrService,
     private readonly cdr: ChangeDetectorRef,
-    private readonly tiempoReal: TiempoRealService
+    private readonly tiempoReal: TiempoRealService,
+    private readonly avisos: AvisoService
   ) {}
 
   private readonly destroy$ = new Subject<void>();
@@ -75,10 +77,12 @@ export class GestionarMesasEmpleadoComponent implements OnInit, OnDestroy {
       next: () => {
         mesa.estado = estado;
         this.cdr.markForCheck();
+        const etiqueta = this.estados.find(e => e.value === String(estado).toLowerCase())?.label ?? estado;
+        this.avisos.flotante(`Mesa ${mesa.codigoqr || mesa.id}: ${etiqueta}`);
       },
       error: (err) => {
         console.error('Detalle del error del backend:', err);
-        alert('Error actualizando el estado de la mesa');
+        this.avisos.flotante('No se ha podido cambiar el estado de la mesa. Inténtalo de nuevo.', 'error');
       }
     });
   }

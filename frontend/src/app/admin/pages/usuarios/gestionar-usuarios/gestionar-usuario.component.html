@@ -18,7 +18,7 @@
   </div>
 
   <!-- Tarjeta Principal del CRUD -->
-  <div class="crud-card">
+  <div class="crud-card" #listado>
 
     <!-- Barra Superior / Barra de Filtro Integrada -->
     <div class="table-toolbar d-flex flex-wrap align-items-center justify-content-between gap-3 p-3 border-bottom bg-light-subtle">
@@ -30,12 +30,13 @@
           class="form-control search-input"
           placeholder="Buscar por nombre, apellidos, correo o rol..."
           [(ngModel)]="searchTerm"
+          (ngModelChange)="pagina = 1"
           aria-label="Buscar">
         @if (searchTerm) {
           <button
             class="btn-clear-search"
             type="button"
-            (click)="searchTerm = ''"
+            (click)="searchTerm = ''; pagina = 1"
             title="Limpiar búsqueda"
             >
             <i class="bi bi-x-lg"></i>
@@ -104,7 +105,7 @@
 
         @if (usuariosFiltrados.length > 0) {
           <tbody>
-            @for (usuario of usuariosFiltrados; track usuario) {
+            @for (usuario of usuariosPagina; track usuario) {
               <tr>
                 <!-- Avatar, Nombre completo y Username -->
                 <td class="ps-4">
@@ -213,6 +214,8 @@
         <!-- Estado vacío -->
       </table>
     </div>
+    <app-paginador class="border-top" [total]="usuariosFiltrados.length" [(pagina)]="pagina" [(tamano)]="tamano"
+      elementos="usuarios" [ancla]="listado" />
   </div>
 </div>
 

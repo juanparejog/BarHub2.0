@@ -1,20 +1,17 @@
 <div class="crud-container">
 
-  <!-- Header Principal -->
-  <div class="crud-header mb-4 d-flex justify-content-between align-items-center">
+  <!-- Cabecera -->
+  <div class="crud-header mb-4">
     <div>
       <h1 class="crud-title">Control y Arqueo de Caja</h1>
-      <p class="text-muted small mb-0">Apertura, seguimiento de ventas del turno y cierre diario de caja</p>
+      <p class="text-muted small mb-0">Apertura, ventas del turno, cierre con arqueo e historial por semanas, meses o años</p>
     </div>
-    <div>
-      <button (click)="cargarDatos()" class="btn-crud-secondary d-inline-flex align-items-center gap-2">
-        <i class="bi bi-arrow-clockwise"></i>
-        <span>Actualizar Datos</span>
-      </button>
-    </div>
+    <button type="button" (click)="cargarDatos()" class="btn-crud-secondary d-inline-flex align-items-center gap-2">
+      <i class="bi bi-arrow-clockwise" aria-hidden="true"></i>
+      <span>Actualizar</span>
+    </button>
   </div>
 
-  <!-- SPINNER DE CARGA -->
   @if (cargando) {
     <div class="text-center py-5">
       <output class="spinner-border text-primary">
@@ -24,233 +21,236 @@
   }
 
   @if (!cargando) {
-    <!-- ESTADO 1: NO HAY CAJA ABIERTA -> FORMULARIO DE APERTURA -->
+    <!-- SIN CAJA ABIERTA: apertura -->
     @if (!cajaActual) {
-      <div class="crud-card mb-4 p-4 border-start border-4 border-warning">
-        <div class="d-flex align-items-center gap-3 mb-3">
-          <div class="rounded-circle bg-warning bg-opacity-10 p-3 text-warning">
-            <i class="bi bi-door-closed fs-2"></i>
-          </div>
+      <section class="crud-card caja-estado caja-cerrada mb-4">
+        <div class="caja-estado-cabecera">
+          <span class="caja-estado-icono"><i class="bi bi-door-closed" aria-hidden="true"></i></span>
           <div>
-            <h3 class="h5 fw-bold text-body mb-1">La caja se encuentra actualmente CERRADA</h3>
-            <p class="text-muted small mb-0">Introduce el fondo inicial para abrir la caja y empezar a registrar comandas.</p>
+            <h2 class="h5 fw-bold text-body mb-1">La caja se encuentra actualmente CERRADA</h2>
+            <p class="text-muted small mb-0">Indica el fondo inicial del cajón para abrirla y empezar a cobrar.</p>
           </div>
         </div>
-        <form [formGroup]="formApertura" (ngSubmit)="abrirCaja()" class="row g-3 mt-2">
+        <form [formGroup]="formApertura" (ngSubmit)="abrirCaja()" class="row g-3">
           <div class="col-md-4">
-            <label for="montoInicialInput" class="form-label fw-medium">Fondo Inicial (€) <span class="text-danger">*</span></label>
+            <label for="montoInicialInput" class="form-label fw-medium">Fondo inicial (€) <span class="text-danger">*</span></label>
             <div class="input-group">
-              <span class="input-group-text"><i class="bi bi-currency-euro"></i></span>
+              <span class="input-group-text"><i class="bi bi-currency-euro" aria-hidden="true"></i></span>
               <input id="montoInicialInput" type="number" step="0.01" formControlName="montoInicial" class="form-control" placeholder="150.00">
             </div>
             @if (formApertura.get('montoInicial')?.touched && formApertura.get('montoInicial')?.invalid) {
-              <div class="text-danger small mt-1">
-                Indica un fondo inicial válido (mínimo 0).
-              </div>
+              <div class="text-danger small mt-1">Indica un fondo inicial válido (mínimo 0).</div>
             }
           </div>
           <div class="col-md-8">
-            <label for="observacionesAperturaInput" class="form-label fw-medium">Observaciones de Apertura</label>
-            <input id="observacionesAperturaInput" type="text" formControlName="observaciones" class="form-control" placeholder="Ej. Cambio dejado en billetes de 5€ y monedas">
+            <label for="observacionesAperturaInput" class="form-label fw-medium">Observaciones de apertura</label>
+            <input id="observacionesAperturaInput" type="text" formControlName="observaciones" class="form-control"
+              placeholder="Ej. Cambio dejado en billetes de 5 € y monedas">
           </div>
-          <div class="col-12 d-flex justify-content-end mt-3">
+          <div class="col-12 d-flex justify-content-end">
             <button type="submit" class="btn-crud-primary d-inline-flex align-items-center gap-2" [disabled]="formApertura.invalid">
-              <i class="bi bi-door-open"></i>
+              <i class="bi bi-door-open" aria-hidden="true"></i>
               <span>Abrir Caja Diaria</span>
             </button>
           </div>
         </form>
-      </div>
+      </section>
     }
-    <!-- ESTADO 2: CAJA ABIERTA -> PANEL DE ARQUEO Y CIERRE -->
+
+    <!-- CAJA ABIERTA: ventas del turno y cierre -->
     @if (cajaActual) {
-      <div class="crud-card mb-4 p-4 border-start border-4 border-success">
-        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4 pb-3 border-bottom">
-          <div class="d-flex align-items-center gap-3">
-            <div class="rounded-circle bg-success bg-opacity-10 p-3 text-success">
-              <i class="bi bi-door-open fs-2"></i>
+      <section class="crud-card caja-estado caja-abierta mb-4">
+        <div class="caja-estado-cabecera">
+          <span class="caja-estado-icono"><i class="bi bi-door-open" aria-hidden="true"></i></span>
+          <div>
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+              <h2 class="h5 fw-bold text-body mb-0">Caja Actual #{{ cajaActual.id }}</h2>
+              <span class="caja-chip caja-chip-abierta"><span class="caja-chip-punto" aria-hidden="true"></span>Abierta</span>
             </div>
-            <div>
-              <div class="d-flex align-items-center gap-2">
-                <h3 class="h5 fw-bold text-body mb-0">Caja Actual #{{ cajaActual.id }}</h3>
-                <span class="badge bg-success">ABIERTA</span>
-              </div>
-              <p class="text-muted small mb-0">Abierta por <strong>{{ cajaActual.nombreUsuarioApertura }}</strong> el {{ cajaActual.fechaApertura | date:'dd/MM/yyyy HH:mm' }}</p>
-            </div>
+            <p class="text-muted small mb-0">
+              Abierta por <strong>{{ cajaActual.nombreUsuarioApertura }}</strong> el {{ cajaActual.fechaApertura | date:'dd/MM/yyyy HH:mm' }}
+            </p>
           </div>
         </div>
-        <!-- MÉTRICAS EN TIEMPO REAL -->
-        <div class="row g-3 mb-4">
-          <div class="col-md-3 col-6">
-            <div class="p-3 bg-body-tertiary rounded border">
-              <span class="text-muted small d-block">Fondo Inicial</span>
-              <span class="fs-4 fw-bold text-body">{{ cajaActual.montoInicial | currency:'EUR' }}</span>
-            </div>
+
+        <div class="caja-cifras">
+          <div class="caja-cifra">
+            <span class="caja-cifra-etiqueta"><i class="bi bi-safe" aria-hidden="true"></i> Fondo inicial</span>
+            <span class="caja-cifra-valor">{{ cajaActual.montoInicial | currency:'EUR' }}</span>
           </div>
-          <div class="col-md-3 col-6">
-            <div class="p-3 bg-body-tertiary rounded border">
-              <span class="text-muted small d-block">Ventas Efectivo</span>
-              <span class="fs-4 fw-bold text-success">+{{ (cajaActual.ventasEfectivo || 0) | currency:'EUR' }}</span>
-            </div>
+          <div class="caja-cifra">
+            <span class="caja-cifra-etiqueta"><i class="bi bi-cash" aria-hidden="true"></i> Ventas en efectivo</span>
+            <span class="caja-cifra-valor text-success">+{{ (cajaActual.ventasEfectivo || 0) | currency:'EUR' }}</span>
           </div>
-          <div class="col-md-3 col-6">
-            <div class="p-3 bg-body-tertiary rounded border">
-              <span class="text-muted small d-block">Ventas Tarjeta</span>
-              <span class="fs-4 fw-bold text-info">+{{ (cajaActual.ventasTarjeta || 0) | currency:'EUR' }}</span>
-            </div>
+          <div class="caja-cifra">
+            <span class="caja-cifra-etiqueta"><i class="bi bi-credit-card" aria-hidden="true"></i> Ventas con tarjeta</span>
+            <span class="caja-cifra-valor caja-tarjeta">+{{ (cajaActual.ventasTarjeta || 0) | currency:'EUR' }}</span>
           </div>
-          <div class="col-md-3 col-6">
-            <div class="p-3 bg-primary bg-opacity-10 border border-primary rounded">
-              <span class="text-primary small d-block fw-semibold">Efectivo Esperado en Cajón</span>
-              <span class="fs-4 fw-bold text-primary">{{ (cajaActual.efectivoEsperado || (cajaActual.montoInicial + (cajaActual.ventasEfectivo || 0))) | currency:'EUR' }}</span>
-            </div>
+          <div class="caja-cifra caja-cifra-destacada">
+            <span class="caja-cifra-etiqueta"><i class="bi bi-inboxes" aria-hidden="true"></i> Efectivo esperado en el cajón</span>
+            <span class="caja-cifra-valor">{{ efectivoEsperado | currency:'EUR' }}</span>
           </div>
         </div>
-        <!-- FORMULARIO DE CIERRE Y CONTEO REAL -->
-        <form [formGroup]="formCierre" (ngSubmit)="cerrarCaja()" class="bg-body-tertiary p-3 rounded border">
-          <h5 class="fw-bold text-body mb-3"><i class="bi bi-calculator me-2 text-primary"></i>Realizar Arqueo y Cierre</h5>
+
+        <form [formGroup]="formCierre" (ngSubmit)="cerrarCaja()" class="caja-cierre">
+          <h3 class="h6 fw-bold text-body mb-3"><i class="bi bi-calculator me-2" aria-hidden="true"></i>Arqueo y cierre</h3>
           <div class="row g-3">
             <div class="col-md-4">
-              <label for="efectivoRealInput" class="form-label fw-medium">Efectivo Físico Contado (€) <span class="text-danger">*</span></label>
+              <label for="efectivoRealInput" class="form-label fw-medium">Efectivo contado (€) <span class="text-danger">*</span></label>
               <div class="input-group">
-                <span class="input-group-text"><i class="bi bi-cash-stack"></i></span>
-                <input id="efectivoRealInput" type="number" step="0.01" formControlName="efectivoReal" class="form-control" placeholder="Introduce el total contado">
+                <span class="input-group-text"><i class="bi bi-cash-stack" aria-hidden="true"></i></span>
+                <input id="efectivoRealInput" type="number" step="0.01" formControlName="efectivoReal" class="form-control"
+                  placeholder="Total contado en el cajón">
               </div>
               @if (formCierre.get('efectivoReal')?.touched && formCierre.get('efectivoReal')?.invalid) {
-                <div class="text-danger small mt-1">
-                  Debes introducir el dinero contado en el cajón.
-                </div>
+                <div class="text-danger small mt-1">Escribe el dinero contado en el cajón.</div>
               }
             </div>
             <div class="col-md-4">
-              <span class="form-label fw-medium d-block">Descuadre / Diferencia Estimada</span>
-              <div class="form-control fw-bold"
-                 [ngClass]="{
-                   'text-success bg-success-subtle': diferenciaCalculada === 0 && $safeNavigationMigration(formCierre.get('efectivoReal')?.value) !== null,
-                   'text-danger bg-danger-subtle': diferenciaCalculada < 0,
-                   'text-warning bg-warning-subtle': diferenciaCalculada > 0
-                 }">
-                @if ($safeNavigationMigration(formCierre.get('efectivoReal')?.value) === null) {
-                  <span class="text-muted fw-normal">Introduce el conteo...</span>
-                }
-                @if ($safeNavigationMigration(formCierre.get('efectivoReal')?.value) !== null) {
-                  <span>
-                    {{ diferenciaCalculada | currency:'EUR' }}
-                    @if (diferenciaCalculada === 0) {
-                      <small>(Caja Perfecta)</small>
-                    }
-                    @if (diferenciaCalculada < 0) {
-                      <small>(Falta dinero)</small>
-                    }
-                    @if (diferenciaCalculada > 0) {
-                      <small>(Sobra dinero)</small>
-                    }
-                  </span>
+              <span class="form-label fw-medium d-block">Descuadre</span>
+              <div class="caja-descuadre" aria-live="polite"
+                [class.cuadra]="hayConteo && diferenciaCalculada === 0"
+                [class.falta]="hayConteo && diferenciaCalculada < 0"
+                [class.sobra]="hayConteo && diferenciaCalculada > 0">
+                @if (!hayConteo) {
+                  <span class="text-muted fw-normal">Escribe el conteo…</span>
+                } @else {
+                  <span>{{ diferenciaCalculada | currency:'EUR' }}</span>
+                  <small>
+                    @if (diferenciaCalculada === 0) { Cuadra }
+                    @if (diferenciaCalculada < 0) { Falta dinero }
+                    @if (diferenciaCalculada > 0) { Sobra dinero }
+                  </small>
                 }
               </div>
             </div>
             <div class="col-md-4">
-              <label for="observacionesCierreInput" class="form-label fw-medium">Observaciones de Cierre</label>
-              <input id="observacionesCierreInput" type="text" formControlName="observaciones" class="form-control" placeholder="Motivo de descuadre o notas del turno">
+              <label for="observacionesCierreInput" class="form-label fw-medium">Observaciones de cierre</label>
+              <input id="observacionesCierreInput" type="text" formControlName="observaciones" class="form-control"
+                placeholder="Motivo del descuadre o notas del turno">
             </div>
-            <div class="col-12 d-flex justify-content-end mt-3">
-              <button type="submit" class="btn btn-danger d-inline-flex align-items-center gap-2" [disabled]="formCierre.invalid">
-                <i class="bi bi-lock-fill"></i>
+            <div class="col-12 d-flex justify-content-end">
+              <button type="submit" class="btn btn-danger caja-boton-cerrar d-inline-flex align-items-center gap-2" [disabled]="formCierre.invalid">
+                <i class="bi bi-lock-fill" aria-hidden="true"></i>
                 <span>Cerrar Caja y Finalizar Turno</span>
               </button>
             </div>
           </div>
         </form>
-      </div>
+      </section>
     }
-    <!-- TABLA: HISTORIAL DE ARQUEOS DE CAJA -->
-    <div class="crud-card">
-      <div class="p-3 border-bottom bg-body-tertiary">
-        <h5 class="fw-bold text-body mb-0"><i class="bi bi-clock-history me-2 text-secondary"></i>Historial de Cajas y Arqueos</h5>
+
+    <!-- HISTORIAL: periodo, totales, tabla y páginas -->
+    <section class="crud-card" #historial aria-labelledby="tituloHistorial">
+      <div class="table-toolbar caja-historial-barra">
+        <h2 class="h6 fw-bold text-body mb-0" id="tituloHistorial">
+          <i class="bi bi-clock-history me-2" aria-hidden="true"></i>Historial de cajas
+        </h2>
+        <div class="caja-periodo">
+          <div class="caja-periodo-tipos" role="group" aria-label="Agrupar el historial por">
+            @for (opcion of periodos; track opcion.tipo) {
+              <button type="button" class="caja-periodo-tipo" [class.activo]="tipoPeriodo === opcion.tipo"
+                [attr.aria-pressed]="tipoPeriodo === opcion.tipo" (click)="elegirPeriodo(opcion.tipo)">
+                {{ opcion.texto }}
+              </button>
+            }
+          </div>
+          @if (tipoPeriodo !== 'todo') {
+            <div class="caja-periodo-navegacion">
+              <button type="button" class="caja-periodo-flecha" (click)="moverPeriodo(-1)" aria-label="Periodo anterior" title="Periodo anterior">
+                <i class="bi bi-chevron-left" aria-hidden="true"></i>
+              </button>
+              <span class="caja-periodo-etiqueta" aria-live="polite">{{ etiquetaPeriodo }}</span>
+              <button type="button" class="caja-periodo-flecha" (click)="moverPeriodo(1)" [disabled]="esPeriodoActual"
+                aria-label="Periodo siguiente" title="Periodo siguiente">
+                <i class="bi bi-chevron-right" aria-hidden="true"></i>
+              </button>
+            </div>
+          }
+        </div>
       </div>
+
+      <div class="caja-resumen" aria-label="Totales del periodo">
+        <div><span>Cajas</span><strong>{{ resumen.cajas }}</strong></div>
+        <div><span>Efectivo</span><strong class="text-success">{{ resumen.efectivo | currency:'EUR' }}</strong></div>
+        <div><span>Tarjeta</span><strong class="caja-tarjeta">{{ resumen.tarjeta | currency:'EUR' }}</strong></div>
+        <div>
+          <span>Descuadre</span>
+          <strong [class.text-danger]="resumen.descuadre < 0" [class.caja-sobra]="resumen.descuadre > 0">{{ resumen.descuadre | currency:'EUR' }}</strong>
+        </div>
+      </div>
+
       <div class="table-responsive">
         <table class="crud-table mb-0">
           <thead>
             <tr>
               <th class="ps-4">Apertura</th>
               <th>Cierre</th>
-              <th>Fondo Inicial</th>
-              <th>Ventas (Ef. / Tarj.)</th>
-              <th>Efectivo Real</th>
-              <th>Diferencia</th>
+              <th>Fondo inicial</th>
+              <th>Ventas (efectivo / tarjeta)</th>
+              <th>Efectivo contado</th>
+              <th>Descuadre</th>
               <th>Estado</th>
             </tr>
           </thead>
           <tbody>
-            @for (caja of historialCajas; track caja) {
+            @for (caja of cajasPagina; track caja.id ?? $index) {
               <tr>
-                <!-- Fecha e Usuario Apertura -->
                 <td class="ps-4">
                   <div class="fw-semibold text-body">{{ caja.fechaApertura | date:'dd/MM/yyyy HH:mm' }}</div>
-                  <div class="text-muted small"><i class="bi bi-person me-1"></i>{{ caja.nombreUsuarioApertura }}</div>
+                  <div class="text-muted small"><i class="bi bi-person me-1" aria-hidden="true"></i>{{ caja.nombreUsuarioApertura }}</div>
                 </td>
-                <!-- Fecha e Usuario Cierre -->
                 <td>
                   @if (caja.fechaCierre) {
-                    <div>
-                      <div class="fw-semibold text-body">{{ caja.fechaCierre | date:'dd/MM/yyyy HH:mm' }}</div>
-                      <div class="text-muted small"><i class="bi bi-person me-1"></i>{{ caja.nombreUsuarioCierre || '-' }}</div>
-                    </div>
+                    <div class="fw-semibold text-body">{{ caja.fechaCierre | date:'dd/MM/yyyy HH:mm' }}</div>
+                    <div class="text-muted small"><i class="bi bi-person me-1" aria-hidden="true"></i>{{ caja.nombreUsuarioCierre || '-' }}</div>
                   } @else {
-                    <span class="text-muted italic">En curso...</span>
+                    <span class="text-muted italic">En curso…</span>
                   }
                 </td>
-                <!-- Fondo Inicial -->
-                <td class="fw-medium text-body">
-                  {{ caja.montoInicial | currency:'EUR' }}
-                </td>
-                <!-- Ventas -->
+                <td class="fw-medium text-body">{{ caja.montoInicial | currency:'EUR' }}</td>
                 <td>
                   <div class="small">
-                    <span class="text-success"><i class="bi bi-cash me-1"></i>{{ (caja.ventasEfectivo || 0) | currency:'EUR' }}</span><br>
-                    <span class="text-info"><i class="bi bi-credit-card me-1"></i>{{ (caja.ventasTarjeta || 0) | currency:'EUR' }}</span>
+                    <span class="text-success"><i class="bi bi-cash me-1" aria-hidden="true"></i>{{ (caja.ventasEfectivo || 0) | currency:'EUR' }}</span><br>
+                    <span class="caja-tarjeta"><i class="bi bi-credit-card me-1" aria-hidden="true"></i>{{ (caja.ventasTarjeta || 0) | currency:'EUR' }}</span>
                   </div>
                 </td>
-                <!-- Efectivo Real Contado -->
                 <td class="fw-bold text-body">
                   {{ (caja.efectivoReal !== null && caja.efectivoReal !== undefined) ? (caja.efectivoReal | currency:'EUR') : '-' }}
                 </td>
-                <!-- Diferencia -->
                 <td>
                   @if (caja.diferencia !== null && caja.diferencia !== undefined) {
-                    <span
-                      class="fw-bold"
-                      [ngClass]="{
-                        'text-success': caja.diferencia === 0,
-                        'text-danger': caja.diferencia < 0,
-                        'text-warning': caja.diferencia > 0
-                      }">
+                    <span class="caja-descuadre-chip"
+                      [class.cuadra]="caja.diferencia === 0"
+                      [class.falta]="caja.diferencia < 0"
+                      [class.sobra]="caja.diferencia > 0">
                       {{ caja.diferencia | currency:'EUR' }}
                     </span>
-                  }
-                  @if (caja.diferencia === null || caja.diferencia === undefined) {
+                  } @else {
                     <span class="text-muted">-</span>
                   }
                 </td>
-                <!-- Estado -->
                 <td>
-                  <span class="badge" [ngClass]="caja.estado === 'ABIERTA' ? 'bg-success' : 'bg-secondary'">
-                    {{ caja.estado }}
+                  <span class="caja-chip" [class.caja-chip-abierta]="caja.estado === 'ABIERTA'">
+                    {{ caja.estado === 'ABIERTA' ? 'Abierta' : 'Cerrada' }}
                   </span>
                 </td>
               </tr>
             }
-            @if (historialCajas.length === 0) {
+            @if (cajasDelPeriodo.length === 0) {
               <tr>
-                <td colspan="7" class="text-center py-4 text-muted">
-                  No hay registros históricos de caja registrados.
+                <td colspan="7" class="text-center py-5 text-muted">
+                  <i class="bi bi-calendar-x fs-2 d-block mb-2 opacity-50" aria-hidden="true"></i>
+                  No hay cajas en este periodo.
                 </td>
               </tr>
             }
           </tbody>
         </table>
       </div>
-    </div>
+      <app-paginador class="border-top" [total]="cajasDelPeriodo.length" [(pagina)]="pagina" [(tamano)]="tamano"
+        [tamanos]="[10, 25, 50]" elementos="cajas" [ancla]="historial" />
+    </section>
   }
 
 </div>

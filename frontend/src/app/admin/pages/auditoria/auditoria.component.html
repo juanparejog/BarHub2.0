@@ -1,46 +1,75 @@
 <div class="crud-container">
-  <div class="crud-header mb-4">
-    <h1 class="crud-title">Auditoría</h1>
-    <p class="text-muted mb-0">
-      Quién hizo qué, cuándo y desde dónde: inicios de sesión, cambios de contraseña y de correo, verificación
-      en dos pasos, usuarios, caja y accesos denegados. Las entradas no se pueden cambiar y se borran solas al año.
-    </p>
+  <div class="crud-header mb-3">
+    <div>
+      <h1 class="crud-title">Auditoría</h1>
+      <p class="text-muted small mb-0">El registro de seguridad de la web: solo lectura, solo para el administrador.</p>
+    </div>
   </div>
 
-  <form class="row g-3 align-items-end mb-4" (ngSubmit)="buscar()" aria-label="Filtros del registro de auditoría">
-    <div class="col-6 col-md-2">
-      <label for="auditoriaDesde" class="form-label">Desde</label>
-      <input id="auditoriaDesde" type="date" class="form-control" name="desde" [(ngModel)]="filtro.desde" required>
+  <!-- Qué es y para qué sirve -->
+  <section class="auditoria-intro" aria-label="Qué es el registro de auditoría">
+    <div class="auditoria-intro-icono" aria-hidden="true"><i class="bi bi-journal-check"></i></div>
+    <div>
+      <p class="mb-2">
+        Cada vez que alguien hace algo delicado queda una entrada que no se puede cambiar: <strong>quién</strong> lo hizo,
+        <strong>qué</strong>, <strong>cuándo</strong>, <strong>desde qué IP</strong> y si salió bien. Sirve para ver
+        intentos de entrar con contraseñas ajenas, cambios de roles o de contraseña y accesos a pantallas sin permiso.
+      </p>
+      <ul class="auditoria-intro-lista">
+        <li><i class="bi bi-box-arrow-in-right" aria-hidden="true"></i> Inicios de sesión y verificación en dos pasos</li>
+        <li><i class="bi bi-key" aria-hidden="true"></i> Contraseñas, correos y sesiones</li>
+        <li><i class="bi bi-person-gear" aria-hidden="true"></i> Altas, cambios y bajas de usuarios</li>
+        <li><i class="bi bi-cash-coin" aria-hidden="true"></i> Apertura y cierre de caja</li>
+        <li><i class="bi bi-slash-circle" aria-hidden="true"></i> Accesos denegados</li>
+      </ul>
+      <p class="small text-muted mb-0">Nunca guarda contraseñas, códigos ni tokens. Las entradas se borran solas al año.</p>
     </div>
-    <div class="col-6 col-md-2">
-      <label for="auditoriaHasta" class="form-label">Hasta</label>
-      <input id="auditoriaHasta" type="date" class="form-control" name="hasta" [(ngModel)]="filtro.hasta" required>
+  </section>
+
+  <!-- Filtros -->
+  <form class="crud-card auditoria-filtros" (ngSubmit)="buscar()" aria-label="Filtros del registro de auditoría">
+    <div class="auditoria-rangos" role="group" aria-label="Rango rápido">
+      <button type="button" class="auditoria-rango" [class.activo]="dias() === 1" (click)="elegirRango(1)">Hoy</button>
+      <button type="button" class="auditoria-rango" [class.activo]="dias() === 7" (click)="elegirRango(7)">Últimos 7 días</button>
+      <button type="button" class="auditoria-rango" [class.activo]="dias() === 30" (click)="elegirRango(30)">Últimos 30 días</button>
     </div>
-    <div class="col-12 col-md-2">
-      <label for="auditoriaUsuario" class="form-label">Usuario</label>
-      <input id="auditoriaUsuario" type="search" class="form-control" name="usuario" [(ngModel)]="filtro.usuario"
-        maxlength="50" autocomplete="off" placeholder="Nombre o parte">
-    </div>
-    <div class="col-12 col-md-3">
-      <label for="auditoriaAccion" class="form-label">Acción</label>
-      <select id="auditoriaAccion" class="form-select" name="accion" [(ngModel)]="filtro.accion">
-        <option value="">Todas</option>
-        @for (accion of acciones; track accion[0]) {
-          <option [value]="accion[0]">{{ accion[1] }}</option>
-        }
-      </select>
-    </div>
-    <div class="col-8 col-md-2">
-      <label for="auditoriaResultado" class="form-label">Resultado</label>
-      <select id="auditoriaResultado" class="form-select" name="resultado" [(ngModel)]="filtro.resultado">
-        <option value="">Todos</option>
-        @for (resultado of resultados; track resultado[0]) {
-          <option [value]="resultado[0]">{{ resultado[1] }}</option>
-        }
-      </select>
-    </div>
-    <div class="col-4 col-md-1">
-      <button type="submit" class="btn-crud-primary w-100" [disabled]="cargando()">Buscar</button>
+    <div class="row g-3 align-items-end">
+      <div class="col-6 col-lg-2">
+        <label for="auditoriaDesde" class="form-label">Desde</label>
+        <input id="auditoriaDesde" type="date" class="form-control" name="desde" [(ngModel)]="filtro.desde" (ngModelChange)="fechasAMano()" required>
+      </div>
+      <div class="col-6 col-lg-2">
+        <label for="auditoriaHasta" class="form-label">Hasta</label>
+        <input id="auditoriaHasta" type="date" class="form-control" name="hasta" [(ngModel)]="filtro.hasta" (ngModelChange)="fechasAMano()" required>
+      </div>
+      <div class="col-12 col-md-4 col-lg-2">
+        <label for="auditoriaUsuario" class="form-label">Usuario</label>
+        <input id="auditoriaUsuario" type="search" class="form-control" name="usuario" [(ngModel)]="filtro.usuario"
+          maxlength="50" autocomplete="off" placeholder="Nombre o parte">
+      </div>
+      <div class="col-12 col-md-4 col-lg-3">
+        <label for="auditoriaAccion" class="form-label">Acción</label>
+        <select id="auditoriaAccion" class="form-select" name="accion" [(ngModel)]="filtro.accion">
+          <option value="">Todas</option>
+          @for (accion of acciones; track accion[0]) {
+            <option [value]="accion[0]">{{ accion[1] }}</option>
+          }
+        </select>
+      </div>
+      <div class="col-8 col-md-2 col-lg-2">
+        <label for="auditoriaResultado" class="form-label">Resultado</label>
+        <select id="auditoriaResultado" class="form-select" name="resultado" [(ngModel)]="filtro.resultado">
+          <option value="">Todos</option>
+          @for (resultado of resultados; track resultado[0]) {
+            <option [value]="resultado[0]">{{ resultado[1] }}</option>
+          }
+        </select>
+      </div>
+      <div class="col-4 col-md-2 col-lg-1">
+        <button type="submit" class="btn-crud-primary w-100 d-inline-flex align-items-center justify-content-center gap-1" [disabled]="cargando()">
+          <i class="bi bi-search" aria-hidden="true"></i> Buscar
+        </button>
+      </div>
     </div>
   </form>
 
@@ -48,12 +77,12 @@
     <div class="alert alert-danger" role="alert">{{ error() }}</div>
   }
 
-  <p class="text-muted small mb-2" role="status">
-    {{ total() }} {{ total() === 1 ? 'entrada' : 'entradas' }}
-  </p>
-
-  <div class="crud-card">
-    <div class="table-responsive">
+  <div class="crud-card" #listado>
+    <div class="auditoria-cabecera-tabla">
+      <h2 class="h6 fw-bold mb-0">Entradas</h2>
+      <span class="auditoria-total" role="status">{{ total() }} {{ total() === 1 ? 'entrada' : 'entradas' }}</span>
+    </div>
+    <div class="table-responsive" [class.cargando]="cargando()">
       <table class="crud-table mb-0">
         <thead>
           <tr>
@@ -69,12 +98,30 @@
           <tbody>
             @for (evento of eventos(); track $index) {
               <tr>
-                <td class="ps-4 text-nowrap">{{ fechaHora(evento.fecha) }}</td>
-                <td class="fw-semibold text-break">{{ evento.usuario ?? '—' }}</td>
-                <td>{{ nombreAccion(evento.accion) }}</td>
-                <td><span class="badge {{ claseResultado(evento.resultado) }}">{{ nombreResultado(evento.resultado) }}</span></td>
-                <td class="text-nowrap">{{ evento.ip ?? '—' }}</td>
-                <td class="small">
+                <td class="ps-4 text-nowrap">
+                  <span class="d-block fw-semibold">{{ fecha(evento.fecha) }}</span>
+                  <span class="d-block small text-muted font-monospace">{{ hora(evento.fecha) }}</span>
+                </td>
+                <td>
+                  <span class="auditoria-usuario">
+                    <span class="auditoria-inicial" aria-hidden="true">{{ inicial(evento.usuario) }}</span>
+                    <span class="fw-semibold text-break">{{ evento.usuario ?? '—' }}</span>
+                  </span>
+                </td>
+                <td>
+                  <span class="auditoria-accion">
+                    <i class="bi {{ iconoAccion(evento.accion) }}" aria-hidden="true"></i>
+                    {{ nombreAccion(evento.accion) }}
+                  </span>
+                </td>
+                <td>
+                  <span class="resultado-pill {{ claseResultado(evento.resultado) }}">
+                    <i class="bi {{ iconoResultado(evento.resultado) }}" aria-hidden="true"></i>
+                    {{ nombreResultado(evento.resultado) }}
+                  </span>
+                </td>
+                <td class="text-nowrap font-monospace small">{{ evento.ip ?? '—' }}</td>
+                <td class="small auditoria-detalle">
                   @if (evento.objetivo) {
                     <span class="d-block">{{ evento.objetivo }}</span>
                   }
@@ -82,7 +129,7 @@
                     <span class="d-block">{{ evento.detalle }}</span>
                   }
                   @if (evento.peticion) {
-                    <code class="d-block text-muted">{{ evento.peticion }}</code>
+                    <code class="auditoria-peticion">{{ evento.peticion }}</code>
                   }
                 </td>
               </tr>
@@ -92,6 +139,7 @@
           <tbody>
             <tr>
               <td colspan="6" class="text-center py-5 text-muted">
+                <i class="bi bi-journal-x fs-2 d-block mb-2 opacity-50" aria-hidden="true"></i>
                 {{ cargando() ? 'Cargando…' : 'No hay entradas con estos filtros.' }}
               </td>
             </tr>
@@ -99,17 +147,7 @@
         }
       </table>
     </div>
+    <app-paginador class="border-top" [total]="total()" [pagina]="pagina() + 1" (paginaChange)="irA($event - 1)"
+      [tamano]="tamano" [conTamano]="false" elementos="entradas" [ancla]="listado" />
   </div>
-
-  @if (paginas() > 1) {
-    <nav class="d-flex justify-content-center align-items-center gap-3 mt-3" aria-label="Páginas del registro">
-      <button type="button" class="btn-crud-secondary" [disabled]="cargando() || pagina() === 0" (click)="irA(pagina() - 1)">
-        <i class="bi bi-chevron-left" aria-hidden="true"></i> Anterior
-      </button>
-      <span>Página {{ pagina() + 1 }} de {{ paginas() }}</span>
-      <button type="button" class="btn-crud-secondary" [disabled]="cargando() || pagina() >= paginas() - 1" (click)="irA(pagina() + 1)">
-        Siguiente <i class="bi bi-chevron-right" aria-hidden="true"></i>
-      </button>
-    </nav>
-  }
 </div>

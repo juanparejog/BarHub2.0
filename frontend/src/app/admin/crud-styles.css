@@ -780,3 +780,150 @@ body.dark-theme .dropzone-container:hover {
 body.dark-theme .dropzone-container.border-primary {
   background: #2b3a52;
 }
+
+/* ==========================================================================
+   LISTADOS DEL PANEL: ANCHO, CABECERA, FILAS, ACCIONES Y PAGINACION
+   ========================================================================== */
+
+.crud-container {
+  max-width: 1440px;
+}
+
+.crud-header {
+  flex-wrap: wrap;
+  gap: 1rem;
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.crud-title {
+  color: #0a2342;
+  letter-spacing: -0.01em;
+}
+
+.crud-card {
+  border-radius: 16px;
+  box-shadow: 0 1px 2px rgba(10, 35, 66, 0.04), 0 12px 28px -12px rgba(10, 35, 66, 0.18);
+}
+
+.table-toolbar {
+  background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+  border-top-left-radius: 16px;
+  border-top-right-radius: 16px;
+}
+
+.search-box {
+  flex: 1 1 260px;
+  max-width: 420px;
+}
+
+.toolbar-select {
+  width: auto;
+  min-width: 11rem;
+  height: 40px;
+  border-radius: 8px;
+  font-size: 0.875rem;
+}
+
+.btn-orden {
+  height: 40px;
+}
+
+.crud-table thead th {
+  font-size: 0.72rem;
+  color: #64748b;
+  letter-spacing: 0.06em;
+  border-bottom: 1px solid #e2e8f0;
+  white-space: nowrap;
+}
+
+.crud-table tbody tr {
+  transition: background-color 0.18s ease;
+  animation: filaEntra 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.crud-table tbody tr:nth-child(2) { animation-delay: 0.02s; }
+.crud-table tbody tr:nth-child(3) { animation-delay: 0.04s; }
+.crud-table tbody tr:nth-child(4) { animation-delay: 0.06s; }
+.crud-table tbody tr:nth-child(5) { animation-delay: 0.08s; }
+.crud-table tbody tr:nth-child(n + 6) { animation-delay: 0.1s; }
+
+.crud-table tbody tr:hover {
+  background-color: #f5f8ff;
+}
+
+.crud-table tbody tr:hover td:first-child {
+  box-shadow: inset 3px 0 0 #1d4ed8;
+}
+
+@keyframes filaEntra {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Ver, editar y borrar: botones redondeados con su color */
+.crud-actions {
+  gap: 6px;
+}
+
+.action-icon {
+  width: 34px;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  transition: background-color 0.18s ease, color 0.18s ease, transform 0.15s ease, box-shadow 0.18s ease;
+}
+
+.action-icon.view { background: #e0f2fe; }
+.action-icon.edit { background: #fef3c7; }
+.action-icon.delete { background: #ffe4e6; }
+
+.action-icon.view:hover,
+.action-icon.edit:hover,
+.action-icon.delete:hover {
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+.action-icon.view:hover { background: #0284c7; box-shadow: 0 6px 12px -6px #0284c7; }
+.action-icon.edit:hover { background: #d97706; box-shadow: 0 6px 12px -6px #d97706; }
+.action-icon.delete:hover { background: #e11d48; box-shadow: 0 6px 12px -6px #e11d48; }
+
+body.dark-theme .crud-title {
+  color: #f8fafc;
+}
+
+body.dark-theme .table-toolbar {
+  background: #0f172a;
+}
+
+body.dark-theme .crud-table tbody tr:hover {
+  background-color: #243049;
+}
+
+body.dark-theme .crud-table tbody tr:hover td:first-child {
+  box-shadow: inset 3px 0 0 #7da7d9;
+}
+
+body.dark-theme .action-icon.view { background: rgba(14, 165, 233, 0.16); }
+body.dark-theme .action-icon.edit { background: rgba(245, 158, 11, 0.16); color: #fcd34d; }
+body.dark-theme .action-icon.delete { background: rgba(244, 63, 94, 0.16); }
+
+body.dark-theme .action-icon.view:hover,
+body.dark-theme .action-icon.edit:hover,
+body.dark-theme .action-icon.delete:hover {
+  color: #ffffff;
+}
+
+body.dark-theme app-paginador.border-top {
+  border-color: #334155 !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .crud-table tbody tr {
+    animation: none;
+  }
+}

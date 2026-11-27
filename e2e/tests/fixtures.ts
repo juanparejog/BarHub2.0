@@ -22,8 +22,8 @@ export const ADMIN = {
  * - falla si algo infringe la politica de seguridad de contenido (CSP) que pone Caddy: un script
  *   inline, un eval o un recurso de un dominio no permitido. Un test que provoca una a proposito la
  *   comprueba y la quita de {@code violacionesCsp};
- * - solo se permiten peticiones a la propia aplicacion. Stripe, Google Maps y Google Fonts se bloquean
- *   para que el resultado no dependa de servicios de terceros.
+ * - solo se permiten peticiones a la propia aplicacion. Stripe y Google Maps se bloquean para que el
+ *   resultado no dependa de servicios de terceros (las fuentes y los iconos ya son de la propia web).
  */
 export const test = base.extend<{ erroresPagina: string[]; violacionesCsp: string[] }>({
   violacionesCsp: [
@@ -64,6 +64,11 @@ export { expect };
  */
 export function filasConDatos(page: Page) {
   return page.locator('table.crud-table tbody tr:has(td + td)');
+}
+
+/** Los listados del panel van por páginas: para encontrar una fila se busca, como haría el administrador. */
+export async function buscarEnListado(page: Page, texto: string): Promise<void> {
+  await page.locator('.table-toolbar .search-input').fill(texto);
 }
 
 /**
@@ -301,5 +306,6 @@ export async function darDeAltaEmpleado(page: Page, empleado: { usuario: string;
   await page.getByRole('button', { name: 'Crear Usuario' }).click();
 
   await expect(page).toHaveURL(/\/admin\/gestionar-usuarios$/);
+  await buscarEnListado(page, empleado.usuario);
   await expect(filasConDatos(page).filter({ hasText: empleado.usuario })).toBeVisible();
 }

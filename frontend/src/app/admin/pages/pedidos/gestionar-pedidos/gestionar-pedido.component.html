@@ -14,47 +14,42 @@
       </div>
     </div>
     <!-- Contenedor / Tarjeta de la Tabla -->
-    <div class="crud-card">
-      <!-- Filtros y Ordenación -->
-      <div class="row g-3 mb-3 p-3 border-bottom">
-        <!-- Búsqueda General -->
-        <div class="col-md-4">
-          <div class="input-group">
-            <span class="input-group-text bg-body"><i class="bi bi-search"></i></span>
-            <input
-              id="busquedaPedido"
-              type="text"
-              class="form-control"
-              placeholder="Buscar por usuario, tipo o dirección..."
-              [(ngModel)]="busqueda"
-              aria-label="Buscar pedidos">
-          </div>
+    <div class="crud-card" #listado>
+      <!-- Buscador, filtro de estado y orden -->
+      <div class="table-toolbar d-flex flex-wrap align-items-center gap-3 p-3 border-bottom">
+        <div class="search-box position-relative">
+          <i class="bi bi-search search-icon" aria-hidden="true"></i>
+          <input
+            id="busquedaPedido"
+            type="text"
+            class="form-control search-input"
+            placeholder="Buscar por número, usuario, tipo o dirección..."
+            [(ngModel)]="busqueda"
+            (ngModelChange)="pagina = 1"
+            aria-label="Buscar pedidos">
+          @if (busqueda) {
+            <button class="btn-clear-search" type="button" (click)="busqueda = ''; pagina = 1" title="Limpiar búsqueda">
+              <i class="bi bi-x-lg"></i>
+            </button>
+          }
         </div>
-        <!-- Filtro por Estado -->
-        <div class="col-md-3">
-          <select id="estadoFiltro" class="form-select" [(ngModel)]="estadoFiltro" aria-label="Filtrar por estado">
-            <option value="">Todos los Estados</option>
-            <option value="PENDIENTE">PENDIENTE</option>
-            <option value="PREPARADO">PREPARADO</option>
-            <option value="SERVIDO">SERVIDO</option>
-            <option value="COMPLETADO">COMPLETADO</option>
+        <select id="estadoFiltro" class="form-select toolbar-select" [(ngModel)]="estadoFiltro" (ngModelChange)="pagina = 1" aria-label="Filtrar por estado">
+          <option value="">Todos los estados</option>
+          <option value="PENDIENTE">Pendiente</option>
+          <option value="PREPARADO">Preparado</option>
+          <option value="SERVIDO">Servido</option>
+          <option value="COMPLETADO">Completado</option>
+        </select>
+        <div class="d-flex align-items-center gap-2 ms-lg-auto">
+          <select id="criterioOrden" class="form-select toolbar-select" [(ngModel)]="criterioOrden" aria-label="Ordenar por">
+            <option value="fecha">Por fecha</option>
+            <option value="total">Por total</option>
+            <option value="usuario">Por usuario</option>
+            <option value="estado">Por estado</option>
           </select>
-        </div>
-        <!-- Ordenar Por -->
-        <div class="col-md-3">
-          <select id="criterioOrden" class="form-select" [(ngModel)]="criterioOrden" aria-label="Ordenar por">
-            <option value="fecha">Fecha</option>
-            <option value="total">Total (€)</option>
-            <option value="usuario">Usuario</option>
-            <option value="estado">Estado</option>
-          </select>
-        </div>
-        <!-- Dirección del Orden -->
-        <div class="col-md-2 d-flex">
-          <button
-            class="btn btn-outline-secondary w-100 d-flex align-items-center justify-content-center gap-1"
-            (click)="cambiarOrdenDireccion()">
-            <i class="bi" [ngClass]="ordenAscendente ? 'bi-sort-up' : 'bi-sort-down'"></i>
+          <button type="button" class="btn-crud-secondary btn-orden d-inline-flex align-items-center gap-1"
+            (click)="cambiarOrdenDireccion()" [title]="ordenAscendente ? 'Orden ascendente' : 'Orden descendente'">
+            <i class="bi" [ngClass]="ordenAscendente ? 'bi-sort-up' : 'bi-sort-down'" aria-hidden="true"></i>
             <span>{{ ordenAscendente ? 'Asc' : 'Desc' }}</span>
           </button>
         </div>
@@ -74,11 +69,12 @@
           </thead>
           @if (pedidosFiltradosYOrdenados.length > 0) {
             <tbody>
-              @for (pedido of pedidosFiltradosYOrdenados; track pedido) {
+              @for (pedido of pedidosPagina; track pedido) {
                 <tr>
                   <!-- Usuario -->
-                  <td class="ps-4 fw-semibold text-body">
-                    {{ pedido.usuario?.username || 'Usuario no encontrado' }}
+                  <td class="ps-4">
+                    <span class="d-block fw-semibold text-body">{{ pedido.usuario?.username || 'Usuario no encontrado' }}</span>
+                    <span class="d-block small text-muted font-monospace">#{{ pedido.id }}</span>
                   </td>
                   <!-- Tipo de Pedido y Detalle -->
                   <td>
@@ -161,6 +157,8 @@
           }
         </table>
       </div>
+      <app-paginador class="border-top" [total]="pedidosFiltradosYOrdenados.length" [(pagina)]="pagina" [(tamano)]="tamano"
+        elementos="pedidos" [ancla]="listado" />
     </div>
   </div>
 }

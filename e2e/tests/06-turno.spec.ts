@@ -36,8 +36,11 @@ test('el administrador ve el turno terminado en el registro de jornada', async (
   await iniciarSesion(page, ADMIN.usuario, ADMIN.clave);
   await page.goto('/admin/registro-jornada');
 
+  // El resumen da sus horas y, al pulsarlo, la tabla (que va por páginas) enseña solo sus turnos
+  const resumen = page.locator('.resumen-empleado', { hasText: empleado.usuario });
+  await expect(resumen).toContainText('1 turno');
+  await resumen.click();
   const fila = filasConDatos(page).filter({ hasText: empleado.usuario });
   await expect(fila).toBeVisible();
   await expect(fila).toContainText('Terminado');
-  await expect(page.locator('.resumen-empleado', { hasText: empleado.usuario })).toContainText('1 turno');
 });

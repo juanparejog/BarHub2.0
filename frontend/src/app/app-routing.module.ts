@@ -87,7 +87,8 @@ const routes: Routes = [
 @NgModule({
   imports: [
     CommonModule,
-    RouterModule.forRoot(routes)
+    // Transicion suave entre paginas con la View Transitions API (ver styles.css); sin ella, cambia sin animar
+    RouterModule.forRoot(routes, { enableViewTransitions: true })
   ],
   exports: [
     RouterModule

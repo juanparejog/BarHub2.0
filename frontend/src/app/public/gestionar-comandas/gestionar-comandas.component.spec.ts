@@ -23,7 +23,8 @@ describe('GestionarComandasComponent', () => {
       { get: () => of(productos) } as any,
       { recargas: () => avisos } as any,
       { sonar, activado: true } as any,
-      { detectChanges, markForCheck: vi.fn() } as any
+      { detectChanges, markForCheck: vi.fn() } as any,
+      { flotante: vi.fn() } as any
     );
   }
 

@@ -1,3 +1,4 @@
+import { paginar } from 'src/app/shared/paginador/paginar';
 import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { MesaService } from '../services/mesa';
 import { Mesa } from '../interface/mesa';
@@ -14,6 +15,10 @@ export class GestionarMesaComponent implements OnInit {
   mesas: Mesa[] = [];
 
   searchTerm: string = '';
+
+  /** Página del listado (la primera es la 1) y filas por página. */
+  pagina = 1;
+  tamano = 25;
   sortColumn: 'codigoqr' | 'estado' = 'codigoqr';
   sortDirection: 'asc' | 'desc' = 'asc';
 
@@ -49,6 +54,11 @@ export class GestionarMesaComponent implements OnInit {
       this.sortColumn = column;
       this.sortDirection = 'asc';
     }
+  }
+
+  /** Las filas de la página actual, tras buscar y ordenar. */
+  get mesasPagina(): Mesa[] {
+    return paginar(this.mesasFiltradas, this.pagina, this.tamano);
   }
 
   get mesasFiltradas(): Mesa[] {

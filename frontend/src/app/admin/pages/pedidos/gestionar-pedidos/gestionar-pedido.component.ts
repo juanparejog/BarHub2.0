@@ -1,3 +1,4 @@
+import { paginar } from 'src/app/shared/paginador/paginar';
 import { Component, OnInit, ElementRef, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { forkJoin } from 'rxjs';
 
@@ -26,6 +27,10 @@ export class GestionarPedidoComponent implements OnInit {
   estadoFiltro: string = '';
   criterioOrden: string = 'fecha';
   ordenAscendente: boolean = false;
+
+  /** Página del listado (la primera es la 1) y filas por página. */
+  pagina = 1;
+  tamano = 25;
 
   pedidoAEliminar: Pedido | null = null;
   private bsModal: any;
@@ -84,6 +89,11 @@ export class GestionarPedidoComponent implements OnInit {
       this.cerrarModal();
       this.cargarPedidos();
     });
+  }
+
+  /** Los pedidos de la página actual, tras buscar, filtrar y ordenar. */
+  get pedidosPagina(): Pedido[] {
+    return paginar(this.pedidosFiltradosYOrdenados, this.pagina, this.tamano);
   }
 
   get pedidosFiltradosYOrdenados(): Pedido[] {

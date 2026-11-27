@@ -1,4 +1,4 @@
-import { test, expect, ADMIN, iniciarSesion, filasConDatos } from './fixtures';
+import { test, expect, ADMIN, iniciarSesion, filasConDatos, buscarEnListado } from './fixtures';
 
 test('panel de administración, listados y métricas', async ({ page }) => {
   await iniciarSesion(page, ADMIN.usuario, ADMIN.clave);
@@ -16,6 +16,7 @@ test('panel de administración, listados y métricas', async ({ page }) => {
     await expect(filasConDatos(page).first()).toBeVisible();
   }
   // Los roles llegan con el usuario (carga perezosa resuelta en el backend)
+  await buscarEnListado(page, ADMIN.usuario);
   await expect(filasConDatos(page).filter({ hasText: ADMIN.usuario }).first()).toBeVisible();
 
   await page.goto('/admin/metricas');

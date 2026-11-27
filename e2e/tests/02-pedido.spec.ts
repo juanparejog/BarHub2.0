@@ -69,8 +69,12 @@ test('pedido para recoger: se confirma, se descarga el ticket y aparece en el se
   expect(coincidencia, `nombre del ticket: ${ticket.suggestedFilename()}`).not.toBeNull();
   idPedido = coincidencia![1];
   await expect(page.getByText('¡Pedido realizado con éxito!')).toBeVisible();
-
-  await page.goto('/seguimiento-pedidos');
+  // El aviso del pedido hecho es un dialogo con su numero y lleva al seguimiento
+  const hecho = page.getByRole('dialog', { name: '¡Pedido realizado con éxito!' });
+  await expect(hecho).toContainText(`BH-${idPedido.padStart(6, '0')}`);
+  await hecho.getByRole('button', { name: 'Seguir mi pedido' }).click();
+  await expect(hecho).toBeHidden();
+  await expect(page).toHaveURL(/\/seguimiento-pedidos$/);
   // Sin anclar al final: los iconos de Bootstrap Icons (::before) cuentan como texto en Playwright.
   // (?!\d) evita confundir el #3 con el #30
   await expect(page.locator('.pedido-badge-id', { hasText: new RegExp(`Pedido #${idPedido}(?!\\d)`) })).toBeVisible();
@@ -94,6 +98,8 @@ test('el personal ve la comanda y la marca como lista para recoger', async ({ pa
 
   await comanda.getByRole('button', { name: 'Listo p/ Recoger' }).click();
   await expect(comanda.locator('.badge-status')).toContainText('Listo p/ Recoger');
+  // Aviso flotante, sin bloquear la pantalla de comandas
+  await expect(page.locator('.aviso-flotante', { hasText: `Pedido #${idPedido}: Listo p/ Recoger` })).toBeVisible();
 
   // El cambio queda guardado en el servidor
   await page.reload();

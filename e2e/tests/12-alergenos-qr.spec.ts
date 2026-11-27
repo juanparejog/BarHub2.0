@@ -46,6 +46,8 @@ test('la carta muestra los iconos de los alérgenos, filtra por ellos y el QR de
   await crear(sinIndicar, null);
 
   await page.goto('/carta');
+  // La carta va por páginas: se buscan los dos productos de prueba por la parte común de su nombre
+  await page.getByRole('searchbox', { name: 'Buscar en la carta' }).fill(sufijo);
   const tarjeta = (nombre: string) => page.locator('.product-card', { hasText: nombre });
   const iconos = tarjeta(conAlergenos).getByRole('list', { name: 'Alérgenos' }).getByRole('img');
   await expect(iconos).toHaveCount(2);

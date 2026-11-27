@@ -18,7 +18,7 @@
       </div>
     </div>
     <!-- Contenedor / Tarjeta de la Tabla -->
-    <div class="crud-card">
+    <div class="crud-card" #listado>
       <!-- Barra Superior / Barra de Filtro Integrada -->
       <div class="table-toolbar d-flex flex-wrap align-items-center justify-content-between gap-3 p-3 border-bottom bg-light-subtle">
         <!-- Buscador Estilizado -->
@@ -29,13 +29,14 @@
             class="form-control search-input"
             placeholder="Buscar por ID, pedido o producto..."
             [(ngModel)]="searchTerm"
+          (ngModelChange)="pagina = 1"
             aria-label="Buscar"
             >
           @if (searchTerm) {
             <button
               class="btn-clear-search"
               type="button"
-              (click)="searchTerm = ''"
+              (click)="searchTerm = ''; pagina = 1"
               title="Limpiar búsqueda">
               <i class="bi bi-x-lg"></i>
             </button>
@@ -108,7 +109,7 @@
           </thead>
           @if (detallesFiltrados.length > 0) {
             <tbody>
-              @for (detalle of detallesFiltrados; track detalle) {
+              @for (detalle of detallesPagina; track detalle) {
                 <tr>
                   <!-- ID Pedido -->
                   <td class="ps-4">
@@ -172,6 +173,8 @@
           <!-- Estado vacío -->
         </table>
       </div>
+      <app-paginador class="border-top" [total]="detallesFiltrados.length" [(pagina)]="pagina" [(tamano)]="tamano"
+        elementos="detalles" [ancla]="listado" />
     </div>
   </div>
 }

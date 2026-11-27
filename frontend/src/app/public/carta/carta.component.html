@@ -241,6 +241,18 @@
       </div>
     }
 
+    <!-- BUSCADOR -->
+    <div class="carta-busqueda" role="search">
+      <i class="bi bi-search carta-busqueda-icono" aria-hidden="true"></i>
+      <input type="search" class="carta-busqueda-campo" [value]="busqueda" (input)="buscar($any($event.target).value)"
+        [attr.aria-label]="'carta.buscar' | t" [placeholder]="'carta.buscar.placeholder' | t" autocomplete="off" maxlength="60">
+      @if (busqueda) {
+        <button type="button" class="carta-busqueda-limpiar" (click)="buscar('')" [attr.aria-label]="'carta.buscar.limpiar' | t">
+          <i class="bi bi-x-lg" aria-hidden="true"></i>
+        </button>
+      }
+    </div>
+
     <!-- FILTRO RÁPIDO DE CATEGORÍAS -->
     <section class="categorias-filter-bar">
       <button class="btn-filter"
@@ -305,11 +317,11 @@
     </details>
 
     <!-- TARJETAS DE PRODUCTOS -->
-    <section class="productos-grid">
-      @for (producto of productosFiltrados; track producto; let i = $index) {
+    <section class="productos-grid" #rejilla>
+      @for (producto of productosPagina; track producto; let i = $index) {
         <div
           class="product-card-wrapper"
-          [style.animation-delay]="(i * 0.05) + 's'">
+          [style.animation-delay]="retrasoTarjeta(i)">
           <div class="product-card" [class.card-disabled]="!datosServicioCompletos">
             <div class="product-img-wrapper">
               <img [src]="getImagenUrl(producto.imagen)"
@@ -363,6 +375,15 @@
         </div>
       }
     </section>
+
+    @if (productos.length > 0 && productosFiltrados.length === 0) {
+      <p class="carta-sin-resultados" role="status">
+        <i class="bi bi-search" aria-hidden="true"></i> {{ 'carta.sinResultados' | t }}
+      </p>
+    }
+
+    <app-paginador class="carta-paginador" [total]="productosFiltrados.length" [(pagina)]="pagina" [(tamano)]="tamano"
+      [tamanos]="[12, 24, 48]" [ancla]="rejilla" />
 
   </div>
 </div>

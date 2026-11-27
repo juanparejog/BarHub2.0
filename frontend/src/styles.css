@@ -6,6 +6,13 @@
 
 /* Variables de Color y Tema */
 :root {
+  /* Fuentes propias, servidas desde la propia web (paquetes de npm, ver angular.json): Inter para el
+     texto y Merriweather para los titulos. Sin Google Fonts: la IP del visitante no sale a terceros */
+  --fuente-texto: 'Inter Variable', 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --fuente-titulos: 'Merriweather Variable', 'Merriweather', Georgia, serif;
+  /* Alto de la barra superior compacta (la que se ve al desplazar): lo usan las barras pegajosas */
+  --alto-barra: 68px;
+
   --primary-bg: #f8fafc;        /* Fondo claro elegante */
   --text-primary: #1e293b;      /* Texto principal oscuro */
   --text-muted: #64748b;        /* Texto secundario */
@@ -13,6 +20,17 @@
   --brand-blue-light: #1e3a8a;  /* Azul secundario */
   --accent-blue: #3b82f6;       /* Azul interactivo */
   --border-color: #e2e8f0;      /* Bordes suaves */
+}
+
+/* Bootstrap se carga despues de este fichero y vuelve a declarar su fuente en :root y en body:
+   html:root y html body pesan mas y la sustituyen por la propia */
+html:root {
+  --bs-font-sans-serif: var(--fuente-texto);
+  --bs-body-font-family: var(--fuente-texto);
+}
+
+html body {
+  font-family: var(--fuente-texto);
 }
 
 /* Reset Global & Base Body */
@@ -24,7 +42,7 @@ html, body {
   height: 100%;
   margin: 0;
   padding: 0;
-  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  font-family: var(--fuente-texto);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -405,6 +423,77 @@ html[data-bs-theme="dark"] .badge.bg-warning-subtle.text-warning {
 /* Respeta la preferencia del sistema de reducir el movimiento en toda la aplicacion: los estilos
    globales no se encapsulan, asi que cubre las animaciones y transiciones de todos los componentes.
    Con 0.01ms (y no "none") los elementos que entran desde opacity: 0 terminan visibles. */
+/* ==========================================================================
+   MOVIMIENTO: TRANSICIONES ENTRE PAGINAS Y DETALLES COMUNES
+   ========================================================================== */
+
+/* Al cambiar de pagina (View Transitions, activadas en el router), el contenido se funde y sube un
+   poco. La barra y el pie tienen su propio nombre: se quedan quietos en lugar de fundirse */
+/* La barra superior se queda arriba al bajar. El sticky va en <app-menu> y no en el <nav>: un
+   elemento pegajoso solo se mueve dentro de su padre, y el <nav> no tiene sitio dentro de app-menu */
+app-menu {
+  display: block;
+  position: sticky;
+  top: 0;
+  z-index: 1030;
+}
+
+app-menu > .custom-navbar {
+  view-transition-name: barra-superior;
+}
+
+/* Al saltar a un listado (paginación) no queda debajo de la barra */
+.crud-card {
+  scroll-margin-top: calc(var(--alto-barra) + 16px);
+}
+
+app-footer > .footer {
+  view-transition-name: pie;
+}
+
+::view-transition-old(root) {
+  animation: 140ms ease-in both pagina-sale;
+}
+
+::view-transition-new(root) {
+  animation: 320ms cubic-bezier(0.16, 1, 0.3, 1) both pagina-entra;
+}
+
+::view-transition-group(barra-superior),
+::view-transition-old(barra-superior),
+::view-transition-new(barra-superior),
+::view-transition-group(pie),
+::view-transition-old(pie),
+::view-transition-new(pie) {
+  animation: none;
+}
+
+@keyframes pagina-sale {
+  to { opacity: 0; }
+}
+
+@keyframes pagina-entra {
+  from { opacity: 0; transform: translateY(10px); }
+}
+
+/* Con un dialogo abierto (AvisosComponent), la pagina de detras no se desplaza */
+body.con-dialogo {
+  overflow: hidden;
+}
+
+/* Foco visible y del color de la marca en enlaces y elementos que no lo traen de Bootstrap */
+a:focus-visible,
+summary:focus-visible,
+[tabindex]:focus-visible {
+  outline: 3px solid #7da7d9;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+::selection {
+  background: rgba(29, 78, 216, 0.22);
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -413,6 +502,11 @@ html[data-bs-theme="dark"] .badge.bg-warning-subtle.text-warning {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
   }
 }
 

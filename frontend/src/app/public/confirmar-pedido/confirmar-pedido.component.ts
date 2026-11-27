@@ -4,6 +4,7 @@ import { firstValueFrom } from 'rxjs';
 import type { Stripe, StripeCardElement, StripeElements } from '@stripe/stripe-js';
 import { PedidoService } from '../../admin/pages/pedidos/services/pedido';
 import { type ConfiguracionPago, type LineaPago, PagoService } from './pago.service';
+import { AvisoService } from '../../shared/avisos/aviso.service';
 import { AuthService } from '../../auth/auth.service';
 import { IdiomaService } from '../../shared/i18n/idioma.service';
 import { type ProductoTraducible, nombreDe } from '../../shared/i18n/producto-idioma';
@@ -61,7 +62,8 @@ export class ConfirmarPedidoComponent implements OnInit {
     private readonly authService: AuthService,
     private readonly router: Router,
     private readonly idiomas: IdiomaService,
-    private readonly pagos: PagoService
+    private readonly pagos: PagoService,
+    private readonly avisos: AvisoService
   ) {}
 
   ngOnInit() {
@@ -277,16 +279,12 @@ export class ConfirmarPedidoComponent implements OnInit {
       next: (res) => {
         this.procesando = false;
         this.olvidarPagoPendiente();
-        this.showToastMessage(this.idiomas.t('confirmar.toast.exito'), 'success');
-  
+
         const idPedidoCreado = res.id || 1;
+        const total = this.calcularTotal();
         this.generarTicketPDF(idPedidoCreado);
-  
         localStorage.removeItem('pedidoTemporal');
-  
-        setTimeout(() => {
-          void this.router.navigate(['/carta']);
-        }, 2500);
+        this.mostrarPedidoHecho(idPedidoCreado, esTarjeta, total);
       },
       error: (err) => {
         this.procesando = false;
@@ -310,11 +308,40 @@ export class ConfirmarPedidoComponent implements OnInit {
     return this.pedidoTemporal?.tipoPedido === 'RECOGER';
   }
 
+  /** Pedido hecho: numero, total y, con sesion, el acceso a su seguimiento. Al cerrar, a la carta. */
+  private mostrarPedidoHecho(id: number, conTarjeta: boolean, total: number): void {
+    const irA = (ruta: string) => () => void this.router.navigate([ruta]);
+    const acciones = this.authService.isLoggedIn()
+      ? [
+          { texto: this.idiomas.t('confirmar.exito.seguir'), primaria: true, alPulsar: irA('/seguimiento-pedidos') },
+          { texto: this.idiomas.t('confirmar.volver'), alPulsar: irA('/carta') }
+        ]
+      : [{ texto: this.idiomas.t('confirmar.volver'), primaria: true, alPulsar: irA('/carta') }];
+    this.avisos.exito({
+      titulo: this.idiomas.t('confirmar.toast.exito'),
+      mensaje: this.idiomas.t(conTarjeta ? 'confirmar.exito.tarjeta' : 'confirmar.exito.efectivo'),
+      detalles: [
+        { etiqueta: this.idiomas.t('confirmar.exito.numero'), valor: `BH-${String(id).padStart(6, '0')}` },
+        { etiqueta: this.idiomas.t('confirmar.exito.total'), valor: this.idiomas.precio(total) }
+      ],
+      acciones,
+      alCerrar: irA('/carta')
+    });
+  }
+
   cancelarPedido() {
-    if (confirm(this.idiomas.t('confirmar.preguntaCancelar'))) {
-      localStorage.removeItem('pedidoTemporal');
-      void this.router.navigate(['/carta']);
-    }
+    this.avisos.error({
+      titulo: this.idiomas.t('confirmar.preguntaCancelar'),
+      acciones: [
+        { texto: this.idiomas.t('dialogo.cancelar') },
+        {
+          texto: this.idiomas.t('confirmar.cancelar'), primaria: true, alPulsar: () => {
+            localStorage.removeItem('pedidoTemporal');
+            void this.router.navigate(['/carta']);
+          }
+        }
+      ]
+    });
   }
 
   /** Nombre del producto en el idioma elegido (el ticket en PDF lo lleva en español). */

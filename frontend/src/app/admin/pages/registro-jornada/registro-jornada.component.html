@@ -1,40 +1,71 @@
 <div class="crud-container">
-  <div class="crud-header mb-4">
-    <h1 class="crud-title">Registro de jornada</h1>
-    <p class="text-muted mb-0">
-      Entradas y salidas del personal. El turno empieza al iniciar sesión y termina con «Terminar turno»;
-      si el empleado no lo pulsa, se cierra solo en su última actividad.
-    </p>
+  <div class="crud-header mb-3">
+    <div>
+      <h1 class="crud-title">Registro de jornada</h1>
+      <p class="text-muted small mb-0">
+        Entradas y salidas del personal. El turno empieza al iniciar sesión y termina con «Terminar turno»;
+        si el empleado no lo pulsa, se cierra solo en su última actividad.
+      </p>
+    </div>
   </div>
 
-  <form class="d-flex flex-wrap align-items-end gap-3 mb-4" (ngSubmit)="cargar()">
-    <div>
-      <label for="jornadaDesde" class="form-label">Desde</label>
-      <input id="jornadaDesde" type="date" class="form-control" name="desde" [(ngModel)]="desde" required>
+  <!-- Periodo -->
+  <form class="crud-card jornada-filtros" (ngSubmit)="cargar()" aria-label="Periodo del registro de jornada">
+    <div class="jornada-rangos" role="group" aria-label="Rango rápido">
+      <button type="button" class="jornada-rango" [class.activo]="dias === 1" (click)="elegirRango(1)">Hoy</button>
+      <button type="button" class="jornada-rango" [class.activo]="dias === 7" (click)="elegirRango(7)">Últimos 7 días</button>
+      <button type="button" class="jornada-rango" [class.activo]="dias === 30" (click)="elegirRango(30)">Últimos 30 días</button>
     </div>
-    <div>
-      <label for="jornadaHasta" class="form-label">Hasta</label>
-      <input id="jornadaHasta" type="date" class="form-control" name="hasta" [(ngModel)]="hasta" required>
+    <div class="d-flex flex-wrap align-items-end gap-3">
+      <div>
+        <label for="jornadaDesde" class="form-label">Desde</label>
+        <input id="jornadaDesde" type="date" class="form-control" name="desde" [(ngModel)]="desde" (ngModelChange)="fechasAMano()" required>
+      </div>
+      <div>
+        <label for="jornadaHasta" class="form-label">Hasta</label>
+        <input id="jornadaHasta" type="date" class="form-control" name="hasta" [(ngModel)]="hasta" (ngModelChange)="fechasAMano()" required>
+      </div>
+      <button type="submit" class="btn-crud-primary d-inline-flex align-items-center gap-1" [disabled]="cargando">
+        <i class="bi bi-search" aria-hidden="true"></i> Consultar
+      </button>
     </div>
-    <button type="submit" class="btn-crud-primary" [disabled]="cargando">Consultar</button>
   </form>
 
   @if (error) {
     <div class="alert alert-danger" role="alert">{{ error }}</div>
   }
 
+  <!-- Horas por empleado: pulsar uno filtra la tabla -->
   @if (resumen.length > 0) {
-    <div class="d-flex flex-wrap gap-2 mb-3" aria-label="Horas por empleado">
-      @for (empleado of resumen; track empleado.username) {
-        <span class="badge bg-body-tertiary text-body border fs-6 fw-normal resumen-empleado">
-          <strong>{{ empleado.username }}</strong>: {{ duracion(empleado.minutos) }}
-          en {{ empleado.turnos }} {{ empleado.turnos === 1 ? 'turno' : 'turnos' }}
-        </span>
+    <section class="jornada-resumen" aria-label="Horas por empleado">
+      <div class="jornada-total">
+        <span>Total del periodo</span>
+        <strong>{{ duracion(minutosTotales) }}</strong>
+        <small>{{ turnos.length }} {{ turnos.length === 1 ? 'turno' : 'turnos' }} · {{ resumen.length }} {{ resumen.length === 1 ? 'persona' : 'personas' }}</small>
+      </div>
+      @for (persona of resumen; track persona.username) {
+        <button type="button" class="resumen-empleado" [class.elegido]="persona.username === empleado"
+          [attr.aria-pressed]="persona.username === empleado" (click)="elegirEmpleado(persona.username)"
+          [title]="persona.username === empleado ? 'Ver todos los turnos' : 'Ver solo los turnos de ' + persona.username">
+          <span class="resumen-inicial" aria-hidden="true">{{ inicial(persona.username) }}</span>
+          <span class="resumen-datos">
+            <strong class="resumen-nombre">{{ persona.username }}</strong>
+            <span class="resumen-horas">{{ duracion(persona.minutos) }}</span>
+            <span class="resumen-turnos">en {{ persona.turnos }} {{ persona.turnos === 1 ? 'turno' : 'turnos' }}</span>
+          </span>
+          <span class="resumen-barra" aria-hidden="true"><span [style.width.%]="persona.minutos / maxMinutos * 100"></span></span>
+        </button>
       }
-    </div>
+    </section>
   }
 
-  <div class="crud-card">
+  <div class="crud-card" #listado>
+    @if (empleado) {
+      <div class="jornada-filtro-activo">
+        Turnos de <strong>{{ empleado }}</strong>
+        <button type="button" class="btn btn-link btn-sm p-0 ms-2" (click)="elegirEmpleado(empleado)">Ver todos</button>
+      </div>
+    }
     <div class="table-responsive">
       <table class="crud-table mb-0">
         <thead>
@@ -47,16 +78,21 @@
             <th scope="col">Estado</th>
           </tr>
         </thead>
-        @if (turnos.length > 0) {
+        @if (turnosFiltrados.length > 0) {
           <tbody>
-            @for (turno of turnos; track turno.id) {
+            @for (turno of turnosPagina; track turno.id) {
               <tr>
-                <td class="ps-4 fw-semibold">{{ turno.username }}</td>
+                <td class="ps-4">
+                  <span class="jornada-empleado">
+                    <span class="resumen-inicial pequena" aria-hidden="true">{{ inicial(turno.username) }}</span>
+                    <span class="fw-semibold">{{ turno.username }}</span>
+                  </span>
+                </td>
                 <td>{{ fecha(turno.entrada) }}</td>
-                <td>{{ hora(turno.entrada) }}</td>
-                <td>{{ turno.salida !== null ? hora(turno.salida) : '—' }}</td>
-                <td>{{ duracion(turno.duracionMinutos) }}</td>
-                <td>{{ estado(turno) }}</td>
+                <td class="font-monospace">{{ hora(turno.entrada) }}</td>
+                <td class="font-monospace">{{ turno.salida !== null ? hora(turno.salida) : '—' }}</td>
+                <td class="fw-semibold">{{ duracion(turno.duracionMinutos) }}</td>
+                <td><span class="estado-turno {{ claseEstado(turno) }}">{{ estado(turno) }}</span></td>
               </tr>
             }
           </tbody>
@@ -64,6 +100,7 @@
           <tbody>
             <tr>
               <td colspan="6" class="text-center py-5 text-muted">
+                <i class="bi bi-calendar-x fs-2 d-block mb-2 opacity-50" aria-hidden="true"></i>
                 {{ cargando ? 'Cargando…' : 'No hay turnos en estas fechas.' }}
               </td>
             </tr>
@@ -71,5 +108,7 @@
         }
       </table>
     </div>
+    <app-paginador class="border-top" [total]="turnosFiltrados.length" [(pagina)]="pagina" [(tamano)]="tamano"
+      elementos="turnos" [ancla]="listado" />
   </div>
 </div>

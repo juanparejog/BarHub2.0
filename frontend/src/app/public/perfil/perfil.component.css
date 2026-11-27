@@ -182,17 +182,24 @@ ng-container {
   cursor: pointer;
 }
 
+/* La foto, el borde y la capa de «cambiar foto» ocupan el mismo círculo */
 .avatar-wrapper {
-  width: 75px;
-  height: 75px;
+  width: 84px;
+  height: 84px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.avatar-wrapper:focus-visible {
+  outline: 3px solid #7da7d9;
+  outline-offset: 3px;
 }
 
 .avatar-overlay {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  inset: 0;
   background: rgba(15, 23, 42, 0.5);
   opacity: 0;
   transition: opacity 0.2s ease-in-out;
@@ -286,8 +293,19 @@ ng-container {
 
 /* ================= Perfil con pestañas ================= */
 .avatar {
-  width: 84px;
-  height: 84px;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatar-wrapper:hover .avatar,
+.avatar-wrapper:focus-visible .avatar {
+  transform: scale(1.06);
+}
+
+.avatar {
+  transition: transform 0.3s ease;
 }
 
 .min-w-0 {
@@ -334,7 +352,7 @@ ng-container {
   flex-direction: column;
   gap: 0.25rem;
   position: sticky;
-  top: 1rem;
+  top: calc(var(--alto-barra) + 1rem);
 }
 
 .perfil-pestana {

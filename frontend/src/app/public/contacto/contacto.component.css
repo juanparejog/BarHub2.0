@@ -11,7 +11,7 @@
   display: block;
   min-height: 80vh;
   padding: 40px 20px;
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-family: var(--fuente-texto);
   color: var(--text-main);
   background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
 }

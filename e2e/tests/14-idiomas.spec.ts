@@ -128,6 +128,8 @@ test('el nombre y la descripción de un producto salen en el idioma elegido si e
 
   try {
     await page.goto('/carta');
+    // La carta va por páginas: se busca el producto de prueba; la búsqueda sigue al cambiar de idioma
+    await page.getByRole('searchbox', { name: 'Buscar en la carta' }).fill(sufijo);
     const tarjeta = page.locator('.product-card', { has: page.locator('.product-title', { hasText: sufijo }) });
     await expect(tarjeta.locator('.product-title')).toHaveText(nombre);
 

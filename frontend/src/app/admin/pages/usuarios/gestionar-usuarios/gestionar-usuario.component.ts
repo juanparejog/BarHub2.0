@@ -1,3 +1,4 @@
+import { paginar } from 'src/app/shared/paginador/paginar';
 import { IMAGEN_USUARIO_POR_DEFECTO, ponerImagenPorDefecto } from '../../../../shared/imagen-por-defecto';
 import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { UsuarioService } from '../services/usuario';
@@ -15,6 +16,10 @@ export class GestionarUsuarioComponent implements OnInit {
   usuarios: Usuario[] = [];
 
   searchTerm: string = '';
+
+  /** Página del listado (la primera es la 1) y filas por página. */
+  pagina = 1;
+  tamano = 25;
 
   sortColumn: 'username' | 'email' | 'roles' = 'username';
   sortDirection: 'asc' | 'desc' = 'asc';
@@ -73,6 +78,11 @@ export class GestionarUsuarioComponent implements OnInit {
     const nombre = usuario.nombre || '';
     const completo = `${nombre} ${apellidos}`.trim();
     return completo.length > 0 ? completo : usuario.username;
+  }
+
+  /** Las filas de la página actual, tras buscar y ordenar. */
+  get usuariosPagina(): Usuario[] {
+    return paginar(this.usuariosFiltrados, this.pagina, this.tamano);
   }
 
   get usuariosFiltrados(): Usuario[] {

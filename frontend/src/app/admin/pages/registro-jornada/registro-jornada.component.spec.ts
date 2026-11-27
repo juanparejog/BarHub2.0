@@ -49,8 +49,42 @@ describe('RegistroJornadaComponent', () => {
     expect(filas[1].textContent).toContain('7 h 45 min');
     expect(filas[2].textContent).toContain('Cerrado sin fichar');
 
-    const resumen = Array.from(raiz.querySelectorAll('.resumen-empleado')).map(e => e.textContent?.replace(/\s+/g, ' ').trim());
-    expect(resumen).toEqual(['lucia: 8 h 15 min en 2 turnos', 'pablo: 2 h 0 min en 1 turno']);
+    // Nombre, horas y turnos van en elementos separados: se juntan con un espacio para compararlos
+    const resumen = Array.from(raiz.querySelectorAll('.resumen-empleado .resumen-datos')).map(datos =>
+      Array.from(datos.children).map(e => e.textContent?.replace(/\s+/g, ' ').trim()).join(' '));
+    expect(resumen).toEqual(['lucia 8 h 15 min en 2 turnos', 'pablo 2 h 0 min en 1 turno']);
+    expect(raiz.querySelector('.jornada-total strong')?.textContent).toBe('10 h 15 min');
+  });
+
+  it('pulsar un empleado deja solo sus turnos y pulsarlo otra vez los enseña todos', () => {
+    const salida = Date.parse('2026-11-22T15:45:00Z');
+    listar.mockReturnValue(of([
+      turno(3, 'lucia', 30, null, null),
+      turno(2, 'lucia', 465, salida, 'TERMINADO'),
+      turno(1, 'pablo', 120, salida, 'AUTOMATICO')
+    ]));
+    const fixture = crear();
+    const raiz = fixture.nativeElement as HTMLElement;
+    const pablo = Array.from(raiz.querySelectorAll<HTMLButtonElement>('.resumen-empleado')).find(b => b.textContent?.includes('pablo'))!;
+
+    pablo.click();
+    fixture.detectChanges();
+    expect(raiz.querySelectorAll('tbody tr').length).toBe(1);
+    expect(pablo.getAttribute('aria-pressed')).toBe('true');
+
+    pablo.click();
+    fixture.detectChanges();
+    expect(raiz.querySelectorAll('tbody tr').length).toBe(3);
+  });
+
+  it('los rangos rápidos cambian las fechas y consultan', () => {
+    listar.mockReturnValue(of([]));
+    const fixture = crear();
+    const hoy = Array.from((fixture.nativeElement as HTMLElement).querySelectorAll('button')).find(b => b.textContent?.trim() === 'Hoy')!;
+    hoy.click();
+    const [desde, hasta] = listar.mock.lastCall!;
+    expect(desde).toBe(hasta);
+    expect(fixture.componentInstance.dias).toBe(1);
   });
 
   it('sin turnos lo dice', () => {

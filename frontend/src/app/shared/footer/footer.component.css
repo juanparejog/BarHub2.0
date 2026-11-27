@@ -4,19 +4,15 @@
 
    .footer {
     width: 100%; /* Cambiado de 100vw para evitar scroll horizontal */
-    background: rgba(10, 35, 66, 0.92); /* Oxford Blue con transparencia */
-    backdrop-filter: blur(10px); /* Efecto Glassmorphism */
-    -webkit-backdrop-filter: blur(10px);
+    /* Al final de la pagina, no pegado a la pantalla: no tapa el contenido ni la barra del carrito */
+    background: linear-gradient(180deg, #0a2342 0%, #081b33 100%); /* Oxford Blue */
     color: #e2e8f0;
-    padding: 20px 0 16px 0;
+    padding: 22px 0 18px 0;
     font-size: 0.95rem;
     font-weight: 400;
     box-shadow: 0 -4px 20px rgba(10, 35, 66, 0.25);
     border-top: 1px solid rgba(255, 255, 255, 0.08);
-    position: sticky;
-    bottom: 0;
-    left: 0;
-    z-index: 100;
+    position: relative;
   
     /* Animación de entrada al cargar la página */
     animation: slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;

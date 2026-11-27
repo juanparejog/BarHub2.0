@@ -1,3 +1,4 @@
+import { paginar } from 'src/app/shared/paginador/paginar';
 import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { DetallesService } from '../services/detalle';
 import { DetallesPedido } from '../interface/detalle';
@@ -20,6 +21,10 @@ export class GestionarDetalleComponent implements OnInit {
   detalles: DetallesPedido[] = [];
 
   searchTerm: string = '';
+
+  /** Página del listado (la primera es la 1) y filas por página. */
+  pagina = 1;
+  tamano = 25;
   sortColumn: SortableColumn = 'id_pedido';
   sortDirection: 'asc' | 'desc' = 'asc';
 
@@ -74,6 +79,11 @@ export class GestionarDetalleComponent implements OnInit {
       this.sortColumn = column;
       this.sortDirection = 'asc';
     }
+  }
+
+  /** Las filas de la página actual, tras buscar y ordenar. */
+  get detallesPagina(): DetallesPedido[] {
+    return paginar(this.detallesFiltrados, this.pagina, this.tamano);
   }
 
   get detallesFiltrados(): DetallesPedido[] {

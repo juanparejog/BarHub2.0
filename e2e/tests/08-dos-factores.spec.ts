@@ -1,6 +1,6 @@
 import {
   test, expect, ADMIN, iniciarSesion, darDeAltaEmpleado, codigoSinUsar, codigoTotp, cuentaTotp, guardarCuenta,
-  filasConDatos
+  filasConDatos, buscarEnListado
 } from './fixtures';
 
 /**
@@ -83,6 +83,7 @@ test('sin el móvil entra con un código de recuperación, que no sirve dos vece
 test('el administrador le restablece la verificación y el empleado tiene que configurarla de nuevo', async ({ page }) => {
   await iniciarSesion(page, ADMIN.usuario, ADMIN.clave);
   await page.goto('/admin/gestionar-usuarios');
+  await buscarEnListado(page, empleado.usuario);
   const fila = filasConDatos(page).filter({ hasText: empleado.usuario });
   await expect(fila).toContainText('Activa');
 

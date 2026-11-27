@@ -1,0 +1,197 @@
+/* Registro de jornada: periodo, horas por empleado (con barra) y tabla de turnos */
+
+.jornada-filtros {
+  margin-bottom: 1.5rem;
+  padding: 1.25rem 1.5rem;
+  overflow: visible;
+}
+
+.jornada-rangos {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-bottom: 1rem;
+}
+
+.jornada-rango {
+  padding: 0.4rem 0.9rem;
+  border-radius: 999px;
+  border: 1px solid var(--bs-border-color);
+  background: var(--bs-body-bg);
+  color: var(--bs-secondary-color);
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.jornada-rango:hover {
+  color: var(--bs-body-color);
+  border-color: #1d4ed8;
+}
+
+.jornada-rango.activo {
+  background: #0a2342;
+  border-color: #0a2342;
+  color: #ffffff;
+}
+
+.jornada-resumen {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.jornada-total {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.15rem;
+  padding: 1rem 1.25rem;
+  border-radius: 14px;
+  color: #ffffff;
+  background: linear-gradient(135deg, #0a2342 0%, #1d4ed8 100%);
+  box-shadow: 0 14px 28px -18px rgba(10, 35, 66, 0.9);
+}
+
+.jornada-total span {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  opacity: 0.8;
+}
+
+.jornada-total strong {
+  font-size: 1.5rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.jornada-total small {
+  opacity: 0.8;
+}
+
+.resumen-empleado {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.9rem 1rem 1.2rem;
+  border-radius: 14px;
+  border: 1px solid var(--bs-border-color);
+  background: var(--bs-body-bg);
+  color: var(--bs-body-color);
+  text-align: left;
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.resumen-empleado:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px -16px rgba(10, 35, 66, 0.6);
+}
+
+.resumen-empleado.elegido {
+  border-color: #1d4ed8;
+  box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.18);
+}
+
+.resumen-inicial {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  color: #ffffff;
+  background: #0a2342;
+}
+
+.resumen-inicial.pequena {
+  width: 28px;
+  height: 28px;
+  font-size: 0.78rem;
+}
+
+.resumen-datos {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.resumen-nombre {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.resumen-horas {
+  font-size: 1.1rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.resumen-turnos {
+  font-size: 0.8rem;
+  color: var(--bs-secondary-color);
+}
+
+.resumen-barra {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 4px;
+  background: var(--bs-tertiary-bg);
+}
+
+.resumen-barra span {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, #1d4ed8, #7da7d9);
+  transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.jornada-filtro-activo {
+  padding: 0.75rem 1.25rem;
+  border-bottom: 1px solid var(--bs-border-color);
+  background: var(--bs-tertiary-bg);
+  font-size: 0.9rem;
+}
+
+.jornada-empleado {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.estado-turno {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+
+.estado-en-curso { color: #1d4ed8; background: #dbeafe; border-color: #bfdbfe; }
+.estado-terminado { color: #047857; background: #d1fae5; border-color: #a7f3d0; }
+.estado-automatico { color: #92400e; background: #fef3c7; border-color: #fde68a; }
+
+:host-context(.dark-theme) .jornada-rango.activo,
+:host-context(.dark-theme) .resumen-inicial {
+  background: #1d4ed8;
+  border-color: #1d4ed8;
+}
+
+:host-context(.dark-theme) .resumen-empleado.elegido {
+  border-color: #7da7d9;
+}
+
+:host-context(.dark-theme) .estado-en-curso { color: #93c5fd; background: #1e3a5f; border-color: #2b4f7e; }
+:host-context(.dark-theme) .estado-terminado { color: #6ee7b7; background: #16412b; border-color: #1f6b45; }
+:host-context(.dark-theme) .estado-automatico { color: #fcd34d; background: #413816; border-color: #78591c; }

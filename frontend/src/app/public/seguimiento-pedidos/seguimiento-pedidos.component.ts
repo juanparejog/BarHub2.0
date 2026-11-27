@@ -65,6 +65,35 @@ export class SeguimientoPedidosComponent implements OnInit, OnDestroy {
     return 1;
   }
 
+  /** Paso en el que está el pedido: 1 recibido, 2 en cocina, 3 listo o de camino, 4 entregado. */
+  nivel(pedido: any): number {
+    return this.getNivelEstado(pedido);
+  }
+
+  /** Nombre del paso actual, para la etiqueta de la cabecera de la tarjeta. */
+  estadoActual(pedido: any): string {
+    switch (this.getNivelEstado(pedido)) {
+      case 4: return this.idiomas.t('paso.entregado');
+      case 3: return this.getPaso3Label(pedido);
+      case 2: return this.idiomas.t('paso.cocina');
+      default: return this.idiomas.t('paso.recibido');
+    }
+  }
+
+  /** Los que aún no se han entregado, primero el más reciente. */
+  get pedidosEnCurso(): Pedido[] {
+    return this.ordenados(this.pedidos.filter(p => this.getNivelEstado(p) < 4));
+  }
+
+  /** Los servidos o entregados (se ven 30 minutos), primero el más reciente. */
+  get pedidosTerminados(): Pedido[] {
+    return this.ordenados(this.pedidos.filter(p => this.getNivelEstado(p) === 4));
+  }
+
+  private ordenados(pedidos: Pedido[]): Pedido[] {
+    return [...pedidos].sort((a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime());
+  }
+
   isPasoActivo(pedido: any, paso: string): boolean {
     const nivelActual = this.getNivelEstado(pedido);
 

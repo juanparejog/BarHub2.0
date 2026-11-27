@@ -24,6 +24,7 @@ import { GestionarUsuarioComponent } from './pages/usuarios/gestionar-usuarios/g
 import { VerUsuarioComponent } from './pages/usuarios/ver-usuario/ver-usuario.component';
 import { EditarUsuarioComponent } from './pages/usuarios/editar-usuarios/editar-usuarios.component';
 import { MetricasComponent } from './pages/metricas/metricas.component';
+import { PaginadorComponent } from '../shared/paginador/paginador.component';
 
 @NgModule({
   declarations: [
@@ -53,7 +54,8 @@ import { MetricasComponent } from './pages/metricas/metricas.component';
     AdminRoutingModule,
     UicomponentsModule,
     FormsModule,
-    SharedModule
+    SharedModule,
+    PaginadorComponent
   ]
 })
 export class AdminModule { }

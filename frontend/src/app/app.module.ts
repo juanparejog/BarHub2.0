@@ -7,6 +7,7 @@ import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi, withXhr }
 import { AuthInterceptor } from './auth/auth.interceptor';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { CartaComponent } from './public/carta/carta.component';
+import { PaginadorComponent } from './shared/paginador/paginador.component';
 import { ContactoComponent } from './public/contacto/contacto.component';
 import { ConfirmarPedidoComponent } from './public/confirmar-pedido/confirmar-pedido.component';
 import { GestionarCajaComponent } from './public/gestionar-caja/gestionar-caja.component';
@@ -22,6 +23,7 @@ import { HomeComponent } from './public/home/home.component';
 import { FooterComponent } from './shared/footer/footer.component';
 import { AvisoSesionComponent } from './shared/aviso-sesion/aviso-sesion.component';
 import { ReautenticacionComponent } from './shared/reautenticacion/reautenticacion.component';
+import { AvisosComponent } from './shared/avisos/avisos.component';
 
 import { PrecioPipe, TraducirPipe } from './shared/i18n/traducir.pipe';
 
@@ -51,6 +53,8 @@ import { PrecioPipe, TraducirPipe } from './shared/i18n/traducir.pipe';
         SharedModule,
         AvisoSesionComponent,
         ReautenticacionComponent,
+        AvisosComponent,
+        PaginadorComponent,
         AlergenoIconoComponent,
         TraducirPipe,
         PrecioPipe], providers: [

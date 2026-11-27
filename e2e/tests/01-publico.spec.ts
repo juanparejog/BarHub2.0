@@ -61,4 +61,17 @@ test.describe('Visitante sin sesión', () => {
     expect(violacionesCsp[0]).toMatch(/^script-src(-elem)?: inline/);
     violacionesCsp.length = 0;
   });
+
+  test('las fuentes y los iconos se sirven desde la propia web, sin Google Fonts', async ({ page }) => {
+    const respuesta = await page.goto('/home');
+    const csp = respuesta?.headers()['content-security-policy'] ?? '';
+    expect(csp).not.toMatch(/fonts\.(googleapis|gstatic)\.com/);
+    expect(csp).toContain("font-src 'self'");
+    // Los tests bloquean todo lo que no es de la propia web: si una fuente se carga, es nuestra
+    for (const fuente of ['16px "Inter Variable"', '700 16px "Merriweather Variable"', '24px "Material Icons"', '16px "bootstrap-icons"']) {
+      const cargadas = await page.evaluate(async f => (await document.fonts.load(f)).length, fuente);
+      expect(cargadas, `fuente ${fuente}`).toBeGreaterThan(0);
+    }
+    expect(await page.evaluate(() => getComputedStyle(document.body).fontFamily)).toContain('Inter Variable');
+  });
 });

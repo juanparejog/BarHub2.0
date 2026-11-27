@@ -47,7 +47,7 @@
 }
 
 .header-titles h2 {
-  font-family: 'Merriweather', serif;
+  font-family: var(--fuente-titulos);
   color: var(--text-title);
   font-size: 2rem;
   font-weight: 700;
@@ -98,7 +98,7 @@
 
 .col-sidebar {
   position: sticky;
-  top: 24px;
+  top: calc(var(--alto-barra) + 24px);
 }
 
 /* Tarjetas Informativas */
@@ -115,7 +115,7 @@
   font-size: 1.15rem;
   font-weight: 700;
   margin: 0 0 16px 0;
-  font-family: 'Merriweather', serif;
+  font-family: var(--fuente-titulos);
 }
 
 .card-header-flex {
@@ -255,7 +255,7 @@
 }
 
 .summary-card h3 {
-  font-family: 'Merriweather', serif;
+  font-family: var(--fuente-titulos);
   color: var(--text-title);
   font-size: 1.25rem;
   font-weight: 700;
