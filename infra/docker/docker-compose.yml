@@ -104,7 +104,7 @@ services:
   mailpit:
     # Solo para desarrollo y pruebas: captura todos los correos y no entrega ninguno.
     # Bandeja en http://localhost:8025 (solo desde el propio equipo)
-    image: axllent/mailpit:v1.33.1
+    image: axllent/mailpit:v1.34.0
     container_name: barhub-mailpit
     restart: unless-stopped
     ports:
