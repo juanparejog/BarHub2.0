@@ -55,8 +55,14 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        # css:S9440 (movimiento reducido) solo busca el @media en el mismo archivo, pero la regla
-        # global de frontend/src/styles.css ya lo aplica a todos los componentes (ver docs/auditorias.md)
+        # Avisos revisados y descartados, cada uno limitado a su regla y su archivo (motivos en docs/auditorias.md):
+        # - css:S9440 (movimiento reducido) solo busca el @media en el mismo archivo, pero la regla
+        #   global de frontend/src/styles.css ya lo aplica a todos los componentes
+        # - java:S4790 en Totp: la RFC 6238 y las apps de autenticacion exigen HMAC-SHA1, que no se
+        #   ve afectado por las colisiones de SHA1
+        # - java:S2143 en JwtUtils: JJWT 0.13 solo acepta java.util.Date en issuedAt y expiration
+        # - Web:S6840 en el telefono del perfil: tel-national es un valor valido de autocomplete;
+        #   con tel el navegador pondria el prefijo +34 y no cabria en las 9 cifras
         with:
           args: >
             -Dsonar.organization=juanparejog
@@ -71,9 +77,15 @@ jobs:
             -Dsonar.java.test.binaries=backend/build/classes/java/test
             -Dsonar.coverage.jacoco.xmlReportPaths=backend/build/reports/jacoco/test/jacocoTestReport.xml
             -Dsonar.javascript.lcov.reportPaths=frontend/coverage/BarHub/lcov.info
-            -Dsonar.issue.ignore.multicriteria=movimiento
+            -Dsonar.issue.ignore.multicriteria=movimiento,totp,jwt,telefono
             -Dsonar.issue.ignore.multicriteria.movimiento.ruleKey=css:S9440
             -Dsonar.issue.ignore.multicriteria.movimiento.resourceKey=frontend/src/app/**/*.css
+            -Dsonar.issue.ignore.multicriteria.totp.ruleKey=java:S4790
+            -Dsonar.issue.ignore.multicriteria.totp.resourceKey=backend/src/main/java/com/daw2/barhub/auth/dosfactores/Totp.java
+            -Dsonar.issue.ignore.multicriteria.jwt.ruleKey=java:S2143
+            -Dsonar.issue.ignore.multicriteria.jwt.resourceKey=backend/src/main/java/com/daw2/barhub/auth/jwt/JwtUtils.java
+            -Dsonar.issue.ignore.multicriteria.telefono.ruleKey=Web:S6840
+            -Dsonar.issue.ignore.multicriteria.telefono.resourceKey=frontend/src/app/public/perfil/direccion/perfil-direccion.component.html
 
   e2e:
     # La aplicacion completa (MariaDB, backend, frontend y Caddy) levantada con Docker Compose
