@@ -219,6 +219,6 @@ El interruptor situado en la esquina superior derecha de la barra de navegación
 
 ## 9. Idioma
 
-El desplegable **ES · Español** de la barra de navegación cambia toda la parte del cliente (portada, carta, pedido, seguimiento, inicio de sesión, registro, perfil, contacto y textos legales) a **portugués** o **inglés** al momento, sin recargar. La elección se recuerda en el navegador y, en la primera visita, se usa el idioma del navegador si es uno de los tres. Los precios se muestran con el formato de cada idioma y los alérgenos con su nombre oficial en cada uno.
+El desplegable **ES · Español** de la barra de navegación cambia toda la parte del cliente (portada, carta, pedido, seguimiento, inicio de sesión, registro, perfil, contacto y textos legales) a **portugués** o **inglés** al momento, sin recargar. La primera visita sale siempre en español y en modo claro; lo que elija el visitante se recuerda en su navegador. Los precios se muestran con el formato de cada idioma y los alérgenos con su nombre oficial en cada uno.
 
 El selector son tres botones redondos con la bandera de cada idioma, junto al del modo oscuro. Los nombres y descripciones de los productos salen en el idioma elegido cuando el bar los ha traducido; si no, en español. El ticket en PDF sale siempre en español.

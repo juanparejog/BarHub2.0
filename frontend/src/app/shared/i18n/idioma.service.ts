@@ -6,9 +6,10 @@ import { type Clave, type Parametros, traducir, traducirSiExiste } from './texto
 const CLAVE = 'barhub.idioma';
 
 /**
- * Idioma de las pantallas del cliente (español, portugués o inglés). Se cambia en el menú, se recuerda
- * en el navegador y, la primera vez, se toma el del navegador si es uno de los tres. Todo se hace en
- * el navegador: el servidor y los datos (nombres de productos, mensajes de la API) no cambian.
+ * Idioma de las pantallas del cliente (español, portugués o inglés). La primera visita siempre en
+ * español, esté el navegador en el idioma que esté; si el visitante elige otro en el menú, se recuerda
+ * en este navegador. Todo se hace en el navegador: el servidor y los datos (nombres de productos,
+ * mensajes de la API) no cambian.
  */
 @Injectable({ providedIn: 'root' })
 export class IdiomaService {
@@ -73,14 +74,7 @@ function idiomaInicial(): Idioma {
       return guardado;
     }
   } catch {
-    // Sin almacenamiento: se mira el navegador
-  }
-  const preferidos = typeof navigator === 'undefined' ? [] : (navigator.languages ?? [navigator.language]);
-  for (const preferido of preferidos) {
-    const codigo = String(preferido).slice(0, 2).toLowerCase();
-    if (esIdioma(codigo)) {
-      return codigo;
-    }
+    // Sin almacenamiento: español
   }
   return IDIOMA_POR_DEFECTO;
 }

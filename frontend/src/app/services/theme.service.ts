@@ -14,14 +14,18 @@ export class ThemeService {
     this.initTheme();
   }
 
+  /**
+   * La primera visita siempre en modo claro, tenga el sistema el tema que tenga. Si el visitante
+   * cambia al oscuro, se recuerda en este navegador.
+   */
   private initTheme(): void {
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme) {
-      this.setDarkMode(savedTheme === 'dark');
-    } else {
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      this.setDarkMode(prefersDark);
+    let guardado: string | null = null;
+    try {
+      guardado = localStorage.getItem('theme');
+    } catch {
+      // Sin almacenamiento: modo claro
     }
+    this.setDarkMode(guardado === 'dark');
   }
 
   public toggleTheme(): void {

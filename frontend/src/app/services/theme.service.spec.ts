@@ -37,11 +37,11 @@ describe('ThemeService', () => {
     expect(bodyOscuro()).toBe(true);
   });
 
-  it('sin tema guardado sigue la preferencia del sistema y la guarda', () => {
+  it('sin tema guardado empieza en claro aunque el sistema prefiera el oscuro', () => {
     simularPreferenciaOscura(true);
     crearServicio();
-    expect(temaDeBootstrap()).toBe('dark');
-    expect(localStorage.getItem('theme')).toBe('dark');
+    expect(temaDeBootstrap()).toBe('light');
+    expect(bodyOscuro()).toBe(false);
   });
 
   it('toggleTheme alterna el atributo de Bootstrap, la clase del body y lo guardado', () => {

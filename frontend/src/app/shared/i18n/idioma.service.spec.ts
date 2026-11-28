@@ -14,14 +14,10 @@ describe('IdiomaService', () => {
     localStorage.removeItem('barhub.idioma');
   });
 
-  it('la primera vez usa el idioma del navegador si es uno de los tres', () => {
+  it('la primera vez, español, aunque el navegador esté en portugués o inglés', () => {
     idiomasDelNavegador(['pt-PT', 'en']);
-    expect(crear().idioma()).toBe('pt');
-  });
-
-  it('con un idioma del navegador que no tenemos, español', () => {
-    idiomasDelNavegador(['fr-FR', 'de']);
     expect(crear().idioma()).toBe('es');
+    expect(document.documentElement.lang).toBe('es');
   });
 
   it('lo elegido se recuerda por encima del navegador, y uno guardado que no vale se ignora', () => {
@@ -31,7 +27,7 @@ describe('IdiomaService', () => {
 
     TestBed.resetTestingModule();
     localStorage.setItem('barhub.idioma', 'klingon');
-    expect(crear().idioma()).toBe('en');
+    expect(crear().idioma()).toBe('es');
   });
 
   it('al cambiar, traduce, guarda la elección y pone el lang de la página', () => {

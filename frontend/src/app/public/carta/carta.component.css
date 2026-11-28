@@ -38,8 +38,8 @@
   }
   
   .carta-container {
-    /* A todo el ancho en escritorio, con un margen que crece con la pantalla */
-    max-width: none;
+    /* A todo el ancho en escritorio, con un margen que crece con la pantalla y un tope para el zoom alejado */
+    max-width: 1920px;
     margin: 0 auto;
     padding-inline: clamp(0px, 2.5vw, 40px);
     display: flex;

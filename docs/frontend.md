@@ -53,7 +53,7 @@ Tests unitarios actuales:
 
 | Archivo | Qué comprueba |
 | :--- | :--- |
-| `services/theme.service.spec.ts` | Tema guardado frente a la preferencia del sistema, `data-bs-theme`, clase `dark-theme` e `isDarkMode$` |
+| `services/theme.service.spec.ts` | Modo claro de inicio aunque el sistema prefiera el oscuro, tema guardado, `data-bs-theme`, clase `dark-theme` e `isDarkMode$` |
 | `auth/role.guard.spec.ts` | Acceso por rol: admin, empleado, cliente y sin sesión |
 | `auth/auth.interceptor.spec.ts` | Cabecera `Bearer`, limpieza de la sesión y redirección al login ante un 401 |
 | `main/services/shared/services/dialog.service.spec.ts` | Toast sin interpretar HTML, modal y la confirmación cancelada que no se ejecuta después |
@@ -201,7 +201,7 @@ Las pantallas del cliente están en **español, portugués (de Portugal) e ingl�
 | Cambio al momento | El idioma es una señal; las tuberías `t` y `precio` no son puras, así que al cambiarlo se repinta lo que esté a la vista, también en componentes `OnPush` |
 | Selector | `SelectorIdiomaComponent` en el menú: una pastilla con tres botones redondos con la bandera de España, Portugal y Reino Unido (SVG dibujado, sin imágenes), como el interruptor del modo oscuro. Cada botón lleva el nombre del idioma en ese idioma, su `lang` y `aria-pressed` en el activo |
 | Productos | `nombrePt`, `nombreEn`, `descripcionPt` y `descripcionEn` de cada producto (los escribe el administrador). `nombreDe()` y `descripcionDe()` de `producto-idioma.ts` eligen la del idioma y, si falta, la española. Se usan en la carta, la confirmación y el seguimiento |
-| Primera visita | Si el navegador está en portugués o inglés, se usa ese; si no, español. La elección se guarda en `barhub.idioma` |
+| Primera visita | Siempre en español, esté el navegador en el idioma que esté (y en modo claro, aunque el sistema use el oscuro). Lo que elige el visitante se guarda en `barhub.idioma` (y el tema en `theme`) |
 | Accesibilidad | Se cambia el `lang` de `<html>` para que los lectores de pantalla pronuncien bien. Los alérgenos tienen el nombre del Reglamento (UE) 1169/2011 en cada idioma |
 | Stripe | El formulario de la tarjeta se crea con el idioma elegido (`elements({ locale })`) |
 | Mensajes de la API | El servidor responde en español. `IdiomaService.delServidor(mensaje, clave)` lo muestra tal cual en español y, en portugués o inglés, pone el texto de la clave, que dice lo mismo sin los detalles (por ejemplo, «Incorrect code.») |

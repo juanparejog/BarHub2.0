@@ -52,14 +52,15 @@ test('el visitante cambia la carta a inglés y a portugués, y la elección se r
   await expect(page.getByRole('heading', { name: 'Carta Digital' })).toBeVisible();
 });
 
-test.describe('con un navegador en portugués', () => {
-  test.use({ locale: 'pt-PT' });
+test.describe('con un navegador en portugués y el sistema en modo oscuro', () => {
+  test.use({ locale: 'pt-PT', colorScheme: 'dark' });
 
-  test('la primera visita sale en portugués sin tocar nada', async ({ page }) => {
+  test('la primera visita sale en español y en modo claro', async ({ page }) => {
     await page.goto('/home');
-    await expect(page.locator('html')).toHaveAttribute('lang', 'pt');
-    await expect(page.getByRole('link', { name: 'Ver a ementa digital' })).toBeVisible();
-    await expect(idiomaMarcado(page)).toHaveAttribute('lang', 'pt');
+    await expect(page.locator('html')).toHaveAttribute('lang', 'es');
+    await expect(page.locator('html')).toHaveAttribute('data-bs-theme', 'light');
+    await expect(page.getByRole('link', { name: 'Ver Carta Digital' })).toBeVisible();
+    await expect(idiomaMarcado(page)).toHaveAttribute('lang', 'es');
   });
 });
 

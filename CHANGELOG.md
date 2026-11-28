@@ -80,6 +80,7 @@ El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y e
 - El usuario de la aplicación queda obligado a usar TLS (`REQUIRE SSL`): una conexión sin cifrar se rechaza. En instalaciones nuevas lo aplica `infra/docker/initdb/10-tls-obligatorio.sh`; en las existentes se aplica una vez a mano.
 
 ### Cambiado
+- La primera visita sale siempre en español y en modo claro, sin mirar el idioma del navegador ni el tema del sistema. Si el visitante cambia el idioma o pasa al modo oscuro, se le recuerda en su navegador como antes.
 - Portada y carta a todo el ancho de la pantalla en escritorio: el carrusel va de lado a lado y las secciones tienen un margen que crece con la pantalla.
 - La barra superior se queda arriba al bajar (el `sticky` pasa a `<app-menu>`, porque dentro de él el `<nav>` no tenía sitio para moverse). Las barras pegajosas de la carta, la confirmación y el perfil se colocan debajo de ella (`--alto-barra`).
 - Seguimiento del pedido: cada paso con su color (recibido en azul, en cocina en ámbar, listo en índigo y entregado en verde), etiqueta con el estado actual, franja de color en la tarjeta, onda en el paso actual, pedidos en curso separados de los ya entregados y dos columnas en pantallas anchas.
