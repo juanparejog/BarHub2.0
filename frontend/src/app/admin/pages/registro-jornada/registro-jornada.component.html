@@ -11,11 +11,11 @@
 
   <!-- Periodo -->
   <form class="crud-card jornada-filtros" (ngSubmit)="cargar()" aria-label="Periodo del registro de jornada">
-    <div class="jornada-rangos" role="group" aria-label="Rango rápido">
+    <fieldset class="jornada-rangos" aria-label="Rango rápido">
       <button type="button" class="jornada-rango" [class.activo]="dias === 1" (click)="elegirRango(1)">Hoy</button>
       <button type="button" class="jornada-rango" [class.activo]="dias === 7" (click)="elegirRango(7)">Últimos 7 días</button>
       <button type="button" class="jornada-rango" [class.activo]="dias === 30" (click)="elegirRango(30)">Últimos 30 días</button>
-    </div>
+    </fieldset>
     <div class="d-flex flex-wrap align-items-end gap-3">
       <div>
         <label for="jornadaDesde" class="form-label">Desde</label>

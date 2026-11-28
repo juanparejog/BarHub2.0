@@ -23,13 +23,13 @@
   <h3 id="tituloCambioCorreo" class="h6 fw-bold mb-1"><i class="bi bi-arrow-left-right text-indigo me-2" aria-hidden="true"></i>{{ 'perfil.cuenta.cambiar' | t }}</h3>
 
   @if (perfil.seguridad()?.cambioCorreoPendiente; as pendiente) {
-    <div class="alert alert-info custom-alert font-size-14 d-flex flex-wrap align-items-center gap-2" role="status" data-testid="cambio-pendiente">
+    <output class="alert alert-info custom-alert font-size-14 d-flex flex-wrap align-items-center gap-2" data-testid="cambio-pendiente">
       <span class="flex-grow-1">
         <i class="bi bi-hourglass-split me-1" aria-hidden="true"></i>
         {{ 'perfil.cuenta.pendiente.antes' | t }} <strong class="text-break">{{ pendiente }}</strong>{{ 'perfil.cuenta.pendiente.despues' | t }}
       </span>
       <button type="button" class="btn-crud-secondary px-3 py-1" (click)="cancelar()">{{ 'perfil.cuenta.cancelarCambio' | t }}</button>
-    </div>
+    </output>
   }
 
   <p class="text-muted font-size-14 mb-3">{{ 'perfil.cuenta.explicacion' | t }}</p>
@@ -51,6 +51,6 @@
     <div class="alert alert-danger custom-alert mt-3 mb-0" role="alert">{{ error() }}</div>
   }
   @if (exito()) {
-    <div class="alert alert-success custom-alert mt-3 mb-0" role="status">{{ exito() }}</div>
+    <output class="alert alert-success custom-alert mt-3 mb-0 d-block">{{ exito() }}</output>
   }
 </section>

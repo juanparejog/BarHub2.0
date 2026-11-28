@@ -43,7 +43,7 @@ describe('RegistroJornadaComponent', () => {
     const raiz = crear().nativeElement as HTMLElement;
 
     const filas = Array.from(raiz.querySelectorAll('tbody tr'));
-    expect(filas.length).toBe(3);
+    expect(filas).toHaveLength(3);
     expect(filas[0].textContent).toContain('En curso');
     expect(filas[1].textContent).toContain('Terminado');
     expect(filas[1].textContent).toContain('7 h 45 min');
@@ -69,12 +69,12 @@ describe('RegistroJornadaComponent', () => {
 
     pablo.click();
     fixture.detectChanges();
-    expect(raiz.querySelectorAll('tbody tr').length).toBe(1);
+    expect(raiz.querySelectorAll('tbody tr')).toHaveLength(1);
     expect(pablo.getAttribute('aria-pressed')).toBe('true');
 
     pablo.click();
     fixture.detectChanges();
-    expect(raiz.querySelectorAll('tbody tr').length).toBe(3);
+    expect(raiz.querySelectorAll('tbody tr')).toHaveLength(3);
   });
 
   it('los rangos rápidos cambian las fechas y consultan', () => {

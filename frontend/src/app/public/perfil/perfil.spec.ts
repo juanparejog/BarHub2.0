@@ -218,7 +218,7 @@ describe('Perfil: verificación en dos pasos', () => {
     raiz.querySelector('form')!.dispatchEvent(new Event('submit'));
     fixture.detectChanges();
     expect(perfil.activarDosFactores).toHaveBeenCalledWith('123456');
-    expect(raiz.querySelectorAll('ul.codigos li').length).toBe(10);
+    expect(raiz.querySelectorAll('ul.codigos li')).toHaveLength(10);
 
     raiz.querySelector<HTMLInputElement>('#codigosGuardados')!.click();
     fixture.detectChanges();
@@ -238,7 +238,7 @@ describe('Perfil: verificación en dos pasos', () => {
     boton(raiz, 'Generar códigos nuevos').click();
     fixture.detectChanges();
     expect(confirmar).toHaveBeenCalled();
-    expect(raiz.querySelectorAll('ul.codigos li').length).toBe(10);
+    expect(raiz.querySelectorAll('ul.codigos li')).toHaveLength(10);
   });
 
   it('un cliente puede desactivarla tras confirmar', () => {
@@ -273,7 +273,7 @@ describe('Perfil: sesiones abiertas', () => {
     expect(texto(raiz)).toContain('Este navegador');
     expect(texto(raiz)).toContain('Chrome en Android');
     expect(texto(raiz)).toContain('hace 2 horas');
-    expect(raiz.querySelectorAll('li.sesion-item button').length).toBe(1);
+    expect(raiz.querySelectorAll('li.sesion-item button')).toHaveLength(1);
 
     raiz.querySelector<HTMLButtonElement>('li.sesion-item button')!.click();
     fixture.detectChanges();
@@ -290,7 +290,7 @@ describe('Perfil: sesiones abiertas', () => {
     boton(raiz, 'Cerrar todas las demás').click();
     fixture.detectChanges();
     expect(texto(raiz)).toContain('Hemos cerrado 1 sesión.');
-    expect(raiz.querySelectorAll('li.sesion-item').length).toBe(1);
+    expect(raiz.querySelectorAll('li.sesion-item')).toHaveLength(1);
     expect(boton(raiz, 'Cerrar todas las demás')).toBeUndefined();
   });
 });

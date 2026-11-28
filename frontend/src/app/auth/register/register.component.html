@@ -7,7 +7,7 @@
   </app-toast>
 
   @if (registrado) {
-    <div class="registro-confirmar" role="status">
+    <output class="registro-confirmar d-block">
       <h2>{{ 'registro.revisa' | t }}</h2>
       <p>
         {{ 'registro.enviado.antes' | t }} <strong>{{ correoEnviadoA }}</strong> {{ 'registro.enviado.despues' | t }}
@@ -17,7 +17,7 @@
         <button type="button" class="btn btn-outline-secondary" (click)="reenviarCorreo()">{{ 'registro.reenviar' | t }}</button>
         <a class="btn btn-primary" routerLink="/auth/login">{{ 'auth.irAlLogin' | t }}</a>
       </div>
-    </div>
+    </output>
   } @else {
   <h2>{{ 'registro.titulo' | t }}</h2>
   <form #registerForm="ngForm" (ngSubmit)="onSubmit()">

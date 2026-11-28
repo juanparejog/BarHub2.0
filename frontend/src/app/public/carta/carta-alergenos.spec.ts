@@ -53,7 +53,7 @@ describe('CartaComponent: alérgenos y mesa del QR', () => {
 
     carta.alternarAlergeno('GLUTEN');
     carta.categoriaSeleccionada = 'todos';
-    expect(carta.productosFiltrados.length).toBe(4);
+    expect(carta.productosFiltrados).toHaveLength(4);
   });
 
   it('recuerda los alérgenos elegidos en este navegador e ignora lo que no sea un alérgeno', () => {

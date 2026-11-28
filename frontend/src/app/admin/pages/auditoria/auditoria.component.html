@@ -28,11 +28,11 @@
 
   <!-- Filtros -->
   <form class="crud-card auditoria-filtros" (ngSubmit)="buscar()" aria-label="Filtros del registro de auditoría">
-    <div class="auditoria-rangos" role="group" aria-label="Rango rápido">
+    <fieldset class="auditoria-rangos" aria-label="Rango rápido">
       <button type="button" class="auditoria-rango" [class.activo]="dias() === 1" (click)="elegirRango(1)">Hoy</button>
       <button type="button" class="auditoria-rango" [class.activo]="dias() === 7" (click)="elegirRango(7)">Últimos 7 días</button>
       <button type="button" class="auditoria-rango" [class.activo]="dias() === 30" (click)="elegirRango(30)">Últimos 30 días</button>
-    </div>
+    </fieldset>
     <div class="row g-3 align-items-end">
       <div class="col-6 col-lg-2">
         <label for="auditoriaDesde" class="form-label">Desde</label>
@@ -80,7 +80,7 @@
   <div class="crud-card" #listado>
     <div class="auditoria-cabecera-tabla">
       <h2 class="h6 fw-bold mb-0">Entradas</h2>
-      <span class="auditoria-total" role="status">{{ total() }} {{ total() === 1 ? 'entrada' : 'entradas' }}</span>
+      <output class="auditoria-total">{{ total() }} {{ total() === 1 ? 'entrada' : 'entradas' }}</output>
     </div>
     <div class="table-responsive" [class.cargando]="cargando()">
       <table class="crud-table mb-0">

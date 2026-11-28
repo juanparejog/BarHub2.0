@@ -442,6 +442,24 @@ app-menu > .custom-navbar {
   view-transition-name: barra-superior;
 }
 
+/* Diálogos propios con <dialog open> (avisos, foto del perfil, reautenticación): sin los estilos que
+   pone el navegador al elemento (borde, relleno, fondo, tamaño y posición). Va en :where() para no
+   pesar nada: cualquier clase (.modal, .crud-card, .aviso-dialogo, p-4...) manda sobre este reinicio */
+:where(dialog.dialogo-propio) {
+  position: static;
+  inset: auto;
+  width: auto;
+  height: auto;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  overflow: visible;
+}
+
 /* Al saltar a un listado (paginación) no queda debajo de la barra */
 .crud-card {
   scroll-margin-top: calc(var(--alto-barra) + 16px);

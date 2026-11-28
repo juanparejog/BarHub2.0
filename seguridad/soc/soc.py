@@ -58,6 +58,37 @@ class ErrorSoc(Exception):
     """Fallo que se explica al usuario sin traza."""
 
 
+# Sitios contra los que "probar" puede lanzar el ataque simulado: el propio equipo y, si esta
+# definido, el dominio de BarHub del .env (SITE_ADDRESS). Nunca un sitio de otro.
+SITIOS_LOCALES = ("localhost", "127.0.0.1", "::1")
+
+
+def sitio_de_prueba(base: str, env: dict[str, str]) -> str:
+    """La URL de --base, rehecha con piezas conocidas, o ErrorSoc si no es de BarHub.
+
+    El esquema sale de una lista fija, el nombre del equipo de la lista de sitios permitidos (no
+    de lo escrito) y el puerto es un numero: lo que se usa despues no es el texto de la linea de
+    ordenes, y no se puede apuntar a otro servidor, a una ruta ni a credenciales."""
+    partes = urllib.parse.urlsplit(base.strip())
+    esquema = {"http": "http", "https": "https"}.get(partes.scheme.lower())
+    if esquema is None:
+        raise ErrorSoc(f"--base tiene que empezar por http:// o https://: {base!r}")
+    if partes.username or partes.password or partes.query or partes.fragment or partes.path not in ("", "/"):
+        raise ErrorSoc(f"--base es solo el sitio, sin usuario, ruta ni parametros: {base!r}")
+    dominio = urllib.parse.urlsplit(env.get("SITE_ADDRESS", "") if "://" in env.get("SITE_ADDRESS", "")
+                                    else "//" + env.get("SITE_ADDRESS", "")).hostname
+    permitidos = SITIOS_LOCALES + ((dominio,) if dominio else ())
+    equipo = next((sitio for sitio in permitidos if sitio == (partes.hostname or "").lower()), None)
+    if equipo is None:
+        raise ErrorSoc(f"--base solo puede ser este equipo o el dominio de SITE_ADDRESS: {partes.hostname!r}")
+    try:
+        puerto = partes.port
+    except ValueError as e:
+        raise ErrorSoc(f"--base lleva un puerto que no vale: {base!r}") from e
+    nombre = f"[{equipo}]" if ":" in equipo else equipo
+    return f"{esquema}://{nombre}" + (f":{int(puerto)}" if puerto else "")
+
+
 # ---------------------------------------------------------------- configuracion
 
 def leer_env(ruta: Path) -> dict[str, str]:
@@ -216,7 +247,7 @@ def bloque_de_servicio(compose: str, servicio: str) -> str:
 
 def puertos_publicados(bloque: str) -> list[str]:
     """Los "host:contenedor" de la seccion ports de un servicio."""
-    m = re.search(r"^    ports:\n((?:      - .*\n?)+)", bloque, flags=re.MULTILINE)
+    m = re.search(r"^ {4}ports:\n((?: {6}- .*\n?)+)", bloque, flags=re.MULTILINE)
     return re.findall(r'-\s*"?([^"\s]+)"?', m.group(1)) if m else []
 
 
@@ -236,28 +267,40 @@ def problemas_estaticos() -> list[str]:
             problemas.append(f"Falta {ruta.relative_to(RAIZ)}")
     if problemas:
         return problemas
+    problemas += _problemas_de_reglas_y_panel()
+    compose = COMPOSE.read_text(encoding="utf-8")
+    for servicio in SERVICIOS:
+        problemas += _problemas_del_servicio(servicio, compose)
+    return problemas
+
+
+def _problemas_de_reglas_y_panel() -> list[str]:
+    problemas = []
     nombres = nombres_de_reglas()
     if len(nombres) != len(set(nombres)):
         problemas.append("Hay reglas de alerta con el mismo nombre")
-    for esperada in ALERTAS_DE_LA_PRUEBA:
-        if esperada not in nombres:
-            problemas.append(f"La prueba espera la alerta {esperada}, que no esta en las reglas")
+    problemas += [f"La prueba espera la alerta {esperada}, que no esta en las reglas"
+                  for esperada in ALERTAS_DE_LA_PRUEBA if esperada not in nombres]
     try:
         json.loads(PANEL.read_text(encoding="utf-8"))
     except json.JSONDecodeError as e:
         problemas.append(f"El panel de Grafana no es JSON valido: {e}")
-    compose = COMPOSE.read_text(encoding="utf-8")
-    for servicio in SERVICIOS:
-        bloque = bloque_de_servicio(compose, servicio)
-        if 'profiles: ["soc"]' not in bloque:
-            problemas.append(f"{servicio} tiene que estar solo en el perfil soc")
-        for puerto in puertos_publicados(bloque):
-            if not puerto.startswith("127.0.0.1:"):
-                problemas.append(f"{servicio} publica {puerto} fuera del equipo")
-        if "docker.sock" in bloque:
-            problemas.append(f"{servicio} monta el socket de Docker")
-        if imagen(servicio, compose).endswith(":latest") or ":" not in imagen(servicio, compose):
-            problemas.append(f"{servicio} no tiene la version de la imagen fijada")
+    return problemas
+
+
+def _problemas_del_servicio(servicio: str, compose: str) -> list[str]:
+    """Perfil soc, puertos solo en 127.0.0.1, sin el socket de Docker y con la version fijada."""
+    bloque = bloque_de_servicio(compose, servicio)
+    problemas = []
+    if 'profiles: ["soc"]' not in bloque:
+        problemas.append(f"{servicio} tiene que estar solo en el perfil soc")
+    problemas += [f"{servicio} publica {puerto} fuera del equipo"
+                  for puerto in puertos_publicados(bloque) if not puerto.startswith("127.0.0.1:")]
+    if "docker.sock" in bloque:
+        problemas.append(f"{servicio} monta el socket de Docker")
+    version = imagen(servicio, compose)
+    if version.endswith(":latest") or ":" not in version:
+        problemas.append(f"{servicio} no tiene la version de la imagen fijada")
     return problemas
 
 
@@ -289,7 +332,7 @@ def pedir(url: str, metodo: str = "GET", datos: bytes | None = None, cabeceras: 
             return r.status, r.read().decode("utf-8", "replace")
     except urllib.error.HTTPError as e:
         return e.code, e.read().decode("utf-8", "replace")
-    except (urllib.error.URLError, OSError) as e:
+    except OSError as e:  # URLError es un OSError: sin conexion, nombre que no existe, tiempo agotado...
         return 0, str(e)
 
 
@@ -698,7 +741,8 @@ def main(argv: list[str] | None = None) -> int:
         if args.orden == "desplegar":
             return desplegar(cfg, args.aplicar)
         if args.orden == "probar":
-            return probar(cfg, args.aplicar, args.base, args.espera, args.espera_previa)
+            base = sitio_de_prueba(args.base, leer_env(ENV))
+            return probar(cfg, args.aplicar, base, args.espera, args.espera_previa)
         if args.orden == "estado":
             return estado()
         return parar(args.aplicar)

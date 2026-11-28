@@ -5,12 +5,12 @@
 
 .home-bar-container {
   width: 100%;
-  max-width: 1200px;
+  max-width: 1920px;
   margin: 0 auto;
-  padding: 28px 16px;
+  padding: clamp(16px, 2vw, 32px) clamp(16px, 3vw, 56px) 48px;
   display: flex;
   flex-direction: column;
-  gap: 36px;
+  gap: 40px;
   box-sizing: border-box;
 }
 
@@ -49,11 +49,12 @@
 }
 
 .home-bar-carousel {
-  border-radius: 20px;
+  border-radius: 24px;
   overflow: hidden;
   box-shadow: 0 16px 36px rgba(10, 35, 66, 0.2);
   background: #0A2342;
   position: relative;
+  isolation: isolate;
 }
 
 .carousel-img {
@@ -71,7 +72,7 @@
 .carousel-caption {
   background: linear-gradient(180deg, rgba(10, 35, 66, 0) 0%, rgba(10, 35, 66, 0.92) 100%);
   border-radius: 0 0 20px 20px;
-  padding: 32px 28px 24px;
+  padding: clamp(32px, 5vw, 72px) clamp(24px, 6vw, 96px) clamp(28px, 4vw, 56px);
   left: 0;
   right: 0;
   bottom: 0;
@@ -94,7 +95,7 @@
 
 .carousel-caption h5 {
   font-family: var(--fuente-titulos);
-  font-size: 1.75rem;
+  font-size: clamp(1.6rem, 3vw, 2.75rem);
   font-weight: 700;
   margin-bottom: 6px;
   color: #ffffff;
@@ -102,11 +103,11 @@
 }
 
 .carousel-caption p {
-  font-size: 1rem;
+  font-size: clamp(1rem, 1.25vw, 1.2rem);
   margin-bottom: 0;
   opacity: 0.95;
   color: #e2e8f0;
-  max-width: 650px;
+  max-width: 760px;
 }
 
 .carousel-control-prev, .carousel-control-next {
@@ -564,39 +565,8 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
 }
 
-/* =========================================================
-   PORTADA A TODO EL ANCHO: el carrusel y las secciones con el
-   mismo margen, que crece con la pantalla, y bordes redondeados
-   ========================================================= */
-
-/* El carrusel, la tarjeta del bar y el mapa van en la misma columna, del mismo ancho: casi toda la
-   pantalla, pero con un tope para que al alejar el zoom (Ctrl -) no se estiren sin fin */
-.home-bar-container {
-  max-width: 1920px;
-  padding: clamp(16px, 2vw, 32px) clamp(16px, 3vw, 56px) 48px;
-  gap: 40px;
-}
-
-.home-bar-carousel {
-  border-radius: 24px;
-  box-shadow: 0 16px 36px rgba(10, 35, 66, 0.2);
-  /* El redondeo también recorta las fotos mientras pasan de una a otra */
-  isolation: isolate;
-}
-
-.carousel-caption {
-  padding: clamp(32px, 5vw, 72px) clamp(24px, 6vw, 96px) clamp(28px, 4vw, 56px);
-}
-
-.carousel-caption h5 {
-  font-size: clamp(1.6rem, 3vw, 2.75rem);
-}
-
-.carousel-caption p {
-  font-size: clamp(1rem, 1.25vw, 1.2rem);
-  max-width: 760px;
-}
-
+/* Escritorio: carrusel más alto y secciones con más aire. El ancho de la columna (casi toda la
+   pantalla, con tope de 1920 px para el zoom alejado) está en .home-bar-container */
 @media (min-width: 901px) {
   .carousel-img {
     height: clamp(380px, 58vh, 640px);

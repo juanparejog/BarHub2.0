@@ -28,7 +28,7 @@ describe('ReautenticacionComponent', () => {
 
   it('no pinta nada mientras no se pide', () => {
     const { raiz } = crear();
-    expect(raiz.querySelector('[role="dialog"]')).toBeNull();
+    expect(raiz.querySelector('dialog')).toBeNull();
   });
 
   it('pide el código de la app y lo envía', () => {
@@ -37,7 +37,7 @@ describe('ReautenticacionComponent', () => {
     solicitud.set('codigo');
     fixture.detectChanges();
 
-    expect(raiz.querySelector('[role="dialog"]')?.textContent).toContain('código de 6 dígitos');
+    expect(raiz.querySelector('dialog')?.textContent).toContain('código de 6 dígitos');
     expect(raiz.querySelector('#campoReautenticacion')?.getAttribute('autocomplete')).toBe('one-time-code');
     escribirYConfirmar(raiz, ' 123456 ');
     expect(servicio.confirmar).toHaveBeenCalledWith('123456');
@@ -60,7 +60,7 @@ describe('ReautenticacionComponent', () => {
     escribirYConfirmar(raiz, '000000');
     fixture.detectChanges();
     expect(raiz.querySelector('[role="alert"]')?.textContent).toContain('Código incorrecto.');
-    expect(raiz.querySelector('[role="dialog"]')).not.toBeNull();
+    expect(raiz.querySelector('dialog')).not.toBeNull();
   });
 
   it('Cancelar la cierra sin confirmar', () => {

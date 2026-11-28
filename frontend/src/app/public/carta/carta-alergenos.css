@@ -155,7 +155,8 @@
 
 :host-context(.dark-theme) .chip-alergeno.activo {
   border-color: #f87171;
-  background: rgba(248, 113, 113, 0.12);
+  /* Rojo al 12 % sobre la tarjeta oscura, en color sólido para que el contraste sea medible */
+  background: #383242;
   color: #f1f5f9;
 }
 

@@ -164,7 +164,7 @@ export class ConfirmarPedidoComponent implements OnInit {
 
   /** Identifica el carrito, para no reutilizar un pago cobrado con otros productos. */
   private carritoDelPago(): string {
-    return this.lineasDePago().map(l => `${l.id_producto}x${l.cantidad}`).sort().join(',');
+    return this.lineasDePago().map(l => `${l.id_producto}x${l.cantidad}`).sort((a, b) => a.localeCompare(b)).join(',');
   }
 
   /**

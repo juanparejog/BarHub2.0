@@ -32,10 +32,10 @@
     <button type="submit">{{ 'login.entrar' | t }}</button>
   </form>
   @if (pendienteConfirmar) {
-    <div class="login-confirmar" role="status">
+    <output class="login-confirmar d-block">
       <p>{{ 'login.pendiente' | t }}</p>
       <button type="button" class="btn btn-outline-secondary" (click)="reenviarConfirmacion()">{{ 'login.reenviar' | t }}</button>
-    </div>
+    </output>
   }
   <p class="login-olvido"><a routerLink="/auth/recuperar">{{ 'login.olvido' | t }}</a></p>
 </div>

@@ -56,6 +56,8 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
+  private static final String SESION_CADUCADA = "Tu sesión ha caducado. Vuelve a iniciar sesión.";
+
   @Autowired
   AuthenticationManager authenticationManager;
 
@@ -280,7 +282,7 @@ public class AuthController {
     String sesion = (String) request.getAttribute(SesionService.ATRIBUTO_SESION);
     if (sesion == null || autenticacion == null || !(autenticacion.getPrincipal() instanceof UserDetailsImpl usuario)) {
       return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-              .body(new MessageResponse("Tu sesión ha caducado. Vuelve a iniciar sesión."));
+              .body(new MessageResponse(SESION_CADUCADA));
     }
     String ip = ipCliente(request);
     long espera = loginAttemptService.segundosRestantes(usuario.getUsername(), ip);
@@ -302,7 +304,7 @@ public class AuthController {
     Instant hasta = reautenticacion.confirmar(sesion, usuario.getId());
     if (hasta == null) {
       return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-              .body(new MessageResponse("Tu sesión ha caducado. Vuelve a iniciar sesión."));
+              .body(new MessageResponse(SESION_CADUCADA));
     }
     return ResponseEntity.ok(new ReautenticacionResponse(hasta.toEpochMilli()));
   }
@@ -372,7 +374,7 @@ public class AuthController {
     } catch (SesionInvalidaException e) {
       return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
               .header(HttpHeaders.SET_COOKIE, cookieBorrada().toString())
-              .body(new MessageResponse("Tu sesión ha caducado. Vuelve a iniciar sesión."));
+              .body(new MessageResponse(SESION_CADUCADA));
     }
   }
 

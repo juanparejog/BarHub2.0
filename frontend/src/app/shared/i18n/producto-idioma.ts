@@ -12,12 +12,12 @@ export interface ProductoTraducible {
 
 /** El nombre en el idioma pedido; si el bar no lo ha traducido, el de siempre (en español). */
 export function nombreDe(producto: ProductoTraducible, idioma: Idioma): string {
-  const traducido = idioma === 'pt' ? producto.nombrePt : idioma === 'en' ? producto.nombreEn : null;
-  return traducido?.trim() || producto.nombre;
+  const traducciones: Partial<Record<Idioma, string | null | undefined>> = { pt: producto.nombrePt, en: producto.nombreEn };
+  return traducciones[idioma]?.trim() || producto.nombre;
 }
 
 /** La descripción en el idioma pedido; si no está traducida, la de siempre (puede estar vacía). */
 export function descripcionDe(producto: ProductoTraducible, idioma: Idioma): string {
-  const traducida = idioma === 'pt' ? producto.descripcionPt : idioma === 'en' ? producto.descripcionEn : null;
-  return traducida?.trim() || producto.descripcion || '';
+  const traducciones: Partial<Record<Idioma, string | null | undefined>> = { pt: producto.descripcionPt, en: producto.descripcionEn };
+  return traducciones[idioma]?.trim() || producto.descripcion || '';
 }

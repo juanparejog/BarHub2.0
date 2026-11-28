@@ -297,15 +297,12 @@ ng-container {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transition: transform 0.3s ease;
 }
 
 .avatar-wrapper:hover .avatar,
 .avatar-wrapper:focus-visible .avatar {
   transform: scale(1.06);
-}
-
-.avatar {
-  transition: transform 0.3s ease;
 }
 
 .min-w-0 {
@@ -398,12 +395,19 @@ ng-container {
     position: static;
     flex-direction: row;
     overflow-x: auto;
-    scrollbar-width: thin;
+    scrollbar-width: none;
     padding-bottom: 0.25rem;
+    max-width: 100%;
+    scroll-snap-type: x proximity;
+    -webkit-mask-image: linear-gradient(90deg, #000 85%, transparent);
+    mask-image: linear-gradient(90deg, #000 85%, transparent);
   }
 
   .perfil-pestana {
     padding: 0.55rem 0.8rem;
+    flex-shrink: 0;
+    white-space: nowrap;
+    scroll-snap-align: start;
   }
 }
 
@@ -466,23 +470,9 @@ ng-container {
   padding: 1.25rem;
 }
 
-/* Móvil: las pestañas se desplazan dentro de su franja, sin ensanchar la página */
+/* Móvil: las pestañas se desplazan dentro de su franja sin barra visible (Chrome y Safari) */
 @media (max-width: 767.98px) {
-  .perfil-pestanas {
-    max-width: 100%;
-    scroll-snap-type: x proximity;
-    scrollbar-width: none;
-    -webkit-mask-image: linear-gradient(90deg, #000 85%, transparent);
-    mask-image: linear-gradient(90deg, #000 85%, transparent);
-  }
-
   .perfil-pestanas::-webkit-scrollbar {
     display: none;
-  }
-
-  .perfil-pestana {
-    flex-shrink: 0;
-    white-space: nowrap;
-    scroll-snap-align: start;
   }
 }

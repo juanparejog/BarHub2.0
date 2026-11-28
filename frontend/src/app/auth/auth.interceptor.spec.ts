@@ -76,6 +76,7 @@ describe('AuthInterceptor', () => {
 
     backend.expectOne('/api/pedidos').flush([]);
     backend.expectOne('/api/mesas').flush([]);
+    expect(localStorage.getItem('token')).toBe('nuevo');
   });
 
   it('si la renovación falla borra toda la sesión y manda al login con el aviso', () => {

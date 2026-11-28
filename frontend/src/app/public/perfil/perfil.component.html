@@ -80,7 +80,7 @@
 <!-- Cambiar la foto: se guarda al pulsar «Guardar foto» -->
 @if (mostrarModalImagen()) {
   <div class="modal-backdrop-custom d-flex align-items-center justify-content-center" (keydown.escape)="cerrarModalImagen()">
-    <div class="crud-card p-4 shadow-lg animate-fade-in modal-foto" role="dialog" aria-modal="true" aria-labelledby="tituloFoto">
+    <dialog open class="crud-card p-4 shadow-lg animate-fade-in modal-foto dialogo-propio" aria-modal="true" aria-labelledby="tituloFoto">
       <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
         <h2 id="tituloFoto" class="h5 fw-bold m-0"><i class="bi bi-image text-indigo me-2" aria-hidden="true"></i>{{ 'perfil.foto.titulo' | t }}</h2>
         <button type="button" class="btn-close" (click)="cerrarModalImagen()" [attr.aria-label]="'perfil.cerrar' | t"></button>
@@ -107,6 +107,6 @@
           <i class="bi bi-upload me-1" aria-hidden="true"></i>{{ 'perfil.foto.guardar' | t }}
         </button>
       </div>
-    </div>
+    </dialog>
   </div>
 }

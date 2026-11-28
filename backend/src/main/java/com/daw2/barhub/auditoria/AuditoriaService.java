@@ -42,6 +42,7 @@ import java.util.Map;
 public class AuditoriaService {
 
     public static final int TAMANO_MAXIMO_PAGINA = 100;
+    private static final String CAMPO_FECHA = "fecha";
 
     private final EventoAuditoriaRepository repositorio;
     private final Clock reloj;
@@ -81,14 +82,14 @@ public class AuditoriaService {
     @Transactional(readOnly = true)
     public Page<EventoAuditoria> buscar(Filtro filtro, int pagina, int tamano) {
         PageRequest orden = PageRequest.of(Math.max(pagina, 0), Math.max(1, Math.min(tamano, TAMANO_MAXIMO_PAGINA)),
-                Sort.by(Sort.Order.desc("fecha"), Sort.Order.desc("id")));
+                Sort.by(Sort.Order.desc(CAMPO_FECHA), Sort.Order.desc("id")));
         Specification<EventoAuditoria> condiciones = (raiz, consulta, cb) -> {
             List<Predicate> predicados = new ArrayList<>();
             if (filtro.desde() != null) {
-                predicados.add(cb.greaterThanOrEqualTo(raiz.<Instant>get("fecha"), filtro.desde()));
+                predicados.add(cb.greaterThanOrEqualTo(raiz.<Instant>get(CAMPO_FECHA), filtro.desde()));
             }
             if (filtro.hasta() != null) {
-                predicados.add(cb.lessThan(raiz.<Instant>get("fecha"), filtro.hasta()));
+                predicados.add(cb.lessThan(raiz.<Instant>get(CAMPO_FECHA), filtro.hasta()));
             }
             if (filtro.usuario() != null && !filtro.usuario().isBlank()) {
                 String patron = "%" + filtro.usuario().strip().toLowerCase(Locale.ROOT)

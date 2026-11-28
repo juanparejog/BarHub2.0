@@ -6,7 +6,7 @@
       <a class="btn btn-primary" routerLink="/auth/recuperar">{{ 'restablecer.otro' | t }}</a>
     </div>
   } @else if (cambiada) {
-    <p class="text-success fw-semibold" role="status">{{ mensaje }}</p>
+    <output class="text-success fw-semibold d-block mb-3">{{ mensaje }}</output>
     <p class="text-muted">{{ 'restablecer.cerradas' | t }}</p>
     <div class="acciones">
       <a class="btn btn-primary" routerLink="/auth/login">{{ 'auth.iniciarSesion' | t }}</a>

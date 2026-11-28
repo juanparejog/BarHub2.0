@@ -109,7 +109,8 @@
       <!-- COLUMNA DERECHA: TERMINAL DE COBRO TÁCTIL -->
       @if (pedidoSeleccionado) {
         <!-- En el móvil el cobro sale como una hoja desde abajo, sobre la lista; tocar fuera la cierra -->
-        <div class="terminal-fondo d-lg-none" (click)="pedidoSeleccionado = null" aria-hidden="true"></div>
+        <button type="button" class="terminal-fondo d-lg-none" (click)="pedidoSeleccionado = null"
+          aria-label="Cerrar el cobro" tabindex="-1"></button>
         <div class="col-12 col-lg-6 col-xl-7 terminal-columna">
           <div class="card terminal-card border-0 shadow-lg">
             <div class="terminal-header p-3 d-flex align-items-center justify-content-between">

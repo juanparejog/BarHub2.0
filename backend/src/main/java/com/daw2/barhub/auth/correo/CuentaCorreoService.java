@@ -48,7 +48,8 @@ public class CuentaCorreoService {
     static final int CLAVE_MINIMA = 6;
     static final int CLAVE_MAXIMA = 40;
     static final int EMAIL_MAXIMO = 100;
-    private static final Pattern EMAIL_VALIDO = Pattern.compile("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$");
+    // El dominio hasta el primer punto no admite puntos: sin solapamiento entre partes, la comprobacion es lineal
+    private static final Pattern EMAIL_VALIDO = Pattern.compile("^[^@\\s]+@[^@\\s.]+\\.[^@\\s]+$");
     private static final SecureRandom ALEATORIO = new SecureRandom();
 
     private final TokenCorreoRepository tokens;
@@ -70,7 +71,7 @@ public class CuentaCorreoService {
         this.intentos = intentos;
         this.encoder = encoder;
         this.reloj = reloj;
-        this.urlPublica = urlPublica.replaceAll("/+$", "");
+        this.urlPublica = sinBarrasFinales(urlPublica);
     }
 
     /** Tras el registro: envia el enlace para confirmar el correo. */
@@ -322,5 +323,14 @@ public class CuentaCorreoService {
         } catch (NoSuchAlgorithmException e) {
             throw new IllegalStateException("SHA-256 no disponible", e);
         }
+    }
+
+    /** La URL sin las barras del final («https://bar.es/» pasa a «https://bar.es»). */
+    static String sinBarrasFinales(String url) {
+        int fin = url.length();
+        while (fin > 0 && url.charAt(fin - 1) == '/') {
+            fin--;
+        }
+        return url.substring(0, fin);
     }
 }

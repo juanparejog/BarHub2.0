@@ -23,11 +23,11 @@
 }
 
 @if (aviso.estado() === 'fin-proximo') {
-  <div class="aviso-fin alert alert-warning d-flex align-items-start gap-2 shadow" role="status">
+  <output class="aviso-fin alert alert-warning d-flex align-items-start gap-2 shadow">
     <i class="bi bi-clock-history fs-5" aria-hidden="true"></i>
     <div class="flex-grow-1">
       {{ 'sesion.fin.antes' | t }} <strong>{{ aviso.texto() }}</strong> {{ 'sesion.fin.despues' | t }}
     </div>
     <button type="button" class="btn-close" [attr.aria-label]="'sesion.cerrarAviso' | t" (click)="aviso.descartarAvisoDeFin()"></button>
-  </div>
+  </output>
 }

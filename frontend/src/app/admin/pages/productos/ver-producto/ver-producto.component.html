@@ -28,11 +28,11 @@
             <td>{{ producto.tipoProducto }}</td>
             <td>
               @if (producto.alergenos?.length) {
-                <span class="d-inline-flex flex-wrap gap-1" role="list" aria-label="Alérgenos">
+                <ul class="d-inline-flex flex-wrap gap-1 list-unstyled mb-0" aria-label="Alérgenos">
                   @for (alergeno of producto.alergenos; track alergeno) {
-                    <span role="listitem"><app-alergeno-icono [codigo]="alergeno" [tamano]="28" /></span>
+                    <li><app-alergeno-icono [codigo]="alergeno" [tamano]="28" /></li>
                   }
-                </span>
+                </ul>
               } @else {
                 {{ textoAlergenos(producto.alergenos) }}
               }

@@ -147,14 +147,14 @@
           <i class="bi bi-clock-history me-2" aria-hidden="true"></i>Historial de cajas
         </h2>
         <div class="caja-periodo">
-          <div class="caja-periodo-tipos" role="group" aria-label="Agrupar el historial por">
+          <fieldset class="caja-periodo-tipos" aria-label="Agrupar el historial por">
             @for (opcion of periodos; track opcion.tipo) {
               <button type="button" class="caja-periodo-tipo" [class.activo]="tipoPeriodo === opcion.tipo"
                 [attr.aria-pressed]="tipoPeriodo === opcion.tipo" (click)="elegirPeriodo(opcion.tipo)">
                 {{ opcion.texto }}
               </button>
             }
-          </div>
+          </fieldset>
           @if (tipoPeriodo !== 'todo') {
             <div class="caja-periodo-navegacion">
               <button type="button" class="caja-periodo-flecha" (click)="moverPeriodo(-1)" aria-label="Periodo anterior" title="Periodo anterior">

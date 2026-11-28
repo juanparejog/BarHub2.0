@@ -1,7 +1,7 @@
 <div class="cuenta-correo">
   <h2>{{ 'recuperar.titulo' | t }}</h2>
   @if (enviado) {
-    <p role="status">{{ mensaje }}</p>
+    <output class="d-block mb-3">{{ mensaje }}</output>
     <p class="text-muted">{{ 'recuperar.caduca' | t }}</p>
     <div class="acciones">
       <a class="btn btn-primary" routerLink="/auth/login">{{ 'auth.volverAlLogin' | t }}</a>

@@ -39,7 +39,7 @@ describe('AvisoSesionComponent', () => {
 
   it('sin aviso no pinta nada', () => {
     const fixture = crear();
-    expect((fixture.nativeElement as HTMLElement).children.length).toBe(0);
+    expect((fixture.nativeElement as HTMLElement).children).toHaveLength(0);
   });
 
   it('el aviso de inactividad muestra la cuenta atrás, recibe el foco y sus botones responden', async () => {
@@ -69,7 +69,7 @@ describe('AvisoSesionComponent', () => {
     fixture.detectChanges();
 
     const raiz = fixture.nativeElement as HTMLElement;
-    expect(raiz.querySelector('[role="status"]')?.textContent).toContain('18:45');
+    expect(raiz.querySelector('output')?.textContent).toContain('18:45');
     raiz.querySelector<HTMLButtonElement>('.btn-close')!.click();
     expect(aviso.descartarAvisoDeFin).toHaveBeenCalled();
   });

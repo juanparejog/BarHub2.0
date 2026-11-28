@@ -306,10 +306,10 @@
         </div>
       </fieldset>
       @if (alergenosExcluidos.size > 0) {
-        <p class="filtro-alergenos-resumen" role="status">
+        <output class="filtro-alergenos-resumen d-block">
           {{ resumenOcultos() }}
           <button type="button" class="btn btn-link btn-sm p-0 align-baseline" (click)="quitarFiltroAlergenos()">{{ 'carta.alergenos.quitar' | t }}</button>
-        </p>
+        </output>
       }
       <p class="filtro-alergenos-aviso">
         {{ 'carta.alergenos.aviso' | t }}
@@ -377,9 +377,9 @@
     </section>
 
     @if (productos.length > 0 && productosFiltrados.length === 0) {
-      <p class="carta-sin-resultados" role="status">
+      <output class="carta-sin-resultados d-block">
         <i class="bi bi-search" aria-hidden="true"></i> {{ 'carta.sinResultados' | t }}
-      </p>
+      </output>
     }
 
     <app-paginador class="carta-paginador" [total]="productosFiltrados.length" [(pagina)]="pagina" [(tamano)]="tamano"

@@ -1,25 +1,34 @@
 import { type Idioma, localeDe } from '../../../shared/i18n/idiomas';
 import { traducir } from '../../../shared/i18n/textos';
 
+/** Navegadores y sistemas que se reconocen, en orden: el primero que encaja gana (Edge y Opera dicen
+ *  también «Chrome», y Chrome dice también «Safari»; Android dice también «Linux»). */
+const NAVEGADORES: ReadonlyArray<readonly [RegExp, string]> = [
+  [/Edg\//, 'Edge'],
+  [/OPR\/|Opera/, 'Opera'],
+  [/Firefox\//, 'Firefox'],
+  [/Chrome\/|CriOS/, 'Chrome'],
+  [/Safari\//, 'Safari']
+];
+const SISTEMAS: ReadonlyArray<readonly [RegExp, string]> = [
+  [/Android/, 'Android'],
+  [/iPhone|iPad|iPod/, 'iOS'],
+  [/Windows/, 'Windows'],
+  [/Mac OS X|Macintosh/, 'macOS'],
+  [/Linux/, 'Linux']
+];
+
+function primeroQueEncaja(agente: string, lista: ReadonlyArray<readonly [RegExp, string]>): string | undefined {
+  return lista.find(([patron]) => patron.test(agente))?.[1];
+}
+
 /** Descripción corta de un navegador a partir de su User-Agent: «Firefox en Linux», «Chrome en Android»... */
 export function describirNavegador(agente: string | null | undefined, idioma: Idioma = 'es'): string {
   if (!agente) {
     return traducir(idioma, 'sesiones.desconocido');
   }
-  const navegador =
-    /Edg\//.test(agente) ? 'Edge'
-      : /OPR\/|Opera/.test(agente) ? 'Opera'
-        : /Firefox\//.test(agente) ? 'Firefox'
-          : /Chrome\/|CriOS/.test(agente) ? 'Chrome'
-            : /Safari\//.test(agente) ? 'Safari'
-              : traducir(idioma, 'sesiones.navegador');
-  const sistema =
-    /Android/.test(agente) ? 'Android'
-      : /iPhone|iPad|iPod/.test(agente) ? 'iOS'
-        : /Windows/.test(agente) ? 'Windows'
-          : /Mac OS X|Macintosh/.test(agente) ? 'macOS'
-            : /Linux/.test(agente) ? 'Linux'
-              : '';
+  const navegador = primeroQueEncaja(agente, NAVEGADORES) ?? traducir(idioma, 'sesiones.navegador');
+  const sistema = primeroQueEncaja(agente, SISTEMAS);
   return sistema ? traducir(idioma, 'sesiones.en', { navegador, sistema }) : navegador;
 }
 

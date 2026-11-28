@@ -2,7 +2,7 @@ import { ALERGENOS, aptoSin, nombreAlergeno, textoAlergenos } from './alergenos'
 
 describe('alérgenos', () => {
   it('son los 14 del reglamento, sin repetir', () => {
-    expect(ALERGENOS.length).toBe(14);
+    expect(ALERGENOS).toHaveLength(14);
     expect(new Set(ALERGENOS.map(a => a.codigo)).size).toBe(14);
     expect(nombreAlergeno('FRUTOS_DE_CASCARA')).toBe('Frutos de cáscara');
   });

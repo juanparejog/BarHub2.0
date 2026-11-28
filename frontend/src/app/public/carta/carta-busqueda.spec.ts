@@ -46,7 +46,7 @@ describe('CartaComponent: búsqueda y páginas', () => {
     carta.buscar('cebolla');
     expect(carta.productosFiltrados.map(p => p.nombre)).toEqual(['Tortilla']);
     carta.buscar('');
-    expect(carta.productosFiltrados.length).toBe(3);
+    expect(carta.productosFiltrados).toHaveLength(3);
   });
 
   it('en otro idioma encuentra por el nombre traducido y por el español', () => {
@@ -54,15 +54,15 @@ describe('CartaComponent: búsqueda y páginas', () => {
     carta.productos = [producto(1, 'Tortilla', 'TAPA', { nombreEn: 'Spanish omelette' })];
     idioma = 'en';
     carta.buscar('omelette');
-    expect(carta.productosFiltrados.length).toBe(1);
+    expect(carta.productosFiltrados).toHaveLength(1);
     carta.buscar('tortilla');
-    expect(carta.productosFiltrados.length).toBe(1);
+    expect(carta.productosFiltrados).toHaveLength(1);
   });
 
   it('va por páginas de 24 y vuelve a la primera al buscar o cambiar de categoría', () => {
     const carta = crear();
     carta.productos = Array.from({ length: 30 }, (_, i) => producto(i + 1, `Tapa ${i + 1}`));
-    expect(carta.productosPagina.length).toBe(24);
+    expect(carta.productosPagina).toHaveLength(24);
 
     carta.pagina = 2;
     expect(carta.productosPagina.map(p => p.nombre)).toEqual(['Tapa 25', 'Tapa 26', 'Tapa 27', 'Tapa 28', 'Tapa 29', 'Tapa 30']);

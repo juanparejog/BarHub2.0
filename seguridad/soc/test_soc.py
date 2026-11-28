@@ -225,5 +225,26 @@ class Utilidades(unittest.TestCase):
         self.assertEqual(llamadas, [])
 
 
+
+class SitioDeLaPrueba(unittest.TestCase):
+    """probar solo ataca a este equipo o al dominio de BarHub, y con una URL rehecha."""
+
+    def test_acepta_este_equipo_y_el_dominio_del_env(self):
+        env = {"SITE_ADDRESS": "barhub2.duckdns.org"}
+        self.assertEqual(soc.sitio_de_prueba("http://localhost", {}), "http://localhost")
+        self.assertEqual(soc.sitio_de_prueba("http://127.0.0.1:8080/", {}), "http://127.0.0.1:8080")
+        self.assertEqual(soc.sitio_de_prueba("http://[::1]", {}), "http://[::1]")
+        self.assertEqual(soc.sitio_de_prueba("HTTPS://BarHub2.DuckDNS.org", env), "https://barhub2.duckdns.org")
+        self.assertEqual(soc.sitio_de_prueba("https://barhub2.duckdns.org", {"SITE_ADDRESS": "https://barhub2.duckdns.org"}),
+                         "https://barhub2.duckdns.org")
+
+    def test_rechaza_otros_sitios_esquemas_rutas_y_credenciales(self):
+        for base in ("http://ejemplo.com", "ftp://localhost", "file:///etc/passwd", "http://localhost/api",
+                     "http://usuario:clave@localhost", "http://localhost?x=1", "http://localhost.ejemplo.com",
+                     "http://169.254.169.254", "http://localhost:99999"):
+            with self.subTest(base=base), self.assertRaises(soc.ErrorSoc):
+                soc.sitio_de_prueba(base, {"SITE_ADDRESS": "barhub2.duckdns.org"})
+
+
 if __name__ == "__main__":
     unittest.main()

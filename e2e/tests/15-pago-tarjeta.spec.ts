@@ -124,5 +124,5 @@ test('una tarjeta rechazada no crea el pedido y se ve el motivo', async ({ page,
   await page.getByRole('button', { name: 'Confirmar y Finalizar Pedido' }).click();
   await expect(page.locator('.card-errors')).toBeVisible({ timeout: 30_000 });
   await expect(page.getByRole('button', { name: 'Confirmar y Finalizar Pedido' })).toBeEnabled();
-  expect((await misPedidos(request, tokenCliente)).length).toBe(antes);
+  expect((await misPedidos(request, tokenCliente))).toHaveLength(antes);
 });

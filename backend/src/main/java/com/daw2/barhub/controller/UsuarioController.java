@@ -46,6 +46,7 @@ import java.util.stream.Collectors;
 @RequestMapping("/usuarios")
 public class UsuarioController {
 
+    private static final String USUARIO_NO_ENCONTRADO = "Usuario no encontrado";
     private static final Set<String> EXTENSIONES_PERMITIDAS = Set.of("jpg", "jpeg", "png", "webp");
     private static final Pattern NOMBRE_IMAGEN_VALIDO =
             Pattern.compile("^[a-z0-9](?:[a-z0-9_-]|\\.(?!(?:jpg|jpeg|png|webp)$)){0,100}\\.(?:jpg|jpeg|png|webp)$", Pattern.CASE_INSENSITIVE);
@@ -130,7 +131,7 @@ public class UsuarioController {
         if (usuario == null || !puedeAccederA(usuario, auth)) {
             // mismo 404 en ambos casos: no revelamos si el id existe
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(ErrorDto.from("Usuario no encontrado"));
+                    .body(ErrorDto.from(USUARIO_NO_ENCONTRADO));
         }
         return ResponseEntity.ok(UsuarioDto.from(usuario));
     }
@@ -150,7 +151,7 @@ public class UsuarioController {
             User usuarioExistente = userService.findById(id);
             if (usuarioExistente == null || !puedeAccederA(usuarioExistente, auth)) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body(ErrorDto.from("Usuario no encontrado"));
+                        .body(ErrorDto.from(USUARIO_NO_ENCONTRADO));
             }
             boolean admin = esAdmin(auth);
             Auditoria.objetivo(objetivo(usuarioExistente));
@@ -181,26 +182,12 @@ public class UsuarioController {
             }
 
             User usuarioActualizado = userService.save(usuarioExistente);
-            String rolesDespues = nombresRoles(usuarioActualizado);
-            List<String> cambios = new ArrayList<>();
+            Auditoria.detalle(detalleDelCambio(hayPassword(usuarioDto), rolesAntes, nombresRoles(usuarioActualizado)));
             if (hayPassword(usuarioDto)) {
-                cambios.add("contraseña cambiada");
+                cerrarSesionesTrasCambioDeClave(id, usuarioExistente, auth);
             }
-            if (!rolesAntes.equals(rolesDespues)) {
-                cambios.add("roles: " + rolesAntes + " -> " + rolesDespues);
-            }
-            Auditoria.detalle(cambios.isEmpty() ? "Datos del perfil" : String.join("; ", cambios));
-
-            // Con la contrasena cambiada, las sesiones abiertas con la anterior se cierran: todas si
-            // el administrador se la cambia a otro; si la cambia el propio usuario, menos esta
-            if (hayPassword(usuarioDto)) {
-                boolean propia = usuarioExistente.getUsername().equals(auth.getName());
-                sesionService.cerrarOtras(id, propia ? sesionActual() : null, SesionService.MOTIVO_CAMBIO_CLAVE);
-            }
-
-            // La foto anterior ya no se usa: se borra para no dejar ficheros huerfanos
-            if (subido != null && imagenAnterior != null && !imagenAnterior.equals(usuarioActualizado.getImagen())) {
-                borrarImagen(imagenAnterior);
+            if (subido != null) {
+                borrarImagenSiYaNoSeUsa(imagenAnterior, usuarioActualizado.getImagen());
             }
             return ResponseEntity.ok(UsuarioDto.from(usuarioActualizado));
         } catch (IllegalArgumentException e) {
@@ -246,7 +233,7 @@ public class UsuarioController {
     public ResponseEntity<?> restablecerDosFactores(@PathVariable Long id, Authentication auth) {
         User usuario = userService.findById(id);
         if (usuario == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ErrorDto.from("Usuario no encontrado"));
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ErrorDto.from(USUARIO_NO_ENCONTRADO));
         }
         Auditoria.objetivo(objetivo(usuario));
         if (usuario.getUsername().equals(auth.getName())) {
@@ -262,13 +249,45 @@ public class UsuarioController {
     // ---------- auxiliares ----------
 
     /** Como aparece el usuario afectado en el registro de auditoria. */
+    /** Lo que se apunta en la auditoría: la contraseña cambiada y los roles de antes y de después. */
+    static String detalleDelCambio(boolean conClave, String rolesAntes, String rolesDespues) {
+        List<String> cambios = new ArrayList<>();
+        if (conClave) {
+            cambios.add("contraseña cambiada");
+        }
+        if (!rolesAntes.equals(rolesDespues)) {
+            cambios.add("roles: " + rolesAntes + " -> " + rolesDespues);
+        }
+        return cambios.isEmpty() ? "Datos del perfil" : String.join("; ", cambios);
+    }
+
+    /**
+     * Con la contraseña cambiada, las sesiones abiertas con la anterior se cierran: todas si el
+     * administrador se la cambia a otro; si la cambia el propio usuario, todas menos esta.
+     */
+    private void cerrarSesionesTrasCambioDeClave(Long id, User usuario, Authentication auth) {
+        boolean propia = usuario.getUsername().equals(auth.getName());
+        sesionService.cerrarOtras(id, propia ? sesionActual() : null, SesionService.MOTIVO_CAMBIO_CLAVE);
+    }
+
+    /** La foto anterior ya no se usa: se borra para no dejar ficheros huérfanos. */
+    private void borrarImagenSiYaNoSeUsa(String anterior, String actual) {
+        if (anterior != null && !anterior.equals(actual)) {
+            borrarImagen(anterior);
+        }
+    }
+
     private static String objetivo(User usuario) {
         return usuario == null ? null : "usuario " + usuario.getId() + " (" + usuario.getUsername() + ")";
     }
 
+    private static String nombreRol(Role rol) {
+        return rol.getName() == null ? "?" : rol.getName().name().replace("ROLE_", "");
+    }
+
     private static String nombresRoles(User usuario) {
         return usuario == null || usuario.getRoles() == null ? "" : usuario.getRoles().stream()
-                .map(r -> r.getName() == null ? "?" : r.getName().name().replace("ROLE_", ""))
+                .map(UsuarioController::nombreRol)
                 .sorted()
                 .collect(Collectors.joining(", "));
     }

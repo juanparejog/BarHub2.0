@@ -2,10 +2,10 @@
   <h2>{{ 'correo.titulo' | t }}</h2>
   @switch (estado) {
     @case ('comprobando') {
-      <p role="status">{{ 'correo.comprobando' | t }}</p>
+      <output class="d-block mb-3">{{ 'correo.comprobando' | t }}</output>
     }
     @case ('confirmado') {
-      <p class="text-success fw-semibold" role="status">{{ mensaje }}</p>
+      <output class="text-success fw-semibold d-block mb-3">{{ mensaje }}</output>
       <div class="acciones">
         <a class="btn btn-primary" routerLink="/auth/login">{{ 'auth.iniciarSesion' | t }}</a>
       </div>

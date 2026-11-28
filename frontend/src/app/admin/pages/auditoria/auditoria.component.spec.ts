@@ -48,7 +48,7 @@ describe('AuditoriaComponent', () => {
     const { raiz } = crear();
 
     const filas = Array.from(raiz.querySelectorAll('tbody tr'));
-    expect(filas.length).toBe(2);
+    expect(filas).toHaveLength(2);
     expect(texto(filas[0])).toContain('Inicio de sesión');
     expect(filas[0].querySelector('.resultado-pill')?.className).toContain('resultado-rechazado');
     expect(filas[0].querySelector('.auditoria-accion i')?.className).toContain('bi-box-arrow-in-right');
@@ -57,7 +57,7 @@ describe('AuditoriaComponent', () => {
     expect(texto(filas[1])).toContain('Usuario editado');
     expect(texto(filas[1])).toContain('usuario 12 (ana)');
     expect(texto(filas[1])).toContain('roles: CLIENTE -> EMPLEADO');
-    expect(texto(raiz.querySelector('[role="status"]'))).toBe('2 entradas');
+    expect(texto(raiz.querySelector('output.auditoria-total'))).toBe('2 entradas');
   });
 
   it('al buscar con filtros vuelve a la primera página', () => {

@@ -8,7 +8,7 @@ import { PerfilService } from '../perfil.service';
 import { IdiomaService } from '../../../shared/i18n/idioma.service';
 import { TraducirPipe } from '../../../shared/i18n/traducir.pipe';
 
-const ROLES_PERSONAL = ['ROLE_ADMIN', 'ROLE_EMPLEADO'];
+const ROLES_PERSONAL: ReadonlySet<string> = new Set(['ROLE_ADMIN', 'ROLE_EMPLEADO']);
 
 /**
  * Pestaña «Privacidad»: descargar los datos de la cuenta (JSON) y eliminarla. Eliminar borra los datos
@@ -39,7 +39,7 @@ export class PerfilPrivacidadComponent {
   private readonly escrito = toSignal(this.confirmacion.valueChanges, { initialValue: '' });
 
   readonly esPersonal = computed(() =>
-    (this.perfil.usuario()?.roles ?? []).some(r => ROLES_PERSONAL.includes(r.nombre)));
+    (this.perfil.usuario()?.roles ?? []).some(r => ROLES_PERSONAL.has(r.nombre)));
   readonly confirmado = computed(() => {
     const usuario = this.perfil.usuario()?.username;
     return !!usuario && this.escrito().trim() === usuario;

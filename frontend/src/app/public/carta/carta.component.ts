@@ -91,8 +91,8 @@ export class CartaComponent implements OnInit {
 
   /** Estado de la mesa (llega de la API como DISPONIBLE, OCUPADA...) en el idioma elegido. */
   estadoMesa(estado: unknown): string {
-    const codigo = String(estado ?? '').toUpperCase();
-    return this.idiomas.tSiExiste(`mesa.estado.${codigo}`, String(estado ?? '').toLowerCase());
+    const texto = typeof estado === 'string' ? estado : '';
+    return this.idiomas.tSiExiste(`mesa.estado.${texto.toUpperCase()}`, texto.toLowerCase());
   }
   alergenosExcluidos = new Set<string>(leerAlergenosExcluidos());
   /**

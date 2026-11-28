@@ -60,7 +60,7 @@
         <button type="button" class="btn-crud-primary px-4 py-2" [disabled]="enviando()" (click)="empezar()">{{ 'perfil.dosf.empezar' | t }}</button>
       }
     } @else {
-      <p class="text-muted font-size-14" role="status">{{ 'perfil.cargando' | t }}</p>
+      <output class="text-muted font-size-14 d-block mb-3">{{ 'perfil.cargando' | t }}</output>
     }
   }
 }
@@ -69,5 +69,5 @@
   <div class="alert alert-danger custom-alert mt-3 mb-0" role="alert">{{ error() }}</div>
 }
 @if (aviso()) {
-  <div class="alert alert-success custom-alert mt-3 mb-0" role="status">{{ aviso() }}</div>
+  <output class="alert alert-success custom-alert mt-3 mb-0 d-block">{{ aviso() }}</output>
 }

@@ -55,7 +55,7 @@ export function enPeriodo(fecha: string | number | Date | null | undefined, peri
   return momento >= periodo.desde.getTime() && momento < periodo.hasta.getTime();
 }
 
-/** «23 – 29 nov 2026», «Noviembre de 2026», «2026» o «Todo el historial». */
+/** Etiqueta del periodo: «23 nov – 29 nov 2026», «Noviembre de 2026», «2026» o, sin límites, el historial completo. */
 export function etiquetaPeriodo(periodo: Periodo): string {
   if (periodo.desde === null || periodo.hasta === null) {
     return 'Todo el historial';

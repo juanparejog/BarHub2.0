@@ -65,8 +65,14 @@ test('recuperar con un correo que no existe responde igual y no envía nada', as
   await page.getByRole('button', { name: 'Enviar enlace' }).click();
   await expect(page.getByText(/Si hay una cuenta con ese correo/)).toBeVisible();
 
-  await page.waitForTimeout(2_000);
-  const busqueda = await request.get(`${process.env.E2E_MAILPIT_URL ?? 'http://localhost:8025'}/api/v1/search`,
-    { params: { query: `to:"${inventado}"` } });
-  expect((await busqueda.json()).messages ?? []).toHaveLength(0);
+  // El correo sale en segundo plano: se le dan 2 s para llegar a Mailpit y, pasados, no tiene que haber ninguno.
+  // Hasta entonces el sondeo devuelve -1 y sigue esperando; si llegara alguno, se quedaría en 1 y fallaría.
+  const desde = Date.now();
+  const recibidos = async () => {
+    const busqueda = await request.get(`${process.env.E2E_MAILPIT_URL ?? 'http://localhost:8025'}/api/v1/search`,
+      { params: { query: `to:"${inventado}"` } });
+    return ((await busqueda.json()).messages ?? []).length;
+  };
+  await expect.poll(async () => (Date.now() - desde >= 2_000 ? recibidos() : -1),
+    { timeout: 6_000, intervals: [500] }).toBe(0);
 });

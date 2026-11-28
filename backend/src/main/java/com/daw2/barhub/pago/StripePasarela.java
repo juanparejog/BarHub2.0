@@ -24,6 +24,9 @@ import java.util.Optional;
 @Component
 public class StripePasarela implements PasarelaPago {
 
+    /** Lo que llevan en medio las claves de Stripe del modo de pruebas (sk_test_..., pk_test_...). */
+    private static final String MARCA_DE_PRUEBAS = "_test_";
+
     private final String claveSecreta;
     private final String clavePublica;
     private final boolean disponible;
@@ -55,8 +58,8 @@ public class StripePasarela implements PasarelaPago {
         if (!publica.startsWith("pk_")) {
             return "STRIPE_PUBLISHABLE_KEY no es una clave publicable de Stripe (pk_...)";
         }
-        boolean secretaDePruebas = secreta.contains("_test_");
-        if (secretaDePruebas != publica.contains("_test_")) {
+        boolean secretaDePruebas = secreta.contains(MARCA_DE_PRUEBAS);
+        if (secretaDePruebas != publica.contains(MARCA_DE_PRUEBAS)) {
             return "una clave es de pruebas y la otra no";
         }
         if (soloPruebas && !secretaDePruebas) {
@@ -77,7 +80,7 @@ public class StripePasarela implements PasarelaPago {
 
     @Override
     public boolean enPruebas() {
-        return !disponible || claveSecreta.contains("_test_");
+        return !disponible || claveSecreta.contains(MARCA_DE_PRUEBAS);
     }
 
     @Override

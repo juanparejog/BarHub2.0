@@ -15,7 +15,7 @@
   
   .crud-container {
     animation: fadeInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-    max-width: 1200px;
+    max-width: 1440px;
     margin: 0 auto;
     padding: 2rem 1.5rem;
   }
@@ -25,15 +25,18 @@
     justify-content: space-between;
     align-items: center;
     margin-bottom: 1.5rem;
-    padding-bottom: 1rem;
-    border-bottom: 2px solid #e2e8f0;
+    padding-bottom: 0;
+    border-bottom: none;
+    flex-wrap: wrap;
+    gap: 1rem;
   }
   
   .crud-title {
     font-size: 1.75rem;
     font-weight: 700;
-    color: #1e293b;
+    color: #0a2342;
     margin: 0;
+    letter-spacing: -0.01em;
   }
   
   .font-size-14 {
@@ -201,8 +204,8 @@
   
   .crud-card {
     background: #ffffff;
-    border-radius: 12px;
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+    border-radius: 16px;
+    box-shadow: 0 1px 2px rgba(10, 35, 66, 0.04), 0 12px 28px -12px rgba(10, 35, 66, 0.18);
     border: 1px solid #e2e8f0;
     overflow: hidden;
   }
@@ -241,13 +244,14 @@
   
   .crud-table thead th {
     background-color: #f8fafc;
-    color: #475569;
+    color: #64748b;
     font-weight: 600;
-    font-size: 0.82rem;
+    font-size: 0.72rem;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.06em;
     padding: 0.85rem 1.25rem;
-    border-bottom: 2px solid #e2e8f0;
+    border-bottom: 1px solid #e2e8f0;
+    white-space: nowrap;
   }
   
   .crud-table tbody td {
@@ -262,7 +266,7 @@
   }
   
   .crud-table tbody tr:hover {
-    background-color: #f8fafc;
+    background-color: #f5f8ff;
   }
   
   /* ==========================================================================
@@ -349,13 +353,15 @@
   .table-toolbar {
     background-color: #f8fafc;
     border-bottom: 1px solid #e2e8f0;
-    border-top-left-radius: 12px;
-    border-top-right-radius: 12px;
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
+    background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
   }
   
   .search-box {
     width: 100%;
-    max-width: 340px;
+    max-width: 420px;
+    flex: 1 1 260px;
   }
   
   .search-icon {
@@ -413,23 +419,53 @@
   .crud-actions {
     display: inline-flex;
     align-items: center;
-    gap: 12px;
+    gap: 6px;
   }
   
   .action-icon {
-    font-size: 1.05rem;
+    font-size: 0.95rem;
     cursor: pointer;
-    transition: transform 0.15s ease, color 0.15s ease;
+    transition: background-color 0.18s ease, color 0.18s ease, transform 0.15s ease, box-shadow 0.18s ease;
+    width: 34px;
+    height: 34px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
   }
   
-  .action-icon.view { color: #0284c7; }
-  .action-icon.view:hover { color: #0369a1; transform: scale(1.15); }
+  .action-icon.view {
+    color: #0284c7;
+    background: #e0f2fe;
+  }
+  .action-icon.view:hover {
+    color: #0369a1;
+    transform: scale(1.15);
+    background: #0284c7;
+    box-shadow: 0 6px 12px -6px #0284c7;
+  }
   
-  .action-icon.edit { color: #d97706; }
-  .action-icon.edit:hover { color: #b45309; transform: scale(1.15); }
+  .action-icon.edit {
+    color: #d97706;
+    background: #fef3c7;
+  }
+  .action-icon.edit:hover {
+    color: #b45309;
+    transform: scale(1.15);
+    background: #d97706;
+    box-shadow: 0 6px 12px -6px #d97706;
+  }
   
-  .action-icon.delete { color: #e11d48; }
-  .action-icon.delete:hover { color: #be123c; transform: scale(1.15); }
+  .action-icon.delete {
+    color: #e11d48;
+    background: #ffe4e6;
+  }
+  .action-icon.delete:hover {
+    color: #be123c;
+    transform: scale(1.15);
+    background: #e11d48;
+    box-shadow: 0 6px 12px -6px #e11d48;
+  }
   
   .sortable-th {
     cursor: pointer;
@@ -493,7 +529,7 @@
   }
   
   body.dark-theme .crud-table tbody tr:hover {
-    background-color: #2d3748;
+    background-color: #243049;
   }
   
   body.dark-theme .btn-categoria-filtro,
@@ -542,6 +578,7 @@
     --bs-light-bg-subtle: #0f172a;
     background-color: #0f172a;
     border-bottom-color: #334155;
+    background: #0f172a;
   }
   
   body.dark-theme .search-input {
@@ -751,6 +788,9 @@ body.dark-theme .cat-postre {
 
 body.dark-theme .action-icon.view {
   color: #a8defa;
+  /* Fondos de los botones en modo oscuro: el color de cada acción al 16 % sobre la tabla (#1e293b),
+     en sólido para que el contraste con el icono sea medible */
+  background: #1b3d57;
 }
 
 body.dark-theme .action-icon.view:hover {
@@ -763,6 +803,7 @@ body.dark-theme .action-icon.edit:hover {
 
 body.dark-theme .action-icon.delete {
   color: #f8c9d3;
+  background: #402c41;
 }
 
 body.dark-theme .action-icon.delete:hover {
@@ -785,38 +826,6 @@ body.dark-theme .dropzone-container.border-primary {
    LISTADOS DEL PANEL: ANCHO, CABECERA, FILAS, ACCIONES Y PAGINACION
    ========================================================================== */
 
-.crud-container {
-  max-width: 1440px;
-}
-
-.crud-header {
-  flex-wrap: wrap;
-  gap: 1rem;
-  border-bottom: none;
-  padding-bottom: 0;
-}
-
-.crud-title {
-  color: #0a2342;
-  letter-spacing: -0.01em;
-}
-
-.crud-card {
-  border-radius: 16px;
-  box-shadow: 0 1px 2px rgba(10, 35, 66, 0.04), 0 12px 28px -12px rgba(10, 35, 66, 0.18);
-}
-
-.table-toolbar {
-  background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
-  border-top-left-radius: 16px;
-  border-top-right-radius: 16px;
-}
-
-.search-box {
-  flex: 1 1 260px;
-  max-width: 420px;
-}
-
 .toolbar-select {
   width: auto;
   min-width: 11rem;
@@ -827,14 +836,6 @@ body.dark-theme .dropzone-container.border-primary {
 
 .btn-orden {
   height: 40px;
-}
-
-.crud-table thead th {
-  font-size: 0.72rem;
-  color: #64748b;
-  letter-spacing: 0.06em;
-  border-bottom: 1px solid #e2e8f0;
-  white-space: nowrap;
 }
 
 .crud-table tbody tr {
@@ -848,10 +849,6 @@ body.dark-theme .dropzone-container.border-primary {
 .crud-table tbody tr:nth-child(5) { animation-delay: 0.08s; }
 .crud-table tbody tr:nth-child(n + 6) { animation-delay: 0.1s; }
 
-.crud-table tbody tr:hover {
-  background-color: #f5f8ff;
-}
-
 .crud-table tbody tr:hover td:first-child {
   box-shadow: inset 3px 0 0 #1d4ed8;
 }
@@ -862,24 +859,6 @@ body.dark-theme .dropzone-container.border-primary {
 }
 
 /* Ver, editar y borrar: botones redondeados con su color */
-.crud-actions {
-  gap: 6px;
-}
-
-.action-icon {
-  width: 34px;
-  height: 34px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 10px;
-  font-size: 0.95rem;
-  transition: background-color 0.18s ease, color 0.18s ease, transform 0.15s ease, box-shadow 0.18s ease;
-}
-
-.action-icon.view { background: #e0f2fe; }
-.action-icon.edit { background: #fef3c7; }
-.action-icon.delete { background: #ffe4e6; }
 
 .action-icon.view:hover,
 .action-icon.edit:hover,
@@ -888,29 +867,14 @@ body.dark-theme .dropzone-container.border-primary {
   transform: translateY(-1px);
 }
 
-.action-icon.view:hover { background: #0284c7; box-shadow: 0 6px 12px -6px #0284c7; }
-.action-icon.edit:hover { background: #d97706; box-shadow: 0 6px 12px -6px #d97706; }
-.action-icon.delete:hover { background: #e11d48; box-shadow: 0 6px 12px -6px #e11d48; }
-
-body.dark-theme .crud-title {
-  color: #f8fafc;
-}
-
-body.dark-theme .table-toolbar {
-  background: #0f172a;
-}
-
-body.dark-theme .crud-table tbody tr:hover {
-  background-color: #243049;
-}
-
 body.dark-theme .crud-table tbody tr:hover td:first-child {
   box-shadow: inset 3px 0 0 #7da7d9;
 }
 
-body.dark-theme .action-icon.view { background: rgba(14, 165, 233, 0.16); }
-body.dark-theme .action-icon.edit { background: rgba(245, 158, 11, 0.16); color: #fcd34d; }
-body.dark-theme .action-icon.delete { background: rgba(244, 63, 94, 0.16); }
+body.dark-theme .action-icon.edit {
+  background: #403c33;
+  color: #fcd34d;
+}
 
 body.dark-theme .action-icon.view:hover,
 body.dark-theme .action-icon.edit:hover,

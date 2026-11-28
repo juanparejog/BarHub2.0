@@ -97,19 +97,18 @@ export class AuthInterceptor implements HttpInterceptor {
   }
 
   private renovar(): Observable<string> {
-    if (!this.renovacion$) {
-      this.renovacion$ = this.httpSinInterceptores
-        .post<RespuestaSesion>(`${environment.urlBackendSpring}/auth/refresh`, null, { withCredentials: true })
-        .pipe(
-          map(respuesta => {
-            localStorage.setItem('token', respuesta.token);
-            guardarLimitesSesion(respuesta, false);
-            return respuesta.token;
-          }),
-          finalize(() => (this.renovacion$ = null)),
-          shareReplay(1)
-        );
-    }
+    // Una sola renovación a la vez: las peticiones que caducan mientras tanto esperan a la misma
+    this.renovacion$ ??= this.httpSinInterceptores
+      .post<RespuestaSesion>(`${environment.urlBackendSpring}/auth/refresh`, null, { withCredentials: true })
+      .pipe(
+        map(respuesta => {
+          localStorage.setItem('token', respuesta.token);
+          guardarLimitesSesion(respuesta, false);
+          return respuesta.token;
+        }),
+        finalize(() => (this.renovacion$ = null)),
+        shareReplay(1)
+      );
     return this.renovacion$;
   }
 

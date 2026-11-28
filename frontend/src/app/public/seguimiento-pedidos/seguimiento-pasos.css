@@ -64,8 +64,7 @@
   height: 9px;
   border-radius: 50%;
   background: #10b981;
-  color: #10b981;
-  animation: latido 2s infinite;
+  animation: latidoVerde 2s infinite;
 }
 
 .pedidos-seccion {
@@ -245,6 +244,12 @@
   0% { box-shadow: 0 0 0 0 color-mix(in srgb, currentColor 50%, transparent); opacity: 1; }
   70% { box-shadow: 0 0 0 8px transparent; opacity: 0.85; }
   100% { box-shadow: 0 0 0 0 transparent; opacity: 1; }
+}
+
+@keyframes latidoVerde {
+  0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.5); }
+  70% { box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
 }
 
 @keyframes onda {

@@ -32,7 +32,7 @@ describe('AlergenoIconoComponent', () => {
   it('cada uno de los 14 se dibuja con su nombre como texto alternativo y su propio color', () => {
     const { raiz } = crear();
     const iconos = Array.from(raiz.querySelectorAll('svg'));
-    expect(iconos.length).toBe(14);
+    expect(iconos).toHaveLength(14);
     expect(iconos.map(svg => svg.getAttribute('aria-label'))).toEqual(ALERGENOS.map(a => a.nombre));
     expect(iconos.every(svg => svg.getAttribute('role') === 'img')).toBe(true);
     expect(iconos[0].querySelector('title')?.textContent).toBe('Gluten');

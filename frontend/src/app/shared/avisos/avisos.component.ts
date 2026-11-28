@@ -52,7 +52,7 @@ export class AvisosComponent {
     const botones = Array.from(this.caja()?.nativeElement.querySelectorAll<HTMLElement>('button') ?? []);
     if (botones.length === 0) return;
     const primero = botones[0];
-    const ultimo = botones[botones.length - 1];
+    const ultimo = botones.at(-1)!;
     if (evento.shiftKey && document.activeElement === primero) {
       evento.preventDefault();
       ultimo.focus();

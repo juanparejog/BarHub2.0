@@ -81,7 +81,7 @@ public class CspInformeController {
         }
         List<Infraccion> infracciones = new ArrayList<>();
         if (json instanceof Map<?, ?> objeto && objeto.get("csp-report") instanceof Map<?, ?> informe) {
-            // report-uri: {"csp-report": {"violated-directive": ..., "blocked-uri": ...}}
+            // Formato de report-uri: un objeto csp-report con la directiva violada y el recurso bloqueado
             infracciones.add(new Infraccion(
                     campo(informe, "effective-directive", "violated-directive"),
                     campo(informe, "blocked-uri"),

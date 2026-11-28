@@ -142,7 +142,7 @@ describe('DosFactoresComponent', () => {
     fixture.detectChanges();
 
     expect(authService.activarDosFactores).toHaveBeenCalledWith('d2', '654321');
-    expect(raiz.querySelectorAll('ul.codigos li').length).toBe(10);
+    expect(raiz.querySelectorAll('ul.codigos li')).toHaveLength(10);
     expect(texto(raiz)).toContain('ABCDE-FGHJK');
     const continuar = Array.from(raiz.querySelectorAll('button')).find(b => b.textContent?.trim() === 'Continuar')!;
     expect(continuar.disabled).toBe(true);

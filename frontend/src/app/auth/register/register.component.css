@@ -1,5 +1,5 @@
 :host {
-  --primary: #4f8cff;
+  --primary: #1d4ed8;
   --bg-gradient: linear-gradient(120deg, #4f8cff 0%, #a6ffcb 100%);
   --card-bg: #ffffff;
   --text-main: #333333;
@@ -38,8 +38,10 @@ body {
 
 h2 {
   margin-bottom: 24px;
-  color: var(--primary);
-  letter-spacing: 1px;
+  color: #0a2342;
+  letter-spacing: 0;
+  font-family: var(--fuente-titulos);
+  font-weight: 700;
 }
 
 form {
@@ -87,28 +89,28 @@ input {
 
 input:focus {
   border-color: var(--primary);
-  box-shadow: 0 0 0 2px rgba(79, 140, 255, 0.25);
+  box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.16);
 }
 
 button[type="submit"] {
   margin-top: 10px;
   padding: 12px 0;
   width: 100%;
-  background: linear-gradient(90deg, #4f8cff 0%, #6fd6ff 100%);
-  color: #0f172a;
+  background: #0a2342;
+  color: #ffffff;
   border: none;
-  border-radius: 8px;
+  border-radius: 10px;
   font-size: 16px;
   font-weight: 600;
-  letter-spacing: 1px;
+  letter-spacing: 0.02em;
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(79, 140, 255, 0.3);
-  transition: background 0.2s, transform 0.1s;
+  box-shadow: 0 10px 20px -12px rgba(10, 35, 66, 0.8);
+  transition: background-color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
 }
 
 button[type="submit"]:hover:not(:disabled) {
-  background: linear-gradient(90deg, #3a6edc 0%, #4f8cff 100%);
-  transform: translateY(-2px) scale(1.02);
+  background: #1d4ed8;
+  transform: translateY(-1px);
 }
 
 button:disabled {
@@ -209,12 +211,12 @@ button:disabled {
 }
 
 :host-context(.dark-theme) button[type="submit"] {
-  background: linear-gradient(90deg, #2563eb 0%, #3b82f6 100%);
+  background: #1d4ed8;
   color: #ffffff;
 }
 
 :host-context(.dark-theme) button[type="submit"]:hover:not(:disabled) {
-  background: linear-gradient(90deg, #1d4ed8 0%, #2563eb 100%);
+  background: #2563eb;
 }
 
 :host-context(.dark-theme) .eye-btn {
@@ -230,43 +232,7 @@ button:disabled {
    COLORES DE LA MARCA: título en Merriweather y azul marino, botón principal
    azul marino (azul de la marca en modo oscuro), foco azul
    ========================================================================== */
-:host {
-  --primary: #1d4ed8;
-}
-
-h2 {
-  font-family: var(--fuente-titulos);
-  font-weight: 700;
-  letter-spacing: 0;
-  color: #0a2342;
-}
-
-input:focus {
-  box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.16);
-}
-
-button[type="submit"] {
-  background: #0a2342;
-  color: #ffffff;
-  letter-spacing: 0.02em;
-  border-radius: 10px;
-  box-shadow: 0 10px 20px -12px rgba(10, 35, 66, 0.8);
-  transition: background-color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
-}
-
-button[type="submit"]:hover:not(:disabled) {
-  background: #1d4ed8;
-  transform: translateY(-1px);
-}
 
 :host-context(.dark-theme) h2 {
   color: #f8fafc;
-}
-
-:host-context(.dark-theme) button[type="submit"] {
-  background: #1d4ed8;
-}
-
-:host-context(.dark-theme) button[type="submit"]:hover:not(:disabled) {
-  background: #2563eb;
 }

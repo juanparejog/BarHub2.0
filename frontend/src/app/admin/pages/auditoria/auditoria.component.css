@@ -29,7 +29,8 @@
   justify-content: center;
   font-size: 1.5rem;
   color: #ffffff;
-  background: rgba(255, 255, 255, 0.12);
+  /* Blanco al 12 % sobre el azul de la tarjeta, en sólido para que el contraste sea medible */
+  background: #2e496e;
 }
 
 .auditoria-intro-lista {
@@ -191,7 +192,7 @@
 
 :host-context(.dark-theme) .auditoria-accion i {
   color: #93c5fd;
-  background: rgba(59, 130, 246, 0.15);
+  background: #22365a;
 }
 
 :host-context(.dark-theme) .resultado-correcto { color: #6ee7b7; background: #16412b; border-color: #1f6b45; }

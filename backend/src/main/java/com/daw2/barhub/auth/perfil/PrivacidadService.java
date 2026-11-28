@@ -39,7 +39,7 @@ import java.util.regex.Pattern;
  * Derechos sobre los propios datos (pestaña Privacidad del perfil).
  *
  * <ul>
- *   <li>Descargar mis datos: todo lo que BarHub guarda de la cuenta, en JSON. Sin contraseña, sin
+ *   <li>Descargar mis datos: lo que BarHub guarda de la cuenta, completo y en JSON. Sin contraseña, sin
  *       secretos de la verificación en dos pasos y sin tokens.</li>
  *   <li>Eliminar mi cuenta: se anonimiza en lugar de borrarse. Los pedidos son registros de venta
  *       que el bar tiene que conservar, así que se quedan, pero sin nada que identifique a la

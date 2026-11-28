@@ -82,7 +82,7 @@ describe('PaginadorComponent', () => {
     fixture.detectChanges();
     expect(fixture.componentInstance.tamano).toBe(10);
     expect(fixture.componentInstance.pagina).toBe(1);
-    expect(raiz.querySelectorAll('.paginador-boton:not(.paginador-flecha)').length).toBe(6);
+    expect(raiz.querySelectorAll('.paginador-boton:not(.paginador-flecha)')).toHaveLength(6);
   });
 
   it('sin elementos no se pinta, y con una sola página no hay botones', () => {

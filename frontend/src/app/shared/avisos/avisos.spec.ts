@@ -41,7 +41,7 @@ describe('Avisos', () => {
     await fixture.whenStable();
     fixture.detectChanges();
 
-    const dialogo = raiz.querySelector('[role="dialog"]')!;
+    const dialogo = raiz.querySelector('dialog')!;
     expect(dialogo.getAttribute('aria-modal')).toBe('true');
     expect(dialogo.querySelector('#aviso-titulo')?.textContent).toContain('¡Pedido realizado con éxito!');
     expect(dialogo.getAttribute('aria-describedby')).toBe('aviso-mensaje');
@@ -60,11 +60,11 @@ describe('Avisos', () => {
     fixture.detectChanges();
     expect(alPulsar).toHaveBeenCalledTimes(1);
     expect(alCerrar).not.toHaveBeenCalled();
-    expect(raiz.querySelector('[role="dialog"]')).toBeNull();
+    expect(raiz.querySelector('dialog')).toBeNull();
 
     avisos.error({ titulo: '¿Seguro?', alCerrar });
     fixture.detectChanges();
-    raiz.querySelector('[role="dialog"]')!.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+    raiz.querySelector('dialog')!.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
     fixture.detectChanges();
     expect(alCerrar).toHaveBeenCalledTimes(1);
     expect(avisos.dialogo()).toBeNull();
@@ -84,6 +84,6 @@ describe('Avisos', () => {
 
     vi.advanceTimersByTime(AvisoService.DURACION_FLOTANTE);
     fixture.detectChanges();
-    expect(raiz.querySelectorAll('.aviso-flotante').length).toBe(0);
+    expect(raiz.querySelectorAll('.aviso-flotante')).toHaveLength(0);
   });
 });

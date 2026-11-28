@@ -1,6 +1,6 @@
 @if (reautenticacion.solicitud()) {
   <div class="modal-backdrop fade show"></div>
-  <div class="modal d-block" tabindex="-1" role="dialog" aria-modal="true"
+  <dialog open class="modal d-block dialogo-propio" tabindex="-1" aria-modal="true"
     aria-labelledby="reautenticacionTitulo" aria-describedby="reautenticacionTexto" (keydown.escape)="cancelar()">
     <div class="modal-dialog modal-dialog-centered">
       <form class="modal-content" (submit)="$event.preventDefault(); confirmar()" novalidate>
@@ -35,5 +35,5 @@
         </div>
       </form>
     </div>
-  </div>
+  </dialog>
 }

@@ -1,8 +1,8 @@
 @if (avisos.dialogo(); as dialogo) {
-  <div class="aviso-fondo" (click)="alPulsarFondo($event)">
-    <div #caja class="aviso-dialogo" [class]="'aviso-dialogo aviso-' + dialogo.tipo" role="dialog" aria-modal="true"
-      aria-labelledby="aviso-titulo" [attr.aria-describedby]="dialogo.mensaje ? 'aviso-mensaje' : null"
-      (keydown)="alTeclear($event)">
+  <!-- El teclado se atiende en el fondo: le llegan las teclas del diálogo (Escape, Tab) por burbujeo -->
+  <div class="aviso-fondo" (click)="alPulsarFondo($event)" (keydown)="alTeclear($event)">
+    <dialog open #caja class="aviso-dialogo dialogo-propio" [class]="'aviso-dialogo aviso-' + dialogo.tipo" aria-modal="true"
+      aria-labelledby="aviso-titulo" [attr.aria-describedby]="dialogo.mensaje ? 'aviso-mensaje' : null">
       <div class="aviso-icono" aria-hidden="true">
         <svg viewBox="0 0 52 52">
           <circle class="aviso-circulo" cx="26" cy="26" r="23" />
@@ -36,11 +36,11 @@
           </button>
         }
       </div>
-    </div>
+    </dialog>
   </div>
 }
 
-<div class="aviso-flotantes" role="status" aria-live="polite">
+<output class="aviso-flotantes" aria-live="polite">
   @for (flotante of avisos.flotantes(); track flotante.id) {
     <div class="aviso-flotante" [class]="'aviso-flotante aviso-' + flotante.tipo">
       <i class="bi" [class.bi-check-circle-fill]="flotante.tipo === 'exito'"
@@ -50,4 +50,4 @@
       <button type="button" class="btn-close" [attr.aria-label]="'aviso.cerrar' | t" (click)="avisos.quitar(flotante.id)"></button>
     </div>
   }
-</div>
+</output>

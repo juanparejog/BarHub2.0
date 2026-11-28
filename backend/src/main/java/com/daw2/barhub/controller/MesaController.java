@@ -17,6 +17,9 @@ import java.util.List;
 @RestController
 @RequestMapping("/mesas")
 public class MesaController {
+
+    private static final String MESA_NO_ENCONTRADA = "Mesa no encontrada.";
+
     @Autowired
     private MesaServiceImpl mesaService;
 
@@ -46,7 +49,7 @@ public class MesaController {
             log.warn("Mesa {} no encontrada", id);
         }
         if (mesa == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ErrorDto.from("Mesa no encontrada."));
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ErrorDto.from(MESA_NO_ENCONTRADA));
         }
         return ResponseEntity.ok(mesa);
     }
@@ -58,7 +61,7 @@ public class MesaController {
             return ResponseEntity.status(HttpStatus.OK).body(MesaDto.from(mesaActualizada));
         } catch (Exception e) {
             log.error("Error al procesar la peticion", e);
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ErrorDto.from("Mesa no encontrada."));
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ErrorDto.from(MESA_NO_ENCONTRADA));
         }
     }
 
@@ -73,7 +76,7 @@ public class MesaController {
         }
         Mesa mesa = mesaService.findById(id);
         if (mesa == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ErrorDto.from("Mesa no encontrada."));
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ErrorDto.from(MESA_NO_ENCONTRADA));
         }
         mesa.setEstado(cambio.estado());
         return ResponseEntity.ok(MesaDto.from(mesaService.save(mesa)));

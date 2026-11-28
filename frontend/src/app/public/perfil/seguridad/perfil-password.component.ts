@@ -51,8 +51,7 @@ export class PerfilPasswordComponent {
       next: cerradas => {
         this.enviando.set(false);
         this.form.reset();
-        this.exito.set(this.idiomas.t(cerradas === 1 ? 'perfil.clave.cambiada1'
-          : cerradas > 1 ? 'perfil.clave.cambiadaN' : 'perfil.clave.cambiada', { n: cerradas }));
+        this.exito.set(this.idiomas.t(claveDelCambio(cerradas), { n: cerradas }));
       },
       error: err => {
         this.enviando.set(false);
@@ -60,4 +59,12 @@ export class PerfilPasswordComponent {
       }
     });
   }
+}
+
+/** El aviso según cuántas sesiones se han cerrado al cambiar la contraseña: ninguna, una o varias. */
+function claveDelCambio(cerradas: number): 'perfil.clave.cambiada' | 'perfil.clave.cambiada1' | 'perfil.clave.cambiadaN' {
+  if (cerradas === 1) {
+    return 'perfil.clave.cambiada1';
+  }
+  return cerradas > 1 ? 'perfil.clave.cambiadaN' : 'perfil.clave.cambiada';
 }

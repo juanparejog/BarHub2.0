@@ -194,6 +194,8 @@
     border-radius: 24px;
     overflow: hidden;
     border: 1px solid #e2e8f0 !important;
+    position: sticky;
+    top: calc(var(--alto-barra) + 20px);
   }
   
   .terminal-header {
@@ -614,15 +616,15 @@
    TERMINAL DE COBRO: pegado bajo la barra en escritorio y, en móvil y tablet,
    como hoja que sube desde abajo (antes aparecía al final de una lista larga)
    ========================================================================== */
-.terminal-card {
-  position: sticky;
-  top: calc(var(--alto-barra) + 20px);
-}
 
 @media (max-width: 991.98px) {
   .terminal-fondo {
     position: fixed;
     inset: 0;
+    width: 100%;
+    padding: 0;
+    border: none;
+    cursor: default;
     z-index: 1044;
     background: rgba(10, 35, 66, 0.45);
     backdrop-filter: blur(2px);
