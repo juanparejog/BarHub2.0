@@ -248,7 +248,6 @@ public class UsuarioController {
 
     // ---------- auxiliares ----------
 
-    /** Como aparece el usuario afectado en el registro de auditoria. */
     /** Lo que se apunta en la auditoría: la contraseña cambiada y los roles de antes y de después. */
     static String detalleDelCambio(boolean conClave, String rolesAntes, String rolesDespues) {
         List<String> cambios = new ArrayList<>();
@@ -277,6 +276,7 @@ public class UsuarioController {
         }
     }
 
+    /** Como aparece el usuario afectado en el registro de auditoria. */
     private static String objetivo(User usuario) {
         return usuario == null ? null : "usuario " + usuario.getId() + " (" + usuario.getUsername() + ")";
     }

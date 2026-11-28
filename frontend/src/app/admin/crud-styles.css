@@ -351,7 +351,6 @@
   }
   
   .table-toolbar {
-    background-color: #f8fafc;
     border-bottom: 1px solid #e2e8f0;
     border-top-left-radius: 16px;
     border-top-right-radius: 16px;
@@ -422,6 +421,8 @@
     gap: 6px;
   }
   
+  /* Ver, editar y borrar: botones redondeados con su color; al pasar por encima, el icono en blanco
+     sobre el tono oscuro del mismo color */
   .action-icon {
     font-size: 0.95rem;
     cursor: pointer;
@@ -439,9 +440,9 @@
     background: #e0f2fe;
   }
   .action-icon.view:hover {
-    color: #0369a1;
-    transform: scale(1.15);
-    background: #0284c7;
+    color: #ffffff;
+    transform: translateY(-1px);
+    background: #0369a1;
     box-shadow: 0 6px 12px -6px #0284c7;
   }
   
@@ -450,9 +451,9 @@
     background: #fef3c7;
   }
   .action-icon.edit:hover {
-    color: #b45309;
-    transform: scale(1.15);
-    background: #d97706;
+    color: #ffffff;
+    transform: translateY(-1px);
+    background: #b45309;
     box-shadow: 0 6px 12px -6px #d97706;
   }
   
@@ -461,9 +462,9 @@
     background: #ffe4e6;
   }
   .action-icon.delete:hover {
-    color: #be123c;
-    transform: scale(1.15);
-    background: #e11d48;
+    color: #ffffff;
+    transform: translateY(-1px);
+    background: #be123c;
     box-shadow: 0 6px 12px -6px #e11d48;
   }
   
@@ -576,7 +577,6 @@
   
   body.dark-theme .table-toolbar {
     --bs-light-bg-subtle: #0f172a;
-    background-color: #0f172a;
     border-bottom-color: #334155;
     background: #0f172a;
   }
@@ -793,21 +793,9 @@ body.dark-theme .action-icon.view {
   background: #1b3d57;
 }
 
-body.dark-theme .action-icon.view:hover {
-  color: #a8ddfa;
-}
-
-body.dark-theme .action-icon.edit:hover {
-  color: #facca8;
-}
-
 body.dark-theme .action-icon.delete {
   color: #f8c9d3;
   background: #402c41;
-}
-
-body.dark-theme .action-icon.delete:hover {
-  color: #fbd0db;
 }
 
 body.dark-theme .dropzone-container {
@@ -856,15 +844,6 @@ body.dark-theme .dropzone-container.border-primary {
 @keyframes filaEntra {
   from { opacity: 0; transform: translateY(4px); }
   to { opacity: 1; transform: translateY(0); }
-}
-
-/* Ver, editar y borrar: botones redondeados con su color */
-
-.action-icon.view:hover,
-.action-icon.edit:hover,
-.action-icon.delete:hover {
-  color: #ffffff;
-  transform: translateY(-1px);
 }
 
 body.dark-theme .crud-table tbody tr:hover td:first-child {
