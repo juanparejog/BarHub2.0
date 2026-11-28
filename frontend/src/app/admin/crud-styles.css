@@ -436,7 +436,7 @@
   }
   
   .action-icon.view {
-    color: #0284c7;
+    color: #0369a1;
     background: #e0f2fe;
   }
   .action-icon.view:hover {
@@ -447,7 +447,7 @@
   }
   
   .action-icon.edit {
-    color: #d97706;
+    color: #92400e;
     background: #fef3c7;
   }
   .action-icon.edit:hover {
@@ -458,7 +458,7 @@
   }
   
   .action-icon.delete {
-    color: #e11d48;
+    color: #be123c;
     background: #ffe4e6;
   }
   .action-icon.delete:hover {
