@@ -1,6 +1,6 @@
 # Seguridad
 
-Resumen de las prácticas de seguridad aplicadas en BarHub 2.0, un modelo de amenazas básico y el SOC que vigila la aplicación. Las evidencias estáticas están en [auditorias.md](auditorias.md) y las pruebas dinámicas en [evidencias/](evidencias/seguridad-2026-11-15.md).
+Resumen de las prácticas de seguridad aplicadas en BarHub 2.0, un modelo de amenazas básico y el SOC que vigila la aplicación. Las evidencias estáticas están en [auditorias.md](auditorias.md) y las pruebas dinámicas en [evidencias/](evidencias/seguridad-2026-11-28.md).
 
 ## Índice
 
@@ -137,13 +137,15 @@ Ataques físicos al local, ingeniería social contra el personal y seguridad del
 
 La API en ejecución se probó con un script propio contra una instancia local y se repitió tras cada cambio del backend. El script no se versiona; los resultados sí:
 
+- [Pasada final del cierre de la 2.1 (28 de noviembre de 2026): backend, Vitest, E2E, pruebas de seguridad y SOC](evidencias/cierre-2.1-2026-11-28.md)
+- [Pruebas de seguridad (28 de noviembre de 2026, cierre de la 2.1)](evidencias/seguridad-2026-11-28.md)
 - [Pruebas de seguridad (22 de noviembre de 2026, con Spring Boot 4.2 y Angular 22, a través de Caddy)](evidencias/seguridad-2026-11-22.md)
 - [Conexión cifrada con MariaDB (20 de noviembre de 2026, con Spring Boot 4.2 y Connector/J 4)](evidencias/tls-mariadb-2026-11-20.md)
 - [Pruebas de seguridad (15 de noviembre de 2026, con Spring Boot 3.5.16)](evidencias/seguridad-2026-11-15.md)
 - [Pruebas de seguridad (14 de noviembre de 2026)](evidencias/seguridad-2026-11-14.md)
 - [Subidas de archivos y errores](evidencias/subidas-y-errores.md)
 
-Resultado de la última ejecución (22 de noviembre de 2026): 53 OK y 0 fallos, incluida la fuerza bruta en el login, que el 15 de noviembre figuraba como pendiente.
+Resultado de la última ejecución (28 de noviembre de 2026, cierre de la 2.1): 138 OK y 0 fallos en 13 secciones, que ya cubren también la CSP, el correo, la verificación en dos pasos, el perfil, la privacidad, el tiempo real y el pago con tarjeta.
 
 ## 5. SOC: detección y alertas
 

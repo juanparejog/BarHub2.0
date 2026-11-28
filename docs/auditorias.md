@@ -4,13 +4,17 @@ Resultados de las auditorías de seguridad y calidad realizadas sobre BarHub 2.0
 
 ## Resumen ejecutivo
 
-| Herramienta | Objetivo | Backend | Frontend |
-| :--- | :--- | :---: | :---: |
-| **Snyk** (reanálisis 21-nov-2026, versión 2.1) | Vulnerabilidades en dependencias | 136 → 2 incidencias (ninguna crítica, ninguna explotable) | 29 → 0 incidencias |
-| **SonarQube** | Calidad, fiabilidad y mantenibilidad | PASSED |  PASSED |
-| **SonarCloud** (CI, revisión 22-nov-2026, versión 2.1) | Calidad en el repositorio completo | Seguridad C (2 avisos del workflow), 67 incidencias abiertas | Seguridad A, fiabilidad A, mantenibilidad A; 0 incidencias abiertas (2 aceptadas con su motivo); Quality Gate superado sobre el código nuevo |
-| **Trivy** | Configuración de Dockerfiles | 1 LOW → 0 | 1 HIGH + 1 LOW → 0 |
-| **Pruebas dinámicas** (22-nov-2026, versión 2.1) | Control de acceso, IDOR, precios, tokens, fuerza bruta y errores | 53 OK, 0 fallos | Comprobado en navegador |
+Estado al cerrar la versión 2.1 (28 de noviembre de 2026):
+
+| Herramienta | Objetivo | Resultado |
+| :--- | :--- | :--- |
+| **Snyk** | Vulnerabilidades en dependencias | Backend: 2 avisos aceptados, ninguno explotable (153 dependencias). Frontend y E2E: 0 |
+| **Dependabot** | Alertas de dependencias en GitHub | 0 abiertas (53 antes de migrar a Angular 22) |
+| **SonarQube** (análisis local de la 2.0) | Calidad, fiabilidad y mantenibilidad | Backend y frontend: PASSED |
+| **SonarCloud** (en el CI) | Calidad y seguridad de todo el repositorio | Quality Gate superado. Código nuevo: 0 incidencias abiertas (131 al empezar la revisión), fiabilidad, seguridad y mantenibilidad A, cobertura 81,6 %, duplicación 0 % |
+| **Trivy** | Dependencias del repositorio y configuración de los Dockerfile | 0 vulnerabilidades altas o críticas; 0 errores de configuración |
+| **Pruebas dinámicas** | Control de acceso, IDOR, precios, tokens, fuerza bruta, CSP, correo, dos pasos, perfil, tiempo real y pagos | 138 OK, 0 fallos |
+| **Pasada final** | Todas las pruebas automáticas | Backend 373, Vitest 208, E2E 53 y SOC 29, sin fallos ([evidencia](evidencias/cierre-2.1-2026-11-28.md)) |
 
 ## Índice
 
@@ -18,6 +22,7 @@ Resultados de las auditorías de seguridad y calidad realizadas sobre BarHub 2.0
 2. [SonarQube](#2-sonarqube)
 3. [Trivy](#3-trivy)
 4. [Pruebas dinámicas](#4-pruebas-dinámicas)
+5. [Dependabot y análisis de código de GitHub](#5-dependabot-y-análisis-de-código-de-github)
 
 ---
 
@@ -102,6 +107,10 @@ Con Spring Boot 4.2 quedaron 8 incidencias en 149 dependencias. Se comprobó en 
 
 El aviso de `jaxb-core` (XXE) exige que la aplicación lea un XML enviado desde fuera, y BarHub no lo hace: ningún código usa JAXB (`@XmlRootElement`, `Unmarshaller` ni `application/xml`), no hay archivos `orm.xml` (Hibernate lee el mapeo de las anotaciones) y el conversor JAXB que registra Spring solo actúa sobre clases con `@XmlRootElement`, que la API no tiene; además, Spring desactiva por defecto las entidades externas. Verificación: los tests del backend pasan y el informe de cobertura se sigue generando con la ASM nueva.
 
+#### Reanálisis del 28 de noviembre de 2026 (cierre de la 2.1)
+
+153 dependencias y los mismos 2 avisos aceptados el 21 de noviembre (`jaxb-core` 4.0.9, alto, y `jakarta.validation-api` 3.1.1, bajo), por los mismos motivos: siguen sin parche estable y no son explotables en BarHub. Ningún aviso nuevo.
+
 ### Frontend · 102 dependencias
 
 | Métrica | Inicial | Final |
@@ -139,6 +148,10 @@ El aviso de `jaxb-core` (XXE) exige que la aplicación lea un XML enviado desde 
 - Verificación: build de producción en cada salto y capturas automáticas de las 36 pantallas en los dos temas, sin diferencias más allá de datos y ruido conocido (fecha del día, mapa incrustado). Prueba manual del flujo de pedido completo con descarga del ticket en PDF.
 - Resultado en Dependabot: de 53 alertas abiertas a 1, pendiente de revisar.
 - Reanálisis de Snyk (21 de noviembre de 2026): **0 incidencias** en las 40 dependencias de producción, frente a las 25 de antes de migrar. Snyk analiza por defecto las dependencias que llegan a la web publicada; las de desarrollo (Angular CLI, Vitest) se revisan con `npm audit`, que también queda sin vulnerabilidades.
+
+#### Reanálisis del 28 de noviembre de 2026 (cierre de la 2.1)
+
+**0 incidencias** en el frontend y **0** en el proyecto de los E2E (`e2e/`), tras añadir en la 2.1 Stripe.js, `qrcode` y las fuentes servidas desde la propia web.
 
 ---
 
@@ -271,6 +284,41 @@ Tras las migraciones a Spring Boot 4, Java 21 y Angular 22, y con la cobertura d
 | `java:S2143` | 1 | **Aceptado.** `JwtUtils` calcula las fechas con `java.time.Instant`, pero JJWT 0.13 solo acepta `java.util.Date` en `issuedAt` y `expiration`, así que la conversión con `Date.from` es inevitable. |
 | `java:S9438` | 1 | **Falso positivo.** Pide hacer `final` el campo `detalles` de `PedidoDto`, pero Lombok (`@Data`) genera su setter y se usa al convertir pedidos a DTO y al leer el JSON. Con `final` no compilaría. |
 
+#### Revisión del 28 de noviembre de 2026 (cierre de la 2.1)
+
+Tras el trabajo de la 2.1 (paginación, avisos propios, idiomas, pagos, SOC y estilos), el Quality Gate falló sobre el código nuevo por fiabilidad D (3 bugs) y seguridad D (2 vulnerabilidades), con 131 incidencias abiertas en ese código.
+
+| Área (código nuevo) | Antes de la revisión | Después |
+| :--- | :---: | :---: |
+| Bugs | 3 (D) | **0 (A)** |
+| Vulnerabilidades | 2 (D) | **0 (A)** |
+| Incidencias abiertas | 131 | **0** |
+| Mantenibilidad | A | A |
+| Security hotspots revisados | 100 % | 100 % |
+| Cobertura | 81,7 % | 81,6 % |
+| Duplicación | 0 % | 0 % |
+
+En todo el repositorio, la cobertura es del 57,6 % y la duplicación del 0,7 %.
+
+| Regla | Qué señala | Decisión |
+| :--- | :--- | :--- |
+| `Web:MouseEventWithoutKeyboardEquivalentCheck` (bug) | Elementos que reaccionan al clic sin equivalente de teclado | **Corregido.** El aviso se cierra con Escape desde su fondo, y el fondo del cobro en el móvil pasa a ser un `<button>` |
+| `typescript:S2871` (bug) | `sort()` sin comparador | **Corregido.** Las categorías se ordenan con `localeCompare` |
+| `pythonsecurity:S8703` (vulnerabilidad) | `soc.py probar` hacía peticiones a una dirección leída del `.env` (SSRF) | **Corregido.** Solo acepta `http` o `https` hacia `localhost`, `127.0.0.1`, `::1` o el dominio de `SITE_ADDRESS`, sin usuario, ruta ni parámetros, y monta la URL con esas piezas. Tests nuevos en `test_soc.py` |
+| `java:S4790` (vulnerabilidad) | HMAC-SHA1 en `Totp.java` | **Descartado.** La RFC 6238 y las apps de autenticación (Google Authenticator, Microsoft Authenticator, Aegis) exigen HMAC-SHA1. Se usa como HMAC, no para guardar contraseñas, y HMAC-SHA1 no se ve afectado por las colisiones de SHA1 |
+| `css:S4666` | Selectores repetidos en la misma hoja | **Corregido.** Reglas fusionadas en el panel, el inicio de sesión, el registro, los pagos, la portada y el perfil |
+| `Web:S6819` | Roles ARIA donde existe un elemento nativo | **Corregido.** `role="status"` pasa a `<output>`, `role="dialog"` a `<dialog open>` (con un estilo base que respeta el diseño propio), `role="group"` a `<fieldset>` y `role="list"` a `<ul>` |
+| `css:S7924` | Contraste insuficiente entre texto y fondo | **Corregido.** Fondos sólidos donde el contraste se calculaba sobre transparencias, y colores más oscuros en los iconos de ver, editar y borrar (5:1 o más) |
+| `typescript:S3358`, `S3776`; `java:S3358`, `S3776`; `python:S3776` | Ternarios anidados y métodos demasiado complejos | **Corregido.** Tablas de búsqueda y métodos auxiliares (`formato.ts`, perfil, `UsuarioController`, `soc.py`) |
+| `java:S1192` | Textos repetidos | **Corregido.** Constantes en `StripePasarela`, `MesaController`, `AuditoriaService`, `AuthController` y `UsuarioController` |
+| `python:S6326`, `S5713`; `typescript:S5906`, `S2925`, `S2699` y otras menores | Expresiones regulares, `except` redundante, aserciones de los tests, esperas fijas en un E2E, comentarios TODO | **Corregido.** Entre otras, `toHaveLength` en los tests y una espera por condición (`expect.poll`) en lugar de `waitForTimeout` |
+| `java:S2143` | `java.util.Date` en `JwtUtils` | **Descartado**, por el motivo de la revisión del 22 de noviembre |
+| `Web:S6840` | `autocomplete="tel-national"` en el teléfono del perfil | **Descartado.** Es un valor válido del estándar HTML. Con `tel`, el navegador rellenaría el prefijo +34 y no cabría en el máximo de 9 cifras |
+
+**Avisos que introdujo la propia revisión.** Al fusionar selectores quedaron dos reglas con `background-color` seguido de `background` (`css:S4657`) y seis con el contraste mal calculado (`css:S7924`), y al extraer un método quedaron dos javadoc seguidos (`java:S8491`). Se corrigieron el mismo día, en dos commits.
+
+**Por qué se descartan en el workflow y no en la interfaz.** El aviso de `JwtUtils`, aceptado en la interfaz el 22 de noviembre, volvió a aparecer abierto en un análisis posterior. Por eso los tres descartes se declaran en el workflow (`sonar.issue.ignore.multicriteria`), como el de `css:S9440`: cada uno limitado a una regla y a un archivo, con su motivo en un comentario. Así la decisión queda versionada y se revisa con el resto del código, y cualquier otra incidencia en esos archivos se sigue marcando.
+
 ## 3. Trivy
 
 Escaneo de *misconfigurations* en los `Dockerfile` de backend y frontend.
@@ -298,6 +346,13 @@ Tras añadir usuarios sin privilegios en las imágenes multi-etapa y directivas 
 
 <p align="center"><img src="img/trivy/auditoria3.png" alt="Trivy final sin incidencias" width="720"></p>
 
+### Reanálisis del 28 de noviembre de 2026 (cierre de la 2.1)
+
+| Análisis | Comando | Resultado |
+| :--- | :--- | :--- |
+| Dependencias de todo el repositorio (`package-lock.json` y `gradle.lockfile`) | `trivy fs --severity HIGH,CRITICAL .` | **0** |
+| Configuración de los Dockerfile | `trivy config backend/Dockerfile` y `trivy config frontend/Dockerfile` | **0** |
+
 ---
 
 ## 4. Pruebas dinámicas
@@ -313,10 +368,32 @@ Además de las herramientas estáticas, se probó la API en ejecución con un sc
 | Subida de archivos | Extensión, tipo declarado, firma real, tamaño máximo y nombre aleatorio |
 | Errores | Respuestas genéricas; el detalle queda en el log |
 | Fuerza bruta en el login | 401 en los 5 primeros fallos y 429 con `Retry-After` después; la contraseña correcta no entra durante el bloqueo |
-| Tokens | Firma alterada y `alg=none` rechazados; caducidad de 4 horas |
+| Tokens | Firma alterada y `alg=none` rechazados; token de acceso de 15 minutos con renovación |
 | Exposición | El actuator no responde desde fuera y las cabeceras de seguridad de Caddy están presentes |
+| CSP | Directivas estrictas y endpoint de avisos que acepta informes sin sesión y rechaza la lectura |
+| Correo | Enlaces de confirmación, recuperación y cambio de correo de un solo uso, con el token en el fragmento de la URL |
+| Verificación en dos pasos y perfil | Desafíos inventados, reautenticación, sesiones ajenas y cambios de contraseña sin la actual |
+| Privacidad | Descarga de datos sin secretos y eliminación de la cuenta (el token y la contraseña dejan de valer) |
+| Tiempo real | Canales cerrados sin sesión, el del personal cerrado a clientes y cada cliente solo con sus pedidos |
+| Pago con tarjeta | Pedidos con tarjeta sin un pago real cobrado en Stripe rechazados, y precio recalculado en el servidor |
 
-Resultado de la última ejecución (22 de noviembre de 2026, con Spring Boot 4.2 y Angular 22): **53 OK, 0 fallos**. Informes: [seguridad-2026-11-22](evidencias/seguridad-2026-11-22.md), [seguridad-2026-11-15](evidencias/seguridad-2026-11-15.md), [seguridad-2026-11-14](evidencias/seguridad-2026-11-14.md) y [subidas-y-errores](evidencias/subidas-y-errores.md).
+Resultado de la última ejecución (28 de noviembre de 2026, cierre de la 2.1): **138 OK, 0 fallos**, en 13 secciones. Informes: [seguridad-2026-11-28](evidencias/seguridad-2026-11-28.md), [seguridad-2026-11-22](evidencias/seguridad-2026-11-22.md), [seguridad-2026-11-15](evidencias/seguridad-2026-11-15.md), [seguridad-2026-11-14](evidencias/seguridad-2026-11-14.md) y [subidas-y-errores](evidencias/subidas-y-errores.md).
+
+La pasada final del cierre de la 2.1, con todas las pruebas automáticas (backend, Vitest, build, E2E, script y SOC), está en [cierre-2.1-2026-11-28](evidencias/cierre-2.1-2026-11-28.md).
+
+---
+
+## 5. Dependabot y análisis de código de GitHub
+
+Revisado el 28 de noviembre de 2026 en *Security and quality* del repositorio:
+
+| Función | Estado |
+| :--- | :--- |
+| Política de seguridad (`SECURITY.md`) y avisos de seguridad | Activados |
+| Informe privado de vulnerabilidades | Activado |
+| Alertas de Dependabot | Activadas; **0 alertas abiertas** |
+| Secret scanning | Activado |
+| Code scanning (CodeQL) | Sin configurar. El análisis estático lo hace SonarCloud en cada push, con su Quality Gate; activar CodeQL duplicaría ese trabajo |
 
 ---
 
@@ -324,11 +401,14 @@ Resultado de la última ejecución (22 de noviembre de 2026, con Spring Boot 4.2
 
 ```bash
 # Snyk
-snyk test                                   # en backend/ y frontend/
+snyk test                                   # en backend/, frontend/ y e2e/
 
 # SonarQube / SonarCloud: ver infraestructura.md (CI/CD)
 
 # Trivy (misconfiguration de Dockerfile)
 trivy config backend/Dockerfile
 trivy config frontend/Dockerfile
+
+# Trivy (vulnerabilidades altas y críticas en las dependencias de todo el repositorio)
+trivy fs --severity HIGH,CRITICAL .
 ```
