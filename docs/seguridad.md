@@ -147,67 +147,13 @@ Resultado de la última ejecución (22 de noviembre de 2026): 53 OK y 0 fallos, 
 
 ## 5. SOC: detección y alertas
 
-El SOC de la aplicación vive en [`seguridad/soc/`](../seguridad/soc), junto al bastionado del servidor, y se arranca con el perfil `soc` de Docker Compose. Detecta y avisa; la respuesta es manual (salvo el bloqueo del login, que hace el backend). Cómo encaja con el resto de la monitorización del servidor (Uptime Kuma, `auditd`, `aide`) está en [infraestructura.md](infraestructura.md#12-soc-y-monitorización).
+El SOC de la aplicación vive en [`seguridad/soc/`](../seguridad/soc), junto al bastionado del servidor, y se arranca con el perfil `soc` de Docker Compose. Su documentación completa (arquitectura, reglas, avisos, panel, puesta en marcha, qué hacer con cada alerta, tests y problemas frecuentes) está en [`seguridad/soc/README.md`](../seguridad/soc/README.md). Aquí, lo esencial:
 
-| Contenedor | Imagen | Función | Puerto |
-| :--- | :--- | :--- | :--- |
-| `barhub-alloy` | `grafana/alloy` | Lee `access.log` de Caddy y `backend.log` del backend (volúmenes en solo lectura) y los envía a Loki con la etiqueta `servicio`. Sin acceso a Docker, sin capacidades (`cap_drop: ALL`) y sin puertos | Ninguno |
-| `barhub-loki` | `grafana/loki` | Guarda los logs 30 días y evalúa cada minuto las reglas de [`seguridad/soc/loki/reglas/barhub.yml`](../seguridad/soc/loki/reglas/barhub.yml) | `127.0.0.1:3100` |
-| `barhub-alertmanager` | `prom/alertmanager` | Agrupa las alertas por regla e IP y las envía; avisa también cuando se resuelven | `127.0.0.1:9093` |
-| `barhub-grafana` | `grafana/grafana` | Panel *BarHub - SOC* (página de inicio) y consultas libres a los logs. Sin registro ni acceso anónimo | `127.0.0.1:3000` |
-
-**De dónde salen los datos:**
-
-- **Caddy** ya escribía el log de acceso en JSON (una línea por petición, con IP, ruta y código).
-- **El backend** escribe, además de la consola, un log en JSON (`LOGGING_STRUCTURED_FORMAT_FILE=logstash`) en el volumen `backend_logs`, con rotación a los 10 MB y 7 días de histórico. Cada entrada del registro de auditoría deja una línea `evento=auditoria accion=INICIO_SESION resultado=RECHAZADO ip=203.0.113.7`: acción, resultado e IP, **sin usuario ni detalle**, que siguen solo en la base de datos (*Admin → Auditoría*). Se escribe antes de guardar la entrada, así que el SOC la tiene aunque la base de datos falle o alguien la modifique después. Los avisos de la CSP (`CSP:`) y los errores llegan por el mismo log.
-
-### 5.1. Reglas de alerta
-
-| Alerta | Se dispara con | Severidad |
-| :--- | :--- | :---: |
-| `FuerzaBrutaInicioSesion` | 8 o más inicios de sesión, segundos pasos o reautenticaciones rechazados o bloqueados desde una IP en 5 min (el backend bloquea una cuenta a los 5 y una IP a los 20) | alta |
-| `FallosInicioSesionRepartidos` | 40 o más inicios de sesión fallidos en 15 min sumando todas las IP (botnet o lista de contraseñas) | media |
-| `AccesosDenegadosRepetidos` | 10 o más `ACCESO_DENEGADO` (zonas de otro rol) desde una IP en 5 min | alta |
-| `CambioDePrivilegios` | Alta, edición o baja de un usuario, o restablecimiento de su verificación en dos pasos | info |
-| `EscaneoOAbusoDesdeUnaIp` | 40 o más respuestas 4xx para una IP en 5 min (escaneo de rutas) | media |
-| `ErroresDelServidor` | 10 o más respuestas 5xx en 5 min | alta |
-| `InfraccionCSP` | Cualquier aviso de la CSP en 10 min | media |
-| `ErroresDelBackend` | 5 o más líneas `ERROR` en 5 min | media |
-
-Los umbrales están pensados para el tráfico de un bar: con el uso normal no salta ninguna. Las pruebas sí las disparan, y es lo esperado: `pruebas_seguridad.py` y los E2E provocan fuerza bruta, accesos denegados, 4xx y avisos de la CSP.
-
-### 5.2. Despliegue y prueba con `soc.py`
-
-`seguridad/soc/soc.py` (Python 3, solo biblioteca estándar) hace todo el ciclo. Como el resto de scripts del proyecto, `desplegar`, `probar` y `parar` solo cuentan lo que harían hasta que se añade `--aplicar`.
-
-| Orden | Qué hace |
-| :--- | :--- |
-| `validar` | Revisa los ficheros (reglas, panel, que ningún puerto salga de `127.0.0.1`, versiones fijadas) y pasa la configuración por las propias imágenes: Loki la verifica y, en un contenedor de usar y tirar, carga y evalúa las reglas; `amtool` y Alloy revisan las suyas. Es lo que ejecuta el job `soc` de CI |
-| `comprobar` | Ficheros, variables `SOC_*` del `.env`, Docker, y que el backend ya escribe el log del SOC |
-| `desplegar` | Genera `seguridad/soc/alertmanager/alertmanager.yml` desde el `.env` (lleva las claves del SMTP y de Telegram: no se versiona), arranca los cuatro contenedores y espera a que estén listos y con todas las reglas cargadas |
-| `probar` | Ataque simulado: 8 inicios de sesión fallidos de un usuario inventado, 45 peticiones a rutas que no existen y un aviso de la CSP. Espera a que `FuerzaBrutaInicioSesion`, `EscaneoOAbusoDesdeUnaIp` e `InfraccionCSP` estén activas en Alertmanager y, con Mailpit, a que lleguen los tres correos. Si falta alguna, dice si los logs han llegado a Loki (recogida) o no (regla) |
-| `estado` | Contenedores, reglas cargadas con su estado y alertas activas |
-| `parar` | Para los cuatro contenedores; los datos de Loki y Grafana se quedan |
-
-```bash
-# 1. Variables: SOC_GRAFANA_CLAVE (obligatoria) y, en producción, el SMTP o Telegram (ver .env.example)
-nano infra/docker/.env
-# 2. La aplicación, con el log del SOC en el backend
-cd infra/docker && docker compose up -d --build && cd ../..
-# 3. El SOC
-python3 seguridad/soc/soc.py comprobar
-python3 seguridad/soc/soc.py desplegar --aplicar
-python3 seguridad/soc/soc.py probar --aplicar
-```
-
-Si siguen activas las alertas de una prueba anterior, `probar` espera a que se resuelvan (y, con Mailpit, al correo de resueltas) antes de atacar: Alertmanager no repite el correo de una alerta de la que ya ha avisado hasta que se resuelve o pasan 4 horas, y la prueba no demostraría nada. `probar` suma 8 fallos al contador de la IP en el backend, que la bloquea 15 minutos a los 20: conviene no lanzarlo seguido de `pruebas_seguridad.py` desde el mismo equipo. Las alertas de la prueba se resuelven solas cuando pasa su ventana (5 a 10 minutos).
-
-### 5.3. Acceso y datos personales
-
-- Ningún puerto del SOC sale del equipo. En el servidor se entra por un túnel SSH: `ssh -p 22022 -L 3000:127.0.0.1:3000 -L 9093:127.0.0.1:9093 usuario@servidor` y, en el navegador, `http://127.0.0.1:3000`.
-- Grafana pide usuario (`SOC_GRAFANA_USUARIO`, `admin` por defecto) y la contraseña de `SOC_GRAFANA_CLAVE`, que solo se aplica la primera vez que arranca (después se cambia desde el propio Grafana); sin registro, sin acceso anónimo y sin informes a Grafana Labs. `soc.py` no despliega sin una de al menos 12 caracteres.
-- Las IP son datos personales. Loki las guarda **30 días** (`retention_period: 720h`), lo necesario para investigar un incidente; el registro de auditoría de la base de datos las guarda un año por interés legítimo en la seguridad ([limitaciones](#6-pendientes-y-limitaciones-conocidas)). El SOC no recibe nombres de usuario, contraseñas, códigos ni tokens.
-- Memoria y acceso en el servidor: [infraestructura.md](infraestructura.md#121-soc-de-la-aplicación-perfil-soc).
+- **Qué hace.** Grafana Alloy recoge el log de acceso de Caddy y el log en JSON del backend, Loki los guarda 30 días y evalúa cada minuto 8 reglas de alerta, Alertmanager avisa por correo (y por Telegram, si se configura) y Grafana los muestra en el panel *BarHub - SOC*. Detecta y avisa; la respuesta es manual, salvo el bloqueo del login, que hace el backend.
+- **Qué detecta.** Fuerza bruta contra el inicio de sesión (por IP y repartida), accesos denegados repetidos, cambios en las cuentas del personal, escaneo de rutas, errores 5xx, avisos de la CSP y errores del backend. Los umbrales están pensados para un bar: con el uso normal no salta ninguna, y las pruebas de seguridad sí las disparan.
+- **De dónde salen los datos.** Cada entrada del registro de auditoría deja en el log del backend una línea con la acción, el resultado y la IP, **sin usuario ni detalle**, que siguen solo en la base de datos (*Admin → Auditoría*). Se escribe antes de guardar la entrada, así que el SOC la tiene aunque la base de datos falle o alguien la modifique después.
+- **Cómo se prueba.** `seguridad/soc/soc.py` lo valida, lo despliega y lanza un ataque simulado; comprueba que las alertas llegan a Alertmanager y los correos al buzón. En CI, el job `soc` pasa sus tests y valida la configuración con las propias imágenes.
+- **Acceso y datos personales.** Ningún puerto del SOC sale del equipo (en el servidor, por túnel SSH) y Grafana no tiene registro ni acceso anónimo. Las IP, que son datos personales, se guardan 30 días en Loki; el SOC no recibe nombres de usuario, contraseñas, códigos ni tokens. El registro de auditoría de la base de datos guarda las IP un año ([limitaciones](#6-pendientes-y-limitaciones-conocidas)).
 
 ## 6. Pendientes y limitaciones conocidas
 

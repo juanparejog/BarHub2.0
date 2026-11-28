@@ -52,7 +52,7 @@ flowchart LR
 | `barhub-mysql` | Base de datos MariaDB | Solo red interna |
 | `barhub-duckdns` | Mantiene actualizado el registro DNS dinámico (solo con el perfil `prod`) | No |
 | `barhub-uptime-kuma` | Panel de monitorización de disponibilidad | 3001 |
-| `barhub-loki`, `barhub-alloy`, `barhub-alertmanager`, `barhub-grafana` | SOC: recogida de logs, reglas de alerta, avisos y panel (solo con el perfil `soc`, [seguridad.md](seguridad.md#5-soc-detección-y-alertas)) | No (solo `127.0.0.1`) |
+| `barhub-loki`, `barhub-alloy`, `barhub-alertmanager`, `barhub-grafana` | SOC: recogida de logs, reglas de alerta, avisos y panel (solo con el perfil `soc`, [`seguridad/soc`](../seguridad/soc/README.md)) | No (solo `127.0.0.1`) |
 
 Puertos abiertos en el cortafuegos tras el bastionado: **`22022`** (SSH), **`80`**, **`443`** y **`3001`** (Uptime Kuma). Restringir el acceso al puerto 3001 figura entre las [mejoras recomendadas](#13-mejoras-recomendadas).
 
@@ -487,7 +487,7 @@ flowchart TB
 
 ### 12.1. SOC de la aplicación (perfil `soc`)
 
-Los logs de Caddy y del backend los vigila el SOC de [`seguridad/soc/`](../seguridad/soc): Alloy los recoge, Loki los guarda y evalúa las reglas de alerta, Alertmanager avisa y Grafana los muestra. Qué detecta, cómo se despliega y se prueba con `soc.py`, y qué datos guarda está en [seguridad.md](seguridad.md#5-soc-detección-y-alertas). Lo que importa para el servidor:
+Los logs de Caddy y del backend los vigila el SOC de [`seguridad/soc/`](../seguridad/soc): Alloy los recoge, Loki los guarda y evalúa las reglas de alerta, Alertmanager avisa y Grafana los muestra. Qué detecta, cómo se despliega y se prueba con `soc.py`, qué hacer con cada alerta y qué datos guarda está en [`seguridad/soc/README.md`](../seguridad/soc/README.md). Lo que importa para el servidor:
 
 - Los cuatro contenedores solo arrancan con el perfil `soc` y ningún puerto sale de `127.0.0.1`. Se entra por un túnel SSH: `ssh -p 22022 -L 3000:127.0.0.1:3000 -L 9093:127.0.0.1:9093 usuario@servidor` y, en el navegador, `http://127.0.0.1:3000`.
 - Usan del orden de 500 a 700 MB de memoria con este volumen de logs: en un VPS pequeño conviene revisarlo antes de dejarlos siempre encendidos.

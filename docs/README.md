@@ -23,7 +23,8 @@
 | [base-de-datos.md](base-de-datos.md) | Desarrollo / BBDD | Modelo ER, tablas y relaciones |
 | [seguridad.md](seguridad.md) | Seguridad | Prácticas aplicadas, modelo de amenazas y pruebas dinámicas |
 | [auditorias.md](auditorias.md) | Calidad / seguridad | Snyk, SonarQube y Trivy con capturas |
-| [infraestructura.md](infraestructura.md) | DevOps | Docker, Caddy, CI/CD, despliegue y SOC |
+| [infraestructura.md](infraestructura.md) | DevOps | Docker, Caddy, CI/CD, despliegue y monitorización del servidor |
+| [../seguridad/soc/README.md](../seguridad/soc/README.md) | Seguridad / DevOps | SOC: arquitectura, reglas de alerta, avisos, panel, puesta en marcha y qué hacer con cada alerta |
 
 ## Visión general
 
