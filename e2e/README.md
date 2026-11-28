@@ -34,7 +34,7 @@ El administrador y los empleados tienen que pasar el segundo paso. `iniciarSesio
 
 ## En el CI
 
-El job `e2e` del workflow genera claves aleatorias, levanta la aplicación con `docker compose` y los datos de demostración (`APP_SEED_DEMO=true`), espera a que la API sirva la carta y ejecuta los tests. Si alguno falla, sube como artefacto el informe de Playwright con capturas y trazas. La imagen del frontend solo se publica en Docker Hub si pasan el análisis y los tests E2E.
+El job `e2e` del workflow genera claves aleatorias, levanta la aplicación con `docker compose` y los datos de demostración (`APP_SEED_DEMO=true`), espera a que la API sirva la carta y ejecuta los tests. Si alguno falla, sube como artefacto el informe de Playwright con capturas y trazas. La imagen del frontend solo se publica en Docker Hub si pasan el análisis, los tests E2E y los del SOC.
 
 ## En local
 

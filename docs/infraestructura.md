@@ -33,7 +33,7 @@ flowchart LR
         BE["barhub-backend<br/>Spring Boot"]
         DB[("barhub-mysql<br/>MariaDB")]
         DDNS["barhub-duckdns<br/>actualiza la IP"]
-        UK["barhub-uptime-kuma<br/>monitorización :3001"]
+        UK["barhub-uptime-kuma<br/>monitorización (127.0.0.1:3001)"]
 
         CADDY --> FE
         CADDY -- "/api" --> BE
@@ -51,10 +51,11 @@ flowchart LR
 | `barhub-backend` | API REST (Spring Boot) | Vía Caddy |
 | `barhub-mysql` | Base de datos MariaDB | Solo red interna |
 | `barhub-duckdns` | Mantiene actualizado el registro DNS dinámico (solo con el perfil `prod`) | No |
-| `barhub-uptime-kuma` | Panel de monitorización de disponibilidad | 3001 |
+| `barhub-mailpit` | Captura los correos de la aplicación en local y en las pruebas; no entrega ninguno | No (solo `127.0.0.1:8025`) |
+| `barhub-uptime-kuma` | Panel de monitorización de disponibilidad | No (solo `127.0.0.1:3001`) |
 | `barhub-loki`, `barhub-alloy`, `barhub-alertmanager`, `barhub-grafana` | SOC: recogida de logs, reglas de alerta, avisos y panel (solo con el perfil `soc`, [`seguridad/soc`](../seguridad/soc/README.md)) | No (solo `127.0.0.1`) |
 
-Puertos abiertos en el cortafuegos tras el bastionado: **`22022`** (SSH), **`80`**, **`443`** y **`3001`** (Uptime Kuma). Restringir el acceso al puerto 3001 figura entre las [mejoras recomendadas](#13-mejoras-recomendadas).
+Puertos abiertos en el cortafuegos tras el bastionado: **`22022`** (SSH), **`80`** y **`443`**. Los paneles (Uptime Kuma, Mailpit y los del SOC) solo escuchan en `127.0.0.1` y se abren por un túnel SSH.
 
 ## 2. Estructura de ficheros
 
@@ -62,12 +63,14 @@ Puertos abiertos en el cortafuegos tras el bastionado: **`22022`** (SSH), **`80`
 BarHub2.0/
 ├── infra/
 │   ├── docker/
-│   │   ├── docker-compose.yml   Orquestación (6 servicios; 5 sin el perfil `prod`)
+│   │   ├── docker-compose.yml   Orquestación: 6 servicios siempre, DuckDNS con el perfil `prod` y 4 del SOC con el perfil `soc`
+│   │   ├── initdb/              Primera arrancada de MariaDB: TLS obligatorio para el usuario de la aplicación
 │   │   ├── .env.example         Plantilla de variables (sin secretos)
 │   │   └── .env                 Credenciales reales (NO se versiona)
 │   ├── caddy/
 │   │   └── Caddyfile            Enrutamiento y proxy inverso
-│   ├── mysql/                   Configuración de la base de datos
+│   ├── mysql/                   MariaDB suelta, para desarrollar el backend fuera de Docker Compose
+│   ├── duckdns/                 Rotación de los logs de DuckDNS
 │   └── README.md                Guía de despliegue
 └── seguridad/
     ├── hardening/               Script de bastionado del sistema
@@ -209,6 +212,10 @@ APP_SEED_ADMIN_PASSWORD=
 | `DUCKDNS_TOKEN` | Solo producción. Token de tu cuenta de DuckDNS |
 | `STRIPE_SECRET_KEY` / `STRIPE_PUBLISHABLE_KEY` | Opcionales. Claves de **pruebas** de Stripe (`sk_test_...` y `pk_test_...`, en *dashboard.stripe.com/test/apikeys*). Sin ellas, la carta solo ofrece pagar en efectivo. Las claves reales se rechazan mientras `app.pagos.solo-pruebas` sea `true` |
 | `JWT_SECRET` | Secreto de firma de los tokens JWT |
+| `APP_TOTP_CLAVE` | Clave para cifrar los secretos de la verificación en dos pasos (`openssl rand -base64 32`). Vacía, se deriva de `JWT_SECRET`. Si cambia, quien tenga la verificación activada la tiene que configurar de nuevo |
+| `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME`, `MAIL_PASSWORD`, `MAIL_STARTTLS`, `APP_CORREO_REMITENTE` | Solo producción. SMTP real para los correos de la aplicación (confirmación, recuperación, cambio de correo y avisos). Sin ellas, los correos van a Mailpit (`http://localhost:8025`) |
+| `CSP_CABECERA` | Opcional. `Content-Security-Policy-Report-Only` deja la CSP solo en modo aviso, para probar un cambio sin romper nada |
+| `SOC_*` | Solo con el perfil `soc`: usuario y contraseña de Grafana, SMTP y destinatario de las alertas y, opcionalmente, Telegram ([`seguridad/soc/README.md`](../seguridad/soc/README.md)) |
 | `APP_SEED_DEMO` | `true` carga 19 productos y 10 mesas de ejemplo si la base de datos está vacía |
 | `APP_SEED_ADMIN_USERNAME` / `APP_SEED_ADMIN_PASSWORD` | Administrador inicial (solo con `APP_SEED_DEMO=true` y si no existe ninguno). La contraseña debe tener al menos 8 caracteres |
 
@@ -246,7 +253,7 @@ docker compose --profile prod up -d --build
 docker compose ps
 ```
 
-Deben aparecer en ejecución `barhub-mysql`, `barhub-backend`, `barhub-frontend`, `barhub-caddy` y `barhub-uptime-kuma` (cinco en local) y, con el perfil `prod`, también `barhub-duckdns` (seis).
+Deben aparecer en ejecución `barhub-mysql`, `barhub-backend`, `barhub-frontend`, `barhub-caddy`, `barhub-mailpit` y `barhub-uptime-kuma` (seis en local) y, con el perfil `prod`, también `barhub-duckdns` (siete). El SOC se arranca aparte, con `seguridad/soc/soc.py desplegar --aplicar`.
 
 **3. Verificar los certificados TLS (solo producción)**
 
@@ -282,7 +289,7 @@ Con `APP_SEED_DEMO=true` y una `APP_SEED_ADMIN_PASSWORD` en el `.env`, el primer
 
 ### 8.2. Docker Compose (extracto)
 
-Todos los servicios están en la red interna `barhub-net`. Solo Caddy y Uptime Kuma publican puertos. Las versiones de las imágenes están fijadas. El fichero completo está en [`infra/docker/docker-compose.yml`](../infra/docker/docker-compose.yml); este extracto es orientativo.
+Todos los servicios están en la red interna `barhub-net`. Solo Caddy publica puertos hacia fuera; Mailpit, Uptime Kuma y el SOC, solo en `127.0.0.1`. Las versiones de las imágenes están fijadas. El fichero completo está en [`infra/docker/docker-compose.yml`](../infra/docker/docker-compose.yml); este extracto es orientativo.
 
 ```yaml
 services:
@@ -302,8 +309,11 @@ services:
   backend:
     build: ../../backend
     container_name: barhub-backend
-    # Además de la conexión a la base de datos recibe JWT_SECRET,
-    # STRIPE_SECRET_KEY (opcional) y las variables APP_SEED_*.
+    # Además de la conexión a la base de datos recibe JWT_SECRET, APP_TOTP_CLAVE,
+    # las claves de Stripe (opcionales), el SMTP (MAIL_*) y las variables APP_SEED_*.
+    depends_on:
+      mysql:
+        condition: service_healthy
 
   frontend:
     build: ../../frontend
@@ -321,11 +331,17 @@ services:
     container_name: barhub-duckdns
     profiles: ["prod"]
 
+  mailpit:
+    image: axllent/mailpit:v1.33.1
+    container_name: barhub-mailpit
+    ports:
+      - "127.0.0.1:8025:8025"
+
   uptime-kuma:
     image: louislam/uptime-kuma:1.23.17
     container_name: barhub-uptime-kuma
     ports:
-      - "3001:3001"
+      - "127.0.0.1:3001:3001"
 ```
 
 **Conexión cifrada con la base de datos.** MariaDB 13 genera su propio certificado al arrancar, y el driver del backend (Connector/J 4) cifra la conexión con TLS y verifica ese certificado durante el login, sin configurar nada. Además, el usuario de la aplicación tiene el TLS obligatorio (`REQUIRE SSL`):
@@ -340,7 +356,7 @@ docker compose restart backend
 
 La comprobación está en [evidencias/tls-mariadb-2026-11-20.md](evidencias/tls-mariadb-2026-11-20.md).
 
-> Los puntos que aún se endurecerán (Uptime Kuma y `docker.sock`, `healthcheck` de MariaDB, `no-new-privileges`) están en la [sección 13](#13-mejoras-recomendadas).
+> Lo que aún se endurecerá (`no-new-privileges` y `cap_drop` en los contenedores de la aplicación, que hoy solo llevan los del SOC) está en la [sección 13](#13-mejoras-recomendadas).
 
 ### 8.3. Caddy
 
@@ -375,7 +391,7 @@ sudo python3 seguridad/hardening/hardening-linux.py
 | **Auditoría (`auditd`)** | Reglas de supervisión estricta | Trazabilidad de acciones sensibles |
 | **Integridad (`aide`)** | Control de integridad de ficheros | Detectar modificaciones no autorizadas |
 | **SSH** | Puerto `22022`, acceso directo de `root` restringido, sesiones concurrentes limitadas, sin contraseña | Proteger el acceso remoto |
-| **Cortafuegos (Netfilter / iptables)** | Reglas restrictivas de entrada sobre `22022`, `80`, `443` y `3001`, sin tocar las cadenas NAT de Docker | Exponer solo lo imprescindible |
+| **Cortafuegos (Netfilter / iptables)** | Reglas restrictivas de entrada sobre `22022`, `80` y `443`, sin tocar las cadenas NAT de Docker | Exponer solo lo imprescindible |
 
 ### 9.2. Configuración SSH resultante
 
@@ -408,12 +424,12 @@ docker compose ps                          # los contenedores siguen sanos
 | # | Prueba | Resultado esperado |
 | :--- | :--- | :---: |
 | 1 | Abrir `https://barhub2.duckdns.org` | Certificado SSL válido y la interfaz Angular conectada al backend |
-| 2 | Abrir `http://<IP_PUBLICA_DEL_VPS>:3001` | Panel de Uptime Kuma operativo |
+| 2 | `ssh -p 22022 -L 3001:127.0.0.1:3001 barhubadmin@<IP_SERVIDOR>` y abrir `http://127.0.0.1:3001` | Panel de Uptime Kuma operativo; desde fuera, el puerto 3001 no responde |
 | 3 | SSH con clave por `22022` | Acceso concedido |
 | 4 | SSH con contraseña | Rechazado |
 | 5 | SSH como `root` | Rechazado |
 | 6 | Puerto no autorizado (p. ej. `3306`) desde fuera | Cerrado / filtrado |
-| 7 | `docker compose ps` | Los 6 contenedores en ejecución (5 en local, sin DuckDNS) |
+| 7 | `docker compose ps` | Los 7 contenedores en ejecución (6 en local, sin DuckDNS) |
 | 8 | Crear un pedido y verlo en comandas | El pedido aparece al momento (aviso en tiempo real) a través de Caddy |
 
 ## 11. CI/CD con GitHub Actions
@@ -437,14 +453,15 @@ flowchart LR
 | `build-and-analyze` | `npm ci --ignore-scripts` y build de producción del frontend; tests del frontend con cobertura (Vitest); tests del backend con cobertura (JUnit y JaCoCo, Java 21); análisis de SonarCloud con las dos coberturas |
 | `e2e` | Genera claves aleatorias en un `.env` temporal, levanta MariaDB, backend, frontend y Caddy con `docker compose` y los datos de demostración, espera a que la API sirva la carta y ejecuta los tests de Playwright ([`e2e/README.md`](../e2e/README.md)). Si fallan, sube el informe con capturas y trazas como artefacto durante 7 días |
 | `soc` | Tests de `soc.py` (`unittest`, sin dependencias) y `soc.py validar`: Loki lee su configuración y, en un contenedor aparte, carga y evalúa todas las reglas de alerta; `amtool` revisa la configuración de Alertmanager generada (por defecto y con SMTP y Telegram) y Alloy la suya, todo con las versiones fijadas en el `docker-compose.yml` |
-| `docker-build` | Solo en `main`, y solo si los tres anteriores terminan bien: construye la imagen del frontend y la publica en Docker Hub |
+| `docker-build` | Solo en `main`, y solo si los tres anteriores terminan bien: construye la imagen del frontend y la publica en Docker Hub. La del backend se construye en el servidor con `docker compose up --build` |
 
 ### 11.1. Análisis estático continuo (SonarCloud)
 
 - **Integración:** el escáner se ejecuta desde el CI; el análisis automático de SonarCloud está desactivado para que no choquen.
 - **Código nuevo:** el análisis declara `sonar.projectVersion` (ahora `2.1.0`) y SonarCloud usa «Previous version», de modo que el Quality Gate evalúa el código posterior a esa versión. Los valores globales siguen visibles en Overall Code.
 - **Cobertura:** JaCoCo en el backend y lcov de Vitest en el frontend. Los tests (JUnit, `*.spec.ts` y `e2e/`) se declaran como tests y no cuentan como código fuente.
-- **Exclusión justificada:** la regla `css:S9440` (movimiento reducido) no se aplica a los CSS de componentes, porque la regla global de `styles.css` ya los cubre ([auditorias.md](auditorias.md)).
+- **Exclusiones justificadas** (`sonar.issue.ignore.multicriteria`, cada una limitada a su regla y sus archivos, con el motivo en un comentario del workflow): `css:S9440` (movimiento reducido) en los CSS de componentes, porque la regla global de `styles.css` ya los cubre; `java:S4790` en `Totp.java` (HMAC-SHA1, que exige la RFC 6238); `java:S2143` en `JwtUtils.java` (JJWT solo acepta `java.util.Date`), y `Web:S6840` en el teléfono del perfil (`tel-national` es un valor válido). Detalle en [auditorias.md](auditorias.md#revisión-del-28-de-noviembre-de-2026-cierre-de-la-21).
+- **Quality Gate:** fiabilidad, seguridad y mantenibilidad A, 80 % de cobertura, como mucho un 3 % de duplicación y todos los security hotspots revisados, sobre el código nuevo.
 
 ### 11.2. Endurecimiento del workflow
 
@@ -497,10 +514,10 @@ Los logs de Caddy y del backend los vigila el SOC de [`seguridad/soc/`](../segur
 
 | Capa | Herramienta | Qué vigila |
 | :--- | :--- | :--- |
-| Disponibilidad | **Uptime Kuma** (`:3001`) | Caídas del sitio, backend y servicios, con histórico y alertas |
+| Disponibilidad | **Uptime Kuma** (`127.0.0.1:3001`) | Caídas del sitio, backend y servicios, con histórico y alertas |
 | Auditoría | **auditd** | Accesos, cambios de configuración y ejecución de comandos sensibles |
 | Integridad | **aide** | Modificación no autorizada de ficheros del sistema |
-| Red | **iptables** | Solo `22022`, `80`, `443` y `3001` aceptan tráfico |
+| Red | **iptables** | Solo `22022`, `80` y `443` aceptan tráfico |
 | Acceso | **SSH + PAM** | Solo clave pública, `root` restringido y política de contraseñas |
 | Aplicación | **SOC (Alloy, Loki, Alertmanager, Grafana)** | Logs de Caddy y del backend: inicios de sesión fallidos, accesos denegados, 4xx y 5xx, CSP y errores, con alertas |
 | Contenedores | **HEALTHCHECK** | Estado de salud de cada contenedor |
@@ -511,7 +528,7 @@ Los logs de Caddy y del backend los vigila el SOC de [`seguridad/soc/`](../segur
 | :--- | :--- | :--- |
 | Web pública | HTTPS | `https://barhub2.duckdns.org` responde `200` |
 | Caducidad TLS | HTTPS | Aviso antes de que expire el certificado |
-| API | HTTP | Endpoint de salud del backend (ruta por definir) |
+| API | HTTP | `http://backend:8080/actuator/health` desde la red de Docker (desde fuera no responde) |
 | Base de datos | TCP / Docker | Contenedor `barhub-mysql` activo |
 | SSH | TCP | Puerto `22022` accesible |
 | Notificaciones | Email / Telegram | Aviso inmediato al administrador |
@@ -545,18 +562,14 @@ Propuestas **aún no implementadas**, ordenadas por prioridad. Se irán marcando
 
 | Prioridad | Mejora | Motivo |
 | :---: | :--- | :--- |
-| Alta | No exponer Uptime Kuma (`:3001`) a Internet: ponerlo detrás de Caddy con autenticación o accederlo solo por VPN | Un panel administrativo expuesto es superficie de ataque |
-| Alta | Quitar el montaje de `/var/run/docker.sock` en Uptime Kuma y monitorizar por HTTP/TCP | Quien comprometa el contenedor controlaría Docker, es decir, el servidor |
 | Alta | Copias de seguridad de MariaDB (`mysqldump` programado), almacenadas fuera del servidor y con **restauración probada** | La caja y los pedidos son datos de negocio |
-| Media | `healthcheck` en MariaDB y `depends_on` con `condition: service_healthy` | Evitar que el backend arranque antes que la base de datos |
 | Media | Fail2Ban (SSH y logs de Caddy) | La detección y los avisos ya son automáticos (SOC); falta la respuesta: bloquear la IP en el cortafuegos |
-| Media | Límite de peticiones en el login y en la creación de pedidos | Fuerza bruta y abuso de la API |
-| Media | Endurecer contenedores: `security_opt: [no-new-privileges:true]` y `cap_drop: [ALL]` donde sea posible | Reducir lo que puede hacer un contenedor comprometido |
+| Media | Límite de peticiones en la creación de pedidos y de intentos de pago (el login ya se bloquea por cuenta y por IP) | Abuso de la API |
+| Media | Endurecer los contenedores de la aplicación con `security_opt: [no-new-privileges:true]` y `cap_drop: [ALL]` donde sea posible, como ya llevan los del SOC | Reducir lo que puede hacer un contenedor comprometido |
 | Media | Pipeline del backend y `trivy image` sobre las imágenes finales, más `gitleaks` | Cobertura completa de CI y detección de secretos |
 | Baja | Quitar DuckDNS cuando el servidor tenga IP fija | Un servicio y una credencial menos |
-| Baja | Definir el endpoint de salud del backend para Uptime Kuma | Monitorización más fiable que la comprobación de puerto |
 
-**Ya aplicadas:** SOC con alertas por correo y Telegram (perfil `soc`), `JWT_SECRET` y `STRIPE_SECRET_KEY` llegan al backend desde el entorno, las imágenes tienen la versión fijada, DuckDNS solo arranca con el perfil `prod` y Caddy envía las cabeceras de seguridad (HSTS, `nosniff`, `X-Frame-Options`, `Referrer-Policy`, `Permissions-Policy` y una CSP estricta).
+**Ya aplicadas:** Uptime Kuma, Mailpit y el SOC solo en `127.0.0.1` (por túnel SSH) y Uptime Kuma sin acceso a `docker.sock`; `healthcheck` en MariaDB y el backend espera a que esté sana (`condition: service_healthy`); SOC con alertas por correo y Telegram (perfil `soc`), `JWT_SECRET` y `STRIPE_SECRET_KEY` llegan al backend desde el entorno, las imágenes tienen la versión fijada, DuckDNS solo arranca con el perfil `prod` y Caddy envía las cabeceras de seguridad (HSTS, `nosniff`, `X-Frame-Options`, `Referrer-Policy`, `Permissions-Policy` y una CSP estricta).
 
 **Cabeceras de seguridad que Caddy aplica** (el dominio sale de la variable `SITE_ADDRESS`; la CSP completa y su explicación están en `infra/caddy/Caddyfile` y en [seguridad.md](seguridad.md)):
 

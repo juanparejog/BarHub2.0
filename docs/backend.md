@@ -24,8 +24,11 @@ El backend de BarHub 2.0 expone una **API REST** securizada con JWT. Los cambios
 | Autenticación | **JWT** (`jjwt 0.13.0`, serialización con Gson) | Implementado en `JwtUtils.java` con el API moderno |
 | Conector BBDD | `mariadb-java-client` 4.0.0 | TLS por defecto con el certificado del servidor verificado ([evidencia](evidencias/tls-mariadb-2026-11-20.md)) |
 | JSON | Jackson 3 con `spring.jackson.use-jackson2-defaults` | La API acepta y devuelve el mismo JSON que con Spring Boot 3.5 |
-| Actualización de datos | Sondeo REST desde el frontend | Ver [sección 6](#6-actualización-de-datos) |
-| Fechas | `java.time` / `Instant` | Sustituye al obsoleto `new Date()` |
+| Actualización de datos | Server-Sent Events (`SseEmitter`) | Ver [sección 6](#6-actualización-de-datos) |
+| Pagos | `stripe-java` 34.2.0 | Tarjeta en modo de pruebas ([3.4.1](#341-pago-con-tarjeta--pagos)) |
+| Correo | `spring-boot-starter-mail` | Confirmación, recuperación, cambio de correo y avisos; Mailpit en local |
+| Fechas | `java.time` / `Instant` | Sustituye al obsoleto `new Date()`; solo `JwtUtils` lo convierte a `Date`, porque JJWT lo exige |
+| Tests | JUnit 5, Spring Boot Test y Mockito | 373 tests unitarios y de integración; cobertura con JaCoCo, que se envía a SonarCloud |
 
 ## 2. Arquitectura en capas
 
@@ -50,13 +53,13 @@ flowchart TB
 
 ## 3. API REST
 
-### 3.1. Autenticación · `/auth`
+### 3.1. Autenticación y perfil · `/auth`, `/perfil`
 
 Las rutas se muestran como las ve el backend. Desde fuera, Caddy las publica bajo el prefijo `/api` (por ejemplo, `/api/auth/login`).
 
 | Método | Endpoint | Descripción |
 | :--- | :--- | :--- |
-| `POST` | `/auth/signup` | Registro de nuevos usuarios (clientes o personal) |
+| `POST` | `/auth/signup` | Registro de clientes: siempre con `ROLE_CLIENTE`, aunque se pidan otros roles. El personal lo da de alta el administrador (`POST /usuarios/`) |
 | `POST` | `/auth/login` | Inicio de sesión: token de acceso JWT (15 min) en el cuerpo y cookie `HttpOnly` de renovación; `403 EMAIL_NO_VERIFICADO` si falta confirmar el correo. Si la cuenta usa (o su rol exige) la verificación en dos pasos, responde `{requiere2fa, configurar, desafio}` sin token |
 | `POST` | `/auth/2fa/verificar` | Segundo paso con el desafío y el código de la app o uno de recuperación; abre la sesión como el login (`401 CODIGO_INCORRECTO` o `DESAFIO_CADUCADO`) |
 | `POST` | `/auth/2fa/configurar` | Para quien aún no la tiene: secreto nuevo (clave Base32 y URI `otpauth://` para el QR) |
@@ -84,8 +87,10 @@ Las rutas se muestran como las ve el backend. Desde fuera, Caddy las publica baj
 
 | Método | Endpoint | Descripción |
 | :--- | :--- | :--- |
-| `GET` | `/mesas` | Listado de mesas y estado actual (`disponible`, `ocupada`, `reservada`) |
+| `GET` | `/mesas/`, `/mesas/{id}` | Listado de mesas, o una, con su estado (`DISPONIBLE`, `OCUPADA`, `RESERVADA`). Público |
+| `POST` | `/mesas/` | Crea una mesa. **Solo administradores** |
 | `PUT` | `/mesas/{id}` | Actualiza una mesa (código y estado). **Solo administradores** |
+| `DELETE` | `/mesas/{id}` | Elimina una mesa. **Solo administradores** |
 | `PATCH` | `/mesas/{id}/estado` | Cambia solo el estado (`{"estado": "OCUPADA"}`). **Empleados y administradores** |
 
 ### 3.3. Productos · `/productos`
@@ -94,7 +99,7 @@ El listado y la creación se sirven en `/productos/` (con barra final).
 
 | Método | Endpoint | Descripción |
 | :--- | :--- | :--- |
-| `GET` | `/productos/` | Menú completo, filtrable por categoría (`bebida`, `entrante`, `postre`, `tapa`) |
+| `GET` | `/productos/`, `/productos/{id}` | Carta completa, o un producto, con su categoría (`BEBIDA`, `ENTRANTE`, `TAPA`, `POSTRE`). Público |
 | `POST` | `/productos/` | Crea un producto (datos y, opcionalmente, imagen). **Solo administradores** |
 | `PUT` | `/productos/{id}` | Actualiza un producto y, si se envía, su imagen. **Solo administradores** |
 | `DELETE` | `/productos/{id}` | Elimina un producto y su imagen. **Solo administradores** |
@@ -107,11 +112,12 @@ Cada producto lleva `alergenos`: la lista de los 14 de declaración obligatoria 
 
 | Método | Endpoint | Descripción |
 | :--- | :--- | :--- |
-| `GET` | `/pedidos` | Pedidos en curso para sala y cocina |
-| `POST` | `/pedidos` | Crea un pedido indicando modalidad: `domicilio`, `mesa` o `recoger` |
-| `PUT` | `/pedidos/{id}` | Avanza el flujo: `pendiente` → `preparado` → `servido` |
-| `GET` | `/pedidos/pendientes-efectivo` | Pedidos con pago en efectivo aún pendiente |
-| `GET` | `/pedidos/mis-pedidos` | Seguimiento de los pedidos del cliente autenticado |
+| `GET` | `/pedidos`, `/pedidos/{id}` | Pedidos para sala, cocina y administración. **Empleados y administradores** |
+| `POST` | `/pedidos` | Crea un pedido con su modalidad: `MESA`, `RECOGER` o `DOMICILIO`. Público: un pedido sin sesión queda sin usuario. El total lo calcula el servidor con los precios de la carta |
+| `PUT` | `/pedidos/{id}` | Cambia el estado (ver [sección 5](#5-ciclo-de-vida-de-un-pedido)) o el pago. **Empleados y administradores** |
+| `DELETE` | `/pedidos/{id}` | Elimina un pedido. **Empleados y administradores** |
+| `GET` | `/pedidos/pendientes-efectivo` | Pedidos con pago en efectivo aún pendiente. **Empleados y administradores** |
+| `GET` | `/pedidos/mis-pedidos` | Seguimiento de los pedidos del usuario con sesión |
 
 Con `metodo_pago` `TARJETA`, el pedido lleva `pago_id` (el pago ya cobrado en Stripe) y solo se crea si `VerificacionPago` lo da por bueno ([3.4.1](#341-pago-con-tarjeta--pagos)). El `estado_pago` que mande el cliente no cuenta nunca: en efectivo queda `PENDIENTE`.
 
@@ -135,7 +141,7 @@ Las claves salen de `STRIPE_SECRET_KEY` y `STRIPE_PUBLISHABLE_KEY`. Con `app.pag
 | `GET` | `/caja/actual` | Estado de la caja abierta |
 | `GET` | `/caja/historial` | Histórico de turnos |
 | `POST` | `/caja/abrir` | Abre turno registrando el monto inicial |
-| `POST` | `/caja/cerrar` | Cierra turno calculando ventas en efectivo y tarjeta, efectivo real y descuadre |
+| `PUT` | `/caja/cerrar` | Cierra turno calculando ventas en efectivo y tarjeta, efectivo real y descuadre |
 
 ### 3.5.1. Registro de jornada · `/turnos`
 
@@ -154,6 +160,18 @@ Los endpoints que cambian algo importante llevan `@Auditar(AccionAuditoria.X)`. 
 | Método | Endpoint | Quién | Descripción |
 | :--- | :--- | :--- | :--- |
 | `GET` | `/auditoria?desde&hasta&usuario&accion&resultado&pagina&tamano` | Admin | Entradas del rango (por defecto, los últimos 7 días), de la más reciente a la más antigua, 50 por página (como mucho 100). `usuario` busca una parte del nombre sin distinguir mayúsculas |
+
+### 3.5.3. Administración · `/usuarios`, `/roles`, `/detalles_pedidos`, `/seguimientos`
+
+| Método | Endpoint | Quién | Descripción |
+| :--- | :--- | :--- | :--- |
+| `GET` / `POST` | `/usuarios/` | Admin | Listado de usuarios y alta (también del personal), con foto opcional (`multipart`) |
+| `GET` / `PUT` | `/usuarios/{id}` | Admin, o el propio usuario | Datos de un usuario y su edición. Quien no es administrador solo ve y edita los suyos (`404` con cualquier otro id), y sus roles y su correo no cambian aunque los envíe: el correo se cambia con enlace (`/perfil/correo`) |
+| `DELETE` | `/usuarios/{id}` | Admin | Baja de un usuario y de su foto |
+| `DELETE` | `/usuarios/{id}/dos-factores` | Admin | Restablece la verificación en dos pasos de un empleado que ha perdido el móvil: la tendrá que configurar de nuevo |
+| `GET` | `/roles/` | Admin | Roles disponibles |
+| `GET` / `POST` / `PUT` / `DELETE` | `/detalles_pedidos/...` | Empleado o admin | Líneas de los pedidos, también por pedido (`/detalles_pedidos/pedido/{pedidoId}`) |
+| `GET` / `POST` / `PUT` / `DELETE` | `/seguimientos/...` | Empleado o admin | Pedidos para el seguimiento, también por usuario (`/seguimientos/usuario/{usuarioId}`) |
 
 ### 3.6. Subida de imágenes (productos y perfiles)
 
@@ -188,34 +206,48 @@ Se definen en la tabla `roles` (relación N:M con `users` mediante `user_roles`)
 
 | Rol | Descripción |
 | :--- | :--- |
-| `role_cliente` | Usuario final: carta, pedidos y seguimiento |
-| `role_empleado` | Personal: comandas, mesas, efectivo y caja |
-| `role_admin` | Gerencia: gestión completa y métricas |
+| `ROLE_CLIENTE` | Usuario final: carta, pedidos, seguimiento y perfil |
+| `ROLE_EMPLEADO` | Personal: comandas, mesas, efectivo, caja y su turno. Verificación en dos pasos obligatoria |
+| `ROLE_ADMIN` | Gerencia: gestión completa, métricas, registro de jornada y auditoría. Verificación en dos pasos obligatoria |
+
+`ROLE_USER` existe en el enumerado, pero no se asigna.
 
 El acceso se aplica a dos niveles: **backend** (Spring Security con el JWT y los roles de `UserDetailsImpl`) y **frontend** (`auth.guard.ts` / `role.guard.ts`). El backend es la barrera real; los guardas del frontend solo mejoran la experiencia.
 
-**Denegación por defecto.** `SecurityConfig` solo permite de forma explícita `/auth/**` y las lecturas públicas necesarias; cualquier otra ruta no declarada se rechaza (`anyRequest().denyAll()`). Las operaciones de escritura llevan además `@PreAuthorize` por rol. Los intentos de acceder a pedidos o perfiles ajenos reciben un `404` uniforme.
+**Denegación por defecto.** `SecurityConfig` solo deja sin sesión `/auth/**`, la lectura de la carta y las mesas, crear un pedido, la configuración y el intento de pago (`/pagos/configuracion` y `/pagos/intento`) y los avisos de la CSP; cada una de las demás rutas lleva su rol, y cualquier ruta no declarada se rechaza (`anyRequest().denyAll()`). Las operaciones de escritura llevan además `@PreAuthorize` por rol. Los intentos de acceder a pedidos o perfiles ajenos reciben un `404` uniforme.
 
 ## 5. Ciclo de vida de un pedido
 
+Los estados dependen de la modalidad. El personal los cambia desde la pantalla de comandas:
+
+| Modalidad | Recorrido |
+| :--- | :--- |
+| `MESA` | `PENDIENTE` (en cocina) → `PREPARADO` (listo) → `SERVIDO` |
+| `RECOGER` | `PENDIENTE` → `LISTO_PARA_RECOGER` → `SERVIDO` (entregado) |
+| `DOMICILIO` | `PENDIENTE` → `PREPARADO` → `DE_CAMINO` → `SERVIDO` (entregado) |
+
 ```mermaid
 stateDiagram-v2
-    [*] --> pendiente: POST /pedidos
-    pendiente --> preparado: cocina termina
-    preparado --> servido: sala entrega
-    servido --> [*]
+    [*] --> PENDIENTE: POST /pedidos
+    PENDIENTE --> PREPARADO: mesa o domicilio
+    PENDIENTE --> LISTO_PARA_RECOGER: para recoger
+    PREPARADO --> DE_CAMINO: domicilio
+    PREPARADO --> SERVIDO: mesa
+    DE_CAMINO --> SERVIDO
+    LISTO_PARA_RECOGER --> SERVIDO
+    SERVIDO --> [*]
 ```
 
 El **pago** sigue un flujo independiente (`estado_pago`):
 
 ```mermaid
 stateDiagram-v2
-    [*] --> pendiente
-    pendiente --> completado: cobro confirmado
-    pendiente --> rechazado: pago fallido
+    [*] --> PENDIENTE
+    PENDIENTE --> COMPLETADO: cobro confirmado
+    PENDIENTE --> RECHAZADO: pago fallido
 ```
 
-Los pagos en efectivo quedan `pendiente` hasta que un empleado los registra (`/pedidos/pendientes-efectivo`) y alimentan el cuadre de `/caja/cerrar`. Los pagos con tarjeta nacen `completado`, porque el pedido solo se crea cuando Stripe ha cobrado (ver [3.4.1](#341-pago-con-tarjeta--pagos)).
+Los pagos en efectivo quedan `PENDIENTE` hasta que un empleado los registra (`/pedidos/pendientes-efectivo`) y alimentan el cuadre de `/caja/cerrar`. Los pagos con tarjeta nacen `COMPLETADO`, porque el pedido solo se crea cuando Stripe ha cobrado (ver [3.4.1](#341-pago-con-tarjeta--pagos)).
 
 ## 6. Actualización de datos
 
@@ -254,7 +286,7 @@ Con una sola instancia del backend basta con la memoria; con varias réplicas ha
 
 ## 7. Calidad del código
 
-Tras la auditoría de SonarQube se aplicó este plan (detalle en [auditorias.md](auditorias.md)):
+Tras la auditoría de SonarQube de la 2.0 se aplicó este plan (detalle en [auditorias.md](auditorias.md)):
 
 - Eliminado `e.printStackTrace()`; excepciones centralizadas con respuestas HTTP estandarizadas.
 - `equals()` y `hashCode()` implementados juntos en `UserDetailsImpl`.
@@ -264,4 +296,6 @@ Tras la auditoría de SonarQube se aplicó este plan (detalle en [auditorias.md]
 - Respuestas de error genéricas: el cliente no recibe detalles internos y la causa queda solo en el log del servidor.
 - Validación de entrada con Bean Validation (`@Valid`) en los DTO, para rechazar datos incorrectos con un `400` en lugar de fallar al guardar.
 - Denegación por defecto y `@PreAuthorize` en las operaciones de escritura (ver sección 4).
-- Pruebas dinámicas de la API en ejecución, con sus resultados en [evidencias/](evidencias/seguridad-2026-11-22.md).
+- Pruebas dinámicas de la API en ejecución, con sus resultados en [evidencias/](evidencias/seguridad-2026-11-28.md).
+
+Desde la 2.1, SonarCloud analiza cada push en el CI y su Quality Gate exige, sobre el código nuevo, fiabilidad, seguridad y mantenibilidad A, un 80 % de cobertura y como mucho un 3 % de duplicación. Al cerrar la 2.1 lo supera con 0 incidencias abiertas ([revisión](auditorias.md#revisión-del-28-de-noviembre-de-2026-cierre-de-la-21)). La pasada final de todas las pruebas está en [evidencias/cierre-2.1-2026-11-28.md](evidencias/cierre-2.1-2026-11-28.md).

@@ -213,7 +213,7 @@ def paso_10_firewall():
     run_cmd(["iptables", "-I", "INPUT", "3", "-p", "tcp", "--dport", "22022", "-m", "conntrack", "--ctstate", "NEW", "-j", "ACCEPT"])
     run_cmd(["iptables", "-I", "INPUT", "4", "-p", "tcp", "--dport", "80", "-m", "conntrack", "--ctstate", "NEW", "-j", "ACCEPT"])
     run_cmd(["iptables", "-I", "INPUT", "5", "-p", "tcp", "--dport", "443", "-m", "conntrack", "--ctstate", "NEW", "-j", "ACCEPT"])
-    run_cmd(["iptables", "-I", "INPUT", "6", "-p", "tcp", "--dport", "3001", "-m", "conntrack", "--ctstate", "NEW", "-j", "ACCEPT"])
+    # Uptime Kuma, Mailpit y el SOC solo escuchan en 127.0.0.1: se abren por un tunel SSH, sin puerto propio
     
     run_cmd(["netfilter-persistent", "save"])
 

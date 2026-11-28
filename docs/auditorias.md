@@ -146,7 +146,7 @@ El aviso de `jaxb-core` (XXE) exige que la aplicación lea un XML enviado desde 
 - Angular de 14 a **22**, versión a versión con `ng update` y sus migraciones oficiales; TypeScript 6.0, zone.js 0.16 y Node 24. Build con el builder `application` (esbuild).
 - Antes de migrar se retiraron las dependencias sin uso o duplicadas (`@angular/material`, `@angular/cdk`, `@angular/animations`, `@zxing/ngx-scanner`, jQuery y el Popper suelto) y se quitaron los `overrides`, que solo parcheaban las herramientas de Angular 14.
 - Verificación: build de producción en cada salto y capturas automáticas de las 36 pantallas en los dos temas, sin diferencias más allá de datos y ruido conocido (fecha del día, mapa incrustado). Prueba manual del flujo de pedido completo con descarga del ticket en PDF.
-- Resultado en Dependabot: de 53 alertas abiertas a 1, pendiente de revisar.
+- Resultado en Dependabot: de 53 alertas abiertas a 1, pendiente de revisar. El 28 de noviembre ya no queda ninguna ([sección 5](#5-dependabot-y-análisis-de-código-de-github)).
 - Reanálisis de Snyk (21 de noviembre de 2026): **0 incidencias** en las 40 dependencias de producción, frente a las 25 de antes de migrar. Snyk analiza por defecto las dependencias que llegan a la web publicada; las de desarrollo (Angular CLI, Vitest) se revisan con `npm audit`, que también queda sin vulnerabilidades.
 
 #### Reanálisis del 28 de noviembre de 2026 (cierre de la 2.1)

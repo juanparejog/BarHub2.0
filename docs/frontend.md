@@ -1,6 +1,6 @@
 # Frontend
 
-Aplicación **Angular 22** organizada en módulos por área funcional, con rutas protegidas por guardas, interceptor de autenticación y actualización periódica de datos.
+Aplicación **Angular 22** organizada en módulos por área funcional, con rutas protegidas por guardas, un interceptor que añade el token y renueva la sesión, avisos en tiempo real del servidor y la interfaz del cliente en tres idiomas.
 
 ## Índice
 
@@ -43,22 +43,22 @@ Versiones y decisiones de la migración a Angular 22 (versión 2.1):
 | Build | Builder `application` (esbuild); la web compilada queda en `dist/barhub/browser`, que es lo que copia el Dockerfile |
 | TypeScript | 6.0; `tsconfig.json` usa `paths` para los imports `src/...` en lugar de `baseUrl`, que TypeScript 6 declara obsoleto |
 | Node.js | 24, en Docker y en el CI |
-| Detección de cambios | `ChangeDetectionStrategy.Eager` en todos los componentes: la migración de la 22 conserva así el comportamiento de antes |
-| Plantillas | Parte de las plantillas ya usa el control flow nuevo (`@if`, `@for`) |
-| Ticket en PDF | `pdfmake` se carga con `import()` dinámico solo al generar el ticket: el bundle inicial bajó de 2,80 MB a 1,13 MB |
+| Detección de cambios | `ChangeDetectionStrategy.Eager` en los componentes que venían de antes (la migración de la 22 conserva así su comportamiento) y `OnPush` con señales en los nuevos de la 2.1 (paginador, avisos, perfil, idiomas...) |
+| Plantillas | Todas usan el control flow nuevo (`@if`, `@for`, `@switch`); no queda ningún `*ngIf` ni `*ngFor` |
+| Ticket en PDF | `pdfmake` se carga con `import()` dinámico solo al generar el ticket: el bundle inicial bajó de 2,80 MB a 1,13 MB. Con todo lo de la 2.1 (idiomas, avisos, pagos, fuentes propias) es de 1,49 MB, 268 kB comprimido |
 | CSP | La build de producción desactiva `inlineCritical`: Angular cargaría la hoja de estilos con un `onload` en línea, que la CSP de Caddy bloquea. No hay scripts en línea ni `eval`; los estilos de los componentes sí van en línea (`style-src 'unsafe-inline'`) |
 | Tests | Vitest con jsdom (sin navegador), desde el builder `@angular/build:unit-test`; se ejecutan en el CI y su cobertura va a SonarCloud. Los recorridos completos en navegador están en [`e2e/`](../e2e/README.md) (Playwright) |
 
-Tests unitarios actuales:
+Tests unitarios: **208 en 38 archivos** (Vitest). Por áreas:
 
-| Archivo | Qué comprueba |
-| :--- | :--- |
-| `services/theme.service.spec.ts` | Modo claro de inicio aunque el sistema prefiera el oscuro, tema guardado, `data-bs-theme`, clase `dark-theme` e `isDarkMode$` |
-| `auth/role.guard.spec.ts` | Acceso por rol: admin, empleado, cliente y sin sesión |
-| `auth/auth.interceptor.spec.ts` | Cabecera `Bearer`, limpieza de la sesión y redirección al login ante un 401 |
-| `main/services/shared/services/dialog.service.spec.ts` | Toast sin interpretar HTML, modal y la confirmación cancelada que no se ejecuta después |
-| `app.component.spec.ts` | Título y estructura de menú, contenido y pie |
-| `public/home`, `shared/footer` | Que los componentes se crean |
+| Área | Archivos `*.spec.ts` | Qué comprueban |
+| :--- | :--- | :--- |
+| Autenticación y sesión | `auth.service`, `auth.interceptor`, `role.guard`, `sesion-aviso.service`, `reautenticacion.service`, `dos-factores.component`, `correo/cuenta-correo`, `shared/aviso-sesion`, `shared/reautenticacion` | Token y cabecera `Bearer`, renovación con una sola petición para varias caducadas, acceso por rol, aviso de inactividad, verificación en dos pasos, enlaces del correo y confirmar que eres tú |
+| Perfil | `perfil`, `perfil/seguridad/formato` | Las cinco pestañas, cambio de correo, privacidad y sesiones con su navegador y sistema |
+| Carta y pedidos | `carta-alergenos`, `carta-busqueda`, `confirmar-pedido`, `pago.service`, `alergenos`, `alergeno-icono`, `imagen-por-defecto` | Filtro de alérgenos, buscador sin tildes, pago con tarjeta (cobro, rechazo, reintento sin cobrar dos veces) e iconos |
+| Personal | `gestionar-comandas`, `gestionar-mesas-empleado`, `aviso-sonoro.service`, `tiempo-real.service`, `turno.service`, `caja.service`, `gestionar-caja/periodo` | Tiempo real (lectura del flujo, agrupación, reconexión, respaldo), aviso sonoro, impresión, turnos y periodos de caja |
+| Administración | `auditoria.component`, `registro-jornada.component`, `editar-productos` | Rangos rápidos y filtros, horas por empleado, alérgenos y traducciones del producto |
+| Compartidos | `avisos`, `paginador`, `dialog.service`, `idioma.service`, `textos`, `producto-idioma`, `theme.service`, `app.component`, `home.component`, `footer.component` | Diálogos y avisos flotantes, paginación, idiomas (mismas claves y datos en los tres), modo claro de inicio y estructura de la página |
 
 
 ## 2. Mapa de rutas y áreas
@@ -78,7 +78,7 @@ flowchart TB
 | Área | Acceso | Contenido |
 | :--- | :--- | :--- |
 | Pública | Visitantes y clientes; vistas de personal con guarda | Carta, pedidos, mesas, contacto, políticas |
-| Autenticación | Abierta | Login y registro |
+| Autenticación | Abierta | Login, registro, verificación en dos pasos y enlaces del correo |
 | Administración | Rol admin | CRUD del negocio y métricas |
 
 ## 3. Módulo de autenticación
@@ -87,12 +87,16 @@ flowchart TB
 
 | Pieza | Función |
 | :--- | :--- |
-| `login` | Formulario de inicio de sesión |
-| `register` | Registro de usuarios nuevos |
-| `auth.service.ts` | Lógica de autenticación, almacenamiento del token y estado de sesión |
+| `login` | Formulario de inicio de sesión (`/auth/login`) |
+| `register` | Registro de clientes (`/auth/register`) |
+| `dos-factores` | Segundo paso y configuración de la app de autenticación con su QR (`/auth/2fa`) |
+| `correo/` | Confirmar el correo, recuperar y restablecer la contraseña y confirmar el cambio de correo (`/auth/verificar`, `/auth/recuperar`, `/auth/restablecer`, `/auth/confirmar-cambio-correo`); el token se lee del fragmento de la URL |
+| `auth.service.ts` | Inicio y cierre de sesión, token de acceso y estado de la sesión |
 | `auth.guard.ts` | Exige sesión iniciada |
 | `role.guard.ts` | Exige el rol adecuado para la ruta |
-| `auth.interceptor.ts` | Adjunta el token JWT a las peticiones HTTP salientes |
+| `auth.interceptor.ts` | Añade el token a las peticiones; ante un `401`, renueva la sesión con la cookie y repite la petición |
+| `sesion-aviso.service.ts` | Avisa antes de cerrar la sesión por inactividad |
+| `reautenticacion.service.ts` | Pide confirmar la identidad antes de las acciones críticas |
 
 ```mermaid
 sequenceDiagram
@@ -105,10 +109,14 @@ sequenceDiagram
     U->>L: credenciales
     L->>S: login()
     S->>API: POST /api/auth/login
-    API-->>S: JWT + roles
-    S->>S: guarda token y sesión
+    API-->>S: JWT (15 min) + roles, y cookie HttpOnly de renovación
+    S->>S: guarda el token y la sesión
     U->>I: cualquier petición HTTP
-    I->>API: añade cabecera Authorization
+    I->>API: añade la cabecera Authorization
+    API-->>I: 401 (token caducado)
+    I->>API: POST /api/auth/refresh (con la cookie)
+    API-->>I: token nuevo
+    I->>API: repite la petición
 ```
 
 ## 4. Área pública
@@ -117,8 +125,8 @@ sequenceDiagram
 
 | Componente | Función | Usuario |
 | :--- | :--- | :--- |
-| `home` | Página de inicio | Todos |
-| `carta` | Menú de productos | Cliente |
+| `home` | Página de inicio con carrusel | Todos |
+| `carta` | Carta con buscador, filtro de alérgenos, paginación y carrito; la mesa sale del QR (`?mesa=`) | Cliente |
 | `confirmar-pedido` | Revisión y confirmación del pedido y pago. Con tarjeta (`PagoService`): pide al servidor si hay pago con tarjeta y su clave publicable, carga Stripe.js solo al elegirla, crea el intento de pago en el servidor, lo confirma con `confirmCardPayment` y crea el pedido con el id del pago. Un pago cobrado cuyo pedido no llega a crearse se guarda en `barhub.pagoPendiente` y se reutiliza al reintentar (si el carrito es el mismo), para no cobrar dos veces | Cliente |
 | `seguimiento-pedidos` | Estado actual del pedido | Cliente |
 | `perfil` | Mi perfil: cabecera con foto y estado de la cuenta, y pestañas como rutas hijas (`datos`, `direccion`, `cuenta`, `seguridad`, `privacidad`). `PerfilService` (proveído en el componente) comparte el perfil entre la cabecera y las pestañas | Todos con sesión |
@@ -127,7 +135,7 @@ sequenceDiagram
 | `gestionar-comandas` | Comandas con actualización automática | Empleado |
 | `gestionar-mesas-empleado` | Estado de las mesas | Empleado |
 | `gestionar-pagos-efectivo` | Registro de pagos en efectivo | Empleado |
-| `gestionar-caja` | Apertura, cierre y transacciones | Empleado |
+| `gestionar-caja` | Apertura, arqueo y cierre, e historial por semana, mes o año con sus totales | Empleado |
 
 ## 5. Área de administración
 
@@ -142,7 +150,7 @@ sequenceDiagram
 | `mesas` | `gestionar-mesas`, `editar-mesas`, `ver-mesa` | Distribución y estado de mesas |
 | `usuarios` | `gestionar-usuarios`, `editar-usuarios`, `ver-usuario` | Cuentas, roles y permisos |
 | `metricas` | — | Estadísticas y rendimiento del negocio |
-| `registro-jornada` | — | Entradas, salidas y horas del personal |
+| `registro-jornada` | — | Entradas, salidas y horas del personal, con rangos rápidos y una tarjeta por empleado |
 | `auditoria` | — | Registro de auditoría con filtros por fechas, usuario, acción y resultado, paginado (`AuditoriaService`) |
 
 ## 6. Componentes compartidos
@@ -151,10 +159,15 @@ sequenceDiagram
 | :--- | :--- |
 | `shared/avisos` | Diálogo de éxito o error y avisos flotantes (`AvisoService` y `<app-avisos>`), ver la sección 8 |
 | `shared/paginador` | `<app-paginador>` (rango, páginas y tamaño, con `[(pagina)]` y `[(tamano)]`) y `paginar()` para cortar una lista en el navegador. Con `(paginaChange)` y `[conTamano]="false"` vale para listados que pagina el servidor, como la auditoría |
+| `shared/i18n` | Idiomas: textos, `IdiomaService`, tuberías `t` y `precio` y selector de idioma (ver la sección 9) |
+| `shared/alergenos` | Los 14 alérgenos y su icono en SVG (`<app-alergeno-icono>`) |
+| `shared/aviso-sesion` | Aviso de que la sesión se va a cerrar por inactividad |
+| `shared/reautenticacion` | Diálogo para confirmar que eres tú antes de una acción crítica |
+| `shared/codigos-recuperacion` | Los códigos de recuperación de la verificación en dos pasos, para copiarlos o descargarlos |
 | `shared/custom-toast` | Notificaciones flotantes (feedback visual) |
 | `shared/footer` | Pie de página común |
 | `shared/modals` | Diálogos reutilizables, p. ej. `modal-confirmar-eliminar` |
-| `uicomponents/menu` | Navegación principal |
+| `uicomponents/menu` | Navegación principal, que se compacta al bajar |
 
 ## 7. Actualización de datos en el cliente
 
@@ -180,7 +193,7 @@ Las comandas, las mesas, los pagos en efectivo y el seguimiento del cliente se a
 | :--- | :--- |
 | `crud-styles.css` | Estilos compartidos del área de administración |
 | Estilos por componente | Hojas específicas de cada vista |
-| `theme.service.ts` | Gestión de temas para adaptabilidad visual |
+| `theme.service.ts` | Modo claro u oscuro. La primera visita siempre en claro; lo que elija el visitante se guarda en el navegador |
 | `assets/` | Imágenes corporativas y de fondo |
 | Fuentes | Inter (texto) y Merriweather (títulos), variables, y los iconos de Material, desde npm (`@fontsource-variable/*`, `material-icons`) en los `styles` de `angular.json`: se sirven con la web, sin Google Fonts (CSP `font-src 'self'`). En el CSS se usan con `var(--fuente-texto)` y `var(--fuente-titulos)` |
 | Transiciones | `enableViewTransitions` en el router; las animaciones están en `styles.css` (`::view-transition-old/new(root)`). La barra y el pie tienen su propio `view-transition-name` para no moverse. Con `prefers-reduced-motion` no hay animación |
@@ -188,6 +201,8 @@ Las comandas, las mesas, los pagos en efectivo y el seguimiento del cliente se a
 | Avisos | `AvisoService` (`shared/avisos`) con señales: `exito()` y `error()` abren un diálogo con título, mensaje, detalles y acciones; `flotante()` muestra un aviso breve. `<app-avisos>` está una sola vez en `app.component.html`. Diálogo para lo que cierra un proceso (pedido hecho, cobro registrado) y flotante para lo que el personal hace muchas veces (comandas, mesas, caja) |
 
 **Accesibilidad (WCAG):** todas las interfaces se refactorizaron para cumplir los ratios mínimos de contraste: colores sólidos optimizados, eliminación de opacidades conflictivas en textos y contraste verificado en botones y elementos interactivos. Además, tras la auditoría de SonarQube, cada `<input>` y `<select>` tiene su `<label>` asociado para ofrecer nombres accesibles.
+
+En la 2.1, a raíz de SonarCloud, se usan elementos nativos en lugar de roles ARIA: `<output>` para los mensajes que se anuncian (en vez de `role="status"`), `<dialog open>` para los diálogos propios (en vez de `role="dialog"`; `styles.css` le quita el estilo del navegador con `:where(dialog.dialogo-propio)`), `<fieldset>` para los grupos de botones y `<ul>` para las listas. Los colores que SonarCloud no podía medir sobre fondos transparentes pasan a fondos sólidos, y los iconos de acción del panel tienen un contraste de 5:1 o más.
 
 ## 9. Idiomas
 

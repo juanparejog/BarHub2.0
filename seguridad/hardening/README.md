@@ -297,7 +297,7 @@ Finalmente, ejecuta `sshd -t` para comprobar la sintaxis de la configuración y 
 **Consideraciones críticas:**
 
 - Debe existir una clave pública autorizada y debe probarse el acceso antes de cerrar la sesión administrativa actual.
-- El cambio del puerto SSH requiere actualizar las reglas del fireawll y las herramientas de conexión.
+- El cambio del puerto SSH requiere actualizar las reglas del firewall y las herramientas de conexión.
 - El script añade directivas al final de `sshd_config` sin eliminar ni modificar las existentes. Las directivas duplicadas pueden provocar que los valores efectivos no sean los esperados.
 - La comprobación `sshd -t` valida la sintaxis, pero no garantiza que la configuración efectiva cumpla las políticas previstas ni que el acceso remoto funcione.
 - La restricción de `AllowTcpForwarding` puede afectar a túneles SSH y a determinados flujos de administración.
