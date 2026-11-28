@@ -246,7 +246,7 @@ export const ES = {
   'auth.usuario': "Nombre de usuario",
   'login.usuario.ejemplo': "Tu usuario",
   'auth.clave': "Contraseña",
-  'login.entrar': "Login",
+  'login.entrar': "Entrar",
   'login.pendiente': "Tu cuenta está pendiente de confirmar. Busca el correo que te enviamos o pide otro.",
   'login.reenviar': "Reenviar correo de confirmación",
   'login.olvido': "¿Has olvidado tu contraseña?",

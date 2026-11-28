@@ -50,12 +50,12 @@
         }
         @if (isAdmin) {
           <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle user-dropdown-toggle d-flex align-items-center gap-2"
+            <a class="nav-link dropdown-toggle user-dropdown-toggle admin-toggle d-flex align-items-center gap-2"
               href="#"
               data-bs-toggle="dropdown"
               aria-expanded="false"
               (keydown.enter)="$event.preventDefault()">
-              <i class="bi bi-shield-lock-fill"></i> Admin
+              <i class="bi bi-shield-lock-fill" aria-hidden="true"></i> Admin
             </a>
             <ul class="dropdown-menu custom-dropdown" aria-labelledby="adminDropdown">
               <li>

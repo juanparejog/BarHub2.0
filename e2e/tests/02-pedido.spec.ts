@@ -32,7 +32,7 @@ test('registro: hasta confirmar el correo no se puede entrar; con el enlace de M
   await page.goto('/auth/login');
   await page.locator('input[formcontrolname="username"]').fill(cliente.usuario);
   await page.locator('input[formcontrolname="password"]').fill(cliente.clave);
-  await page.getByRole('button', { name: 'Login', exact: true }).click();
+  await page.getByRole('button', { name: 'Entrar', exact: true }).click();
   await expect(page.getByText(/Confirma tu correo antes de iniciar sesión/)).toBeVisible();
   await expect(page.getByRole('button', { name: 'Reenviar correo de confirmación' })).toBeVisible();
   expect(await page.evaluate(() => localStorage.getItem('token'))).toBeNull();

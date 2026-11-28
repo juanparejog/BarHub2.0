@@ -52,7 +52,7 @@ test('con la contraseña nueva se entra; con la vieja, no', async ({ page }) => 
   await page.goto('/auth/login');
   await page.locator('input[formcontrolname="username"]').fill(cliente.usuario);
   await page.locator('input[formcontrolname="password"]').fill(cliente.clave);
-  await page.getByRole('button', { name: 'Login', exact: true }).click();
+  await page.getByRole('button', { name: 'Entrar', exact: true }).click();
   await expect(page.getByText('Usuario o contraseña incorrectos')).toBeVisible();
 
   await iniciarSesion(page, cliente.usuario, nuevaClave);

@@ -28,7 +28,7 @@ interface ProductoSeleccionado {
 @Component({
     selector: 'app-carta',
     templateUrl: './carta.component.html',
-    styleUrls: ['./carta.component.css'],
+    styleUrls: ['./carta.component.css', './carta-productos.css', './carta-movil-oscuro.css', './carta-alergenos.css'],
     changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })

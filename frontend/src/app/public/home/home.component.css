@@ -610,3 +610,32 @@
     height: clamp(340px, 28vw, 480px);
   }
 }
+
+/* Móvil: carrusel sin flechas (se pasa deslizando y cambia solo), texto más compacto y más alto
+   para que el título y la frase quepan sobre la foto */
+@media (max-width: 576px) {
+  .home-bar-carousel {
+    border-radius: 18px;
+  }
+
+  .carousel-img {
+    height: 300px;
+  }
+
+  .carousel-control-prev,
+  .carousel-control-next {
+    display: none;
+  }
+
+  .carousel-caption {
+    padding: 48px 18px 18px;
+  }
+
+  .carousel-caption h5 {
+    font-size: 1.45rem;
+  }
+
+  .carousel-caption p {
+    font-size: 0.92rem;
+  }
+}

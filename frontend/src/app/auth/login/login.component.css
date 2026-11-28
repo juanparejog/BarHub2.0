@@ -192,3 +192,48 @@ button:disabled {
     scroll-behavior: auto !important;
   }
 }
+
+/* ==========================================================================
+   COLORES DE LA MARCA: título en Merriweather y azul marino, botón principal
+   azul marino (azul de la marca en modo oscuro), foco azul
+   ========================================================================== */
+:host {
+  --primary: #1d4ed8;
+}
+
+h2 {
+  font-family: var(--fuente-titulos);
+  font-weight: 700;
+  letter-spacing: 0;
+  color: #0a2342;
+}
+
+input:focus {
+  box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.16);
+}
+
+button[type="submit"] {
+  background: #0a2342;
+  color: #ffffff;
+  letter-spacing: 0.02em;
+  border-radius: 10px;
+  box-shadow: 0 10px 20px -12px rgba(10, 35, 66, 0.8);
+  transition: background-color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+}
+
+button[type="submit"]:hover:not(:disabled) {
+  background: #1d4ed8;
+  transform: translateY(-1px);
+}
+
+:host-context(.dark-theme) h2 {
+  color: #f8fafc;
+}
+
+:host-context(.dark-theme) button[type="submit"] {
+  background: #1d4ed8;
+}
+
+:host-context(.dark-theme) button[type="submit"]:hover:not(:disabled) {
+  background: #2563eb;
+}

@@ -11,7 +11,7 @@ import { ProductoService } from '../../admin/pages/productos/services/producto';
 @Component({
     selector: 'app-seguimiento-pedidos',
     templateUrl: './seguimiento-pedidos.component.html',
-    styleUrls: ['./seguimiento-pedidos.component.css'],
+    styleUrls: ['./seguimiento-pedidos.component.css', './seguimiento-pasos.css'],
     changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })

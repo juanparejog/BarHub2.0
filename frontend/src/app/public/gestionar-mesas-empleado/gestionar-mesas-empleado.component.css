@@ -622,3 +622,24 @@
 :host-context(.dark-theme) .qr-instructions {
   color: #cbd5e1;
 }
+
+/* Móvil: los cuatro indicadores en dos columnas para no ocupar toda la pantalla */
+@media (max-width: 576px) {
+  .kpi-bar {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  .kpi-card {
+    padding: 12px;
+    gap: 10px;
+  }
+
+  .kpi-card .kpi-value {
+    font-size: 1.35rem;
+  }
+
+  .kpi-card .kpi-label {
+    font-size: 0.68rem;
+  }
+}

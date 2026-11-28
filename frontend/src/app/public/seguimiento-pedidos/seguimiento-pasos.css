@@ -1,0 +1,278 @@
+/* Seguimiento: colores por paso, etiqueta del estado, secciones y rejilla. Va después de seguimiento-pedidos.component.css. */
+
+/* ==========================================================================
+   SEGUIMIENTO 2: cada paso con su color (azul, ámbar, índigo y verde solo
+   al entregarlo), etiqueta del estado, secciones y rejilla a dos columnas
+   ========================================================================== */
+
+:host {
+  --c-recibido: #1d4ed8;
+  --c-cocina: #d97706;
+  --c-listo: #4f46e5;
+  --c-entregado: #059669;
+  --primary: #0a2342;
+}
+
+:host-context(.dark-theme) {
+  --c-recibido: #60a5fa;
+  --c-cocina: #fbbf24;
+  --c-listo: #a5b4fc;
+  --c-entregado: #34d399;
+  --primary: #e2e8f0;
+}
+
+.pedidos-container {
+  max-width: 1400px;
+}
+
+.pedidos-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  text-align: left;
+}
+
+.pedidos-header h2 {
+  font-family: var(--fuente-titulos);
+  margin-bottom: 0.25rem;
+}
+
+.pedidos-header-icono {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.6rem;
+  color: #ffffff;
+  background: linear-gradient(135deg, #0a2342 0%, #1d4ed8 100%);
+  box-shadow: 0 10px 24px -10px rgba(10, 35, 66, 0.7);
+}
+
+.pedidos-subtitle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+}
+
+/* Punto «en directo»: los cambios llegan solos */
+.directo-punto {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #10b981;
+  color: #10b981;
+  animation: latido 2s infinite;
+}
+
+.pedidos-seccion {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0 0 1rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+
+.pedidos-seccion-cuenta {
+  min-width: 1.6rem;
+  height: 1.6rem;
+  padding: 0 0.45rem;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+  font-size: 0.78rem;
+}
+
+.pedidos-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 560px), 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2.5rem;
+}
+
+.pedido-card {
+  margin-bottom: 0;
+  position: relative;
+  --c: var(--c-recibido);
+}
+
+.pedido-card.nivel-2 { --c: var(--c-cocina); }
+.pedido-card.nivel-3 { --c: var(--c-listo); }
+.pedido-card.nivel-4 { --c: var(--c-entregado); }
+
+/* Franja de color del estado a la izquierda de la tarjeta */
+.pedido-card::before {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 5px;
+  background: var(--c);
+  transition: background-color 0.4s ease;
+}
+
+.pedido-card-header {
+  background: color-mix(in srgb, var(--c) 6%, var(--card-bg));
+}
+
+.price-amount {
+  color: var(--text-main);
+}
+
+/* Etiqueta del estado actual */
+.estado-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 0.5rem;
+  padding: 0.3rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--c);
+  background: color-mix(in srgb, var(--c) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--c) 30%, transparent);
+  transition: color 0.4s ease, background-color 0.4s ease, border-color 0.4s ease;
+}
+
+.estado-pill-punto {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--c);
+  animation: latido 1.8s infinite;
+}
+
+.pedido-price-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+/* Pasos: cada uno con su color */
+.tracker-step { --c: var(--c-recibido); }
+.tracker-step.paso-cocina { --c: var(--c-cocina); }
+.tracker-step.paso-listo { --c: var(--c-listo); }
+.tracker-step.paso-entregado { --c: var(--c-entregado); }
+
+.tracker-step.completed .step-icon-wrapper {
+  background: var(--c);
+  color: #ffffff;
+  box-shadow: 0 0 0 2px var(--c);
+}
+
+.tracker-step.completed .step-label {
+  color: var(--c);
+}
+
+.tracker-step.active .step-icon-wrapper {
+  position: relative;
+  background: var(--c);
+  color: #ffffff;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--c) 30%, transparent), 0 8px 20px -6px var(--c);
+  animation: none;
+  transform: scale(1.08);
+}
+
+/* Onda que sale del paso actual */
+.tracker-step.active .step-icon-wrapper::after {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  border: 2px solid var(--c);
+  animation: onda 1.8s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+}
+
+.tracker-step.active .step-label {
+  color: var(--c);
+}
+
+.tracker-line.completed::after {
+  background: linear-gradient(90deg, var(--a), var(--b));
+}
+
+.tracker-line.linea-1 { --a: var(--c-recibido); --b: var(--c-cocina); }
+.tracker-line.linea-2 { --a: var(--c-cocina); --b: var(--c-listo); }
+.tracker-line.linea-3 { --a: var(--c-listo); --b: var(--c-entregado); }
+
+:host-context(.dark-theme) .tracker-step.active .step-icon-wrapper,
+:host-context(.dark-theme) .tracker-step.completed .step-icon-wrapper {
+  background: var(--c);
+  color: #0f172a;
+  border-color: var(--card-bg);
+}
+
+:host-context(.dark-theme) .pedido-card-header {
+  background: color-mix(in srgb, var(--c) 8%, #243044);
+}
+
+.btn-ver-carta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1.25rem;
+  padding: 0.7rem 1.4rem;
+  border-radius: 999px;
+  background: #0a2342;
+  color: #ffffff;
+  font-weight: 700;
+  text-decoration: none;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.btn-ver-carta:hover {
+  color: #ffffff;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px -10px rgba(10, 35, 66, 0.8);
+}
+
+:host-context(.dark-theme) .btn-ver-carta {
+  background: #1d4ed8;
+}
+
+@keyframes latido {
+  0% { box-shadow: 0 0 0 0 color-mix(in srgb, currentColor 50%, transparent); opacity: 1; }
+  70% { box-shadow: 0 0 0 8px transparent; opacity: 0.85; }
+  100% { box-shadow: 0 0 0 0 transparent; opacity: 1; }
+}
+
+@keyframes onda {
+  from { transform: scale(1); opacity: 0.7; }
+  to { transform: scale(1.55); opacity: 0; }
+}
+
+@media (max-width: 640px) {
+  .pedidos-header {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .pedido-card-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .pedido-price-info {
+    align-items: flex-start;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .directo-punto,
+  .estado-pill-punto,
+  .tracker-step.active .step-icon-wrapper::after {
+    animation: none;
+  }
+}

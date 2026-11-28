@@ -1,0 +1,189 @@
+/* Carta: pantallas pequeñas y modo oscuro. Va después de carta.component.css (styleUrls) y lo sobrescribe. */
+
+  /* ==========================================================================
+     OPTIMIZACIONES ESPECÍFICAS PARA PANTALLAS MÓVILES (< 640px)
+     ========================================================================== */
+
+  @media (max-width: 640px) {
+    .carta-wrapper {
+      padding: 12px 10px 120px 10px;
+    }
+
+    .card-modalidad {
+      padding: 16px;
+      border-radius: 16px;
+    }
+
+    .modalidad-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .modalidad-titles h2 {
+      font-size: 1.5rem;
+    }
+
+    .modalidad-switch-group {
+      width: 100%;
+    }
+
+    /* Icono encima del texto: los tres caben sin partir «En local / Mesa» en dos líneas sueltas */
+    .btn-switch {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      padding: 8px 6px;
+      font-size: 0.78rem;
+      line-height: 1.2;
+      text-align: center;
+    }
+
+    .btn-switch i {
+      font-size: 1.1rem;
+      margin: 0;
+    }
+
+    .domicilio-grid {
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .col-half, .col-third {
+      grid-column: span 12;
+    }
+
+    /* --- LAYOUT HORIZONTAL DE PRODUCTO EN MÓVIL (TIPO APP) --- */
+    .productos-grid {
+      grid-template-columns: 1fr; /* Una sola columna */
+      gap: 12px;
+    }
+
+    .product-card {
+      flex-direction: row; /* Fila horizontal */
+      height: auto;
+      align-items: center;
+      border-radius: 14px;
+    }
+
+    .product-img-wrapper {
+      width: 105px;
+      min-width: 105px;
+      height: 105px;
+    }
+
+    .price-badge {
+      display: none; /* Se oculta de la imagen en móvil y pasa abajo al footer */
+    }
+
+    .product-card-body {
+      padding: 12px;
+      width: 100%;
+      gap: 4px;
+    }
+
+    .product-title {
+      font-size: 0.98rem;
+      margin-bottom: 2px;
+    }
+
+    .product-description {
+      font-size: 0.8rem;
+      -webkit-line-clamp: 2;
+    }
+
+    .product-card-footer {
+      margin-top: 8px;
+      padding-top: 6px;
+      border-top: none;
+    }
+
+    .product-price {
+      font-size: 1.05rem;
+    }
+
+    /* Ajuste de Botones del Carrito Flotante */
+    .floating-cart-content {
+      padding: 10px 14px;
+      border-radius: 16px;
+    }
+
+    .cart-total-amount {
+      font-size: 1.1rem;
+    }
+
+    .btn-confirm-order {
+      padding: 10px 16px;
+      font-size: 0.85rem;
+    }
+  }
+
+  /* ==========================================================================
+   MODO OSCURO - CARTA (Añadir debajo del :host actual)
+   ========================================================================== */
+:host-context(.dark-theme) {
+  --primary: #60a5fa;
+  --primary-hover: #3b82f6;
+  --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  --card-bg: #1e293b;
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --border-color: rgba(255, 255, 255, 0.1);
+  --shadow-sm: 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+  --shadow-md: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 20px 30px -10px rgba(0, 0, 0, 0.4);
+}
+
+/* Sobrescribir fondos con colores fijos en la Carta */
+:host-context(.dark-theme) .modalidad-switch-group,
+:host-context(.dark-theme) .input-select-wrapper,
+:host-context(.dark-theme) .form-select-custom,
+:host-context(.dark-theme) .form-input,
+:host-context(.dark-theme) .input-icon,
+:host-context(.dark-theme) .tienda-fixed-info,
+:host-context(.dark-theme) .quantity-controls,
+:host-context(.dark-theme) .vivienda-radio-btn,
+:host-context(.dark-theme) .btn-back {
+  background-color: #0f172a;
+  color: var(--text-main);
+  border-color: var(--border-color);
+}
+
+:host-context(.dark-theme) .product-img-wrapper {
+  background-color: #0f172a;
+}
+
+:host-context(.dark-theme) .btn-filter {
+  background: #1e293b;
+  color: #e2e8f0;
+}
+
+:host-context(.dark-theme) .categorias-filter-bar {
+  background: rgba(15, 23, 42, 0.85);
+}
+
+:host-context(.dark-theme) .btn-switch:hover:not(.active) {
+  background-color: #334155;
+  color: #ffffff;
+}
+
+/* Modo oscuro: contraste revisado (WCAG AA) */
+:host-context(.dark-theme) .cart-items-count {
+  color: #f1f5f9;
+}
+
+:host-context(.dark-theme) .required-asterisk {
+  color: #fbd0d0;
+}
+
+:host-context(.dark-theme) .lock-warning-banner {
+  background: #411616;
+  color: #ed9797;
+}
+
+:host-context(.dark-theme) .tienda-fixed-info.bg-body-tertiary {
+  background-color: #0f172a !important;
+}

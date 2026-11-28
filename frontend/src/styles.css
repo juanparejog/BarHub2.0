@@ -81,9 +81,9 @@ h1 {
 @media (max-width: 768px) {
   
   /* Ajustes del contenedor principal y secciones */
+  /* El carrusel no: con este relleno y fondo blanco quedaba la foto dentro de un marco */
   .contenedor-principal,
   .home-bar-content,
-  .home-bar-carousel,
   .home-bar-map {
     width: 100%;
     max-width: 100%;

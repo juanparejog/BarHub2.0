@@ -609,3 +609,72 @@
   color: #e2e8f0 !important;
   border-color: #334155 !important;
 }
+
+/* ==========================================================================
+   TERMINAL DE COBRO: pegado bajo la barra en escritorio y, en móvil y tablet,
+   como hoja que sube desde abajo (antes aparecía al final de una lista larga)
+   ========================================================================== */
+.terminal-card {
+  position: sticky;
+  top: calc(var(--alto-barra) + 20px);
+}
+
+@media (max-width: 991.98px) {
+  .terminal-fondo {
+    position: fixed;
+    inset: 0;
+    z-index: 1044;
+    background: rgba(10, 35, 66, 0.45);
+    backdrop-filter: blur(2px);
+    animation: fondoAparece 0.2s ease both;
+  }
+
+  .terminal-columna {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1045;
+    max-height: 92vh;
+    padding: 0 !important;
+    margin: 0 !important;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    animation: hojaSube 0.32s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  .terminal-columna .terminal-card {
+    position: relative;
+    top: auto;
+    border-radius: 20px 20px 0 0 !important;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  /* Asa de la hoja */
+  .terminal-columna .terminal-card::before {
+    content: '';
+    display: block;
+    width: 42px;
+    height: 5px;
+    margin: 8px auto 0;
+    border-radius: 999px;
+    background: rgba(100, 116, 139, 0.35);
+  }
+}
+
+@keyframes hojaSube {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+@keyframes fondoAparece {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .terminal-fondo,
+  .terminal-columna {
+    animation: none;
+  }
+}

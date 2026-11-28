@@ -35,7 +35,7 @@ test.describe('Visitante sin sesión', () => {
     await page.goto('/auth/login');
     await page.locator('input[formcontrolname="username"]').fill(`noexiste_${Date.now().toString(36)}`);
     await page.locator('input[formcontrolname="password"]').fill('ClaveIncorrecta1');
-    await page.getByRole('button', { name: 'Login', exact: true }).click();
+    await page.getByRole('button', { name: 'Entrar', exact: true }).click();
     await expect(page.getByText('Usuario o contraseña incorrectos')).toBeVisible();
     await expect(page).toHaveURL(/\/auth\/login$/);
     expect(await page.evaluate(() => localStorage.getItem('token'))).toBeNull();

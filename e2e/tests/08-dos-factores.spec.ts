@@ -17,7 +17,7 @@ async function escribirContrasena(page: import('@playwright/test').Page): Promis
   await page.goto('/auth/login');
   await page.locator('input[formcontrolname="username"]').fill(empleado.usuario);
   await page.locator('input[formcontrolname="password"]').fill(empleado.clave);
-  await page.getByRole('button', { name: 'Login', exact: true }).click();
+  await page.getByRole('button', { name: 'Entrar', exact: true }).click();
   await expect(page).toHaveURL(/\/auth\/2fa$/);
 }
 

@@ -80,7 +80,7 @@ export async function iniciarSesion(page: Page, usuario: string, clave: string):
   await page.goto('/auth/login');
   await page.locator('input[formcontrolname="username"]').fill(usuario);
   await page.locator('input[formcontrolname="password"]').fill(clave);
-  await page.getByRole('button', { name: 'Login', exact: true }).click();
+  await page.getByRole('button', { name: 'Entrar', exact: true }).click();
   await expect(page).toHaveURL(/\/(carta|auth\/2fa)$/);
   if (page.url().endsWith('/auth/2fa')) {
     await pasarSegundoPaso(page, usuario);

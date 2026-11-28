@@ -327,3 +327,55 @@
       background: #1d4ed8;
       color: #ffffff;
   }
+/* ==========================================================================
+   DESPLEGABLE «ADMIN»: el triángulo de Bootstrap (::after) chocaba con la
+   línea animada de los enlaces; se recoloca a la derecha del texto y gira al
+   abrir. En el menú del móvil, alineado a la izquierda como los demás.
+   ========================================================================== */
+.main-nav-links .admin-toggle {
+  justify-content: flex-start !important;
+}
+
+.main-nav-links .nav-link.admin-toggle::after,
+.main-nav-links .nav-link.admin-toggle:hover::after,
+.main-nav-links .nav-link.admin-toggle.active::after {
+  display: inline-block;
+  position: static;
+  width: 0;
+  height: 0;
+  left: auto;
+  bottom: auto;
+  margin-left: 0.1em;
+  background: none;
+  border-radius: 0;
+  border-top: 0.32em solid currentColor;
+  border-right: 0.32em solid transparent;
+  border-left: 0.32em solid transparent;
+  border-bottom: 0;
+  vertical-align: middle;
+  transition: transform 0.2s ease;
+}
+
+.main-nav-links .nav-link.admin-toggle[aria-expanded="true"]::after {
+  transform: rotate(180deg);
+}
+
+@media (max-width: 991.98px) {
+  .main-nav-links .admin-toggle {
+    padding: 10px 12px !important;
+    border-radius: 6px;
+  }
+
+  .main-nav-links .nav-link.admin-toggle::after,
+  .main-nav-links .nav-link.admin-toggle:hover::after,
+  .main-nav-links .nav-link.admin-toggle.active::after {
+    margin-left: auto;
+  }
+
+  .main-nav-links .custom-dropdown {
+    margin-top: 4px !important;
+    background: rgba(255, 255, 255, 0.04);
+    border-color: rgba(255, 255, 255, 0.08);
+    box-shadow: none;
+  }
+}
